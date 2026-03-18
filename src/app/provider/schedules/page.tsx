@@ -11,11 +11,13 @@ export default function SchedulesPage() {
   const [schedules, setSchedules] = useState<any[]>([])
   const [routes, setRoutes] = useState<any[]>([])
   const [buses, setBuses] = useState<any[]>([])
+  const [drivers, setDrivers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   const [routeId, setRouteId] = useState('')
   const [busId, setBusId] = useState('')
+  const [driverId, setDriverId] = useState('')
   const [departureTime, setDepartureTime] = useState('06:00')
   const [arrivalTime, setArrivalTime] = useState('18:00')
   const [daysOfWeek, setDaysOfWeek] = useState('1,2,3,4,5,6,7')
@@ -32,10 +34,12 @@ export default function SchedulesPage() {
         fetch('/api/schedules').then(r => r.json()),
         fetch('/api/routes').then(r => r.json()),
         fetch('/api/buses').then(r => r.json()),
-      ]).then(([sData, rData, bData]) => {
+        fetch('/api/drivers').then(r => r.json()),
+      ]).then(([sData, rData, bData, dData]) => {
         setSchedules(Array.isArray(sData) ? sData : [])
         setRoutes(Array.isArray(rData) ? rData : [])
         setBuses(Array.isArray(bData) ? bData : [])
+        setDrivers(Array.isArray(dData) ? dData : [])
         setLoading(false)
       })
     }
@@ -78,7 +82,7 @@ export default function SchedulesPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        routeId, busId, departureTime, arrivalTime, daysOfWeek, basePrice, tripDate, stopTimes,
+        routeId, busId, departureTime, arrivalTime, daysOfWeek, basePrice, tripDate, stopTimes, driverId: driverId || undefined,
       }),
     })
 
@@ -134,6 +138,16 @@ export default function SchedulesPage() {
             </div>
           </div>
 
+          <div>
+            <label className="block text-dark-400 text-sm mb-1.5">Driver (optional)</label>
+            <select value={driverId} onChange={e => setDriverId(e.target.value)} className="input-field w-full">
+              <option value="">No driver assigned</option>
+              {drivers.map((d: any) => (
+                <option key={d.id} value={d.id}>{d.name} ({d.email})</option>
+              ))}
+            </select>
+          </div>
+
           {selectedRoute && (
             <div className="text-sm text-dark-400">
               Stops: {selectedRoute.stops?.sort((a: any, b: any) => a.orderIndex - b.orderIndex).map((s: any) => s.name).join(' → ')}
@@ -186,7 +200,33 @@ export default function SchedulesPage() {
                   </p>
                   <p className="text-dark-500 text-xs mt-1">
                     Date: {s.tripDate} • Days: {s.daysOfWeek} • Bookings: {s.bookings?.length || 0}
+                    {s.driver && <> • Driver: {s.driver.name}</>}
                   </p>
+                  {s.status === 'ACTIVE' && (
+                    <div className="mt-1.5">
+                      <select
+                        value={s.driver?.id || ''}
+                        onChange={async (e) => {
+                          const res = await fetch('/api/schedules', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: s.id, driverId: e.target.value || null }),
+                          })
+                          if (res.ok) {
+                            toast.success('Driver updated')
+                            const data = await fetch('/api/schedules').then(r => r.json())
+                            setSchedules(Array.isArray(data) ? data : [])
+                          }
+                        }}
+                        className="input-field text-xs py-1 px-2"
+                      >
+                        <option value="">No driver</option>
+                        {drivers.map((d: any) => (
+                          <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   {s.stopTimes?.length > 0 && (
                     <div className="flex items-center gap-1 mt-2 flex-wrap">
                       {s.stopTimes.map((st: any, i: number) => (

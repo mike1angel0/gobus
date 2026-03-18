@@ -25,12 +25,24 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== 'PROVIDER') {
+  const role = (session?.user as any)?.role
+  if (!session || (role !== 'PROVIDER' && role !== 'DRIVER')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const body = await request.json()
   const { scheduleId, offsetMinutes, reason, note, tripDate } = body
+
+  // For DRIVER: validate they are assigned to this schedule
+  if (role === 'DRIVER') {
+    const userId = (session.user as any).id
+    const schedule = await prisma.schedule.findFirst({
+      where: { id: scheduleId, driverId: userId },
+    })
+    if (!schedule) {
+      return NextResponse.json({ error: 'Not assigned to this schedule' }, { status: 403 })
+    }
+  }
 
   // Deactivate previous delays for this trip
   await prisma.delay.updateMany({

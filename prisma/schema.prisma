@@ -12,10 +12,11 @@ model User {
   name          String
   email         String    @unique
   password      String
-  role          String    @default("PASSENGER") // PASSENGER or PROVIDER
+  role          String    @default("PASSENGER") // PASSENGER, PROVIDER, or DRIVER
   providerId    String?
   provider      Provider? @relation(fields: [providerId], references: [id])
   bookings      Booking[]
+  assignedSchedules Schedule[] @relation("DriverSchedules")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -88,6 +89,8 @@ model Schedule {
   route         Route     @relation(fields: [routeId], references: [id])
   busId         String
   bus           Bus       @relation(fields: [busId], references: [id])
+  driverId      String?
+  driver        User?     @relation("DriverSchedules", fields: [driverId], references: [id])
   departureTime String    // HH:mm format
   arrivalTime   String    // HH:mm format
   daysOfWeek    String    // comma-separated: "1,2,3,4,5" for Mon-Fri

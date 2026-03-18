@@ -37,6 +37,7 @@ export async function GET(request: Request) {
     include: {
       route: true,
       bus: true,
+      driver: { select: { id: true, name: true, email: true } },
       stopTimes: { orderBy: { orderIndex: 'asc' } },
       bookings: { where: { status: 'CONFIRMED' } },
       delays: { where: { active: true } },
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { routeId, busId, departureTime, arrivalTime, daysOfWeek, basePrice, tripDate, stopTimes } = body
+  const { routeId, busId, departureTime, arrivalTime, daysOfWeek, basePrice, tripDate, stopTimes, driverId } = body
 
   const schedule = await prisma.schedule.create({
     data: {
@@ -64,6 +65,7 @@ export async function POST(request: Request) {
       daysOfWeek,
       basePrice,
       tripDate,
+      driverId: driverId || null,
       stopTimes: {
         create: stopTimes.map((st: any, i: number) => ({
           stopName: st.stopName,
@@ -77,6 +79,32 @@ export async function POST(request: Request) {
     include: {
       route: true,
       bus: true,
+      driver: { select: { id: true, name: true, email: true } },
+      stopTimes: { orderBy: { orderIndex: 'asc' } },
+    },
+  })
+
+  return NextResponse.json(schedule)
+}
+
+export async function PUT(request: Request) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user as any).role !== 'PROVIDER') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const body = await request.json()
+  const { id, driverId } = body
+
+  if (!id) return NextResponse.json({ error: 'Schedule ID required' }, { status: 400 })
+
+  const schedule = await prisma.schedule.update({
+    where: { id },
+    data: { driverId: driverId || null },
+    include: {
+      route: true,
+      bus: true,
+      driver: { select: { id: true, name: true, email: true } },
       stopTimes: { orderBy: { orderIndex: 'asc' } },
     },
   })

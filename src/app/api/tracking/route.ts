@@ -42,12 +42,28 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== 'PROVIDER') {
+  const role = (session?.user as any)?.role
+  if (!session || (role !== 'PROVIDER' && role !== 'DRIVER')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const body = await request.json()
   const { busId, latitude, longitude, speed, heading, scheduleId, currentStopIndex, isActive, tripDate } = body
+
+  // For DRIVER: validate they are assigned to this schedule and the bus matches
+  if (role === 'DRIVER') {
+    const userId = (session.user as any).id
+    const schedule = await prisma.schedule.findFirst({
+      where: { id: scheduleId, driverId: userId },
+      include: { bus: true },
+    })
+    if (!schedule) {
+      return NextResponse.json({ error: 'Not assigned to this schedule' }, { status: 403 })
+    }
+    if (schedule.busId !== busId) {
+      return NextResponse.json({ error: 'Bus does not match schedule' }, { status: 403 })
+    }
+  }
 
   const tracking = await prisma.busTracking.upsert({
     where: { busId },

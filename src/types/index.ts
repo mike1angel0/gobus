@@ -62,6 +62,21 @@ export interface SearchResult {
   stops: StopTimeData[]
 }
 
+export interface DriverData {
+  id: string
+  name: string
+  email: string
+  createdAt?: string
+  assignedSchedules?: {
+    id: string
+    route: { name: string }
+    bus: { model: string; licensePlate: string }
+    departureTime: string
+    arrivalTime: string
+    tripDate?: string
+  }[]
+}
+
 export interface BookingData {
   id: string
   scheduleId: string

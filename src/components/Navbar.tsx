@@ -9,6 +9,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const isProvider = (session?.user as any)?.role === 'PROVIDER'
+  const isDriver = (session?.user as any)?.role === 'DRIVER'
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-dark-700/50">
@@ -43,10 +44,17 @@ export default function Navbar() {
                     <Link href="/provider/schedules" className="text-dark-300 hover:text-white transition-colors text-sm">
                       Schedules
                     </Link>
+                    <Link href="/provider/drivers" className="text-dark-300 hover:text-white transition-colors text-sm">
+                      Drivers
+                    </Link>
                     <Link href="/provider/tracking" className="text-dark-300 hover:text-white transition-colors text-sm">
                       Tracking
                     </Link>
                   </>
+                ) : isDriver ? (
+                  <Link href="/driver/trips" className="text-dark-300 hover:text-white transition-colors text-sm">
+                    My Trips
+                  </Link>
                 ) : (
                   <Link href="/my-trips" className="text-dark-300 hover:text-white transition-colors text-sm">
                     My Trips
@@ -101,8 +109,11 @@ export default function Navbar() {
                     <Link href="/provider/routes" className="block text-dark-300 hover:text-white py-2 text-sm" onClick={() => setMenuOpen(false)}>Routes</Link>
                     <Link href="/provider/fleet" className="block text-dark-300 hover:text-white py-2 text-sm" onClick={() => setMenuOpen(false)}>Fleet</Link>
                     <Link href="/provider/schedules" className="block text-dark-300 hover:text-white py-2 text-sm" onClick={() => setMenuOpen(false)}>Schedules</Link>
+                    <Link href="/provider/drivers" className="block text-dark-300 hover:text-white py-2 text-sm" onClick={() => setMenuOpen(false)}>Drivers</Link>
                     <Link href="/provider/tracking" className="block text-dark-300 hover:text-white py-2 text-sm" onClick={() => setMenuOpen(false)}>Tracking</Link>
                   </>
+                ) : isDriver ? (
+                  <Link href="/driver/trips" className="block text-dark-300 hover:text-white py-2 text-sm" onClick={() => setMenuOpen(false)}>My Trips</Link>
                 ) : (
                   <Link href="/my-trips" className="block text-dark-300 hover:text-white py-2 text-sm" onClick={() => setMenuOpen(false)}>My Trips</Link>
                 )}

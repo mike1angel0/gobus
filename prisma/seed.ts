@@ -58,6 +58,17 @@ async function main() {
     data: { name: 'Central EU Admin', email: 'admin@centraleu.de', password, role: 'PROVIDER', providerId: centralEU.id },
   })
 
+  // Create driver users
+  const driver1 = await prisma.user.create({
+    data: { name: 'Ion Popescu', email: 'ion.driver@eurolines.eu', password, role: 'DRIVER', providerId: eurolines.id },
+  })
+  const driver2 = await prisma.user.create({
+    data: { name: 'Andrei Ionescu', email: 'andrei.driver@eurolines.eu', password, role: 'DRIVER', providerId: eurolines.id },
+  })
+  const driver3 = await prisma.user.create({
+    data: { name: 'Dimitar Petrov', email: 'dimitar.driver@balkanbus.com', password, role: 'DRIVER', providerId: balkanBus.id },
+  })
+
   // Create passenger users
   const passenger1 = await prisma.user.create({
     data: { name: 'Maria Popescu', email: 'maria@example.com', password, role: 'PASSENGER' },
@@ -286,7 +297,7 @@ async function main() {
     // Schedule 1: Bucharest → Vienna, morning
     prisma.schedule.create({
       data: {
-        routeId: route1.id, busId: bus1.id,
+        routeId: route1.id, busId: bus1.id, driverId: driver1.id,
         departureTime: '06:00', arrivalTime: '18:00',
         daysOfWeek: '1,2,3,4,5,6,7', basePrice: 45,
         tripDate: todayStr,
@@ -305,7 +316,7 @@ async function main() {
     // Schedule 2: Bucharest → Vienna, evening
     prisma.schedule.create({
       data: {
-        routeId: route1.id, busId: bus2.id,
+        routeId: route1.id, busId: bus2.id, driverId: driver2.id,
         departureTime: '20:00', arrivalTime: '08:00',
         daysOfWeek: '1,3,5,7', basePrice: 40,
         tripDate: todayStr,
@@ -341,7 +352,7 @@ async function main() {
     // Schedule 4: Sofia → Budapest
     prisma.schedule.create({
       data: {
-        routeId: route3.id, busId: bus3.id,
+        routeId: route3.id, busId: bus3.id, driverId: driver3.id,
         departureTime: '08:00', arrivalTime: '17:00',
         daysOfWeek: '1,2,3,4,5', basePrice: 35,
         tripDate: todayStr,
@@ -632,6 +643,9 @@ async function main() {
   console.log('  Provider: admin@eurolines.eu / password123')
   console.log('  Provider: admin@balkanbus.com / password123')
   console.log('  Provider: admin@centraleu.de / password123')
+  console.log('  Driver: ion.driver@eurolines.eu / password123')
+  console.log('  Driver: andrei.driver@eurolines.eu / password123')
+  console.log('  Driver: dimitar.driver@balkanbus.com / password123')
   console.log('  Passenger: maria@example.com / password123')
   console.log('  Passenger: hans@example.com / password123')
 }
