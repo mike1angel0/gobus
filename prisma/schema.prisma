@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          String    @default("PASSENGER") // PASSENGER or PROVIDER
+  providerId    String?
+  provider      Provider? @relation(fields: [providerId], references: [id])
+  bookings      Booking[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Provider {
+  id          String     @id @default(cuid())
+  name        String
+  logo        String?
+  contactEmail String
+  contactPhone String?
+  users       User[]
+  routes      Route[]
+  buses       Bus[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Route {
+  id          String     @id @default(cuid())
+  name        String
+  providerId  String
+  provider    Provider   @relation(fields: [providerId], references: [id])
+  stops       Stop[]
+  schedules   Schedule[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Stop {
+  id          String   @id @default(cuid())
+  name        String
+  latitude    Float
+  longitude   Float
+  orderIndex  Int
+  routeId     String
+  route       Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Bus {
+  id            String     @id @default(cuid())
+  licensePlate  String
+  model         String
+  capacity      Int
+  rows          Int
+  columns       Int
+  providerId    String
+  provider      Provider   @relation(fields: [providerId], references: [id])
+  seats         Seat[]
+  schedules     Schedule[]
+  tracking      BusTracking?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Seat {
+  id        String   @id @default(cuid())
+  row       Int
+  column    Int
+  label     String
+  type      String   @default("STANDARD") // STANDARD, PREMIUM, DISABLED_ACCESSIBLE, BLOCKED
+  price     Float    @default(0)
+  busId     String
+  bus       Bus      @relation(fields: [busId], references: [id], onDelete: Cascade)
+}
+
+model Schedule {
+  id            String    @id @default(cuid())
+  routeId       String
+  route         Route     @relation(fields: [routeId], references: [id])
+  busId         String
+  bus           Bus       @relation(fields: [busId], references: [id])
+  departureTime String    // HH:mm format
+  arrivalTime   String    // HH:mm format
+  daysOfWeek    String    // comma-separated: "1,2,3,4,5" for Mon-Fri
+  basePrice     Float
+  status        String    @default("ACTIVE") // ACTIVE, CANCELLED
+  stopTimes     StopTime[]
+  bookings      Booking[]
+  delays        Delay[]
+  tripDate      String?   // specific date for a trip instance YYYY-MM-DD
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model StopTime {
+  id          String   @id @default(cuid())
+  scheduleId  String
+  schedule    Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  stopName    String
+  arrivalTime String   // HH:mm
+  departureTime String // HH:mm
+  orderIndex  Int
+  priceFromStart Float @default(0)
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  scheduleId  String
+  schedule    Schedule @relation(fields: [scheduleId], references: [id])
+  seatLabels  String   // comma-separated seat labels
+  totalPrice  Float
+  status      String   @default("CONFIRMED") // CONFIRMED, CANCELLED, COMPLETED
+  boardingStop String
+  alightingStop String
+  tripDate    String   // YYYY-MM-DD
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Delay {
+  id          String   @id @default(cuid())
+  scheduleId  String
+  schedule    Schedule @relation(fields: [scheduleId], references: [id])
+  offsetMinutes Int
+  reason      String   // TRAFFIC, MECHANICAL, WEATHER, OTHER
+  note        String?
+  tripDate    String   // YYYY-MM-DD
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BusTracking {
+  id          String   @id @default(cuid())
+  busId       String   @unique
+  bus         Bus      @relation(fields: [busId], references: [id])
+  latitude    Float
+  longitude   Float
+  speed       Float    @default(0)
+  heading     Float    @default(0)
+  scheduleId  String?
+  currentStopIndex Int @default(0)
+  isActive    Boolean  @default(false)
+  tripDate    String?
+  updatedAt   DateTime @updatedAt
+}
