@@ -5,6 +5,7 @@ export interface SeatData {
   label: string
   type: 'STANDARD' | 'PREMIUM' | 'DISABLED_ACCESSIBLE' | 'BLOCKED'
   price: number
+  isEnabled?: boolean
   isOccupied?: boolean
   isSelected?: boolean
 }
@@ -75,6 +76,74 @@ export interface DriverData {
     arrivalTime: string
     tripDate?: string
   }[]
+}
+
+export interface UserProfile {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  emergencyContact?: string
+  notificationPrefs?: string
+  role: string
+  provider?: {
+    id: string
+    name: string
+  }
+}
+
+export interface MessageData {
+  id: string
+  senderId: string
+  receiverId: string
+  content: string
+  read: boolean
+  createdAt: string
+  sender: { id: string; name: string }
+  receiver: { id: string; name: string }
+}
+
+export interface DriverPerformance {
+  id: string
+  name: string
+  trips: number
+  onTimeRate: number
+  avgDelay: number
+  status: string
+}
+
+export interface AdminStats {
+  totalProviders: number
+  totalUsers: number
+  totalBookings: number
+  totalRevenue: number
+}
+
+export interface ProviderSummary {
+  id: string
+  name: string
+  contactEmail: string
+  status: string
+  routeCount: number
+  busCount: number
+  userCount: number
+}
+
+export interface ActivityItem {
+  id: string
+  type: string
+  description: string
+  timestamp: string
+}
+
+export interface BusTemplate {
+  id: string
+  name: string
+  category: 'coach' | 'minibus' | 'microbus'
+  rows: number
+  columns: number
+  description: string
+  seatTypes: Record<string, string>
 }
 
 export interface BookingData {

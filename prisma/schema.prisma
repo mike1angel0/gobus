@@ -8,17 +8,23 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  password      String
-  role          String    @default("PASSENGER") // PASSENGER, PROVIDER, or DRIVER
-  providerId    String?
-  provider      Provider? @relation(fields: [providerId], references: [id])
-  bookings      Booking[]
+  id                String    @id @default(cuid())
+  name              String
+  email             String    @unique
+  password          String
+  role              String    @default("PASSENGER") // PASSENGER, PROVIDER, DRIVER, or ADMIN
+  phone             String?
+  emergencyContact  String?
+  avatarUrl         String?
+  notificationPrefs String?   // JSON string
+  providerId        String?
+  provider          Provider? @relation(fields: [providerId], references: [id])
+  bookings          Booking[]
   assignedSchedules Schedule[] @relation("DriverSchedules")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  sentMessages      Message[] @relation("SentMessages")
+  receivedMessages  Message[] @relation("ReceivedMessages")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model Provider {
@@ -27,11 +33,23 @@ model Provider {
   logo        String?
   contactEmail String
   contactPhone String?
+  status      String     @default("APPROVED") // APPROVED, PENDING
   users       User[]
   routes      Route[]
   buses       Bus[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
 
 model Route {
@@ -79,6 +97,7 @@ model Seat {
   label     String
   type      String   @default("STANDARD") // STANDARD, PREMIUM, DISABLED_ACCESSIBLE, BLOCKED
   price     Float    @default(0)
+  isEnabled Boolean  @default(true)
   busId     String
   bus       Bus      @relation(fields: [busId], references: [id], onDelete: Cascade)
 }

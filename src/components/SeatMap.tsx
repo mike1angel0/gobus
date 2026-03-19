@@ -13,6 +13,7 @@ interface SeatMapProps {
   readonly?: boolean
   showPrices?: boolean
   basePrice?: number
+  editMode?: boolean
 }
 
 const seatColors: Record<string, { bg: string; border: string; text: string }> = {
@@ -22,6 +23,7 @@ const seatColors: Record<string, { bg: string; border: string; text: string }> =
   BLOCKED: { bg: 'bg-dark-900', border: 'border-dark-800', text: 'text-dark-600' },
   OCCUPIED: { bg: 'bg-red-900/30', border: 'border-red-500/30', text: 'text-red-400' },
   SELECTED: { bg: 'bg-accent-500/30', border: 'border-accent-400', text: 'text-accent-400' },
+  DISABLED_SEAT: { bg: 'bg-red-900/20', border: 'border-red-800/50', text: 'text-red-500/60' },
 }
 
 export default function SeatMap({
@@ -33,6 +35,7 @@ export default function SeatMap({
   readonly = false,
   showPrices = false,
   basePrice = 0,
+  editMode = false,
 }: SeatMapProps) {
   const [hoveredSeat, setHoveredSeat] = useState<SeatData | null>(null)
 
@@ -41,6 +44,7 @@ export default function SeatMap({
   }
 
   const getSeatStyle = (seat: SeatData) => {
+    if (seat.isEnabled === false) return seatColors.DISABLED_SEAT
     if (selectedSeats.includes(seat.label)) return seatColors.SELECTED
     if (seat.isOccupied) return seatColors.OCCUPIED
     if (seat.type === 'BLOCKED') return seatColors.BLOCKED
@@ -48,7 +52,11 @@ export default function SeatMap({
   }
 
   const handleClick = (seat: SeatData) => {
-    if (readonly || seat.type === 'BLOCKED' || seat.isOccupied) return
+    if (editMode) {
+      onSeatClick?.(seat)
+      return
+    }
+    if (readonly || seat.type === 'BLOCKED' || seat.isOccupied || seat.isEnabled === false) return
     onSeatClick?.(seat)
   }
 
@@ -68,9 +76,10 @@ export default function SeatMap({
         {hoveredSeat && (
           <div className="absolute -top-16 left-1/2 -translate-x-1/2 glass-card p-2 px-3 text-xs z-10 whitespace-nowrap">
             <p className="font-medium">{hoveredSeat.label} — {hoveredSeat.type.replace('_', ' ')}</p>
-            {showPrices && hoveredSeat.type !== 'BLOCKED' && (
+            {showPrices && hoveredSeat.type !== 'BLOCKED' && hoveredSeat.isEnabled !== false && (
               <p className="text-accent-400">+€{(basePrice + hoveredSeat.price).toFixed(2)}</p>
             )}
+            {hoveredSeat.isEnabled === false && <p className="text-red-400">Disabled by admin</p>}
             {hoveredSeat.isOccupied && <p className="text-red-400">Occupied</p>}
           </div>
         )}
@@ -87,18 +96,20 @@ export default function SeatMap({
                 return (
                   <div key={c} className="flex items-center">
                     <button
+                      type="button"
                       onClick={() => handleClick(seat)}
                       onMouseEnter={() => setHoveredSeat(seat)}
                       onMouseLeave={() => setHoveredSeat(null)}
-                      disabled={readonly || seat.type === 'BLOCKED' || seat.isOccupied}
+                      disabled={!editMode && (readonly || seat.type === 'BLOCKED' || seat.isOccupied || seat.isEnabled === false)}
                       className={cn(
                         'w-9 h-9 rounded-lg border-2 text-[10px] font-medium transition-all duration-200 flex items-center justify-center',
                         style.bg, style.border, style.text,
-                        !readonly && seat.type !== 'BLOCKED' && !seat.isOccupied && 'hover:scale-110 cursor-pointer',
-                        (seat.type === 'BLOCKED' || seat.isOccupied) && 'cursor-not-allowed opacity-60',
+                        editMode && 'hover:scale-110 cursor-pointer',
+                        !editMode && !readonly && seat.type !== 'BLOCKED' && !seat.isOccupied && seat.isEnabled !== false && 'hover:scale-110 cursor-pointer',
+                        !editMode && (seat.type === 'BLOCKED' || seat.isOccupied || seat.isEnabled === false) && 'cursor-not-allowed opacity-60',
                       )}
                     >
-                      {seat.type === 'BLOCKED' ? '✕' : seat.label}
+                      {seat.type === 'BLOCKED' ? '✕' : seat.isEnabled === false ? '⊘' : seat.label}
                     </button>
                     {c === aisleAfterCol && <div className="w-4" />}
                   </div>
@@ -118,6 +129,7 @@ export default function SeatMap({
           { label: 'Selected', ...seatColors.SELECTED },
           { label: 'Occupied', ...seatColors.OCCUPIED },
           { label: 'Blocked', ...seatColors.BLOCKED },
+          { label: 'Disabled', ...seatColors.DISABLED_SEAT },
         ].map(item => (
           <div key={item.label} className="flex items-center gap-1.5">
             <div className={cn('w-4 h-4 rounded border-2', item.bg, item.border)} />

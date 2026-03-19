@@ -6,6 +6,19 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import SeatMap from '@/components/SeatMap'
 import type { SeatData } from '@/types'
+import { BUS_TEMPLATES } from '@/lib/busTemplates'
+
+const CATEGORY_LABELS: Record<string, string> = {
+  coach: 'Coach',
+  minibus: 'Minibus',
+  microbus: 'Microbus',
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  coach: 'bg-blue-500/20 text-blue-400',
+  minibus: 'bg-emerald-500/20 text-emerald-400',
+  microbus: 'bg-amber-500/20 text-amber-400',
+}
 
 export default function FleetPage() {
   const { data: session, status } = useSession()
@@ -22,6 +35,7 @@ export default function FleetPage() {
   const [rows, setRows] = useState(10)
   const [columns, setColumns] = useState(4)
   const [seatTypes, setSeatTypes] = useState<Record<string, string>>({})
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === 'unauthenticated' || (session && (session.user as any).role !== 'PROVIDER')) {
@@ -65,6 +79,24 @@ export default function FleetPage() {
     setSeatTypes({ ...seatTypes, [seat.label]: next })
   }
 
+  const applyTemplate = (templateId: string) => {
+    const template = BUS_TEMPLATES.find(t => t.id === templateId)
+    if (!template) return
+    setSelectedTemplate(templateId)
+    setModel(template.name)
+    setRows(template.rows)
+    setColumns(template.columns)
+    setSeatTypes({ ...template.seatTypes })
+  }
+
+  const applyCustom = () => {
+    setSelectedTemplate('custom')
+    setModel('')
+    setRows(10)
+    setColumns(4)
+    setSeatTypes({})
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const seats = generateSeats()
@@ -103,6 +135,7 @@ export default function FleetPage() {
     setRows(10)
     setColumns(4)
     setSeatTypes({})
+    setSelectedTemplate(null)
   }
 
   const startEdit = (bus: any) => {
@@ -114,6 +147,7 @@ export default function FleetPage() {
     const types: Record<string, string> = {}
     bus.seats.forEach((s: any) => { types[s.label] = s.type })
     setSeatTypes(types)
+    setSelectedTemplate(null)
     setShowForm(true)
   }
 
@@ -124,6 +158,22 @@ export default function FleetPage() {
       toast.success('Bus deleted')
       fetchBuses()
     }
+  }
+
+  const templatesByCategory = ['coach', 'minibus', 'microbus'].map(cat => ({
+    category: cat,
+    templates: BUS_TEMPLATES.filter(t => t.category === cat),
+  }))
+
+  const getCapacity = (r: number, c: number, types: Record<string, string>) => {
+    let count = 0
+    for (let row = 0; row < r; row++) {
+      for (let col = 0; col < c; col++) {
+        const label = `${String.fromCharCode(65 + row)}${col + 1}`
+        if ((types[label] || 'STANDARD') !== 'BLOCKED') count++
+      }
+    }
+    return count
   }
 
   return (
@@ -138,6 +188,68 @@ export default function FleetPage() {
       {showForm && (
         <form onSubmit={handleSubmit} className="glass-card p-6 mb-6 space-y-4">
           <h2 className="text-lg font-bold">{editingId ? 'Edit Bus' : 'New Bus'}</h2>
+
+          {/* Template Picker */}
+          {!editingId && (
+            <div>
+              <label className="block text-dark-400 text-sm mb-2">Choose a Template</label>
+              <div className="space-y-3">
+                {templatesByCategory.map(({ category, templates }) => (
+                  <div key={category}>
+                    <p className="text-xs text-dark-500 uppercase tracking-wide mb-1.5">
+                      {CATEGORY_LABELS[category]}
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {templates.map(t => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => applyTemplate(t.id)}
+                          className={`text-left p-3 rounded-lg border transition-colors ${
+                            selectedTemplate === t.id
+                              ? 'border-primary-500 bg-primary-500/10'
+                              : 'border-dark-700 hover:border-dark-600 bg-dark-800/50'
+                          }`}
+                        >
+                          <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded ${CATEGORY_COLORS[t.category]}`}>
+                            {CATEGORY_LABELS[t.category]}
+                          </span>
+                          <p className="font-medium text-sm mt-1">{t.name}</p>
+                          <p className="text-dark-500 text-xs">
+                            {t.rows}&times;{t.columns} &middot; {getCapacity(t.rows, t.columns, t.seatTypes)} seats
+                          </p>
+                          <p className="text-dark-500 text-xs mt-0.5">{t.description}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Custom option */}
+                <div>
+                  <p className="text-xs text-dark-500 uppercase tracking-wide mb-1.5">Other</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={applyCustom}
+                      className={`text-left p-3 rounded-lg border transition-colors ${
+                        selectedTemplate === 'custom'
+                          ? 'border-primary-500 bg-primary-500/10'
+                          : 'border-dark-700 hover:border-dark-600 bg-dark-800/50'
+                      }`}
+                    >
+                      <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded bg-dark-600 text-dark-300">
+                        Custom
+                      </span>
+                      <p className="font-medium text-sm mt-1">Custom Layout</p>
+                      <p className="text-dark-500 text-xs">10&times;4 &middot; Start from scratch</p>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p className="text-dark-500 text-xs mt-2">Customize the layout after selecting a template</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -169,6 +281,7 @@ export default function FleetPage() {
               columns={columns}
               selectedSeats={[]}
               onSeatClick={cycleSeatType}
+              editMode
             />
           </div>
 
