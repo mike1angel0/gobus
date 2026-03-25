@@ -41,7 +41,11 @@ export class ProviderService {
     });
 
     if (!user?.providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'No provider associated with this user');
+      throw new AppError(
+        404,
+        ErrorCodes.RESOURCE_NOT_FOUND,
+        'No provider associated with this user',
+      );
     }
 
     return this.getById(user.providerId);

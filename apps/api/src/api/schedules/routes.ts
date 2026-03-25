@@ -2,8 +2,16 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { ScheduleService } from '@/application/services/schedule.service.js';
-import type { ScheduleEntity, ScheduleWithDetails, StopTimeEntity } from '@/domain/schedules/schedule.entity.js';
-import type { ScheduleRouteSummary, ScheduleBusSummary, ScheduleDriverSummary } from '@/domain/schedules/schedule.entity.js';
+import type {
+  ScheduleEntity,
+  ScheduleWithDetails,
+  StopTimeEntity,
+} from '@/domain/schedules/schedule.entity.js';
+import type {
+  ScheduleRouteSummary,
+  ScheduleBusSummary,
+  ScheduleDriverSummary,
+} from '@/domain/schedules/schedule.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { idParamSchema } from '@/shared/schemas.js';

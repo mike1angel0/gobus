@@ -193,11 +193,7 @@ export class BusService {
     });
 
     if (activeScheduleCount > 0) {
-      throw new AppError(
-        409,
-        ErrorCodes.CONFLICT,
-        'Cannot delete bus with active schedules',
-      );
+      throw new AppError(409, ErrorCodes.CONFLICT, 'Cannot delete bus with active schedules');
     }
 
     await this.prisma.bus.delete({ where: { id } });

@@ -172,12 +172,12 @@
 **Description:** Run all quality checks. Fix any issues.
 
 **Acceptance Criteria:**
-- [ ] `npm run typecheck` — zero errors
-- [ ] `npm run lint` — zero errors
-- [ ] `npm run format:check` — passes
-- [ ] `npm run test` — all pass
-- [ ] `npm run test:coverage` ≥ 85%
-- [ ] `npm run build` — succeeds
-- [ ] Zero `any` in src/ (excluding test/)
-- [ ] JSDoc on all exported functions/classes/methods
-- [ ] All responses match OpenAPI spec schemas
+- [x] `npm run typecheck` — zero errors
+- [x] `npm run lint` — zero errors
+- [x] `npm run format:check` — passes
+- [x] `npm run test` — all pass
+- [x] `npm run test:coverage` ≥ 85%
+- [x] `npm run build` — succeeds
+- [x] Zero `any` in src/ (excluding test/)
+- [x] JSDoc on all exported functions/classes/methods
+- [x] All responses match OpenAPI spec schemas

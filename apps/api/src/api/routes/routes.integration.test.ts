@@ -207,7 +207,10 @@ describe('Route Routes', () => {
       const response = await supertest(app.server)
         .post('/api/v1/routes')
         .set('Authorization', PROVIDER_AUTH())
-        .send({ name: 'Bad Route', stops: [{ name: 'Only One', lat: 44.0, lng: 26.0, orderIndex: 0 }] })
+        .send({
+          name: 'Bad Route',
+          stops: [{ name: 'Only One', lat: 44.0, lng: 26.0, orderIndex: 0 }],
+        })
         .expect(400);
 
       expect(response.body.status).toBe(400);
@@ -319,9 +322,7 @@ describe('Route Routes', () => {
 
     it('returns 404 for route owned by different provider', async () => {
       mockAuthUser();
-      mockRouteFindUnique.mockResolvedValueOnce(
-        makeDbRoute({ providerId: 'other-provider' }),
-      );
+      mockRouteFindUnique.mockResolvedValueOnce(makeDbRoute({ providerId: 'other-provider' }));
 
       const response = await supertest(app.server)
         .get('/api/v1/routes/route-1')
@@ -333,9 +334,7 @@ describe('Route Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/routes/route-1')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/routes/route-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });
@@ -397,9 +396,7 @@ describe('Route Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .delete('/api/v1/routes/route-1')
-        .expect(401);
+      const response = await supertest(app.server).delete('/api/v1/routes/route-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });

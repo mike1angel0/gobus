@@ -140,8 +140,16 @@ export const scheduleFilterQuerySchema = z
     routeId: z.string().max(30).optional().describe('Filter by route ID'),
     busId: z.string().max(30).optional().describe('Filter by bus ID'),
     status: scheduleStatusSchema.optional().describe('Filter by schedule status'),
-    fromDate: z.string().optional().describe('Filter schedules from this date (inclusive, ISO 8601)'),
-    toDate: z.string().optional().describe('Filter schedules until this date (inclusive, ISO 8601)'),
+    fromDate: z
+      .string()
+      .date()
+      .optional()
+      .describe('Filter schedules from this date (inclusive, ISO 8601 date e.g. 2024-01-15)'),
+    toDate: z
+      .string()
+      .date()
+      .optional()
+      .describe('Filter schedules until this date (inclusive, ISO 8601 date e.g. 2024-01-15)'),
   })
   .strict();
 

@@ -30,9 +30,7 @@ function generateSeatGrid(
   const accessibleSet = new Set(
     (options?.accessibleSeats ?? []).map((s) => `${s.row}-${s.column}`),
   );
-  const blockedSet = new Set(
-    (options?.blockedSeats ?? []).map((s) => `${s.row}-${s.column}`),
-  );
+  const blockedSet = new Set((options?.blockedSeats ?? []).map((s) => `${s.row}-${s.column}`));
 
   for (let row = 1; row <= rows; row++) {
     for (let col = 1; col <= columns; col++) {

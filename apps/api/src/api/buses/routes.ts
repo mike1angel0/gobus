@@ -2,7 +2,13 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { BusService } from '@/application/services/bus.service.js';
-import type { BusEntity, BusWithSeats, SeatEntity, BusTemplate, CreateSeatData } from '@/domain/buses/bus.entity.js';
+import type {
+  BusEntity,
+  BusWithSeats,
+  SeatEntity,
+  BusTemplate,
+  CreateSeatData,
+} from '@/domain/buses/bus.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { paginationQuerySchema, idParamSchema } from '@/shared/schemas.js';
@@ -98,21 +104,17 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // GET /api/v1/buses — list provider's buses (paginated)
-  app.get(
-    '/api/v1/buses',
-    { preHandler: [app.authenticate, requireProvider] },
-    async (request) => {
-      const { page, pageSize } = paginationQuerySchema.parse(request.query);
-      const providerId = request.user.providerId!;
+  app.get('/api/v1/buses', { preHandler: [app.authenticate, requireProvider] }, async (request) => {
+    const { page, pageSize } = paginationQuerySchema.parse(request.query);
+    const providerId = request.user.providerId!;
 
-      const result = await busService.listByProvider(providerId, { page, pageSize });
+    const result = await busService.listByProvider(providerId, { page, pageSize });
 
-      return {
-        data: result.data.map(serializeBus),
-        meta: result.meta,
-      };
-    },
-  );
+    return {
+      data: result.data.map(serializeBus),
+      meta: result.meta,
+    };
+  });
 
   // POST /api/v1/buses — create a new bus with seat layout
   app.post(

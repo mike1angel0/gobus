@@ -2,12 +2,7 @@ import { z } from 'zod';
 import { dataResponse, paginatedResponse } from '@/shared/schemas.js';
 
 /** Zod schema for the SeatType enum matching OpenAPI SeatType. */
-export const seatTypeSchema = z.enum([
-  'STANDARD',
-  'PREMIUM',
-  'DISABLED_ACCESSIBLE',
-  'BLOCKED',
-]);
+export const seatTypeSchema = z.enum(['STANDARD', 'PREMIUM', 'DISABLED_ACCESSIBLE', 'BLOCKED']);
 
 /** Zod schema for a Seat response object matching OpenAPI Seat schema. */
 export const seatSchema = z.object({
@@ -16,7 +11,11 @@ export const seatSchema = z.object({
   column: z.number().int().min(1).max(10).describe('Seat column number'),
   label: z.string().max(10).describe('Seat label displayed to passengers (e.g., 1A, 2B)'),
   type: seatTypeSchema.describe('Seat type classification'),
-  price: z.number().min(0).max(10000).describe('Price override for this seat (0 means use base price)'),
+  price: z
+    .number()
+    .min(0)
+    .max(10000)
+    .describe('Price override for this seat (0 means use base price)'),
   isEnabled: z.boolean().describe('Whether this seat is available for booking'),
 });
 
@@ -69,11 +68,7 @@ export const createBusRequestSchema = z
     capacity: z.number().int().min(1).max(200).describe('Total number of seats'),
     rows: z.number().int().min(1).max(100).describe('Number of seat rows'),
     columns: z.number().int().min(1).max(10).describe('Number of seat columns'),
-    seats: z
-      .array(createSeatInputSchema)
-      .min(1)
-      .max(1000)
-      .describe('Seat layout definition'),
+    seats: z.array(createSeatInputSchema).min(1).max(1000).describe('Seat layout definition'),
   })
   .strict();
 

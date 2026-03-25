@@ -326,10 +326,7 @@ describe('Bus Routes', () => {
       mockAuthUser();
       const busWithSeats = {
         ...makeDbBus(),
-        seats: [
-          makeDbSeat(),
-          makeDbSeat({ id: 'seat-2', column: 2, label: '1B' }),
-        ],
+        seats: [makeDbSeat(), makeDbSeat({ id: 'seat-2', column: 2, label: '1B' })],
       };
       mockBusFindUnique.mockResolvedValueOnce(busWithSeats);
 
@@ -376,9 +373,7 @@ describe('Bus Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/buses/bus-1')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/buses/bus-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });
@@ -538,9 +533,7 @@ describe('Bus Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .delete('/api/v1/buses/bus-1')
-        .expect(401);
+      const response = await supertest(app.server).delete('/api/v1/buses/bus-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });
@@ -581,9 +574,7 @@ describe('Bus Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/buses/templates')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/buses/templates').expect(401);
 
       expect(response.body.status).toBe(401);
     });

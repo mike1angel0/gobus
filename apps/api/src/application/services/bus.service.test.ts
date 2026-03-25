@@ -147,10 +147,7 @@ describe('BusService', () => {
 
   describe('getById', () => {
     it('should return bus with seats when found and owned', async () => {
-      const seats = [
-        makeSeat(),
-        makeSeat({ id: 'seat-2', row: 1, column: 2, label: '1B' }),
-      ];
+      const seats = [makeSeat(), makeSeat({ id: 'seat-2', row: 1, column: 2, label: '1B' })];
       const bus = { ...makeBus(), seats };
       (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(bus);
 
@@ -197,16 +194,12 @@ describe('BusService', () => {
 
   describe('create', () => {
     it('should create bus with seats in a transaction', async () => {
-      const seats = [
-        makeSeat(),
-        makeSeat({ id: 'seat-2', row: 1, column: 2, label: '1B' }),
-      ];
+      const seats = [makeSeat(), makeSeat({ id: 'seat-2', row: 1, column: 2, label: '1B' })];
       const createdBus = { ...makeBus(), seats };
 
       const mockTxCreate = vi.fn().mockResolvedValue(createdBus);
       (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
-        (fn: (tx: unknown) => Promise<unknown>) =>
-          fn({ bus: { create: mockTxCreate } }),
+        (fn: (tx: unknown) => Promise<unknown>) => fn({ bus: { create: mockTxCreate } }),
       );
       (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
@@ -271,8 +264,7 @@ describe('BusService', () => {
 
       const mockTxCreate = vi.fn().mockResolvedValue(createdBus);
       (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
-        (fn: (tx: unknown) => Promise<unknown>) =>
-          fn({ bus: { create: mockTxCreate } }),
+        (fn: (tx: unknown) => Promise<unknown>) => fn({ bus: { create: mockTxCreate } }),
       );
       (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
@@ -322,7 +314,9 @@ describe('BusService', () => {
     it('should throw RESOURCE_NOT_FOUND when bus does not exist', async () => {
       (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      await expect(service.update('nonexistent', PROVIDER_ID, { model: 'X' })).rejects.toMatchObject({
+      await expect(
+        service.update('nonexistent', PROVIDER_ID, { model: 'X' }),
+      ).rejects.toMatchObject({
         statusCode: 404,
         code: ErrorCodes.RESOURCE_NOT_FOUND,
       });

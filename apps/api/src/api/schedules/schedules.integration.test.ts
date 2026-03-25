@@ -4,7 +4,6 @@ import supertest from 'supertest';
 
 import { createTestApp, createAuthHeader } from '@/test/helpers.js';
 
-
 // --- Mock setup ---
 const mockUserFindUnique = vi.fn();
 const mockScheduleFindMany = vi.fn();
@@ -125,7 +124,9 @@ interface DbScheduleWithRelations {
   } | null;
 }
 
-function makeDbScheduleWithRelations(overrides: Record<string, unknown> = {}): DbScheduleWithRelations {
+function makeDbScheduleWithRelations(
+  overrides: Record<string, unknown> = {},
+): DbScheduleWithRelations {
   return {
     ...makeDbSchedule(overrides),
     stopTimes: [
@@ -239,7 +240,9 @@ describe('Schedule Routes', () => {
       mockScheduleCount.mockResolvedValueOnce(0);
 
       const response = await supertest(app.server)
-        .get('/api/v1/schedules?routeId=route-1&busId=bus-1&status=ACTIVE&fromDate=2024-07-01&toDate=2024-07-31')
+        .get(
+          '/api/v1/schedules?routeId=route-1&busId=bus-1&status=ACTIVE&fromDate=2024-07-01&toDate=2024-07-31',
+        )
         .set('Authorization', PROVIDER_AUTH())
         .expect(200);
 
@@ -534,9 +537,7 @@ describe('Schedule Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/schedules/sched-1')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/schedules/sched-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });
@@ -745,9 +746,7 @@ describe('Schedule Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .delete('/api/v1/schedules/sched-1')
-        .expect(401);
+      const response = await supertest(app.server).delete('/api/v1/schedules/sched-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });

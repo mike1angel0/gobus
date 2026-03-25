@@ -132,11 +132,7 @@ export class RouteService {
     });
 
     if (activeScheduleCount > 0) {
-      throw new AppError(
-        409,
-        ErrorCodes.CONFLICT,
-        'Cannot delete route with active schedules',
-      );
+      throw new AppError(409, ErrorCodes.CONFLICT, 'Cannot delete route with active schedules');
     }
 
     await this.prisma.route.delete({ where: { id } });

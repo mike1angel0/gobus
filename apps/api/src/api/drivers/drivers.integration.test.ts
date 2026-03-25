@@ -101,7 +101,10 @@ describe('Driver Routes', () => {
       mockAuthUser();
       const drivers = [
         { ...makeDbDriver(), _count: { driverSchedules: 3 } },
-        { ...makeDbDriver({ id: 'driver-2', email: 'driver2@test.com', name: 'Driver Two' }), _count: { driverSchedules: 0 } },
+        {
+          ...makeDbDriver({ id: 'driver-2', email: 'driver2@test.com', name: 'Driver Two' }),
+          _count: { driverSchedules: 0 },
+        },
       ];
       mockUserFindMany.mockResolvedValueOnce(drivers);
       mockUserCount.mockResolvedValueOnce(2);
@@ -350,9 +353,7 @@ describe('Driver Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .delete('/api/v1/drivers/driver-1')
-        .expect(401);
+      const response = await supertest(app.server).delete('/api/v1/drivers/driver-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });

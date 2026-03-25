@@ -17,7 +17,7 @@ export const driverSchema = z.object({
     .number()
     .int()
     .min(0)
-    .max(2147483647)
+    .max(10000)
     .describe('Number of schedules assigned to this driver'),
   createdAt: z.string().datetime().describe('Driver creation timestamp'),
 });
@@ -30,7 +30,10 @@ export const createDriverRequestSchema = z
       .string()
       .min(8)
       .max(128)
-      .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+/, 'Password must contain uppercase, lowercase, and digit')
+      .regex(
+        /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+/,
+        'Password must contain uppercase, lowercase, and digit',
+      )
       .describe('Driver password (min 8 chars, must contain uppercase, lowercase, and digit)'),
     name: z.string().min(1).max(100).describe('Driver full name'),
     phone: z.string().max(20).optional().describe('Optional phone number'),

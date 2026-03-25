@@ -148,7 +148,11 @@ export const resetPasswordBodySchema = z
 /** Zod schema for POST /auth/change-password request body matching OpenAPI ChangePasswordRequest. */
 export const changePasswordBodySchema = z
   .object({
-    currentPassword: z.string().min(1).max(128).describe("The user's current password for verification"),
+    currentPassword: z
+      .string()
+      .min(1)
+      .max(128)
+      .describe("The user's current password for verification"),
     newPassword: strongPasswordSchema.describe(
       'New password. Must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one digit.',
     ),

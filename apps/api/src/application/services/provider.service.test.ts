@@ -184,12 +184,10 @@ describe('ProviderService', () => {
     it('should throw RESOURCE_NOT_FOUND when provider does not exist', async () => {
       (prisma.provider.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      await expect(
-        service.updateProfile('nonexistent', { name: 'Test' }),
-      ).rejects.toThrow(AppError);
-      await expect(
-        service.updateProfile('nonexistent', { name: 'Test' }),
-      ).rejects.toMatchObject({
+      await expect(service.updateProfile('nonexistent', { name: 'Test' })).rejects.toThrow(
+        AppError,
+      );
+      await expect(service.updateProfile('nonexistent', { name: 'Test' })).rejects.toMatchObject({
         statusCode: 404,
         code: ErrorCodes.RESOURCE_NOT_FOUND,
       });

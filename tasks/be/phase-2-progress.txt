@@ -104,3 +104,10 @@
 - 35 integration tests: list with pagination/filters, create happy/no-driver/validation/ownership (route/bus/driver)/unknown-fields, getById happy/null-driver/not-found/ownership, update assign-driver/unassign/status/not-found/ownership/driver-ownership/unknown-fields, delete happy/not-found/ownership, auth (401/403) on all endpoints
 - Patterns: same fastify-plugin pattern as driver/bus routes. Serialize functions convert Date→ISO for all nested entities. scheduleFilterQuerySchema extends pagination with filter params. String datetime fields from request body converted to Date via new Date() before passing to service.
 ---
+## Iteration 14 - TASK-014: Run Phase 2 quality gates
+- All quality gates pass: typecheck, lint, format, tests (223 pass), coverage (98.69%), build
+- Zero `any` in src/ (only in src/generated/ which is Prisma auto-generated)
+- JSDoc present on all exported functions/classes/methods/types
+- Fixed 2 OpenAPI spec mismatches: driver assignedScheduleCount max (2147483647→10000), schedule filter fromDate/toDate now validate ISO 8601 date format via z.string().date()
+- Prettier reformatted 23 files (formatting-only changes)
+---

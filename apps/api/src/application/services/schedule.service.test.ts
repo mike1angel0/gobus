@@ -218,11 +218,7 @@ describe('ScheduleService', () => {
       (prisma.schedule.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([]);
       (prisma.schedule.count as ReturnType<typeof vi.fn>).mockResolvedValue(0);
 
-      await service.listByProvider(
-        PROVIDER_ID,
-        { page: 1, pageSize: 20 },
-        { status: 'CANCELLED' },
-      );
+      await service.listByProvider(PROVIDER_ID, { page: 1, pageSize: 20 }, { status: 'CANCELLED' });
 
       expect(prisma.schedule.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -237,11 +233,7 @@ describe('ScheduleService', () => {
       (prisma.schedule.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([]);
       (prisma.schedule.count as ReturnType<typeof vi.fn>).mockResolvedValue(0);
 
-      await service.listByProvider(
-        PROVIDER_ID,
-        { page: 1, pageSize: 20 },
-        { fromDate, toDate },
-      );
+      await service.listByProvider(PROVIDER_ID, { page: 1, pageSize: 20 }, { fromDate, toDate });
 
       expect(prisma.schedule.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -388,8 +380,7 @@ describe('ScheduleService', () => {
 
       const mockTxCreate = vi.fn().mockResolvedValue(createdSchedule);
       (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
-        (fn: (tx: unknown) => Promise<unknown>) =>
-          fn({ schedule: { create: mockTxCreate } }),
+        (fn: (tx: unknown) => Promise<unknown>) => fn({ schedule: { create: mockTxCreate } }),
       );
 
       const result = await service.create(PROVIDER_ID, createData);
@@ -448,8 +439,7 @@ describe('ScheduleService', () => {
 
       const mockTxCreate = vi.fn().mockResolvedValue(createdSchedule);
       (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
-        (fn: (tx: unknown) => Promise<unknown>) =>
-          fn({ schedule: { create: mockTxCreate } }),
+        (fn: (tx: unknown) => Promise<unknown>) => fn({ schedule: { create: mockTxCreate } }),
       );
 
       const { driverId: _unused, ...dataWithoutDriver } = createData;

@@ -200,8 +200,7 @@ describe('RouteService', () => {
 
       const mockTxCreate = vi.fn().mockResolvedValue(createdRoute);
       (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
-        (fn: (tx: unknown) => Promise<unknown>) =>
-          fn({ route: { create: mockTxCreate } }),
+        (fn: (tx: unknown) => Promise<unknown>) => fn({ route: { create: mockTxCreate } }),
       );
 
       const result = await service.create(PROVIDER_ID, {

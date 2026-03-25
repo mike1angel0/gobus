@@ -73,7 +73,10 @@ describe('DriverService', () => {
     it('should return paginated drivers with schedule counts', async () => {
       const drivers = [
         { ...makeDriver(), _count: { driverSchedules: 3 } },
-        { ...makeDriver({ id: 'driver-2', email: 'driver2@example.com' }), _count: { driverSchedules: 0 } },
+        {
+          ...makeDriver({ id: 'driver-2', email: 'driver2@example.com' }),
+          _count: { driverSchedules: 0 },
+        },
       ];
       (prisma.user.findMany as ReturnType<typeof vi.fn>).mockResolvedValue(drivers);
       (prisma.user.count as ReturnType<typeof vi.fn>).mockResolvedValue(2);

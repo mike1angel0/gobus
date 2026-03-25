@@ -291,10 +291,7 @@ export class ScheduleService {
    * Build Prisma where clause for listing schedules with filters.
    * Scope to provider via route relationship.
    */
-  private buildWhereClause(
-    providerId: string,
-    filters: ScheduleFilters,
-  ): Record<string, unknown> {
+  private buildWhereClause(providerId: string, filters: ScheduleFilters): Record<string, unknown> {
     const where: Record<string, unknown> = {
       route: { providerId },
     };

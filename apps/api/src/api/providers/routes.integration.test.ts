@@ -102,9 +102,7 @@ describe('Provider Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/providers/me')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/providers/me').expect(401);
 
       expect(response.body.status).toBe(401);
     });
