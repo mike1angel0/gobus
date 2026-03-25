@@ -71,11 +71,11 @@
 **Description:** Create `src/domain/buses/bus.entity.ts` with types matching OpenAPI schemas. Create `src/domain/buses/bus-templates.ts` with predefined bus templates (coach: Mercedes Tourismo 13x4, Setra S515 12x4, Neoplan 14x4; minibus: Mercedes Sprinter 8x3, Iveco Daily 7x3; microbus: Ford Transit 5x3, VW Crafter 4x3). Each template defines rows, columns, capacity, and seat configuration (types, labels, blocked seats, premium rows).
 
 **Acceptance Criteria:**
-- [ ] Bus entity types match OpenAPI schemas
-- [ ] 7+ bus templates with realistic configurations
-- [ ] Templates include seat type assignments (premium rows, accessible seats, blocked)
-- [ ] JSDoc on all types and template constants
-- [ ] Typecheck passes
+- [x] Bus entity types match OpenAPI schemas
+- [x] 7+ bus templates with realistic configurations
+- [x] Templates include seat type assignments (premium rows, accessible seats, blocked)
+- [x] JSDoc on all types and template constants
+- [x] Typecheck passes
 
 ### TASK-007: Create bus service
 **Description:** Create `src/application/services/bus.service.ts`. Methods: `listByProvider(providerId, pagination)`, `getById(id, providerId)` — includes seats, `create(providerId, data)` — creates bus + seats in transaction, `update(id, providerId, data)` — rebuilds seat grid in transaction, `delete(id, providerId)` — with ownership check, `getTemplates()` — returns available templates.
