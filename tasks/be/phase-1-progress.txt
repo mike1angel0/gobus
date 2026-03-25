@@ -126,3 +126,20 @@
 - Added dotenv to prisma.config.ts for env var loading (Prisma 7 doesn't auto-load .env)
 - Learnings: Prisma 7 uses `migrations.seed` in prisma.config.ts (not package.json `prisma.seed`). The existing Postgres container from another project can host multiple databases. `dotenv/config` must be imported in prisma.config.ts since Prisma 7 doesn't auto-load .env files.
 ---
+
+## Iteration 19 - TASK-019: Create auth domain types
+- Created auth.types.ts with RegisterData, LoginCredentials, AuthTokenPayload, TokenPair, ForgotPasswordData, ResetPasswordData, ChangePasswordData
+- Created user.entity.ts with UserEntity, UserPreferences, UserUpdateData
+- Created index.ts barrel exports for both domain/auth/ and domain/users/
+- 21 new type-safety tests, 74 total tests passing
+- Learnings: Pure type-only tasks (interfaces, no runtime logic) still benefit from tests that verify the type contracts compile correctly and field values match expectations. Types for RegisterRole restrict to PASSENGER|PROVIDER (self-register only), while UserEntity.role includes all 4 roles.
+---
+
+## Iteration 20 - TASK-020: Create auth service with security features
+- Created AuthService class with all 8 methods: register, login, logout, refreshToken, forgotPassword, resetPassword, changePassword, generateTokens
+- Created createLogger utility (structured JSON logger suppressed in test mode)
+- Added 3 new error codes: ACCOUNT_LOCKED, ACCOUNT_SUSPENDED, AUTH_INVALID_RESET_TOKEN
+- Security: SHA-256 hashed refresh/reset tokens, bcrypt cost 12, token rotation with reuse detection (revokes all tokens on reuse), timing-safe forgotPassword, account lockout (5 failures → 15min)
+- 35 new unit tests with mocked Prisma, 109 total tests passing
+- Learnings: Use `createHash` from `node:crypto` import in tests (not `require('crypto')`) to satisfy ESLint no-require-imports rule. bcrypt.hashSync with low rounds (4) in tests for speed. Prisma `$transaction` receives an array of promises — mock it with `vi.fn((actions) => Promise.all(actions))`.
+---

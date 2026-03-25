@@ -11,12 +11,15 @@ describe('ErrorCodes', () => {
     expect(ErrorCodes.FORBIDDEN).toBe('FORBIDDEN');
     expect(ErrorCodes.CONFLICT).toBe('CONFLICT');
     expect(ErrorCodes.SEAT_CONFLICT).toBe('SEAT_CONFLICT');
+    expect(ErrorCodes.ACCOUNT_LOCKED).toBe('ACCOUNT_LOCKED');
+    expect(ErrorCodes.ACCOUNT_SUSPENDED).toBe('ACCOUNT_SUSPENDED');
+    expect(ErrorCodes.AUTH_INVALID_RESET_TOKEN).toBe('AUTH_INVALID_RESET_TOKEN');
     expect(ErrorCodes.INTERNAL_ERROR).toBe('INTERNAL_ERROR');
     expect(ErrorCodes.RATE_LIMITED).toBe('RATE_LIMITED');
   });
 
-  it('has exactly 10 error codes', () => {
-    expect(Object.keys(ErrorCodes)).toHaveLength(10);
+  it('has exactly 13 error codes', () => {
+    expect(Object.keys(ErrorCodes)).toHaveLength(13);
   });
 
   it('all values are unique strings', () => {

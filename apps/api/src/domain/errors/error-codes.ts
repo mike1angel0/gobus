@@ -19,6 +19,12 @@ export const ErrorCodes = {
   CONFLICT: 'CONFLICT',
   /** Seat already booked for the requested trip date. */
   SEAT_CONFLICT: 'SEAT_CONFLICT',
+  /** Account is locked due to too many failed login attempts. */
+  ACCOUNT_LOCKED: 'ACCOUNT_LOCKED',
+  /** Account is suspended by an administrator. */
+  ACCOUNT_SUSPENDED: 'ACCOUNT_SUSPENDED',
+  /** Password reset token is invalid, expired, or already used. */
+  AUTH_INVALID_RESET_TOKEN: 'AUTH_INVALID_RESET_TOKEN',
   /** Unexpected server error. */
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   /** Too many requests — rate limit exceeded. */

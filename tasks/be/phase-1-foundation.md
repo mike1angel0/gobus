@@ -83,31 +83,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-019: Create auth domain types** - Created auth.types.ts (RegisterData, LoginCredentials, AuthTokenPayload, TokenPair, ForgotPasswordData, ResetPasswordData, ChangePasswordData) and user.entity.ts (UserEntity, UserPreferences, UserUpdateData) matching OpenAPI spec schemas exactly. 21 tests passing.
 
-### TASK-020: Create auth service with security features
-**Description:** Create `src/application/services/auth.service.ts`. Methods:
-- `register(data)` — validates password strength (min 8 chars, uppercase+lowercase+digit), creates user (+provider if PROVIDER role), hashes password (bcryptjs cost 12), returns tokens.
-- `login(credentials, ipAddress?)` — checks account lockout (lockedUntil), validates credentials, on failure increments failedLoginAttempts (lock account after 5 failures for 15min), on success resets counter, returns tokens+user. Suspended users get 403.
-- `logout(userId, refreshToken)` — revokes the specific refresh token.
-- `refreshToken(token)` — validates refresh token exists in DB + not revoked + not expired, rotates (revoke old, issue new), returns new token pair.
-- `forgotPassword(email)` — generates crypto-random reset token, hashes it, stores in PasswordResetToken (expires in 1h), logs action. Returns void (never reveals if email exists).
-- `resetPassword(token, newPassword)` — validates token (exists, not expired, not used), validates password strength, updates user password, marks token as used, revokes all existing refresh tokens.
-- `changePassword(userId, currentPassword, newPassword)` — validates current password, validates new password strength, updates, revokes all other refresh tokens.
-- `generateTokens(user)` — JWT access (15min) + refresh (7d), stores refresh token hash in DB.
-
-**Acceptance Criteria:**
-- [ ] Password strength: min 8 chars, must contain uppercase + lowercase + digit
-- [ ] Account lockout: 5 failed attempts → locked for 15 minutes
-- [ ] Locked account returns 423 LOCKED
-- [ ] Suspended account returns 403 FORBIDDEN
-- [ ] Refresh tokens stored as hashed values in DB (not plaintext)
-- [ ] Refresh token rotation: old revoked, new issued
-- [ ] Password reset tokens: hashed, single-use, 1h expiry
-- [ ] `forgotPassword` never reveals whether email exists (timing-safe)
-- [ ] `resetPassword` revokes all refresh tokens (forces re-login everywhere)
-- [ ] `changePassword` validates current password first
-- [ ] Unit tests with mocked Prisma (≥90% coverage on this file)
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+**TASK-020: Create auth service with security features** - Created AuthService class with register, login, logout, refreshToken, forgotPassword, resetPassword, changePassword, generateTokens methods. Password strength validation (8+ chars, upper+lower+digit), account lockout (5 failures → 15min lock), SHA-256 hashed refresh/reset tokens, token rotation with reuse detection, timing-safe forgotPassword. Also created createLogger utility and added ACCOUNT_LOCKED/ACCOUNT_SUSPENDED/AUTH_INVALID_RESET_TOKEN error codes. 35 unit tests with mocked Prisma.
 
 ### TASK-021: Create auth plugin and role guards with account status checks
 **Description:** Create `src/api/plugins/auth.ts` (decorates request.user, adds app.authenticate preHandler). After JWT validation, check user status from DB: SUSPENDED → 403, LOCKED → 423. Create `src/api/plugins/role-guard.ts` with `requireRole(...roles)`, `requireProvider`, `requireDriver`, `requireAdmin` factories. Proper Fastify type augmentation (zero `as any`).
