@@ -10,6 +10,7 @@ PaginationMeta:
     total:
       type: integer
       minimum: 0
+      maximum: 2147483647
       description: Total number of records matching the query
     page:
       type: integer
@@ -23,6 +24,7 @@ PaginationMeta:
     totalPages:
       type: integer
       minimum: 0
+      maximum: 2147483647
       description: Total number of pages
 
 ErrorResponse:
@@ -57,6 +59,7 @@ ErrorResponse:
       description: Application-specific error code
     errors:
       type: array
+      minItems: 0
       maxItems: 100
       description: Validation errors for individual fields
       items:
