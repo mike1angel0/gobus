@@ -122,11 +122,11 @@
 **Description:** Enhance `GET /health` to include: database connectivity check (Prisma `$queryRaw`), memory usage, environment indicator. Add `GET /health/ready` (readiness probe for k8s) that checks DB connection. Add `GET /health/live` (liveness probe) that always returns 200.
 
 **Acceptance Criteria:**
-- [ ] `/health` returns db status, memory, environment
-- [ ] `/health/ready` fails if DB unreachable
-- [ ] `/health/live` always returns 200
-- [ ] Integration tests
-- [ ] Typecheck passes
+- [x] `/health` returns db status, memory, environment
+- [x] `/health/ready` fails if DB unreachable
+- [x] `/health/live` always returns 200
+- [x] Integration tests
+- [x] Typecheck passes
 
 ### TASK-011: Add request timing and metrics hooks
 **Description:** Create `src/api/plugins/metrics.ts` Fastify plugin that logs: request count by route, response time percentiles (logged on each request), error rate by status code. Use Fastify onResponse hook to capture timing. Log summary stats every 60s in production.
