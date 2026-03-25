@@ -132,3 +132,24 @@ See per-iteration learnings above and the "Important Gotchas" section in Compact
 - Learnings: Every string field in OpenAPI request schemas and path params needs both minLength and maxLength. Format:date fields still need explicit maxLength even though the format implies length.
 ---
 
+
+## Iteration 27 - Validation Fix: PaginationMeta maximum + ErrorResponse minItems
+- Added `maximum: 2147483647` to PaginationMeta.total and PaginationMeta.totalPages
+- Added `minItems: 0` to ErrorResponse.errors array
+- All quality gates pass: spec valid, typecheck clean, 145 unit tests passing
+- Learnings: Response-only schemas still need full constraints (maximum on integers, minItems on arrays) even though they're not user-input.
+---
+
+
+## Validation Rejected - Fixes Needed
+**RESOLVED** (Iteration 28): Both Zod-to-spec parity issues fixed and committed.
+
+---
+
+## Iteration 28 - Validation Fix: Zod-to-spec parity (pagination max, password regex)
+- Added `.max(2147483647)` to PaginationMeta `total` and `totalPages` fields in shared/schemas.ts
+- Aligned password regex pattern in auth/schemas.ts to exactly match OpenAPI spec: `/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/`
+- All quality gates pass: typecheck clean, lint clean, 181 tests passing (145 unit + 36 integration)
+- Learnings: Always ensure Zod regex patterns match OpenAPI spec patterns character-for-character, including anchors and `.+` quantifiers.
+---
+
