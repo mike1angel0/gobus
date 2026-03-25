@@ -12,23 +12,23 @@
 **Description:** Configure `@fastify/cors` in `app.ts` with environment-driven origin whitelist (CORS_ORIGIN env var, comma-separated). Restrict methods to used HTTP verbs only. Set credentials: true for cookie support. Different configs for dev (permissive) vs production (strict).
 
 **Acceptance Criteria:**
-- [ ] CORS origin from CORS_ORIGIN env var
-- [ ] Dev mode allows localhost origins
-- [ ] Production mode restricts to configured origins
-- [ ] Credentials enabled
-- [ ] Preflight caching (maxAge: 86400)
-- [ ] Integration test verifying CORS headers
-- [ ] Typecheck passes
+- [x] CORS origin from CORS_ORIGIN env var
+- [x] Dev mode allows localhost origins
+- [x] Production mode restricts to configured origins
+- [x] Credentials enabled
+- [x] Preflight caching (maxAge: 86400)
+- [x] Integration test verifying CORS headers
+- [x] Typecheck passes
 
 ### TASK-002: Configure Helmet security headers
 **Description:** Register `@fastify/helmet` with production-appropriate CSP, HSTS, X-Frame-Options, referrer policy. Disable in test environment.
 
 **Acceptance Criteria:**
-- [ ] Helmet registered with strict defaults
-- [ ] CSP configured for API (no inline scripts needed)
-- [ ] HSTS enabled with 1 year max-age
-- [ ] X-Frame-Options: DENY
-- [ ] Typecheck passes
+- [x] Helmet registered with strict defaults
+- [x] CSP configured for API (no inline scripts needed)
+- [x] HSTS enabled with 1 year max-age
+- [x] X-Frame-Options: DENY
+- [x] Typecheck passes
 
 ### TASK-003: Configure rate limiting
 **Description:** Register `@fastify/rate-limit` with per-route configuration: auth endpoints (login/register): 10 req/min per IP. General API: 100 req/min per user. Search (public): 30 req/min per IP. Return 429 with RFC 9457 format and Retry-After header.

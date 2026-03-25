@@ -1,0 +1,15 @@
+## Iteration 1 - TASK-001: Configure CORS properly
+- Configured @fastify/cors in app.ts with parseCorsOrigins() that reads CORS_ORIGIN env var (comma-separated)
+- Dev mode auto-includes localhost:3000, 3001, 5173; production restricts to configured origins only
+- Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS; credentials: true; maxAge: 86400
+- Exposed X-Request-Id header, allowed Content-Type + Authorization headers
+- 7 integration tests covering: allowed origin, disallowed origin, preflight OPTIONS, exposed headers, parseCorsOrigins in dev/prod
+- All 350 unit tests + 7 new integration tests pass, typecheck clean, lint clean
+---
+
+## Iteration 2 - TASK-002: Configure Helmet security headers
+- Registered @fastify/helmet in app.ts with: strict CSP (default-src 'self', script-src 'self', frame-ancestors 'none'), HSTS (1 year, includeSubDomains, preload), X-Frame-Options DENY, referrer-policy strict-origin-when-cross-origin
+- Helmet disabled in NODE_ENV=test to avoid noise in other integration tests
+- Created dedicated integration test (helmet.integration.test.ts) that builds app with NODE_ENV=development to verify all 5 headers
+- All 350 unit + 263 integration tests pass, typecheck + lint clean
+---
