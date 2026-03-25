@@ -181,3 +181,52 @@
 - [x] Zero `any` in src/ (excluding test/)
 - [x] JSDoc on all exported functions/classes/methods
 - [x] All responses match OpenAPI spec schemas
+
+---
+
+### Quality Assurance (Auto-Generated)
+
+**Generated**: 2026-03-25
+**Coverage**: 98.69% stmts | 91.03% branch | 99.4% funcs | 98.8% lines
+**Security Audit**: 0 vulnerabilities
+**Type Safety**: 0 `any` in user code
+**Architecture**: 0 domain layer violations
+**Lint**: 0 errors
+**JSDoc**: All exports documented
+**API Conformance**: All Zod schemas match OpenAPI spec (field-by-field verified)
+
+#### Batch 1 — Coverage Gaps
+
+**US-QA-001** | Cover uncovered branches in schedule service edge cases
+- [ ] AC1: Add tests for `schedule.service.ts` uncovered branches at lines 203-204, 305-306 (schedule update/cancel edge cases where optional fields are undefined)
+- [ ] AC2: Branch coverage for `schedule.service.ts` reaches ≥95%
+
+**US-QA-002** | Cover uncovered branch in bus service update path
+- [ ] AC1: Add test for `bus.service.ts` uncovered branch at line 162 (bus update edge case)
+- [ ] AC2: Branch coverage for `bus.service.ts` reaches ≥98%
+
+**US-QA-003** | Cover uncovered branches in schedule routes date conversion
+- [ ] AC1: Add integration test for `PUT /api/v1/schedules/:id` where `departureTime` and `arrivalTime` are both omitted (lines 195-196 in `schedules/routes.ts`)
+- [ ] AC2: Branch coverage for `schedules/routes.ts` reaches ≥95%
+
+**US-QA-004** | Cover uncovered branch in bus template seat price fallback
+- [ ] AC1: Add test for `buses/routes.ts` line 66 — template seat with `price: undefined` triggers `?? 0` fallback
+- [ ] AC2: Branch coverage for `buses/routes.ts` reaches 100%
+
+**US-QA-005** | Cover uncovered branch in bus-templates configuration
+- [ ] AC1: Add test for `bus-templates.ts` line 31 — branch condition for template seat type assignment
+- [ ] AC2: Branch coverage for `bus-templates.ts` reaches ≥95%
+
+**US-QA-006** | Add tests for provider schemas module
+- [ ] AC1: Add test that validates `providerSchema` and `providerDataResponseSchema` parse valid/invalid data correctly (lines 5-17 of `providers/schemas.ts`)
+- [ ] AC2: Line coverage for `providers/schemas.ts` reaches ≥90%
+
+#### No Issues Found (Verified Clean)
+
+- **API Contract**: All response shapes match OpenAPI spec — no stories needed
+- **Security**: All mutation endpoints have ownership enforcement; all request schemas use `.strict()` — no stories needed
+- **Type Safety**: Zero `any` in production code — no stories needed
+- **Architecture**: Domain layer has zero imports from outer layers — no stories needed
+- **JSDoc**: All exported functions documented — no stories needed
+- **Complexity**: No Phase 2 files exceed 500 lines; no functions exceed 100 lines — no stories needed
+- **SPEC_GAPS.md**: Empty, no FE-reported gaps — no stories needed
