@@ -29,6 +29,7 @@ export default defineConfig({
       },
       reporter: ['text', 'lcov', 'json-summary'],
     },
+    unstubEnvs: true,
     setupFiles: ['src/test/setup.ts'],
   },
 });

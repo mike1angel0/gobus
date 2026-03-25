@@ -62,3 +62,13 @@
 - Added lint, lint:fix, format, format:check scripts
 - Learnings: ESLint 10 uses flat config (eslint.config.mjs). Use `tseslint.config()` wrapper from typescript-eslint. eslint-plugin-jsdoc v62 works as a standard plugin object in flat config. No `"type": "module"` in root package.json so use .mjs extension for ESM config.
 ---
+
+## Iteration 11 - TASK-011: Create project architecture directories and shared utilities
+- Created layered architecture directories: api/{plugins,health,auth}, application/services, domain/{errors,auth,users}, infrastructure/{config,prisma}, shared/
+- env.ts: Zod-validated env (DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET, PORT, NODE_ENV, CORS_ORIGIN) with lazy getEnv() singleton
+- shared/types.ts: ApiResponse<T>, PaginatedResponse<T>, PaginationMeta interfaces matching OpenAPI spec
+- shared/schemas.ts: paginationQuerySchema, idParamSchema, dataResponse(), paginatedResponse() wrappers, paginationMetaSchema
+- shared/pagination.ts: buildPaginationMeta() and parsePagination() for Prisma skip/take
+- 39 total unit tests passing (7 env, 10 pagination, 15 schemas, 7 test helpers)
+- Learnings: Zod 4 is at root "zod" import (not "zod/v4"). Module-level parseEnv() breaks tests — use lazy getEnv() instead. vi.stubEnv(key, undefined) doesn't delete env vars; use `delete process.env.KEY`. Add `unstubEnvs: true` to vitest config for auto-cleanup between tests.
+---

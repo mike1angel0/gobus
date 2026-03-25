@@ -57,26 +57,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-010: Set up Vitest with test infrastructure** - Configured vitest.config.ts with path aliases (@/ → src/) and v8 coverage (85% thresholds). Created test setup (env vars), helpers (createTestApp, createAuthHeader, createTestUser with JSDoc). Added npm scripts: test, test:watch, test:coverage, test:integration. Separate vitest.integration.config.ts for integration tests. 7 unit tests passing.
 
-### TASK-011: Create project architecture directories and shared utilities
-**Description:** Create the layered architecture under `apps/api/src/`:
-```
-api/plugins/       api/health/        api/auth/
-application/services/
-domain/errors/     domain/auth/       domain/users/
-infrastructure/config/   infrastructure/prisma/
-shared/            test/
-```
-Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET, PORT, NODE_ENV, CORS_ORIGIN). Create `src/shared/types.ts` with `ApiResponse<T>`, `PaginatedResponse<T>`, `PaginationMeta`. Create `src/shared/schemas.ts` with `paginationQuerySchema`, `idParamSchema`. Create `src/shared/pagination.ts` with `buildPaginationMeta()` and `parsePagination()`.
-
-**Acceptance Criteria:**
-- [ ] All directories created
-- [ ] `env.ts` validates all env vars with Zod, throws on missing
-- [ ] `shared/types.ts` exports API envelope types matching OpenAPI spec
-- [ ] `shared/schemas.ts` exports reusable Zod schemas
-- [ ] `shared/pagination.ts` exports pagination helpers
-- [ ] Unit tests for pagination helpers
-- [ ] Typecheck passes
-- [ ] JSDoc on all exports
+**TASK-011: Create project architecture directories and shared utilities** - Created layered architecture directories (api/, application/, domain/, infrastructure/, shared/), Zod-validated env config (env.ts), API envelope types (types.ts), reusable Zod schemas (schemas.ts with pagination/id/dataResponse/paginatedResponse), pagination helpers (pagination.ts). 39 unit tests passing.
 
 ### TASK-012: Create error handling infrastructure
 **Description:** Create `src/domain/errors/error-codes.ts` with all error codes as const enum (AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_EXPIRED, AUTH_EMAIL_TAKEN, RESOURCE_NOT_FOUND, VALIDATION_ERROR, FORBIDDEN, CONFLICT, SEAT_CONFLICT, INTERNAL_ERROR, RATE_LIMITED). Create `src/domain/errors/app-error.ts` with `AppError` class. Create `src/api/plugins/error-handler.ts` plugin returning RFC 9457 Problem Details matching the `ErrorResponse` schema from the OpenAPI spec.
