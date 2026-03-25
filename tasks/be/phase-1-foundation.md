@@ -155,3 +155,11 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 - **Priority**: Low | **File**: `src/application/services/auth.service.ts` (508 lines, over 500-line limit)
 - AC1: Extract `generateTokens`, `hashToken`, and `refreshToken` logic into a dedicated `TokenService` class
 - AC2: `auth.service.ts` is under 500 lines after extraction; all existing tests still pass
+
+---
+
+**QA Batch 2**: 2026-03-25 | **Result**: No new stories
+**Coverage**: Statements 98.01% | Branches 88.63% | Functions 98.33% | Lines 97.99% (target: 90% ✅)
+**Tests**: 181 passing (15 test files) | **Lint**: 0 errors | **Typecheck**: clean
+**npm audit**: 0 vulnerabilities ✅ (US-QA-007 resolved — audit overrides applied in prior commit)
+**All other checks**: Unchanged from Batch 1 — no new gaps found. Remaining stories (US-QA-001 through US-QA-006, US-QA-008) still applicable.
