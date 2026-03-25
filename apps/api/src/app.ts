@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import type { OpenAPIV3 } from 'openapi-types';
@@ -20,6 +21,31 @@ import trackingRoutes from '@/api/tracking/routes.js';
 import delayRoutes from '@/api/delays/routes.js';
 import driverTripRoutes from '@/api/driver-trips/routes.js';
 import adminRoutes from '@/api/admin/routes.js';
+
+/** Default localhost origins allowed in development mode. */
+const DEV_ORIGINS = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'];
+
+/**
+ * Parse the CORS_ORIGIN environment variable into an array of allowed origins.
+ *
+ * In development mode, localhost origins are always allowed.
+ * In production, only the explicitly configured origins are used.
+ */
+export function parseCorsOrigins(): string[] {
+  const env = process.env.CORS_ORIGIN ?? '';
+  const configured = env
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  const isDev = process.env.NODE_ENV !== 'production';
+  if (isDev) {
+    const origins = new Set([...DEV_ORIGINS, ...configured]);
+    return [...origins];
+  }
+
+  return configured;
+}
 
 /**
  * Load the bundled OpenAPI spec from spec/dist/openapi.json.
@@ -45,6 +71,16 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
       level: process.env.LOG_LEVEL ?? 'info',
     },
     ...options,
+  });
+
+  // CORS
+  await app.register(cors, {
+    origin: parseCorsOrigins(),
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+    maxAge: 86400,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['X-Request-Id'],
   });
 
   await app.register(errorHandler);
