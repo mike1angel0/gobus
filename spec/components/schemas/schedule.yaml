@@ -27,10 +27,12 @@ StopTime:
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled arrival time at this stop
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled departure time from this stop
     orderIndex:
       type: integer
@@ -79,10 +81,12 @@ Schedule:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled departure time from first stop
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled arrival time at last stop
     daysOfWeek:
       type: array
@@ -104,10 +108,12 @@ Schedule:
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Specific date for this trip instance
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Schedule creation timestamp
 
 ScheduleWithDetails:
@@ -148,10 +154,12 @@ ScheduleWithDetails:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled departure time from first stop
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled arrival time at last stop
     daysOfWeek:
       type: array
@@ -173,6 +181,7 @@ ScheduleWithDetails:
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Specific date for this trip instance
     stopTimes:
       type: array
@@ -202,6 +211,7 @@ ScheduleWithDetails:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Schedule creation timestamp
 
 CreateStopTimeInput:
@@ -222,10 +232,12 @@ CreateStopTimeInput:
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled arrival time at this stop
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled departure time from this stop
     orderIndex:
       type: integer
@@ -266,10 +278,12 @@ CreateScheduleRequest:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled departure time from first stop
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled arrival time at last stop
     daysOfWeek:
       type: array
@@ -289,6 +303,7 @@ CreateScheduleRequest:
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Specific date for this trip instance
     stopTimes:
       type: array
@@ -313,10 +328,12 @@ UpdateScheduleRequest:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Updated departure time
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Updated arrival time
 
 ScheduleWithDetailsDataResponse:

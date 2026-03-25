@@ -15,6 +15,7 @@ list:
         schema:
           type: string
           format: date
+          maxLength: 10
     responses:
       '200':
         description: List of driver's trips
@@ -59,6 +60,7 @@ detail:
         schema:
           type: string
           format: date
+          maxLength: 10
     responses:
       '200':
         description: Driver trip detail

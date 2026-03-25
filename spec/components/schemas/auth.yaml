@@ -243,10 +243,12 @@ User:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Account creation timestamp
     updatedAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Last update timestamp
 
 LoginResponse:

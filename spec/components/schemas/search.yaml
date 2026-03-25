@@ -37,14 +37,17 @@ SearchResult:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Departure time from origin stop
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Arrival time at destination stop
     tripDate:
       type: string
       format: date
+      maxLength: 10
       description: Date of the trip
     price:
       type: number
@@ -139,14 +142,17 @@ TripDetail:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Departure time from first stop
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Arrival time at last stop
     tripDate:
       type: string
       format: date
+      maxLength: 10
       description: Date of the trip
     basePrice:
       type: number

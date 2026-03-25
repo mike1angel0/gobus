@@ -245,6 +245,40 @@ describe('ScheduleService', () => {
       );
     });
 
+    it('should apply only fromDate filter when toDate is omitted', async () => {
+      const fromDate = new Date('2024-06-01');
+      (prisma.schedule.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      (prisma.schedule.count as ReturnType<typeof vi.fn>).mockResolvedValue(0);
+
+      await service.listByProvider(PROVIDER_ID, { page: 1, pageSize: 20 }, { fromDate });
+
+      expect(prisma.schedule.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            route: { providerId: PROVIDER_ID },
+            tripDate: { gte: fromDate },
+          },
+        }),
+      );
+    });
+
+    it('should apply only toDate filter when fromDate is omitted', async () => {
+      const toDate = new Date('2024-06-30');
+      (prisma.schedule.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      (prisma.schedule.count as ReturnType<typeof vi.fn>).mockResolvedValue(0);
+
+      await service.listByProvider(PROVIDER_ID, { page: 1, pageSize: 20 }, { toDate });
+
+      expect(prisma.schedule.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            route: { providerId: PROVIDER_ID },
+            tripDate: { lte: toDate },
+          },
+        }),
+      );
+    });
+
     it('should return empty list when no schedules exist', async () => {
       (prisma.schedule.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([]);
       (prisma.schedule.count as ReturnType<typeof vi.fn>).mockResolvedValue(0);
@@ -588,6 +622,58 @@ describe('ScheduleService', () => {
       );
       // Should not validate driver when unassigning
       expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('should update schedule departure and arrival times', async () => {
+      const existing = {
+        ...makeSchedule(),
+        route: { providerId: PROVIDER_ID },
+      };
+      (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
+
+      const newDeparture = new Date('2024-06-15T09:00:00Z');
+      const newArrival = new Date('2024-06-15T15:00:00Z');
+      const updated = makeScheduleWithRelations({
+        departureTime: newDeparture,
+        arrivalTime: newArrival,
+      });
+      (prisma.schedule.update as ReturnType<typeof vi.fn>).mockResolvedValue(updated);
+
+      const result = await service.update(SCHEDULE_ID, PROVIDER_ID, {
+        departureTime: newDeparture,
+        arrivalTime: newArrival,
+      });
+
+      expect(result.departureTime).toBe(newDeparture);
+      expect(result.arrivalTime).toBe(newArrival);
+      expect(prisma.schedule.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { departureTime: newDeparture, arrivalTime: newArrival },
+        }),
+      );
+    });
+
+    it('should update only departureTime when arrivalTime is omitted', async () => {
+      const existing = {
+        ...makeSchedule(),
+        route: { providerId: PROVIDER_ID },
+      };
+      (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
+
+      const newDeparture = new Date('2024-06-15T09:00:00Z');
+      const updated = makeScheduleWithRelations({ departureTime: newDeparture });
+      (prisma.schedule.update as ReturnType<typeof vi.fn>).mockResolvedValue(updated);
+
+      const result = await service.update(SCHEDULE_ID, PROVIDER_ID, {
+        departureTime: newDeparture,
+      });
+
+      expect(result.departureTime).toBe(newDeparture);
+      expect(prisma.schedule.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { departureTime: newDeparture },
+        }),
+      );
     });
 
     it('should update schedule status', async () => {

@@ -15,6 +15,7 @@ PaginationMeta:
     page:
       type: integer
       minimum: 1
+      maximum: 10000
       description: Current page number (1-based)
     pageSize:
       type: integer

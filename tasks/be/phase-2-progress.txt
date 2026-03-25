@@ -111,3 +111,24 @@
 - Fixed 2 OpenAPI spec mismatches: driver assignedScheduleCount max (2147483647→10000), schedule filter fromDate/toDate now validate ISO 8601 date format via z.string().date()
 - Prettier reformatted 23 files (formatting-only changes)
 ---
+
+## Validation Rejected - Fixes Needed (RESOLVED)
+All 3 blocking issues resolved:
+1. ✅ date-time/date strings missing `maxLength` — added maxLength: 30 (datetime) / 10 (date) to 50+ fields across 13 spec files
+2. ✅ PaginationMeta.page and PageParam missing `maximum` — added maximum: 10000
+3. ✅ Login/verification password fields missing `pattern` — documented as intentional exception in DOUBTS_AND_DECISIONS.md (verification fields should not enforce complexity pattern)
+
+**Non-blocking warnings (status):**
+- `security:secrets` — not in scope for Phase 2
+- QA stories US-QA-001 through US-QA-006 — ✅ all resolved
+- `dataResponse`/`paginatedResponse` JSDoc — ✅ already had JSDoc (was a false positive)
+---
+
+## Iteration 15 - Validation Fixes + QA Coverage Stories
+- Fixed 3 blocking validation issues: maxLength on 50+ date-time/date fields, maximum on page parameter, password pattern exception documented
+- Resolved all 6 QA stories (US-QA-001 through US-QA-006) with new tests
+- Coverage improved: 99.13% stmts, 92.83% branch (up from 98.69%/91.03%)
+- Remaining uncovered branches are defensive fallbacks for optional parameters that can't be triggered through the public API
+- Learnings: Python script was efficient for bulk spec edits across 13 files; defensive `?? []` fallbacks for optional params are essentially dead code
+---
+

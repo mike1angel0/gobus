@@ -311,6 +311,49 @@ describe('BusService', () => {
       });
     });
 
+    it('should update bus capacity when provided', async () => {
+      (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        providerId: PROVIDER_ID,
+      });
+      const updatedBus = { ...makeBus({ capacity: 60 }), seats: [makeSeat()] };
+      (prisma.bus.update as ReturnType<typeof vi.fn>).mockResolvedValue(updatedBus);
+
+      const result = await service.update(BUS_ID, PROVIDER_ID, { capacity: 60 });
+
+      expect(result.capacity).toBe(60);
+      expect(prisma.bus.update).toHaveBeenCalledWith({
+        where: { id: BUS_ID },
+        data: { capacity: 60 },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+      });
+    });
+
+    it('should update multiple fields at once', async () => {
+      (prisma.bus.findUnique as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({ providerId: PROVIDER_ID })
+        .mockResolvedValueOnce(null); // license plate uniqueness check
+      const updatedBus = {
+        ...makeBus({ licensePlate: 'X-999-YYY', model: 'Neoplan', capacity: 56 }),
+        seats: [makeSeat()],
+      };
+      (prisma.bus.update as ReturnType<typeof vi.fn>).mockResolvedValue(updatedBus);
+
+      const result = await service.update(BUS_ID, PROVIDER_ID, {
+        licensePlate: 'X-999-YYY',
+        model: 'Neoplan',
+        capacity: 56,
+      });
+
+      expect(result.licensePlate).toBe('X-999-YYY');
+      expect(result.model).toBe('Neoplan');
+      expect(result.capacity).toBe(56);
+      expect(prisma.bus.update).toHaveBeenCalledWith({
+        where: { id: BUS_ID },
+        data: { licensePlate: 'X-999-YYY', model: 'Neoplan', capacity: 56 },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+      });
+    });
+
     it('should throw RESOURCE_NOT_FOUND when bus does not exist', async () => {
       (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 

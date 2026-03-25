@@ -67,6 +67,7 @@ Route:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Route creation timestamp
 
 RouteWithStops:
@@ -101,6 +102,7 @@ RouteWithStops:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Route creation timestamp
 
 CreateStopInput:
@@ -244,6 +246,7 @@ Bus:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Bus creation timestamp
 
 BusWithSeats:
@@ -301,6 +304,7 @@ BusWithSeats:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Bus creation timestamp
 
 CreateSeatInput:
@@ -494,6 +498,7 @@ Driver:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Account creation timestamp
 
 CreateDriverRequest:

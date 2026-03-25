@@ -57,6 +57,7 @@ Booking:
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Date of the trip
     seatLabels:
       type: array
@@ -69,6 +70,7 @@ Booking:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Booking creation timestamp
 
 BookingWithDetails:
@@ -123,6 +125,7 @@ BookingWithDetails:
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Date of the trip
     seatLabels:
       type: array
@@ -144,10 +147,12 @@ BookingWithDetails:
         departureTime:
           type: string
           format: date-time
+          maxLength: 30
           description: Schedule departure time
         arrivalTime:
           type: string
           format: date-time
+          maxLength: 30
           description: Schedule arrival time
         route:
           type: object
@@ -203,6 +208,7 @@ BookingWithDetails:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Booking creation timestamp
 
 CreateBookingRequest:

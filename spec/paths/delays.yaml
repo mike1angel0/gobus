@@ -22,6 +22,7 @@ list:
         schema:
           type: string
           format: date
+          maxLength: 10
     responses:
       '200':
         description: List of delays

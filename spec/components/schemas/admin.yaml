@@ -27,14 +27,17 @@ DriverTrip:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled departure time
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled arrival time
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Date of this trip
     routeName:
       type: string
@@ -70,14 +73,17 @@ DriverTripDetail:
     departureTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled departure time
     arrivalTime:
       type: string
       format: date-time
+      maxLength: 30
       description: Scheduled arrival time
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Date of this trip
     routeName:
       type: string

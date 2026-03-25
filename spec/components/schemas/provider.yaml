@@ -48,10 +48,12 @@ Provider:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Provider creation timestamp
     updatedAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Last update timestamp
 
 ProviderDataResponse:

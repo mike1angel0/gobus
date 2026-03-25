@@ -63,10 +63,12 @@ BusTracking:
         - string
         - 'null'
       format: date-time
+      maxLength: 30
       description: Date of the current trip
     updatedAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Last position update timestamp
 
 TrackingUpdate:

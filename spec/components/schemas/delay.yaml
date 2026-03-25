@@ -43,6 +43,7 @@ Delay:
     tripDate:
       type: string
       format: date-time
+      maxLength: 30
       description: Date of the affected trip
     active:
       type: boolean
@@ -50,6 +51,7 @@ Delay:
     createdAt:
       type: string
       format: date-time
+      maxLength: 30
       description: Delay creation timestamp
 
 CreateDelayRequest:
@@ -80,6 +82,7 @@ CreateDelayRequest:
     tripDate:
       type: string
       format: date
+      maxLength: 10
       description: Date of the affected trip (ISO 8601 date format)
 
 UpdateDelayRequest:

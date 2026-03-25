@@ -33,12 +33,14 @@ list:
         schema:
           type: string
           format: date
+          maxLength: 10
       - name: toDate
         in: query
         description: Filter schedules until this date (inclusive, ISO 8601)
         schema:
           type: string
           format: date
+          maxLength: 10
     responses:
       '200':
         description: Paginated list of schedules

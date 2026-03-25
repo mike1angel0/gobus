@@ -666,6 +666,51 @@ describe('Schedule Routes', () => {
       expect(response.body.code).toBe('RESOURCE_NOT_FOUND');
     });
 
+    it('returns 200 when updating departureTime and arrivalTime', async () => {
+      mockAuthUser();
+      mockScheduleFindUnique.mockResolvedValueOnce({
+        id: 'sched-1',
+        route: { providerId: 'prov-1' },
+      });
+      const updated = makeDbScheduleWithRelations({
+        departureTime: new Date('2024-07-01T09:00:00.000Z'),
+        arrivalTime: new Date('2024-07-01T13:00:00.000Z'),
+      });
+      mockScheduleUpdate.mockResolvedValueOnce(updated);
+
+      const response = await supertest(app.server)
+        .put('/api/v1/schedules/sched-1')
+        .set('Authorization', PROVIDER_AUTH())
+        .send({
+          departureTime: '2024-07-01T09:00:00.000Z',
+          arrivalTime: '2024-07-01T13:00:00.000Z',
+        })
+        .expect(200);
+
+      expect(response.body.data.departureTime).toBe('2024-07-01T09:00:00.000Z');
+      expect(response.body.data.arrivalTime).toBe('2024-07-01T13:00:00.000Z');
+    });
+
+    it('returns 200 when updating with departureTime and arrivalTime omitted', async () => {
+      mockAuthUser();
+      mockScheduleFindUnique.mockResolvedValueOnce({
+        id: 'sched-1',
+        route: { providerId: 'prov-1' },
+      });
+      mockScheduleUpdate.mockResolvedValueOnce(
+        makeDbScheduleWithRelations({ status: 'CANCELLED' }),
+      );
+
+      const response = await supertest(app.server)
+        .put('/api/v1/schedules/sched-1')
+        .set('Authorization', PROVIDER_AUTH())
+        .send({ status: 'CANCELLED' })
+        .expect(200);
+
+      expect(response.body.data.id).toBe('sched-1');
+      expect(response.body.data.status).toBe('CANCELLED');
+    });
+
     it('rejects unknown fields in body', async () => {
       mockAuthUser();
 

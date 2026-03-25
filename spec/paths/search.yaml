@@ -30,6 +30,7 @@ search:
         schema:
           type: string
           format: date
+          maxLength: 10
       - $ref: '../components/parameters/common.yaml#/PageParam'
       - $ref: '../components/parameters/common.yaml#/PageSizeParam'
     responses:
@@ -70,6 +71,7 @@ tripDetail:
         schema:
           type: string
           format: date
+          maxLength: 10
     responses:
       '200':
         description: Trip details with seat availability
