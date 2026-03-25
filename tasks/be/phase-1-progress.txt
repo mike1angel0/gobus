@@ -43,3 +43,9 @@
 - Bundled output preserves all 29 paths and 80 schemas
 - Learnings: Redocly resolves relative $ref paths correctly across files. Use `#/SchemaName` for same-file refs, `./other.yaml#/SchemaName` for sibling schema refs, `../components/schemas/X.yaml#/Y` from path files. A prior commit had already done the split, so my changes matched exactly — always check git log first.
 ---
+
+## Iteration 7 - TASK-007: Add spec validation tooling and npm scripts
+- All tooling was already in place from previous iterations (redocly/cli, npm scripts, .redocly.yaml, .gitignore)
+- Verified: spec:lint passes (0 errors, 3 acceptable warnings), spec:bundle produces spec/dist/openapi.json
+- Learnings: Check existing setup before implementing — previous tasks had already set up the tooling incrementally. The 3 warnings (license-strict, localhost server, forgot-password missing 4XX) are all acceptable by design.
+---

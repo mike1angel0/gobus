@@ -45,17 +45,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-006: Split OpenAPI spec into multi-file structure** - Split 3884-line monolithic spec into 12 path files, 10 schema files, reusable parameters/responses/securitySchemes. Root openapi.yaml is 94 lines (refs only). All 29 paths and 80 schemas preserved. Spec lints with zero errors.
 
-### TASK-007: Add spec validation tooling and npm scripts
-**Description:** Install `@redocly/cli` as root devDep. Add root npm scripts: `spec:lint` (validates split spec), `spec:preview` (serves Redoc preview), `spec:bundle` (bundles split files into single `spec/dist/openapi.json` for consumers — FE type generation, Swagger UI). Create `spec/.redocly.yaml` config with rules (no-unused-components, no-empty-servers, etc.). Add `spec/dist/` to `.gitignore`. Verify the complete spec passes linting.
-
-**Acceptance Criteria:**
-- [ ] `@redocly/cli` installed as root devDep
-- [ ] `npm run spec:lint` validates the split OpenAPI spec
-- [ ] `npm run spec:bundle` outputs `spec/dist/openapi.json` (single bundled file)
-- [ ] `npm run spec:preview` serves interactive Redoc docs
-- [ ] `.redocly.yaml` config with recommended rules
-- [ ] `spec/dist/` in `.gitignore`
-- [ ] Complete spec passes lint with zero errors
+**TASK-007: Add spec validation tooling and npm scripts** - Installed @redocly/cli, configured .redocly.yaml with recommended rules + extras, added spec:lint/spec:bundle/spec:preview npm scripts, spec/dist/ in .gitignore. Spec validates with zero errors.
 
 ---
 
