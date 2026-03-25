@@ -87,21 +87,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-021: Create auth plugin and role guards with account status checks** - Created auth.ts plugin (JWT validation, DB user status check: SUSPENDED→403, LOCKED→423, decorates request.user with Fastify type augmentation) and role-guard.ts (requireRole, requireProvider, requireDriver, requireAdmin factories). Zero `as any` casts. 28 unit tests covering all error scenarios.
 
-### TASK-022: Create auth routes
-**Description:** Create `src/api/auth/routes.ts` and `src/api/auth/schemas.ts`. Implement all 9 auth endpoints from the OpenAPI spec. Zod schemas must mirror the spec schemas exactly. Register at `/api/v1/auth` prefix.
-
-**Acceptance Criteria:**
-- [ ] All 9 endpoints match OpenAPI spec (register, login, refresh, logout, forgot-password, reset-password, change-password, get me, update me)
-- [ ] Register validates password strength (Zod regex: uppercase, lowercase, digit, min 8)
-- [ ] Login returns 423 for locked accounts, 403 for suspended
-- [ ] Logout revokes refresh token
-- [ ] Forgot-password always returns 200 (no email enumeration)
-- [ ] Reset-password validates token + password strength
-- [ ] Change-password requires current password
-- [ ] Zod schemas with `.describe()` matching spec field descriptions
-- [ ] Integration tests with Supertest for all 9 endpoints
-- [ ] Error cases tested (duplicate email, bad credentials, expired token, locked account, weak password, invalid reset token)
-- [ ] Typecheck passes
+**TASK-022: Create auth routes** - Created src/api/auth/schemas.ts (15 Zod schemas with .describe() matching OpenAPI spec exactly, strict parsing, password regex) and src/api/auth/routes.ts (all 9 endpoints: register, login, refresh, logout, forgot-password, reset-password, change-password, get me, update me). Added getProfile/updateProfile to AuthService. Registered auth plugin + routes in app.ts. 32 integration tests with Supertest covering all endpoints and error cases. 137 unit + 36 integration tests passing.
 
 ---
 

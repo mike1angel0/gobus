@@ -77,5 +77,23 @@ Iterations 1–17 established the full project foundation: monorepo structure, c
 - Learnings: Use `createHash` from `node:crypto` import in tests (not `require('crypto')`) to satisfy ESLint no-require-imports rule. bcrypt.hashSync with low rounds (4) in tests for speed. Prisma `$transaction` receives an array of promises — mock it with `vi.fn((actions) => Promise.all(actions))`.
 ---
 
+## Iteration 21 - TASK-021: Create auth plugin and role guards
+- Created auth.ts plugin: JWT extraction/verification, DB user status check (SUSPENDED→403, LOCKED→423), request.user decoration with Fastify type augmentation
+- Created role-guard.ts: requireRole(...roles) factory, requireProvider, requireDriver, requireAdmin preHandlers
+- Updated test helpers: createAuthHeader now includes email in JWT payload (required by auth plugin), changed 3rd param from string to options object
+- 28 new unit tests (12 auth plugin, 16 role guard), 137 total tests passing
+- Learnings: Fastify `decorateRequest` with null initial value requires `null as unknown as T` cast in strict mode. For auth plugin unit tests, create a standalone Fastify instance (not buildApp) and mock getPrisma() — avoids loading the full app with spec files. The auth plugin uses getPrisma() singleton rather than app.prisma decorator since no Prisma plugin exists yet.
+---
+
+## Iteration 22 - TASK-022: Create auth routes
+- Created src/api/auth/schemas.ts with 15 Zod schemas (request + response) matching OpenAPI spec exactly, all with .describe(), strict parsing, password regex
+- Created src/api/auth/routes.ts with all 9 auth endpoints using Zod manual parse (not Fastify schema validation since no type provider)
+- Added getProfile/updateProfile methods to AuthService
+- Registered auth plugin and auth routes in app.ts (auth plugin before routes due to dependency)
+- 32 integration tests with Supertest covering all endpoints and error scenarios
+- 137 unit + 36 integration tests passing
+- Learnings: Fastify doesn't understand Zod schemas in route `schema` property without a type provider — pass Zod schemas to `.parse()` manually instead. `vi.clearAllMocks()` doesn't reset `mockResolvedValue` defaults — use `vi.resetAllMocks()` for integration tests that share a single app instance. For authenticated routes, the auth plugin's `findUnique` call must be mocked separately (first mock call consumed by plugin, second by service). Prisma JSON fields need `as Prisma.InputJsonValue` cast for UserPreferences.
+---
+
 ## Learnings
 See per-iteration learnings above and the "Important Gotchas" section in Compacted History.

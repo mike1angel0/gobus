@@ -6,7 +6,9 @@ import type { OpenAPIV3 } from 'openapi-types';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 
 import errorHandler from '@/api/plugins/error-handler.js';
+import authPlugin from '@/api/plugins/auth.js';
 import healthRoutes from '@/api/health/routes.js';
+import authRoutes from '@/api/auth/routes.js';
 
 /**
  * Load the bundled OpenAPI spec from spec/dist/openapi.json.
@@ -48,8 +50,12 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
     routePrefix: '/docs',
   });
 
+  // Plugins
+  await app.register(authPlugin);
+
   // Routes
   await app.register(healthRoutes);
+  await app.register(authRoutes);
 
   return app;
 }

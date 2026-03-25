@@ -1,15 +1,15 @@
 import { randomBytes, createHash } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import type { PrismaClient } from '@/generated/prisma/client.js';
-import type { User } from '@/generated/prisma/client.js';
+import type { PrismaClient, User } from '@/generated/prisma/client.js';
+import { Prisma } from '@/generated/prisma/client.js';
 import type {
   RegisterData,
   LoginCredentials,
   AuthTokenPayload,
   TokenPair,
 } from '@/domain/auth/auth.types.js';
-import type { UserEntity } from '@/domain/users/user.entity.js';
+import type { UserEntity, UserUpdateData } from '@/domain/users/user.entity.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { getEnv } from '@/infrastructure/config/env.js';
@@ -388,6 +388,52 @@ export class AuthService {
       accessToken,
       refreshToken: refreshTokenRaw,
     };
+  }
+
+  /**
+   * Retrieve the authenticated user's profile by ID.
+   * Returns a public UserEntity (excludes sensitive fields).
+   */
+  async getProfile(userId: string): Promise<UserEntity> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'User not found');
+    }
+
+    return this.toUserEntity(user);
+  }
+
+  /**
+   * Update the authenticated user's profile. Only provided fields are updated.
+   * Returns the updated public UserEntity.
+   */
+  async updateProfile(userId: string, data: UserUpdateData): Promise<UserEntity> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'User not found');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+        ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
+        ...(data.preferences !== undefined && {
+          preferences: data.preferences as Prisma.InputJsonValue,
+        }),
+      },
+    });
+
+    logger.info('Profile updated', { userId });
+
+    return this.toUserEntity(updated);
   }
 
   /**
