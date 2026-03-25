@@ -5,7 +5,7 @@ import { dataResponse } from '@/shared/schemas.js';
  * Password validation pattern: at least one uppercase, one lowercase, and one digit.
  * Used in register, reset-password, and change-password schemas.
  */
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/;
 
 /**
  * Reusable strong password schema matching OpenAPI password constraints.

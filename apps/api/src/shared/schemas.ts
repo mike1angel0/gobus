@@ -59,8 +59,8 @@ export function paginatedResponse<T extends z.ZodType>(schema: T) {
  * Validates pagination metadata fields returned in list responses.
  */
 export const paginationMetaSchema = z.object({
-  total: z.number().int().min(0).describe('Total number of records matching the query'),
+  total: z.number().int().min(0).max(2147483647).describe('Total number of records matching the query'),
   page: z.number().int().min(1).describe('Current page number (1-based)'),
   pageSize: z.number().int().min(1).max(100).describe('Number of records per page'),
-  totalPages: z.number().int().min(0).describe('Total number of pages'),
+  totalPages: z.number().int().min(0).max(2147483647).describe('Total number of pages'),
 });
