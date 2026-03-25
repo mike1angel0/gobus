@@ -75,3 +75,17 @@
 - 15 integration tests covering: list with results, empty list, default date, multiple trips, 403 passenger, 403 provider, 400 invalid date, 401, detail with stops/passengers, default date detail, 404 not found, 404 not assigned, 403 non-driver, 401
 - Learnings: Driver trip list response is non-paginated (just { data: DriverTrip[] }), similar to delays; reuse listDriverTripsQuerySchema for both list and detail date param
 ---
+## Iteration 11 - TASK-011: Create admin service
+- Implemented AdminService with listAllBuses (paginated, optional providerId filter) and toggleSeat (finds seat, updates isEnabled)
+- Used module-level toBusEntity/toSeatEntity mapper functions (not class methods, since admin doesn't need bus-specific logic)
+- 11 unit tests covering: paginated listing, empty list, provider filter, no filter, pagination skip/take, ordering, disable seat, enable seat, seat entity shape, seat not found 404, no update on not found
+- Learnings: Admin service is simpler than other services — no ownership checks needed since ADMIN role is enforced at route level; reused BusEntity and SeatEntity from bus.entity.ts domain types
+---
+## Iteration 12 - TASK-012: Create admin API routes
+- Implemented GET /api/v1/admin/buses (paginated, optional providerId filter) and PATCH /api/v1/admin/seats/:id (toggle isEnabled)
+- Both endpoints require ADMIN role via requireAdmin preHandler
+- Created Zod schemas (adminListBusesQuerySchema, toggleSeatBodySchema, busSchema, seatSchema) with .describe() matching OpenAPI spec
+- serializeBus converts createdAt Date to ISO string; serializeSeat maps all primitive fields
+- 14 integration tests covering: list with results, empty list, providerId filter, custom pagination, 403 passenger, 403 provider, 401, disable seat, enable seat, 404 not found, 400 missing body, 400 unknown fields, 403 non-admin patch, 401 patch
+- Learnings: Admin routes are straightforward — role guard handles authorization, no ownership checks needed; reused idParamSchema from shared/schemas.ts for seat ID param
+---

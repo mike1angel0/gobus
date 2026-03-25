@@ -92,24 +92,9 @@
 
 ## Admin Operations
 
-### TASK-011: Create admin service
-**Description:** Create `src/application/services/admin.service.ts`. Methods: `listAllBuses(pagination)` — returns all buses across all providers with seat details. `toggleSeat(seatId, enabled: boolean)` — enables/disables seat.
+**TASK-011: Create admin service** - Implemented AdminService with listAllBuses (paginated, optional providerId filter) and toggleSeat (enable/disable). 11 unit tests.
 
-**Acceptance Criteria:**
-- [x] `listAllBuses` returns all buses with provider info and seats
-- [x] `toggleSeat` updates isEnabled flag
-- [x] Unit tests
-- [x] JSDoc
-- [x] Typecheck passes
-
-### TASK-012: Create admin API routes
-**Description:** Implement from spec: `GET /api/v1/admin/buses` (ADMIN role, paginated), `PATCH /api/v1/admin/seats/{id}` (ADMIN role).
-
-**Acceptance Criteria:**
-- [ ] Both endpoints match OpenAPI spec
-- [ ] Requires ADMIN role (403 otherwise)
-- [ ] Integration tests
-- [ ] Typecheck passes
+**TASK-012: Create admin API routes** - Implemented GET /api/v1/admin/buses and PATCH /api/v1/admin/seats/:id with ADMIN role enforcement, Zod validation, 14 integration tests.
 
 ---
 
