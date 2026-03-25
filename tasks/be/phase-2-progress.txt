@@ -1,0 +1,7 @@
+## Iteration 1 - TASK-001: Create provider service
+- Created ProviderEntity and ProviderUpdateData types in domain/providers/provider.entity.ts
+- Created ProviderService with getById, getByUserId, updateProfile methods
+- 9 unit tests covering happy paths + not found + ownership scenarios
+- Patterns: follows same class-based service pattern as AuthService, uses createLogger, throws AppError with ErrorCodes
+- getByUserId fetches user first to get providerId, then delegates to getById
+---

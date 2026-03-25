@@ -12,11 +12,11 @@
 **Description:** Create `src/application/services/provider.service.ts` with `ProviderService`. Methods: `getById(id)`, `getByUserId(userId)` — resolves provider from user's providerId, `updateProfile(providerId, data)`. Use `createLogger('provider-service')`.
 
 **Acceptance Criteria:**
-- [ ] All methods implemented
-- [ ] `getByUserId` throws NOT_FOUND if user has no provider
-- [ ] Unit tests with mocked Prisma
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] All methods implemented
+- [x] `getByUserId` throws NOT_FOUND if user has no provider
+- [x] Unit tests with mocked Prisma
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-002: Create provider routes
 **Description:** Create `src/api/providers/routes.ts` and `schemas.ts`. Implement `GET /api/v1/providers/me` matching OpenAPI spec. Requires PROVIDER role.
