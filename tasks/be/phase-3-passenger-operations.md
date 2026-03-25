@@ -54,18 +54,7 @@
 - [x] JSDoc on all public methods
 - [x] Typecheck passes
 
-### TASK-004: Create booking API routes
-**Description:** Implement from spec: `GET /api/v1/bookings` (list, paginated, authenticated), `POST /api/v1/bookings` (create, authenticated), `GET /api/v1/bookings/{id}` (detail, authenticated, ownership), `DELETE /api/v1/bookings/{id}` (cancel, authenticated, ownership).
-
-**Acceptance Criteria:**
-- [ ] All 4 endpoints match OpenAPI spec exactly
-- [ ] List returns bookings with schedule/route details
-- [ ] Create returns 201 with booking details
-- [ ] Conflict returns 409 with SEAT_CONFLICT code
-- [ ] Cancel returns 204
-- [ ] Ownership enforced on detail and cancel (403 for other users)
-- [ ] Integration tests: create, create conflict, list, cancel, ownership violation
-- [ ] Typecheck passes
+**TASK-004: Create booking API routes** - Implemented 4 authenticated endpoints (GET list, POST create, GET detail, DELETE cancel) with Zod validation, ownership enforcement, 19 integration tests.
 
 ---
 
