@@ -93,14 +93,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 ## Quality Gates
 
-### TASK-023: Create CLAUDE.md for backend
-**Description:** Create `apps/api/CLAUDE.md` documenting: tech stack, quick start, architecture (layered with rules), API-first workflow (spec → implement → validate), API conventions (response/error format), route implementation pattern, service pattern, quality gates, test conventions, env vars table.
-
-**Acceptance Criteria:**
-- [ ] All sections documented
-- [ ] API-first workflow explained (spec is source of truth)
-- [ ] Quality gate commands listed
-- [ ] Test conventions (unit vs integration, assertion style)
+**TASK-023: Create CLAUDE.md for backend** - Created apps/api/CLAUDE.md with tech stack, quick start, layered architecture rules, API-first workflow, API conventions (envelope + RFC 9457 errors), route/service patterns, quality gate commands, test conventions, env vars table, and key patterns.
 
 ### TASK-024: Run all Phase 1 quality gates
 **Description:** Run and fix: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test`, `npm run test:coverage`, `npm run build`. Ensure all pass, coverage ≥ 85%, zero `any` in production code, JSDoc on all exports.
