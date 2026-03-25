@@ -7,7 +7,7 @@ export const driverStatusSchema = z.enum(['ACTIVE', 'SUSPENDED', 'LOCKED']);
 /** Zod schema for a Driver response object matching OpenAPI Driver schema. */
 export const driverSchema = z.object({
   id: z.string().max(30).describe('Unique driver identifier (cuid)'),
-  email: z.string().max(255).describe('Driver email address'),
+  email: z.string().email().max(255).describe('Driver email address'),
   name: z.string().max(100).describe('Driver full name'),
   role: z.enum(['DRIVER']).describe('User role (always DRIVER)'),
   phone: z.string().max(20).nullable().describe('Optional phone number'),

@@ -132,3 +132,9 @@ All 3 blocking issues resolved:
 - Learnings: Python script was efficient for bulk spec edits across 13 files; defensive `?? []` fallbacks for optional params are essentially dead code
 ---
 
+
+## Iteration 16 - US-QA-007: Fix driver response schema email validation
+- Added `.email()` to `driverSchema.email` in `src/api/drivers/schemas.ts` to match OpenAPI `format: email` constraint
+- All 249 tests pass, typecheck clean, lint clean
+---
+

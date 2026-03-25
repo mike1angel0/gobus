@@ -242,8 +242,8 @@
 **API Conformance**: 1 minor schema discrepancy found
 
 **US-QA-007** | Fix driver response schema: add `.email()` validation to match OpenAPI spec
-- [ ] AC1: Add `.email()` to `driverSchema.email` field in `src/api/drivers/schemas.ts` line 10 so it reads `z.string().email().max(255).describe('Driver email address')`, matching the OpenAPI `format: email` constraint
-- [ ] AC2: Verify existing driver integration tests still pass after the change
+- [x] AC1: Add `.email()` to `driverSchema.email` field in `src/api/drivers/schemas.ts` line 10 so it reads `z.string().email().max(255).describe('Driver email address')`, matching the OpenAPI `format: email` constraint
+- [x] AC2: Verify existing driver integration tests still pass after the change
 
 #### No New Issues Found (Verified Clean in Batch 2)
 
