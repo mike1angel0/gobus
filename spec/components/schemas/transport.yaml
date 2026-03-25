@@ -571,6 +571,20 @@ BusListResponse:
     meta:
       $ref: './common.yaml#/PaginationMeta'
 
+BusTemplateListResponse:
+  type: object
+  description: List of available bus templates
+  required:
+    - data
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Available bus templates
+      items:
+        $ref: '#/BusTemplate'
+
 DriverDataResponse:
   type: object
   description: API response envelope wrapping driver data

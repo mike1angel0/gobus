@@ -52,3 +52,12 @@
 - 22 unit tests: list pagination, getById happy/not-found/ownership, create with transaction/conflict/blocked-seats, update happy/not-found/ownership/conflict/same-plate, delete happy/not-found/ownership/conflict, templates list/copy/lookup
 - Patterns: same class-based service as RouteService, toBusEntity/toBusWithSeats/toSeatEntity converters
 ---
+## Iteration 8 - TASK-008: Create bus API routes
+- Created 6 endpoints: GET /api/v1/buses (list), POST /api/v1/buses (create), GET /api/v1/buses/:id (detail with seats), PUT /api/v1/buses/:id (update), DELETE /api/v1/buses/:id, GET /api/v1/buses/templates
+- Added missing endpoints to OpenAPI spec: GET /api/v1/buses/{id} and GET /api/v1/buses/templates with BusTemplateListResponse schema
+- Created Zod schemas in schemas.ts matching OpenAPI spec field-by-field (Seat, Bus, BusWithSeats, CreateSeatInput, CreateBusRequest, UpdateBusRequest, BusTemplate)
+- All schemas use .strict() and .describe() on every field
+- 33 integration tests: CRUD happy paths, pagination, validation (rows/columns range, empty seats, unknown fields), auth (401/403), ownership (404), conflict (409), templates listing
+- Templates endpoint registered before /:id to avoid route matching conflict
+- Patterns: same fastify-plugin pattern as route routes, serialize helpers for Date→ISO
+---

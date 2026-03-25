@@ -41,6 +41,8 @@ paths:
     $ref: paths/buses.yaml#/list
   /api/v1/buses/{id}:
     $ref: paths/buses.yaml#/byId
+  /api/v1/buses/templates:
+    $ref: paths/buses.yaml#/templates
   /api/v1/drivers:
     $ref: paths/drivers.yaml#/list
   /api/v1/drivers/{id}:

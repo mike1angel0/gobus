@@ -76,6 +76,41 @@ list:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
 
 byId:
+  get:
+    operationId: getBus
+    summary: Get bus details with seat layout
+    description: Returns a bus with its full seat layout. Ownership enforced — providers can only view their own buses.
+    tags:
+      - Buses
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '200':
+        description: Bus with seats
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/transport.yaml#/BusWithSeatsDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Bus not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
   put:
     operationId: updateBus
     summary: Update a bus
@@ -156,6 +191,35 @@ byId:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
       '404':
         description: Bus not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+templates:
+  get:
+    operationId: listBusTemplates
+    summary: List available bus templates
+    description: Returns all predefined bus layout templates. Requires PROVIDER role.
+    tags:
+      - Buses
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: List of bus templates
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/transport.yaml#/BusTemplateListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
         content:
           application/json:
             schema:

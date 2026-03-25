@@ -95,11 +95,11 @@
 **Description:** Implement bus endpoints from OpenAPI spec: `GET /api/v1/buses` (list), `POST /api/v1/buses` (create), `GET /api/v1/buses/{id}` (detail with seats), `PUT /api/v1/buses/{id}` (update), `DELETE /api/v1/buses/{id}`, `GET /api/v1/buses/templates` (list templates). All require PROVIDER role.
 
 **Acceptance Criteria:**
-- [ ] All 6 endpoints match OpenAPI spec
-- [ ] Create validates: rows 1-20, columns 1-6, licensePlate format
-- [ ] Detail response includes full seat grid
-- [ ] Integration tests for all endpoints
-- [ ] Typecheck passes
+- [x] All 6 endpoints match OpenAPI spec
+- [x] Create validates: rows 1-20, columns 1-6, licensePlate format
+- [x] Detail response includes full seat grid
+- [x] Integration tests for all endpoints
+- [x] Typecheck passes
 
 ---
 
