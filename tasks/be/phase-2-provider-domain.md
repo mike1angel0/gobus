@@ -81,15 +81,15 @@
 **Description:** Create `src/application/services/bus.service.ts`. Methods: `listByProvider(providerId, pagination)`, `getById(id, providerId)` — includes seats, `create(providerId, data)` — creates bus + seats in transaction, `update(id, providerId, data)` — rebuilds seat grid in transaction, `delete(id, providerId)` — with ownership check, `getTemplates()` — returns available templates.
 
 **Acceptance Criteria:**
-- [ ] All CRUD + templates method implemented
-- [ ] Ownership enforced on all operations
-- [ ] `create` generates seat grid from rows/columns with proper labels (1A, 1B, etc.)
-- [ ] `create` supports template-based creation (applies seat types from template)
-- [ ] `update` rebuilds seats in transaction (delete old + create new)
-- [ ] `delete` checks no active schedules reference the bus
-- [ ] Unit tests
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] All CRUD + templates method implemented
+- [x] Ownership enforced on all operations
+- [x] `create` generates seat grid from rows/columns with proper labels (1A, 1B, etc.)
+- [x] `create` supports template-based creation (applies seat types from template)
+- [x] `update` rebuilds seats in transaction (delete old + create new)
+- [x] `delete` checks no active schedules reference the bus
+- [x] Unit tests
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-008: Create bus API routes
 **Description:** Implement bus endpoints from OpenAPI spec: `GET /api/v1/buses` (list), `POST /api/v1/buses` (create), `GET /api/v1/buses/{id}` (detail with seats), `PUT /api/v1/buses/{id}` (update), `DELETE /api/v1/buses/{id}`, `GET /api/v1/buses/templates` (list templates). All require PROVIDER role.

@@ -35,3 +35,20 @@
 - Patterns: same fastify-plugin pattern as provider routes, serialize helpers for Date->ISO, manual Zod .parse() for body/query/params
 - POST returns 201, DELETE returns 204, list uses paginationQuerySchema, detail uses idParamSchema
 ---
+## Iteration 6 - TASK-006: Create bus domain types and templates
+- Created SeatType, SeatEntity, BusEntity, BusWithSeats, CreateSeatData, CreateBusData, UpdateBusData, BusTemplate interfaces in bus.entity.ts
+- Created 7 bus templates: 3 coaches (Mercedes Tourismo 13x4, Setra S515 12x4, Neoplan Cityliner 14x4), 2 minibuses (Mercedes Sprinter 8x3, Iveco Daily 7x3), 2 microbuses (Ford Transit 5x3, VW Crafter 4x3)
+- Templates include premium rows (first 1-3 rows), accessible seats (row 1 or last row), blocked seats (rear corners on some models)
+- Helper functions: generateSeatGrid (builds full grid with type overrides), countBookableSeats (excludes BLOCKED), findTemplateById (lookup)
+- UpdateBusData has no rows/columns/seats — grid is immutable after creation per OpenAPI spec
+- Patterns: same interface-only pattern as route.entity.ts, BusWithSeats extends BusEntity
+---
+## Iteration 7 - TASK-007: Create bus service
+- Created BusService with listByProvider, getById, create, update, delete, getTemplates, getTemplateById
+- Ownership enforced on getById, update, delete (returns 404 not 403)
+- create checks license plate uniqueness before transaction, creates bus + seats atomically
+- update only modifies metadata (licensePlate, model, capacity) — seat grid is immutable per OpenAPI spec
+- delete checks for active schedules before deletion (409 CONFLICT)
+- 22 unit tests: list pagination, getById happy/not-found/ownership, create with transaction/conflict/blocked-seats, update happy/not-found/ownership/conflict/same-plate, delete happy/not-found/ownership/conflict, templates list/copy/lookup
+- Patterns: same class-based service as RouteService, toBusEntity/toBusWithSeats/toSeatEntity converters
+---
