@@ -1,0 +1,11 @@
+{
+  "name": "@transio/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  }
+}

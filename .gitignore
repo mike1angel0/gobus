@@ -4,14 +4,15 @@ node_modules/
 .pnp.js
 
 # testing
-/coverage
+coverage/
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
-/build
+build/
+dist/
 
 # misc
 .DS_Store
@@ -29,10 +30,13 @@ npm-debug.log*
 next-env.d.ts
 
 # prisma
-prisma/dev.db
-prisma/dev.db-journal
+*.db
+*.db-journal
 
 # IDE
 .idea/
 .vscode/
 *.iml
+
+# spec output
+spec/dist/
