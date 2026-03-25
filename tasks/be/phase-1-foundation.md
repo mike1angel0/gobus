@@ -75,15 +75,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-017: Create Schedule, Booking, and operational models** - Added Schedule, StopTime, Booking, BookingSeat, Delay, BusTracking, Message models with proper DateTime types, cascade deletes, indexes on all FKs. BookingSeat has @@unique([scheduleId, seatLabel, tripDate]) for double-booking prevention. BusTracking.busId is @unique. Added ScheduleStatus, BookingStatus, DelayReason enums.
 
-### TASK-018: Create initial migration and seed script
-**Description:** Run initial migration. Create `prisma/seed.ts` with: 3 providers, 15 cities, 8 routes with stops, 5 buses with seat grids, 15 schedules with stop times and segment pricing, demo accounts (2 passengers, 3 provider admins, 3 drivers, 1 admin) — all passwords hashed with bcryptjs.
-
-**Acceptance Criteria:**
-- [ ] Migration file created
-- [ ] Seed creates all demo data
-- [ ] Passwords hashed (not plaintext)
-- [ ] `npm run db:seed` succeeds
-- [ ] Typecheck passes
+**TASK-018: Create initial migration and seed script** - Created initial PostgreSQL migration (20260325114859_init) and seed script with 3 providers, 15 Romanian cities, 8 routes, 5 buses with seat grids, 15 schedules with stop times/segment pricing, and 9 demo accounts (bcryptjs cost 12). Added dotenv for prisma.config.ts env loading.
 
 ---
 

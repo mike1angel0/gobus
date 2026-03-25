@@ -39,6 +39,9 @@
     "typescript": "^5.9.3",
     "zod": "^4.3.6"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/bcryptjs": "^2.4.6",
@@ -46,6 +49,7 @@
     "@types/node": "^25.5.0",
     "@types/supertest": "^7.2.0",
     "@vitest/coverage-v8": "^4.1.1",
+    "dotenv": "^16.4.7",
     "eslint": "^10.1.0",
     "eslint-plugin-jsdoc": "^62.8.0",
     "prettier": "^3.8.1",

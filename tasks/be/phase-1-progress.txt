@@ -109,3 +109,20 @@
 - Provider model updated with routes[] and buses[] relations
 - Learnings: Straightforward schema-only task. No tests needed since it's just Prisma models — db:generate validates the schema.
 ---
+
+## Iteration 17 - TASK-017: Create Schedule, Booking, and operational models
+- Added 7 models: Schedule, StopTime, Booking, BookingSeat, Delay, BusTracking, Message
+- Added 3 enums: ScheduleStatus, BookingStatus, DelayReason
+- BookingSeat has @@unique([scheduleId, seatLabel, tripDate]) for DB-level double-booking prevention
+- BusTracking.busId is @unique (one tracking record per bus)
+- Updated User (bookings, driverSchedules, sentMessages, receivedMessages), Route (schedules), Bus (schedules, tracking) with new relations
+- Learnings: Named relations ("DriverSchedules", "SentMessages", "ReceivedMessages") required when a model has multiple relations to the same target model. daysOfWeek stored as Int[] (Prisma native PostgreSQL array).
+---
+
+## Iteration 18 - TASK-018: Create initial migration and seed script
+- Created initial migration (20260325114859_init) and applied to local PostgreSQL
+- Seed script creates: 3 providers, 9 users (1 admin, 3 provider admins, 3 drivers, 2 passengers), 8 routes across 15 Romanian cities, 5 buses with seat grids, 15 schedules with stop times and progressive segment pricing
+- All passwords hashed with bcryptjs cost 12
+- Added dotenv to prisma.config.ts for env var loading (Prisma 7 doesn't auto-load .env)
+- Learnings: Prisma 7 uses `migrations.seed` in prisma.config.ts (not package.json `prisma.seed`). The existing Postgres container from another project can host multiple databases. `dotenv/config` must be imported in prisma.config.ts since Prisma 7 doesn't auto-load .env files.
+---

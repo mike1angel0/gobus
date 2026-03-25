@@ -1,0 +1,374 @@
+import 'dotenv/config';
+import { PrismaClient } from '../src/generated/prisma/client.js';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { hash } from 'bcryptjs';
+
+const BCRYPT_ROUNDS = 12;
+const DEFAULT_PASSWORD = 'Password1';
+
+async function main() {
+  const adapter = new PrismaPg({ connectionString: process.env['DATABASE_URL']! });
+  const prisma = new PrismaClient({ adapter });
+
+  console.log('Seeding database…');
+
+  // ─── Providers ──────────────────────────────────────────────────────────────
+  const [providerA, providerB, providerC] = await Promise.all([
+    prisma.provider.create({
+      data: {
+        name: 'TransBalkan Express',
+        contactEmail: 'office@transbalkan.ro',
+        contactPhone: '+40700100200',
+        status: 'APPROVED',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'CarpathianBus',
+        contactEmail: 'info@carpathianbus.ro',
+        contactPhone: '+40700300400',
+        status: 'APPROVED',
+      },
+    }),
+    prisma.provider.create({
+      data: {
+        name: 'DanubeLine',
+        contactEmail: 'contact@danubeline.ro',
+        contactPhone: '+40700500600',
+        status: 'PENDING',
+      },
+    }),
+  ]);
+
+  // ─── Users ──────────────────────────────────────────────────────────────────
+  const passwordHash = await hash(DEFAULT_PASSWORD, BCRYPT_ROUNDS);
+
+  const users = await Promise.all([
+    // Admin
+    prisma.user.create({
+      data: {
+        email: 'admin@transio.dev',
+        name: 'Admin User',
+        passwordHash,
+        role: 'ADMIN',
+      },
+    }),
+    // Provider admins (one per provider)
+    prisma.user.create({
+      data: {
+        email: 'owner@transbalkan.ro',
+        name: 'Ion Popescu',
+        passwordHash,
+        role: 'PROVIDER',
+        providerId: providerA.id,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'owner@carpathianbus.ro',
+        name: 'Maria Ionescu',
+        passwordHash,
+        role: 'PROVIDER',
+        providerId: providerB.id,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'owner@danubeline.ro',
+        name: 'Andrei Vasile',
+        passwordHash,
+        role: 'PROVIDER',
+        providerId: providerC.id,
+      },
+    }),
+    // Drivers (one per provider)
+    prisma.user.create({
+      data: {
+        email: 'driver1@transbalkan.ro',
+        name: 'Gheorghe Marin',
+        passwordHash,
+        role: 'DRIVER',
+        providerId: providerA.id,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'driver1@carpathianbus.ro',
+        name: 'Vasile Dumitrescu',
+        passwordHash,
+        role: 'DRIVER',
+        providerId: providerB.id,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'driver1@danubeline.ro',
+        name: 'Florin Stancu',
+        passwordHash,
+        role: 'DRIVER',
+        providerId: providerC.id,
+      },
+    }),
+    // Passengers
+    prisma.user.create({
+      data: {
+        email: 'passenger1@example.com',
+        name: 'Elena Radu',
+        passwordHash,
+        role: 'PASSENGER',
+        phone: '+40712345678',
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'passenger2@example.com',
+        name: 'Cristian Popa',
+        passwordHash,
+        role: 'PASSENGER',
+        phone: '+40723456789',
+      },
+    }),
+  ]);
+
+  const [
+    _admin,
+    _ownerA,
+    _ownerB,
+    _ownerC,
+    driverA,
+    driverB,
+    driverC,
+    _passenger1,
+    _passenger2,
+  ] = users;
+
+  // ─── Cities (used as stop names) ───────────────────────────────────────────
+  const cities = [
+    'București',
+    'Cluj-Napoca',
+    'Timișoara',
+    'Iași',
+    'Constanța',
+    'Brașov',
+    'Sibiu',
+    'Craiova',
+    'Oradea',
+    'Pitești',
+    'Ploiești',
+    'Târgu Mureș',
+    'Alba Iulia',
+    'Râmnicu Vâlcea',
+    'Arad',
+  ];
+
+  // ─── Routes with stops ─────────────────────────────────────────────────────
+  // Helper to create a route with its stops
+  async function createRoute(
+    name: string,
+    providerId: string,
+    stopNames: string[],
+    coords: Array<[number, number]>,
+  ) {
+    const route = await prisma.route.create({ data: { name, providerId } });
+    await prisma.stop.createMany({
+      data: stopNames.map((stopName, i) => ({
+        name: stopName,
+        lat: coords[i][0],
+        lng: coords[i][1],
+        orderIndex: i,
+        routeId: route.id,
+      })),
+    });
+    return route;
+  }
+
+  // 8 routes across 3 providers
+  const routes = await Promise.all([
+    // Provider A — TransBalkan Express (3 routes)
+    createRoute('București → Cluj-Napoca', providerA.id, [cities[0], cities[10], cities[5], cities[11], cities[1]], [
+      [44.4268, 26.1025], [44.9467, 26.024], [45.6427, 25.5887], [46.5386, 24.5554], [46.7712, 23.6236],
+    ]),
+    createRoute('București → Timișoara', providerA.id, [cities[0], cities[9], cities[13], cities[7], cities[2]], [
+      [44.4268, 26.1025], [44.8565, 24.8691], [45.0997, 24.3694], [44.3302, 23.7949], [45.7489, 21.2087],
+    ]),
+    createRoute('București → Constanța', providerA.id, [cities[0], cities[4]], [
+      [44.4268, 26.1025], [44.1598, 28.6348],
+    ]),
+    // Provider B — CarpathianBus (3 routes)
+    createRoute('Cluj-Napoca → Sibiu', providerB.id, [cities[1], cities[11], cities[12], cities[6]], [
+      [46.7712, 23.6236], [46.5386, 24.5554], [46.0677, 23.5695], [45.7983, 24.1256],
+    ]),
+    createRoute('Cluj-Napoca → Oradea', providerB.id, [cities[1], cities[8]], [
+      [46.7712, 23.6236], [47.0722, 21.9212],
+    ]),
+    createRoute('Brașov → Iași', providerB.id, [cities[5], cities[11], cities[3]], [
+      [45.6427, 25.5887], [46.5386, 24.5554], [47.1585, 27.6014],
+    ]),
+    // Provider C — DanubeLine (2 routes)
+    createRoute('Timișoara → Arad', providerC.id, [cities[2], cities[14]], [
+      [45.7489, 21.2087], [46.1866, 21.3123],
+    ]),
+    createRoute('Craiova → București', providerC.id, [cities[7], cities[9], cities[0]], [
+      [44.3302, 23.7949], [44.8565, 24.8691], [44.4268, 26.1025],
+    ]),
+  ]);
+
+  // ─── Buses with seat grids ─────────────────────────────────────────────────
+  async function createBus(
+    licensePlate: string,
+    model: string,
+    rows: number,
+    columns: number,
+    providerId: string,
+  ) {
+    const capacity = rows * columns;
+    const bus = await prisma.bus.create({
+      data: { licensePlate, model, capacity, rows, columns, providerId },
+    });
+
+    const seatData: Array<{
+      row: number;
+      column: number;
+      label: string;
+      type: 'STANDARD' | 'PREMIUM' | 'DISABLED_ACCESSIBLE' | 'BLOCKED';
+      price: number;
+      isEnabled: boolean;
+      busId: string;
+    }> = [];
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < columns; c++) {
+        const label = `${String.fromCharCode(65 + r)}${c + 1}`;
+        const isPremium = r === 0;
+        const isAccessible = r === rows - 1 && c === 0;
+        const type = isPremium ? 'PREMIUM' : isAccessible ? 'DISABLED_ACCESSIBLE' : 'STANDARD';
+        const price = isPremium ? 15 : isAccessible ? 0 : 10;
+
+        seatData.push({
+          row: r,
+          column: c,
+          label,
+          type,
+          price,
+          isEnabled: true,
+          busId: bus.id,
+        });
+      }
+    }
+
+    await prisma.seat.createMany({ data: seatData });
+    return bus;
+  }
+
+  const buses = await Promise.all([
+    createBus('B-100-TBE', 'Mercedes Tourismo', 10, 4, providerA.id),
+    createBus('B-200-TBE', 'MAN Lion Coach', 12, 4, providerA.id),
+    createBus('CJ-100-CB', 'Irizar i6', 10, 4, providerB.id),
+    createBus('CJ-200-CB', 'Setra S 516 HD', 8, 4, providerB.id),
+    createBus('TM-100-DL', 'Neoplan Cityliner', 10, 4, providerC.id),
+  ]);
+
+  // ─── Schedules with stop times and segment pricing ─────────────────────────
+  interface ScheduleInput {
+    routeIndex: number;
+    busIndex: number;
+    driverId: string;
+    departureHour: number;
+    departureMinute: number;
+    durationMinutes: number;
+    basePrice: number;
+    daysOfWeek: number[];
+  }
+
+  const scheduleInputs: ScheduleInput[] = [
+    // Provider A routes
+    { routeIndex: 0, busIndex: 0, driverId: driverA.id, departureHour: 6, departureMinute: 0, durationMinutes: 480, basePrice: 80, daysOfWeek: [1, 2, 3, 4, 5] },
+    { routeIndex: 0, busIndex: 0, driverId: driverA.id, departureHour: 14, departureMinute: 0, durationMinutes: 480, basePrice: 85, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
+    { routeIndex: 0, busIndex: 1, driverId: driverA.id, departureHour: 22, departureMinute: 0, durationMinutes: 510, basePrice: 75, daysOfWeek: [5, 6, 7] },
+    { routeIndex: 1, busIndex: 0, driverId: driverA.id, departureHour: 7, departureMinute: 30, durationMinutes: 540, basePrice: 90, daysOfWeek: [1, 3, 5] },
+    { routeIndex: 1, busIndex: 1, driverId: driverA.id, departureHour: 15, departureMinute: 0, durationMinutes: 540, basePrice: 95, daysOfWeek: [2, 4, 6] },
+    { routeIndex: 2, busIndex: 1, driverId: driverA.id, departureHour: 8, departureMinute: 0, durationMinutes: 180, basePrice: 45, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
+    // Provider B routes
+    { routeIndex: 3, busIndex: 2, driverId: driverB.id, departureHour: 9, departureMinute: 0, durationMinutes: 240, basePrice: 40, daysOfWeek: [1, 2, 3, 4, 5] },
+    { routeIndex: 3, busIndex: 2, driverId: driverB.id, departureHour: 17, departureMinute: 0, durationMinutes: 240, basePrice: 45, daysOfWeek: [1, 2, 3, 4, 5, 6] },
+    { routeIndex: 4, busIndex: 3, driverId: driverB.id, departureHour: 10, departureMinute: 0, durationMinutes: 180, basePrice: 35, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
+    { routeIndex: 5, busIndex: 2, driverId: driverB.id, departureHour: 6, departureMinute: 30, durationMinutes: 420, basePrice: 70, daysOfWeek: [1, 3, 5, 7] },
+    { routeIndex: 5, busIndex: 3, driverId: driverB.id, departureHour: 13, departureMinute: 0, durationMinutes: 420, basePrice: 75, daysOfWeek: [2, 4, 6] },
+    // Provider C routes
+    { routeIndex: 6, busIndex: 4, driverId: driverC.id, departureHour: 7, departureMinute: 0, durationMinutes: 60, basePrice: 15, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
+    { routeIndex: 6, busIndex: 4, driverId: driverC.id, departureHour: 12, departureMinute: 0, durationMinutes: 60, basePrice: 15, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
+    { routeIndex: 7, busIndex: 4, driverId: driverC.id, departureHour: 8, departureMinute: 0, durationMinutes: 180, basePrice: 35, daysOfWeek: [1, 2, 3, 4, 5] },
+    { routeIndex: 7, busIndex: 4, driverId: driverC.id, departureHour: 16, departureMinute: 0, durationMinutes: 180, basePrice: 40, daysOfWeek: [1, 2, 3, 4, 5, 6] },
+  ];
+
+  // Use a reference date for departure/arrival times (today)
+  const refDate = new Date('2026-03-25T00:00:00.000Z');
+
+  for (const input of scheduleInputs) {
+    const route = routes[input.routeIndex];
+    const bus = buses[input.busIndex];
+
+    const departure = new Date(refDate);
+    departure.setUTCHours(input.departureHour, input.departureMinute, 0, 0);
+
+    const arrival = new Date(departure.getTime() + input.durationMinutes * 60_000);
+
+    // Fetch stops for this route to create stop times
+    const stops = await prisma.stop.findMany({
+      where: { routeId: route.id },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    const schedule = await prisma.schedule.create({
+      data: {
+        routeId: route.id,
+        busId: bus.id,
+        driverId: input.driverId,
+        departureTime: departure,
+        arrivalTime: arrival,
+        daysOfWeek: input.daysOfWeek,
+        basePrice: input.basePrice,
+        status: 'ACTIVE',
+        tripDate: refDate,
+      },
+    });
+
+    // Create stop times with evenly distributed arrival/departure + progressive pricing
+    const totalStops = stops.length;
+    const totalMs = arrival.getTime() - departure.getTime();
+    const stopWaitMs = 10 * 60_000; // 10 min stop
+
+    const stopTimesData = stops.map((stop, i) => {
+      const fraction = totalStops > 1 ? i / (totalStops - 1) : 0;
+      const arrivalMs = departure.getTime() + fraction * totalMs;
+      const departureMs = i < totalStops - 1 ? arrivalMs + stopWaitMs : arrivalMs;
+      const priceFromStart = Math.round(fraction * input.basePrice * 100) / 100;
+
+      return {
+        scheduleId: schedule.id,
+        stopName: stop.name,
+        arrivalTime: new Date(arrivalMs),
+        departureTime: new Date(departureMs),
+        orderIndex: i,
+        priceFromStart,
+      };
+    });
+
+    await prisma.stopTime.createMany({ data: stopTimesData });
+  }
+
+  console.log('Seed complete.');
+  console.log(`  Providers: 3`);
+  console.log(`  Users: ${users.length} (1 admin, 3 provider admins, 3 drivers, 2 passengers)`);
+  console.log(`  Routes: ${routes.length}`);
+  console.log(`  Buses: ${buses.length}`);
+  console.log(`  Schedules: ${scheduleInputs.length}`);
+  console.log(`  Default password for all accounts: ${DEFAULT_PASSWORD}`);
+
+  await prisma.$disconnect();
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
