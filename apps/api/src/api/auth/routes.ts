@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { AuthService } from '@/application/services/auth.service.js';
+import { AUTH_RATE_LIMIT } from '@/api/plugins/rate-limit.js';
 import type { UserEntity } from '@/domain/users/user.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import {
@@ -36,7 +37,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   const authService = new AuthService(getPrisma());
 
   // POST /api/v1/auth/register
-  app.post('/api/v1/auth/register', async (request, reply) => {
+  app.post('/api/v1/auth/register', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request, reply) => {
     const body = registerBodySchema.parse(request.body);
     const { user, tokens } = await authService.register(body);
 
@@ -50,7 +51,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/login
-  app.post('/api/v1/auth/login', async (request) => {
+  app.post('/api/v1/auth/login', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = loginBodySchema.parse(request.body);
     const { user, tokens } = await authService.login(body, request.ip);
 
@@ -64,7 +65,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/refresh
-  app.post('/api/v1/auth/refresh', async (request) => {
+  app.post('/api/v1/auth/refresh', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = tokenRefreshBodySchema.parse(request.body);
     const tokens = await authService.refreshToken(body.refreshToken);
 
@@ -85,7 +86,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/forgot-password
-  app.post('/api/v1/auth/forgot-password', async (request) => {
+  app.post('/api/v1/auth/forgot-password', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = forgotPasswordBodySchema.parse(request.body);
     await authService.forgotPassword(body.email);
 
@@ -95,7 +96,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/reset-password
-  app.post('/api/v1/auth/reset-password', async (request) => {
+  app.post('/api/v1/auth/reset-password', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = resetPasswordBodySchema.parse(request.body);
     await authService.resetPassword(body.token, body.newPassword);
 

@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { SearchService } from '@/application/services/search.service.js';
+import { SEARCH_RATE_LIMIT } from '@/api/plugins/rate-limit.js';
 import type { SearchResult, TripDetail, TripStopTime } from '@/domain/search/search.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import {
@@ -72,7 +73,7 @@ async function searchRoutes(app: FastifyInstance): Promise<void> {
   const searchService = new SearchService(getPrisma());
 
   // GET /api/v1/search — search for available trips
-  app.get('/api/v1/search', async (request) => {
+  app.get('/api/v1/search', { config: { rateLimit: SEARCH_RATE_LIMIT } }, async (request) => {
     const { origin, destination, date, page, pageSize } = searchQuerySchema.parse(request.query);
 
     const result = await searchService.searchTrips({ origin, destination, date, page, pageSize });
@@ -84,7 +85,7 @@ async function searchRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // GET /api/v1/trips/:scheduleId — get trip details with seat availability
-  app.get('/api/v1/trips/:scheduleId', async (request) => {
+  app.get('/api/v1/trips/:scheduleId', { config: { rateLimit: SEARCH_RATE_LIMIT } }, async (request) => {
     const { scheduleId } = tripDetailParamsSchema.parse(request.params);
     const { tripDate } = tripDetailQuerySchema.parse(request.query);
 

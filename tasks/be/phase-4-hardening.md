@@ -34,13 +34,13 @@
 **Description:** Register `@fastify/rate-limit` with per-route configuration: auth endpoints (login/register): 10 req/min per IP. General API: 100 req/min per user. Search (public): 30 req/min per IP. Return 429 with RFC 9457 format and Retry-After header.
 
 **Acceptance Criteria:**
-- [ ] Rate limiting on auth routes (10/min)
-- [ ] Rate limiting on general routes (100/min per user)
-- [ ] Rate limiting on public search (30/min per IP)
-- [ ] 429 response matches RFC 9457 ErrorResponse schema
-- [ ] Retry-After header included
-- [ ] Integration test for rate limit trigger
-- [ ] Typecheck passes
+- [x] Rate limiting on auth routes (10/min)
+- [x] Rate limiting on general routes (100/min per user)
+- [x] Rate limiting on public search (30/min per IP)
+- [x] 429 response matches RFC 9457 ErrorResponse schema
+- [x] Retry-After header included
+- [x] Integration test for rate limit trigger
+- [x] Typecheck passes
 
 ### TASK-004: Input sanitization and validation hardening
 **Description:** Review all Zod schemas for: string max lengths (prevent payload bombs), number ranges, enum strictness. Add global request body size limit (1MB). Ensure all user-provided strings are trimmed. Add `x-request-id` header generation for request tracing.

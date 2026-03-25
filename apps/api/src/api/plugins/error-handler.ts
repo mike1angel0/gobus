@@ -110,8 +110,20 @@ async function errorHandlerPlugin(app: FastifyInstance): Promise<void> {
       return reply.status(body.status).send(body);
     }
 
-    // Fastify validation errors (from schema validation)
+    // Rate limit errors (from @fastify/rate-limit)
     const fastifyError = error as FastifyError;
+    if (fastifyError.statusCode === 429) {
+      const body: ProblemDetails = {
+        type: problemTypeUri(429),
+        title: 'Too Many Requests',
+        status: 429,
+        detail: 'Rate limit exceeded. Please try again later.',
+        code: ErrorCodes.RATE_LIMITED,
+      };
+      return reply.status(429).send(body);
+    }
+
+    // Fastify validation errors (from schema validation)
     if (fastifyError.validation) {
       const fieldErrors: FieldError[] = fastifyError.validation.map((v) => {
         const instancePath = v.instancePath ?? '';
