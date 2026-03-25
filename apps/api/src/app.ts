@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import cors from '@fastify/cors';
@@ -72,7 +73,15 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
     logger: options.logger ?? {
       level: process.env.LOG_LEVEL ?? 'info',
     },
+    bodyLimit: 1_048_576, // 1 MB request body size limit
+    genReqId: () => randomUUID(),
+    requestIdHeader: 'x-request-id',
     ...options,
+  });
+
+  // Propagate x-request-id to responses for request tracing
+  app.addHook('onRequest', async (request, reply) => {
+    void reply.header('x-request-id', request.id);
   });
 
   // CORS

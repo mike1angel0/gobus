@@ -25,7 +25,7 @@ export const driverSchema = z.object({
 /** Zod schema for CreateDriverRequest matching OpenAPI CreateDriverRequest schema. */
 export const createDriverRequestSchema = z
   .object({
-    email: z.string().email().max(255).describe('Driver email address (must be unique)'),
+    email: z.string().trim().email().max(255).describe('Driver email address (must be unique)'),
     password: z
       .string()
       .min(8)
@@ -35,8 +35,8 @@ export const createDriverRequestSchema = z
         'Password must contain uppercase, lowercase, and digit',
       )
       .describe('Driver password (min 8 chars, must contain uppercase, lowercase, and digit)'),
-    name: z.string().min(1).max(100).describe('Driver full name'),
-    phone: z.string().max(20).optional().describe('Optional phone number'),
+    name: z.string().trim().min(1).max(100).describe('Driver full name'),
+    phone: z.string().trim().max(20).optional().describe('Optional phone number'),
   })
   .strict();
 

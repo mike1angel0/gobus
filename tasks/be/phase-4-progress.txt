@@ -13,3 +13,24 @@
 - Created dedicated integration test (helmet.integration.test.ts) that builds app with NODE_ENV=development to verify all 5 headers
 - All 350 unit + 263 integration tests pass, typecheck + lint clean
 ---
+
+## Iteration 3 - TASK-003: Configure rate limiting
+- Registered @fastify/rate-limit globally (100 req/min per user, falls back to IP)
+- Per-route overrides via config.rateLimit: auth routes (10/min per IP), search routes (30/min per IP)
+- Added 429 handling in error-handler.ts since rate-limit plugin throws errors that reach the error handler
+- RFC 9457 response with RATE_LIMITED code and Retry-After header
+- Learnings: @fastify/rate-limit v10 throws errors that hit the error handler — must handle statusCode 429 explicitly. Don't use custom onRoute hooks; use config.rateLimit per-route instead. Use app.inject() with remoteAddress for consistent IP in tests.
+- 4 integration tests: global headers, auth limit=10, search limit=30, 429 trigger
+- All 350 unit tests pass, typecheck + lint clean
+---
+
+## Iteration 4 - TASK-004: Input sanitization and validation hardening
+- All Zod schemas already had maxLength/min/max constraints from prior phases — verified in audit
+- Added `.trim()` to all user-provided string fields in request schemas (email, name, phone, providerName, licensePlate, model, label, stopName, origin, destination, boardingStop, alightingStop, seatLabels items, note, language, avatarUrl)
+- Added `bodyLimit: 1_048_576` (1MB) to Fastify config
+- Added `genReqId: () => randomUUID()` and `requestIdHeader: 'x-request-id'` for request tracing
+- Added onRequest hook to propagate x-request-id to responses
+- Added 413 handling in error-handler.ts for payload too large errors (RFC 9457)
+- 6 integration tests: UUID generation, client ID echo, unique IDs, 413 for oversized payload, trim passes validation, whitespace-only name rejected
+- Learnings: Fastify bodyLimit errors hit the error handler as statusCode 413 — need explicit handling. `.trim()` before `.min(1)` properly rejects whitespace-only strings.
+---

@@ -22,7 +22,7 @@ export const createDelayBodySchema = z
     scheduleId: z.string().min(1).max(30).describe('Schedule to report delay for'),
     offsetMinutes: z.number().int().min(1).max(1440).describe('Delay duration in minutes'),
     reason: delayReasonEnum.describe('Reason for the delay'),
-    note: z.string().max(500).describe('Optional free-text note about the delay').optional(),
+    note: z.string().trim().max(500).describe('Optional free-text note about the delay').optional(),
     tripDate: z
       .string()
       .date()
@@ -44,6 +44,7 @@ export const updateDelayBodySchema = z
     reason: delayReasonEnum.describe('Updated reason for the delay').optional(),
     note: z
       .string()
+      .trim()
       .max(500)
       .nullable()
       .describe('Updated free-text note about the delay')

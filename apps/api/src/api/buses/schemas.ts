@@ -49,7 +49,7 @@ export const createSeatInputSchema = z
   .object({
     row: z.number().int().min(1).max(100).describe('Seat row number'),
     column: z.number().int().min(1).max(10).describe('Seat column number'),
-    label: z.string().min(1).max(10).describe('Seat label (e.g., 1A, 2B)'),
+    label: z.string().trim().min(1).max(10).describe('Seat label (e.g., 1A, 2B)'),
     type: seatTypeSchema.describe('Seat type classification'),
     price: z
       .number()
@@ -63,8 +63,8 @@ export const createSeatInputSchema = z
 /** Zod schema for CreateBusRequest matching OpenAPI CreateBusRequest schema. */
 export const createBusRequestSchema = z
   .object({
-    licensePlate: z.string().min(1).max(20).describe('Unique license plate number'),
-    model: z.string().min(1).max(100).describe('Bus model name'),
+    licensePlate: z.string().trim().min(1).max(20).describe('Unique license plate number'),
+    model: z.string().trim().min(1).max(100).describe('Bus model name'),
     capacity: z.number().int().min(1).max(200).describe('Total number of seats'),
     rows: z.number().int().min(1).max(100).describe('Number of seat rows'),
     columns: z.number().int().min(1).max(10).describe('Number of seat columns'),
@@ -75,8 +75,8 @@ export const createBusRequestSchema = z
 /** Zod schema for UpdateBusRequest matching OpenAPI UpdateBusRequest schema. */
 export const updateBusRequestSchema = z
   .object({
-    licensePlate: z.string().min(1).max(20).describe('Unique license plate number').optional(),
-    model: z.string().min(1).max(100).describe('Bus model name').optional(),
+    licensePlate: z.string().trim().min(1).max(20).describe('Unique license plate number').optional(),
+    model: z.string().trim().min(1).max(100).describe('Bus model name').optional(),
     capacity: z.number().int().min(1).max(200).describe('Total number of seats').optional(),
   })
   .strict();

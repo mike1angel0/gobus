@@ -9,11 +9,13 @@ export const searchQuerySchema = z
   .object({
     origin: z
       .string()
+      .trim()
       .min(1)
       .max(200)
       .describe('Origin stop name (case-insensitive partial match)'),
     destination: z
       .string()
+      .trim()
       .min(1)
       .max(200)
       .describe('Destination stop name (case-insensitive partial match)'),

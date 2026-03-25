@@ -23,7 +23,7 @@ const strongPasswordSchema = z
 /** Zod schema for user preferences matching OpenAPI UserPreferences. */
 export const userPreferencesSchema = z
   .object({
-    language: z.string().max(10).describe('Preferred language code (e.g., en, ro)').optional(),
+    language: z.string().trim().max(10).describe('Preferred language code (e.g., en, ro)').optional(),
     notifications: z.boolean().describe('Whether to receive push notifications').optional(),
     emailNotifications: z.boolean().describe('Whether to receive email notifications').optional(),
   })
@@ -78,17 +78,18 @@ export const messageResponseSchema = z.object({
 /** Zod schema for POST /auth/register request body matching OpenAPI RegisterRequest. */
 export const registerBodySchema = z
   .object({
-    email: z.string().email().max(255).describe("User's email address (must be unique)"),
+    email: z.string().trim().email().max(255).describe("User's email address (must be unique)"),
     password: strongPasswordSchema.describe(
       'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one digit.',
     ),
-    name: z.string().min(1).max(100).describe("User's full name"),
+    name: z.string().trim().min(1).max(100).describe("User's full name"),
     role: z
       .enum(['PASSENGER', 'PROVIDER'])
       .describe('Account type (only PASSENGER and PROVIDER can self-register)'),
-    phone: z.string().max(20).describe('Optional phone number').optional(),
+    phone: z.string().trim().max(20).describe('Optional phone number').optional(),
     providerName: z
       .string()
+      .trim()
       .min(1)
       .max(200)
       .describe('Required when role is PROVIDER. Name of the transport company.')
@@ -100,7 +101,7 @@ export const registerBodySchema = z
 /** Zod schema for POST /auth/login request body matching OpenAPI LoginRequest. */
 export const loginBodySchema = z
   .object({
-    email: z.string().email().max(255).describe('Registered email address'),
+    email: z.string().trim().email().max(255).describe('Registered email address'),
     password: z.string().min(1).max(128).describe('Account password'),
   })
   .strict()
@@ -129,7 +130,7 @@ export const logoutBodySchema = z
 /** Zod schema for POST /auth/forgot-password request body matching OpenAPI ForgotPasswordRequest. */
 export const forgotPasswordBodySchema = z
   .object({
-    email: z.string().email().max(255).describe('Email address associated with the account'),
+    email: z.string().trim().email().max(255).describe('Email address associated with the account'),
   })
   .strict()
   .describe('Request body for requesting a password reset');
@@ -163,9 +164,9 @@ export const changePasswordBodySchema = z
 /** Zod schema for PATCH /auth/me request body matching OpenAPI UserUpdate. */
 export const updateProfileBodySchema = z
   .object({
-    name: z.string().min(1).max(100).describe("User's full name").optional(),
-    phone: z.string().max(20).describe('Phone number').optional(),
-    avatarUrl: z.string().url().max(2048).describe("URL to user's avatar image").optional(),
+    name: z.string().trim().min(1).max(100).describe("User's full name").optional(),
+    phone: z.string().trim().max(20).describe('Phone number').optional(),
+    avatarUrl: z.string().trim().url().max(2048).describe("URL to user's avatar image").optional(),
     preferences: userPreferencesSchema
       .describe('User notification and display preferences')
       .optional(),

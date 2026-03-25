@@ -9,17 +9,19 @@ export const createBookingBodySchema = z
   .object({
     scheduleId: z.string().min(1).max(30).describe('Schedule to book'),
     seatLabels: z
-      .array(z.string().min(1).max(10).describe('Seat label (e.g. 1A, 2B)'))
+      .array(z.string().trim().min(1).max(10).describe('Seat label (e.g. 1A, 2B)'))
       .min(1)
       .max(10)
       .describe('Seat labels to book'),
     boardingStop: z
       .string()
+      .trim()
       .min(1)
       .max(200)
       .describe('Name of boarding stop (must exist in schedule stop times)'),
     alightingStop: z
       .string()
+      .trim()
       .min(1)
       .max(200)
       .describe('Name of alighting stop (must come after boarding stop in route order)'),

@@ -30,7 +30,7 @@ export const routeWithStopsSchema = z.object({
 /** Zod schema for CreateStopInput matching OpenAPI CreateStopInput schema. */
 export const createStopInputSchema = z
   .object({
-    name: z.string().min(1).max(200).describe('Stop name (city or station name)'),
+    name: z.string().trim().min(1).max(200).describe('Stop name (city or station name)'),
     lat: z.number().min(-90).max(90).describe('Latitude coordinate'),
     lng: z.number().min(-180).max(180).describe('Longitude coordinate'),
     orderIndex: z.number().int().min(0).max(100).describe('Position in the route (0-based)'),
@@ -40,7 +40,7 @@ export const createStopInputSchema = z
 /** Zod schema for CreateRouteRequest matching OpenAPI CreateRouteRequest schema. */
 export const createRouteRequestSchema = z
   .object({
-    name: z.string().min(1).max(200).describe('Route name (e.g., Bucharest - Cluj)'),
+    name: z.string().trim().min(1).max(200).describe('Route name (e.g., Bucharest - Cluj)'),
     stops: z
       .array(createStopInputSchema)
       .min(2)

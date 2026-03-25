@@ -75,7 +75,7 @@ export const scheduleWithDetailsSchema = z.object({
 /** Zod schema for CreateStopTimeInput matching OpenAPI CreateStopTimeInput schema. */
 export const createStopTimeInputSchema = z
   .object({
-    stopName: z.string().min(1).max(200).describe('Name of the stop'),
+    stopName: z.string().trim().min(1).max(200).describe('Name of the stop'),
     arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at this stop'),
     departureTime: z
       .string()

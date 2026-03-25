@@ -28,6 +28,7 @@ function httpTitle(status: number): string {
     403: 'Forbidden',
     404: 'Not Found',
     409: 'Conflict',
+    413: 'Payload Too Large',
     423: 'Locked',
     429: 'Too Many Requests',
     500: 'Internal Server Error',
@@ -110,8 +111,22 @@ async function errorHandlerPlugin(app: FastifyInstance): Promise<void> {
       return reply.status(body.status).send(body);
     }
 
-    // Rate limit errors (from @fastify/rate-limit)
+    // Fastify framework errors (rate limit, payload too large, etc.)
     const fastifyError = error as FastifyError;
+
+    // Payload too large (body exceeds bodyLimit)
+    if (fastifyError.statusCode === 413) {
+      const body: ProblemDetails = {
+        type: problemTypeUri(413),
+        title: 'Payload Too Large',
+        status: 413,
+        detail: 'Request body exceeds the maximum allowed size of 1 MB.',
+        code: ErrorCodes.VALIDATION_ERROR,
+      };
+      return reply.status(413).send(body);
+    }
+
+    // Rate limit errors (from @fastify/rate-limit)
     if (fastifyError.statusCode === 429) {
       const body: ProblemDetails = {
         type: problemTypeUri(429),

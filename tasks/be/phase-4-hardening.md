@@ -46,12 +46,12 @@
 **Description:** Review all Zod schemas for: string max lengths (prevent payload bombs), number ranges, enum strictness. Add global request body size limit (1MB). Ensure all user-provided strings are trimmed. Add `x-request-id` header generation for request tracing.
 
 **Acceptance Criteria:**
-- [ ] All string fields have maxLength in Zod schemas
-- [ ] All number fields have min/max bounds
-- [ ] Request body size limited to 1MB
-- [ ] Strings trimmed via Zod `.trim()` transform
-- [ ] x-request-id generated per request (UUID)
-- [ ] Typecheck passes
+- [x] All string fields have maxLength in Zod schemas
+- [x] All number fields have min/max bounds
+- [x] Request body size limited to 1MB
+- [x] Strings trimmed via Zod `.trim()` transform
+- [x] x-request-id generated per request (UUID)
+- [x] Typecheck passes
 
 ### TASK-005: Create audit logging service
 **Description:** Create `src/application/services/audit.service.ts` with `AuditService`. Logs security-relevant events to the AuditLog table: LOGIN_SUCCESS, LOGIN_FAILURE, LOGIN_LOCKED, REGISTER, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_COMPLETE, PASSWORD_CHANGE, ACCOUNT_SUSPENDED, ACCOUNT_LOCKED, BOOKING_CREATED, BOOKING_CANCELLED. Methods: `log(event)` — fire-and-forget (never block the request), `getByUser(userId, pagination)` — for admin viewing. Captures: userId, action, resource, resourceId, ipAddress (from request), userAgent (from request).
