@@ -163,3 +163,47 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 **Tests**: 181 passing (15 test files) | **Lint**: 0 errors | **Typecheck**: clean
 **npm audit**: 0 vulnerabilities ✅ (US-QA-007 resolved — audit overrides applied in prior commit)
 **All other checks**: Unchanged from Batch 1 — no new gaps found. Remaining stories (US-QA-001 through US-QA-006, US-QA-008) still applicable.
+
+---
+
+**QA Batch 3**: 2026-03-25 | **Result**: 3 new stories (API contract)
+**Coverage**: Statements 98.01% | Branches 88.63% | Functions 98.33% | Lines 97.99% (target: 90% ✅)
+**Tests**: 181 passing (15 test files) | **Lint**: 0 errors | **Typecheck**: clean
+**npm audit**: 0 vulnerabilities ✅
+**Type safety**: 0 `any` in production code ✅ | **Architecture**: No violations ✅ | **JSDoc**: All exports documented ✅
+**Deep API contract audit**: 3 discrepancies found in response schema strictness and spec parity
+
+#### API Contract Stories
+
+**US-QA-009** | Add `.strict()` to auth response Zod schemas
+- **Priority**: Medium | **Category**: API Contract | **File**: `src/api/auth/schemas.ts`
+- AC1: Add `.strict()` to `userSchema`, `loginResponseSchema`, `tokenRefreshResponseSchema`, and `messageResponseSchema` to prevent extra fields leaking through responses (note: `serializeUser` uses `...user` spread, so extra `UserEntity` fields would pass through unchecked)
+- AC2: All existing tests still pass after adding `.strict()`
+
+**US-QA-010** | Fix `preferences` nullability mismatch between OpenAPI spec and Zod schema
+- **Priority**: Low | **Category**: API Contract | **Files**: `spec/components/schemas/auth.yaml`, `src/api/auth/schemas.ts`
+- AC1: Update OpenAPI spec `User.preferences` to explicitly declare nullable (`type: ['object', 'null']`) to match the Zod schema's `.nullable()` — consistent with how `phone`, `avatarUrl`, `providerId` are declared nullable in the spec
+- AC2: Run `npm run spec:lint` and confirm zero errors after the change
+
+**US-QA-011** | Harden `serializeUser` to explicitly pick fields instead of spreading UserEntity
+- **Priority**: Medium | **Category**: Security / API Contract | **File**: `src/api/auth/routes.ts:22-28`
+- AC1: Replace `...user` spread in `serializeUser()` with explicit field picks matching the OpenAPI `User` schema (id, email, name, role, phone, avatarUrl, providerId, status, preferences, createdAt, updatedAt) — this prevents accidental leakage if `UserEntity` gains sensitive fields
+- AC2: All existing integration tests still pass; response shape unchanged
+
+#### Summary of All Open QA Stories
+
+| Story | Priority | Category | Status |
+|-------|----------|----------|--------|
+| US-QA-001 | Medium | Coverage | Open |
+| US-QA-002 | Low | Coverage | Open |
+| US-QA-003 | Low | Coverage | Open |
+| US-QA-004 | Low | Coverage | Open |
+| US-QA-005 | Low | Coverage | Open |
+| US-QA-006 | Medium | Coverage | Open |
+| US-QA-007 | High | Security | **Resolved** (Batch 2) |
+| US-QA-008 | Low | Complexity | Open |
+| US-QA-009 | Medium | API Contract | Open |
+| US-QA-010 | Low | API Contract | Open |
+| US-QA-011 | Medium | API Contract | Open |
+
+**Total**: 11 stories generated across 3 batches (1 resolved, 10 open). **Max batches reached (3/3)**.
