@@ -76,16 +76,7 @@
 
 ## Driver Trip Management
 
-### TASK-009: Create driver trip service
-**Description:** Create `src/application/services/driver-trip.service.ts`. Methods: `listTrips(driverId, date)` — returns schedules assigned to driver for the given date (matching daysOfWeek or specific tripDate). `getTripDetail(driverId, scheduleId)` — returns full schedule with route, stops, bookings, current tracking, active delay. Validates driver assignment.
-
-**Acceptance Criteria:**
-- [ ] `listTrips` filters by date (matches daysOfWeek pattern or specific tripDate)
-- [ ] `getTripDetail` validates driver is assigned to this schedule
-- [ ] Detail includes booking count, passenger list, tracking status, active delay
-- [ ] Unit tests
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+**TASK-009: Create driver trip service** - Implemented DriverTripService with listTrips (daysOfWeek+tripDate filtering) and getTripDetail (driver assignment validation, passenger count, stop times). 19 unit tests.
 
 ### TASK-010: Create driver trip API routes
 **Description:** Implement from spec: `GET /api/v1/driver/trips` (query: date, DRIVER role), `GET /api/v1/driver/trips/{scheduleId}` (DRIVER role, validates assignment).
