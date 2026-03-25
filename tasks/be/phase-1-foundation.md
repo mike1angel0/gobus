@@ -27,42 +27,15 @@ transio/
 Set up root `package.json` with npm workspaces (`apps/*`). Move existing Next.js code to `_legacy/` for reference during migration. Add root `.gitignore`, `.editorconfig`.
 
 **Acceptance Criteria:**
-- [ ] Root `package.json` with `"workspaces": ["apps/*"]`
-- [ ] `spec/` directory created with placeholder `openapi.yaml`
-- [ ] `apps/api/package.json` initialized with name `@transio/api`
-- [ ] `apps/web/package.json` initialized with name `@transio/web`
-- [ ] Existing source moved to `_legacy/` for reference
-- [ ] Root `.gitignore` updated (node_modules, dist, .env, *.db, coverage/)
-- [ ] Root `CLAUDE.md` created with monorepo overview and API-first workflow
+- [x] Root `package.json` with `"workspaces": ["apps/*"]`
+- [x] `spec/` directory created with placeholder `openapi.yaml`
+- [x] `apps/api/package.json` initialized with name `@transio/api`
+- [x] `apps/web/package.json` initialized with name `@transio/web`
+- [x] Existing source moved to `_legacy/` for reference
+- [x] Root `.gitignore` updated (node_modules, dist, .env, *.db, coverage/)
+- [x] Root `CLAUDE.md` created with monorepo overview and API-first workflow
 
-### TASK-002: Design OpenAPI 3.1 spec — Auth & Users
-**Description:** Create `spec/openapi.yaml` with OpenAPI 3.1.0 header, info (title: Transio API, version: 1.0.0), servers, and security schemes (Bearer JWT). Design the auth and user schemas and paths:
-
-**Schemas:** `User` (include `status` field: active|suspended|locked, `failedLoginAttempts` Int, `lockedUntil` DateTime nullable), `LoginRequest`, `LoginResponse` (tokens + user), `RegisterRequest` (password min 8 chars, must contain uppercase+lowercase+digit), `RegisterResponse`, `TokenRefreshRequest`, `TokenRefreshResponse`, `ForgotPasswordRequest`, `ResetPasswordRequest` (token + newPassword), `ChangePasswordRequest` (currentPassword + newPassword), `UserUpdate`, `UserPreferences`, `Role` enum, `ErrorResponse` (RFC 9457).
-
-**Paths:**
-- `POST /api/v1/auth/register` — Register (public)
-- `POST /api/v1/auth/login` — Login (public, returns 423 if account locked)
-- `POST /api/v1/auth/refresh` — Refresh token (public)
-- `POST /api/v1/auth/logout` — Logout / revoke refresh token (authenticated)
-- `POST /api/v1/auth/forgot-password` — Request password reset email (public, always returns 200 to prevent email enumeration)
-- `POST /api/v1/auth/reset-password` — Reset password with token (public)
-- `POST /api/v1/auth/change-password` — Change password while logged in (authenticated)
-- `GET /api/v1/auth/me` — Get profile (authenticated)
-- `PATCH /api/v1/auth/me` — Update profile (authenticated)
-
-**Acceptance Criteria:**
-- [ ] `spec/openapi.yaml` with OpenAPI 3.1.0 header, info, servers
-- [ ] Bearer JWT security scheme defined
-- [ ] `ErrorResponse` schema follows RFC 9457 (type, title, status, detail, code, errors[])
-- [ ] `ApiResponse` wrapper: `{ data: T }` for single, `{ data: T[], meta: PaginationMeta }` for lists
-- [ ] `PaginationMeta` schema: total, page, pageSize, totalPages
-- [ ] All auth/user schemas defined with descriptions on every field
-- [ ] Password strength requirements documented in RegisterRequest schema description
-- [ ] User schema includes status (active/suspended/locked) and lockout fields
-- [ ] All 9 auth paths defined with request/response schemas, error codes
-- [ ] 423 Locked status code documented for locked accounts
-- [ ] Spec validates with `npx @redocly/cli lint spec/openapi.yaml` (install as devDep)
+**TASK-002: Design OpenAPI 3.1 spec — Auth & Users** - Designed complete auth/user schemas (RegisterRequest, LoginRequest, User, Role, UserStatus, ErrorResponse RFC 9457, PaginationMeta, etc.) and all 9 auth paths with request/response/error schemas. Spec validates with zero errors.
 
 ### TASK-003: Design OpenAPI spec — Provider & Transport entities
 **Description:** Add provider and transport entity schemas and paths to the spec:

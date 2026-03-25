@@ -1,0 +1,7 @@
+## Iteration 1 - TASK-001: Initialize monorepo with shared API spec
+- Converted flat Next.js project to npm workspaces monorepo
+- Moved existing code to _legacy/ for reference during migration
+- Created spec/, apps/api/, apps/web/ with placeholder configs
+- Root CLAUDE.md documents API-first workflow and monorepo structure
+- Learnings: Old package-lock.json must be removed when restructuring to workspaces
+---
