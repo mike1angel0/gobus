@@ -73,17 +73,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-016: Create transport entity models** - Added SeatType enum, Route, Stop, Bus, Seat models with proper FKs, cascade deletes, unique licensePlate, and indexes. db:generate succeeds.
 
-### TASK-017: Create Schedule, Booking, and operational models
-**Description:** Schedule (id, routeId, busId, driverId nullable, departureTime, arrivalTime, daysOfWeek, basePrice Float, status enum, tripDate DateTime, createdAt). StopTime (id, scheduleId FK cascade, stopName, arrivalTime, departureTime, orderIndex, priceFromStart Float). Booking (id, orderId unique cuid, userId FK, scheduleId FK, totalPrice Float, status enum, boardingStop, alightingStop, tripDate DateTime, createdAt). BookingSeat (id, bookingId FK cascade, seatLabel, unique constraint on scheduleId+seatLabel+tripDate). Delay (id, scheduleId FK, offsetMinutes Int, reason enum, note, tripDate DateTime, active Boolean, createdAt). BusTracking (id, busId FK unique, lat, lng, speed, heading, scheduleId nullable, currentStopIndex, isActive, tripDate DateTime nullable, updatedAt). Message (id, senderId FK, receiverId FK, content, read Boolean, createdAt).
-
-**Acceptance Criteria:**
-- [ ] All models defined with proper types (DateTime not String for dates)
-- [ ] BookingSeat normalized model (no comma-separated strings)
-- [ ] Unique constraint on BookingSeat(scheduleId, seatLabel, tripDate) prevents double-booking at DB level
-- [ ] BusTracking.busId is unique (one tracking record per bus)
-- [ ] All enums defined (ScheduleStatus, BookingStatus, DelayReason)
-- [ ] All foreign keys indexed
-- [ ] Full schema compiles: `npm run db:generate`
+**TASK-017: Create Schedule, Booking, and operational models** - Added Schedule, StopTime, Booking, BookingSeat, Delay, BusTracking, Message models with proper DateTime types, cascade deletes, indexes on all FKs. BookingSeat has @@unique([scheduleId, seatLabel, tripDate]) for double-booking prevention. BusTracking.busId is @unique. Added ScheduleStatus, BookingStatus, DelayReason enums.
 
 ### TASK-018: Create initial migration and seed script
 **Description:** Run initial migration. Create `prisma/seed.ts` with: 3 providers, 15 cities, 8 routes with stops, 5 buses with seat grids, 15 schedules with stop times and segment pricing, demo accounts (2 passengers, 3 provider admins, 3 drivers, 1 admin) — all passwords hashed with bcryptjs.

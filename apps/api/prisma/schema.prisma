@@ -34,6 +34,24 @@ enum SeatType {
   BLOCKED
 }
 
+enum ScheduleStatus {
+  ACTIVE
+  CANCELLED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum DelayReason {
+  TRAFFIC
+  MECHANICAL
+  WEATHER
+  OTHER
+}
+
 // ─── User ───────────────────────────────────────────────────────────────────
 
 model User {
@@ -56,6 +74,10 @@ model User {
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
   auditLogs           AuditLog[]
+  bookings            Booking[]
+  driverSchedules     Schedule[]      @relation("DriverSchedules")
+  sentMessages        Message[]       @relation("SentMessages")
+  receivedMessages    Message[]       @relation("ReceivedMessages")
 
   @@index([providerId])
   @@index([role])
@@ -134,8 +156,9 @@ model Route {
   providerId String
   createdAt  DateTime @default(now())
 
-  provider   Provider @relation(fields: [providerId], references: [id])
+  provider   Provider   @relation(fields: [providerId], references: [id])
   stops      Stop[]
+  schedules  Schedule[]
 
   @@index([providerId])
 }
@@ -167,8 +190,10 @@ model Bus {
   providerId   String
   createdAt    DateTime @default(now())
 
-  provider     Provider @relation(fields: [providerId], references: [id])
+  provider     Provider      @relation(fields: [providerId], references: [id])
   seats        Seat[]
+  schedules    Schedule[]
+  tracking     BusTracking?
 
   @@index([providerId])
 }
@@ -188,4 +213,138 @@ model Seat {
   bus       Bus      @relation(fields: [busId], references: [id], onDelete: Cascade)
 
   @@index([busId])
+}
+
+// ─── Schedule ─────────────────────────────────────────────────────────────────
+
+model Schedule {
+  id            String         @id @default(cuid())
+  routeId       String
+  busId         String
+  driverId      String?
+  departureTime DateTime
+  arrivalTime   DateTime
+  daysOfWeek    Int[]
+  basePrice     Float
+  status        ScheduleStatus @default(ACTIVE)
+  tripDate      DateTime
+  createdAt     DateTime       @default(now())
+
+  route         Route          @relation(fields: [routeId], references: [id])
+  bus           Bus            @relation(fields: [busId], references: [id])
+  driver        User?          @relation("DriverSchedules", fields: [driverId], references: [id])
+  stopTimes     StopTime[]
+  bookings      Booking[]
+  bookingSeats  BookingSeat[]
+  delays        Delay[]
+
+  @@index([routeId])
+  @@index([busId])
+  @@index([driverId])
+}
+
+// ─── StopTime ─────────────────────────────────────────────────────────────────
+
+model StopTime {
+  id             String   @id @default(cuid())
+  scheduleId     String
+  stopName       String   @db.VarChar(200)
+  arrivalTime    DateTime
+  departureTime  DateTime
+  orderIndex     Int
+  priceFromStart Float
+
+  schedule       Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId])
+}
+
+// ─── Booking ──────────────────────────────────────────────────────────────────
+
+model Booking {
+  id            String        @id @default(cuid())
+  orderId       String        @unique @default(cuid())
+  userId        String
+  scheduleId    String
+  totalPrice    Float
+  status        BookingStatus @default(CONFIRMED)
+  boardingStop  String        @db.VarChar(200)
+  alightingStop String        @db.VarChar(200)
+  tripDate      DateTime
+  createdAt     DateTime      @default(now())
+
+  user          User          @relation(fields: [userId], references: [id])
+  schedule      Schedule      @relation(fields: [scheduleId], references: [id])
+  bookingSeats  BookingSeat[]
+
+  @@index([userId])
+  @@index([scheduleId])
+}
+
+// ─── BookingSeat ──────────────────────────────────────────────────────────────
+
+model BookingSeat {
+  id         String @id @default(cuid())
+  bookingId  String
+  seatLabel  String @db.VarChar(10)
+  scheduleId String
+  tripDate   DateTime
+
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
+
+  @@unique([scheduleId, seatLabel, tripDate])
+  @@index([bookingId])
+}
+
+// ─── Delay ────────────────────────────────────────────────────────────────────
+
+model Delay {
+  id            String      @id @default(cuid())
+  scheduleId    String
+  offsetMinutes Int
+  reason        DelayReason
+  note          String?     @db.VarChar(500)
+  tripDate      DateTime
+  active        Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+
+  schedule      Schedule    @relation(fields: [scheduleId], references: [id])
+
+  @@index([scheduleId])
+}
+
+// ─── BusTracking ──────────────────────────────────────────────────────────────
+
+model BusTracking {
+  id               String    @id @default(cuid())
+  busId            String    @unique
+  lat              Float
+  lng              Float
+  speed            Float
+  heading          Float
+  scheduleId       String?
+  currentStopIndex Int
+  isActive         Boolean   @default(true)
+  tripDate         DateTime?
+  updatedAt        DateTime  @updatedAt
+
+  bus              Bus       @relation(fields: [busId], references: [id])
+}
+
+// ─── Message ──────────────────────────────────────────────────────────────────
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  content    String   @db.VarChar(2000)
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
 }
