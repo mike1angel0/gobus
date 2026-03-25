@@ -157,12 +157,12 @@
 **Description:** Implement from spec: `GET /api/v1/schedules` (list, paginated, filterable), `POST /api/v1/schedules` (create), `GET /api/v1/schedules/{id}` (detail), `PUT /api/v1/schedules/{id}` (update), `DELETE /api/v1/schedules/{id}` (cancel). Require PROVIDER role.
 
 **Acceptance Criteria:**
-- [ ] All 5 endpoints match OpenAPI spec
-- [ ] List supports query filters (routeId, busId, status, dateFrom, dateTo)
-- [ ] Create validates all references exist and belong to provider
-- [ ] Cancel returns 204
-- [ ] Integration tests for all endpoints
-- [ ] Typecheck passes
+- [x] All 5 endpoints match OpenAPI spec
+- [x] List supports query filters (routeId, busId, status, dateFrom, dateTo)
+- [x] Create validates all references exist and belong to provider
+- [x] Cancel returns 204
+- [x] Integration tests for all endpoints
+- [x] Typecheck passes
 
 ---
 

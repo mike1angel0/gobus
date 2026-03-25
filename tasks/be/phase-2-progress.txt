@@ -86,3 +86,21 @@
 - Nested summary types (ScheduleRouteSummary, ScheduleBusSummary, ScheduleDriverSummary) match OpenAPI nested schemas
 - Patterns: same interface-only pattern as route.entity.ts and bus.entity.ts, extends for detail types
 ---
+## Iteration 12 - TASK-012: Create schedule service
+- Created ScheduleService with listByProvider, getById, create, update, cancel methods
+- Ownership enforced via route.providerId (Schedule has no direct providerId)
+- create validates route, bus, and driver (if provided) all belong to provider before transaction
+- listByProvider supports filters: routeId, busId, status, fromDate/toDate (date range on tripDate)
+- update validates driver ownership when assigning (but not when unassigning with null)
+- cancel sets status=CANCELLED (separate method from update for clean API)
+- 26 unit tests: list with pagination/filters (routeId/busId/status/dateRange/empty), getById happy/null-driver/not-found/ownership, create happy/no-driver/route-ownership/bus-ownership/driver-ownership/non-driver-role, update happy/unassign/status/not-found/ownership/driver-ownership, cancel happy/not-found/ownership
+- Patterns: ownership is through route relation (where: { route: { providerId } }), private validateRouteOwnership/validateBusOwnership/validateDriverOwnership helpers
+---
+## Iteration 13 - TASK-013: Create schedule API routes
+- Created 5 endpoints: GET /api/v1/schedules (list), POST /api/v1/schedules (create), GET /api/v1/schedules/:id (detail), PUT /api/v1/schedules/:id (update), DELETE /api/v1/schedules/:id (cancel)
+- Added missing GET /api/v1/schedules/{id} endpoint to OpenAPI spec (was missing from spec, required by PRD)
+- Created Zod schemas in schemas.ts matching OpenAPI spec: Schedule, ScheduleWithDetails (with nested route, bus, driver), StopTime, CreateStopTimeInput, CreateScheduleRequest, UpdateScheduleRequest, scheduleFilterQuerySchema
+- All schemas use .strict() and .describe() on every field
+- 35 integration tests: list with pagination/filters, create happy/no-driver/validation/ownership (route/bus/driver)/unknown-fields, getById happy/null-driver/not-found/ownership, update assign-driver/unassign/status/not-found/ownership/driver-ownership/unknown-fields, delete happy/not-found/ownership, auth (401/403) on all endpoints
+- Patterns: same fastify-plugin pattern as driver/bus routes. Serialize functions convert Date→ISO for all nested entities. scheduleFilterQuerySchema extends pagination with filter params. String datetime fields from request body converted to Date via new Date() before passing to service.
+---

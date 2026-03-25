@@ -13,6 +13,7 @@ import providerRoutes from '@/api/providers/routes.js';
 import routeRoutes from '@/api/routes/routes.js';
 import busRoutes from '@/api/buses/routes.js';
 import driverRoutes from '@/api/drivers/routes.js';
+import scheduleRoutes from '@/api/schedules/routes.js';
 
 /**
  * Load the bundled OpenAPI spec from spec/dist/openapi.json.
@@ -64,6 +65,7 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   await app.register(routeRoutes);
   await app.register(busRoutes);
   await app.register(driverRoutes);
+  await app.register(scheduleRoutes);
 
   return app;
 }

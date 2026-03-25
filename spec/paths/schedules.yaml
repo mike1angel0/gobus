@@ -105,6 +105,41 @@ list:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
 
 byId:
+  get:
+    operationId: getSchedule
+    summary: Get schedule details
+    description: Returns a single schedule with full details including route, bus, driver, and stop times. Ownership enforced — providers can only view schedules for their own routes.
+    tags:
+      - Schedules
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '200':
+        description: Schedule details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/schedule.yaml#/ScheduleWithDetailsDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Schedule not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
   put:
     operationId: updateSchedule
     summary: Update a schedule
