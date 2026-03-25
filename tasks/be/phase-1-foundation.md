@@ -41,30 +41,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-004: Design OpenAPI spec — Passenger, Booking, Search** - Designed SearchResult, SeatAvailability, TripDetail, Booking, BookingWithDetails, CreateBookingRequest schemas and BookingStatus enum. Added 6 paths: search trips (public), trip details with seat availability (public), list/create/get/cancel bookings (authenticated with ownership). Spec validates with zero errors.
 
-### TASK-005: Design OpenAPI spec — Tracking, Delays, Driver, Admin
-**Description:** Add remaining schemas and paths:
-
-**Schemas:** `BusTracking`, `TrackingUpdate`, `Delay`, `DelayReason` enum, `CreateDelayRequest`, `DriverTrip`.
-
-**Paths:**
-- `GET /api/v1/tracking/{busId}` — Get bus live position (authenticated)
-- `POST /api/v1/tracking` — Update GPS position (DRIVER role, validates assignment)
-- `GET /api/v1/driver/trips` — List driver's assigned trips for date (DRIVER role)
-- `GET /api/v1/driver/trips/{scheduleId}` — Get driver trip detail (DRIVER role)
-- `GET /api/v1/delays` — Get delays for schedule+tripDate (authenticated)
-- `POST /api/v1/delays` — Report delay (DRIVER or PROVIDER)
-- `PUT /api/v1/delays/{id}` — Update delay (PROVIDER only)
-- `GET /api/v1/admin/buses` — List all buses (ADMIN role, paginated)
-- `PATCH /api/v1/admin/seats/{id}` — Enable/disable seat (ADMIN role)
-
-**Acceptance Criteria:**
-- [ ] BusTracking schema with lat/lng/speed/heading/currentStopIndex
-- [ ] DelayReason enum: TRAFFIC, MECHANICAL, WEATHER, OTHER
-- [ ] Driver endpoints enforce schedule assignment validation
-- [ ] Admin endpoints enforce ADMIN role
-- [ ] All 9 paths defined with full request/response/error schemas
-- [ ] Complete spec validates with `npx @redocly/cli lint spec/openapi.yaml`
-- [ ] Total: ~36 endpoints across all domains
+**TASK-005: Design OpenAPI spec — Tracking, Delays, Driver, Admin** - Added BusTracking, TrackingUpdate, Delay, DelayReason, CreateDelayRequest, UpdateDelayRequest, DriverTrip, DriverTripDetail, AdminToggleSeatRequest schemas and 9 paths (tracking GET/POST, driver trips GET list/detail, delays GET/POST/PUT, admin buses GET, admin seats PATCH). Total: 40 endpoints. Spec validates with zero errors.
 
 ### TASK-006: Add spec validation tooling and npm scripts
 **Description:** Install `@redocly/cli` as root devDep. Add root npm scripts: `spec:lint` (validates spec), `spec:preview` (serves Redoc preview), `spec:bundle` (bundles split files into single openapi.json for consumers). Create `spec/.redocly.yaml` config with rules (no-unused-components, no-empty-servers, etc.). Verify the complete spec passes linting.

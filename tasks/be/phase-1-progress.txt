@@ -28,3 +28,11 @@
 - Computed segment pricing: price at destination minus price at origin stop
 - Learnings: Used `format: date` (not `date-time`) for tripDate query params and request fields since these are date-only values. Cancel booking returns 200 with updated booking (not 204) to provide immediate feedback to the client.
 ---
+
+## Iteration 5 - TASK-005: Design OpenAPI spec — Tracking, Delays, Driver, Admin
+- Added 9 new paths: tracking (GET/POST), driver trips (GET list/detail), delays (GET/POST/PUT), admin buses (GET), admin seats (PATCH)
+- Added schemas: BusTracking, TrackingUpdate, DelayReason enum, Delay, CreateDelayRequest, UpdateDelayRequest, DriverTrip, DriverTripDetail, AdminToggleSeatRequest
+- Added response envelopes: BusTrackingDataResponse, DelayDataResponse, DelayListResponse, DriverTripListResponse, DriverTripDetailDataResponse, SeatDataResponse
+- Total endpoints now: 40 (exceeds ~36 target)
+- Learnings: Reused existing BusListResponse for admin buses endpoint. DelayListResponse is not paginated (filtered by schedule+date returns small result set). UpdateDelayRequest has no required fields (partial update). SeatDataResponse was missing and needed to be created.
+---
