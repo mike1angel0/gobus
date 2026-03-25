@@ -122,6 +122,7 @@ TrackingUpdate:
     tripDate:
       type: string
       format: date
+      maxLength: 10
       description: Date of the current trip
 
 BusTrackingDataResponse:

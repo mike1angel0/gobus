@@ -84,6 +84,7 @@ TokenRefreshRequest:
   properties:
     refreshToken:
       type: string
+      minLength: 1
       maxLength: 500
       description: The refresh token received during login or previous refresh
 
@@ -95,6 +96,7 @@ LogoutRequest:
   properties:
     refreshToken:
       type: string
+      minLength: 1
       maxLength: 500
       description: The refresh token to revoke
 
@@ -119,6 +121,7 @@ ResetPasswordRequest:
   properties:
     token:
       type: string
+      minLength: 1
       maxLength: 500
       description: Password reset token received via email
     newPassword:
@@ -139,6 +142,7 @@ ChangePasswordRequest:
   properties:
     currentPassword:
       type: string
+      minLength: 1
       maxLength: 128
       description: The user's current password for verification
     newPassword:

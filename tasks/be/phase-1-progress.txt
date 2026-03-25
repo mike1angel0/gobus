@@ -123,3 +123,12 @@ See per-iteration learnings above and the "Important Gotchas" section in Compact
 - Learnings: npm overrides require deleting node_modules + package-lock.json and clean install to take effect. Overrides only work in the root package.json of a workspace monorepo.
 ---
 
+
+## Iteration 26 - Validation Fix: spec constraints + Zod parity
+- Fixed OpenAPI spec: added `minLength: 1` to 4 auth request fields (currentPassword, refreshToken×2, token), `minLength: 1` to 2 path params (scheduleId in search, busId in tracking), `maxLength: 10` to 2 format:date request fields (booking tripDate, tracking tripDate)
+- Fixed Zod-to-spec parity: added `.min(1)` to 5 Zod fields (loginBody.password, tokenRefreshBody.refreshToken, logoutBody.refreshToken, resetPasswordBody.token, changePasswordBody.currentPassword)
+- Rebundled spec/dist/openapi.json
+- All quality gates pass: spec valid, typecheck clean, lint clean, 181 tests passing
+- Learnings: Every string field in OpenAPI request schemas and path params needs both minLength and maxLength. Format:date fields still need explicit maxLength even though the format implies length.
+---
+

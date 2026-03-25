@@ -242,6 +242,7 @@ CreateBookingRequest:
     tripDate:
       type: string
       format: date
+      maxLength: 10
       description: Date of the trip (ISO 8601 date format, e.g. 2026-03-25)
 
 BookingWithDetailsDataResponse:

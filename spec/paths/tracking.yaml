@@ -14,6 +14,7 @@ byBusId:
         description: Bus identifier to track
         schema:
           type: string
+          minLength: 1
           maxLength: 30
     responses:
       '200':

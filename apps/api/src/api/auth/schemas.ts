@@ -101,7 +101,7 @@ export const registerBodySchema = z
 export const loginBodySchema = z
   .object({
     email: z.string().email().max(255).describe('Registered email address'),
-    password: z.string().max(128).describe('Account password'),
+    password: z.string().min(1).max(128).describe('Account password'),
   })
   .strict()
   .describe('Request body for user login');
@@ -111,6 +111,7 @@ export const tokenRefreshBodySchema = z
   .object({
     refreshToken: z
       .string()
+      .min(1)
       .max(500)
       .describe('The refresh token received during login or previous refresh'),
   })
@@ -120,7 +121,7 @@ export const tokenRefreshBodySchema = z
 /** Zod schema for POST /auth/logout request body matching OpenAPI LogoutRequest. */
 export const logoutBodySchema = z
   .object({
-    refreshToken: z.string().max(500).describe('The refresh token to revoke'),
+    refreshToken: z.string().min(1).max(500).describe('The refresh token to revoke'),
   })
   .strict()
   .describe('Request body for logout');
@@ -136,7 +137,7 @@ export const forgotPasswordBodySchema = z
 /** Zod schema for POST /auth/reset-password request body matching OpenAPI ResetPasswordRequest. */
 export const resetPasswordBodySchema = z
   .object({
-    token: z.string().max(500).describe('Password reset token received via email'),
+    token: z.string().min(1).max(500).describe('Password reset token received via email'),
     newPassword: strongPasswordSchema.describe(
       'New password. Must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one digit.',
     ),
@@ -147,7 +148,7 @@ export const resetPasswordBodySchema = z
 /** Zod schema for POST /auth/change-password request body matching OpenAPI ChangePasswordRequest. */
 export const changePasswordBodySchema = z
   .object({
-    currentPassword: z.string().max(128).describe("The user's current password for verification"),
+    currentPassword: z.string().min(1).max(128).describe("The user's current password for verification"),
     newPassword: strongPasswordSchema.describe(
       'New password. Must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one digit.',
     ),
