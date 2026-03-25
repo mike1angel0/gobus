@@ -67,14 +67,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 ## Prisma Schema (PostgreSQL)
 
-### TASK-014: Set up Prisma with PostgreSQL
-**Description:** Install `prisma` and `@prisma/client`. Create `prisma/schema.prisma` with PostgreSQL provider. Create `src/infrastructure/prisma/client.ts` with singleton (query logging in dev). Add scripts: `db:generate`, `db:push`, `db:migrate`, `db:seed`, `db:studio`.
-
-**Acceptance Criteria:**
-- [ ] `prisma/schema.prisma` with PostgreSQL datasource
-- [ ] Prisma client singleton exported
-- [ ] All db scripts work
-- [ ] Typecheck passes
+**TASK-014: Set up Prisma with PostgreSQL** - Installed Prisma 7 with @prisma/adapter-pg driver adapter, created PostgreSQL schema, singleton client with query logging in dev, graceful disconnect in server shutdown, and all db:* npm scripts.
 
 ### TASK-015: Create User, Provider, and security-related models
 **Description:** User: id (cuid), email (unique), name, passwordHash, role (enum PASSENGER/PROVIDER/DRIVER/ADMIN), phone, avatarUrl, preferences (Json), providerId (FK nullable), status (enum ACTIVE/SUSPENDED/LOCKED default ACTIVE), failedLoginAttempts (Int default 0), lockedUntil (DateTime nullable), createdAt, updatedAt. Provider: id (cuid), name, logo, contactEmail, contactPhone, status (enum APPROVED/PENDING), createdAt, updatedAt. RefreshToken: id (cuid), token (unique, hashed), userId (FK), expiresAt (DateTime), revokedAt (DateTime nullable), createdAt. PasswordResetToken: id (cuid), token (unique, hashed), userId (FK), expiresAt (DateTime), usedAt (DateTime nullable), createdAt. AuditLog: id (cuid), userId (FK nullable), action (String), resource (String), resourceId (String nullable), ipAddress (String nullable), userAgent (String nullable), metadata (Json nullable), createdAt. Indexes on User.email (unique), User.providerId, User.role, RefreshToken.token, PasswordResetToken.token, AuditLog.userId+createdAt.

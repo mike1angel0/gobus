@@ -1,4 +1,5 @@
 import { buildApp } from './app.js';
+import { disconnectPrisma } from './infrastructure/prisma/client.js';
 
 const PORT = parseInt(process.env.PORT ?? '3000', 10);
 const HOST = process.env.HOST ?? '0.0.0.0';
@@ -15,6 +16,7 @@ async function start(): Promise<void> {
   const shutdown = async (signal: string) => {
     app.log.info({ signal }, 'Received shutdown signal, closing server');
     await app.close();
+    await disconnectPrisma();
     process.exit(0);
   };
 
