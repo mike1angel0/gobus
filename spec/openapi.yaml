@@ -915,6 +915,242 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  # --- Search & Trip Endpoints ---
+  /api/v1/search:
+    get:
+      operationId: searchTrips
+      summary: Search for available trips
+      description: Searches for available trips between origin and destination on a given date. Public endpoint — no authentication required. Returns matching schedules with availability and computed segment prices.
+      tags:
+        - Search
+      security: []
+      parameters:
+        - name: origin
+          in: query
+          required: true
+          description: Origin stop name (case-insensitive partial match)
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: destination
+          in: query
+          required: true
+          description: Destination stop name (case-insensitive partial match)
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+        - name: date
+          in: query
+          required: true
+          description: Trip date (ISO 8601 date format, e.g. 2026-03-25)
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: List of available trips matching the search criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultListResponse'
+        '400':
+          description: Validation error (missing or invalid query parameters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/trips/{scheduleId}:
+    get:
+      operationId: getTripDetails
+      summary: Get trip details with seat availability
+      description: Returns detailed trip information including the seat map with per-seat availability status. Public endpoint — no authentication required. The tripDate query parameter specifies which date to check availability for.
+      tags:
+        - Search
+      security: []
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          description: Schedule identifier
+          schema:
+            type: string
+            maxLength: 30
+        - name: tripDate
+          in: query
+          required: true
+          description: Trip date to check seat availability for (ISO 8601 date format)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Trip details with seat availability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetailDataResponse'
+        '400':
+          description: Validation error (missing tripDate)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Booking Endpoints ---
+  /api/v1/bookings:
+    get:
+      operationId: listBookings
+      summary: List user's bookings
+      description: Returns a paginated list of bookings belonging to the authenticated user. Ownership enforced — users can only see their own bookings.
+      tags:
+        - Bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          required: false
+          description: Filter bookings by status
+          schema:
+            $ref: '#/components/schemas/BookingStatus'
+      responses:
+        '200':
+          description: Paginated list of bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createBooking
+      summary: Create a new booking
+      description: Creates a booking for the authenticated user. Validates seat availability, stop order (boarding must come before alighting on the route), and schedule existence. Uses database-level unique constraint to prevent double-booking.
+      tags:
+        - Bookings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingWithDetailsDataResponse'
+        '400':
+          description: Validation error (invalid stop order, missing fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Seat conflict — one or more selected seats are already booked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/bookings/{id}:
+    get:
+      operationId: getBooking
+      summary: Get booking details
+      description: Returns detailed booking information. Ownership enforced — users can only view their own bookings. Returns 404 (not 403) if booking belongs to another user.
+      tags:
+        - Bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingWithDetailsDataResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found or not owned by user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: cancelBooking
+      summary: Cancel a booking
+      description: Cancels a booking by setting its status to CANCELLED. Ownership enforced — users can only cancel their own bookings. Only CONFIRMED bookings can be cancelled. Returns 404 (not 403) if booking belongs to another user.
+      tags:
+        - Bookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Booking cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingWithDetailsDataResponse'
+        '400':
+          description: Booking cannot be cancelled (already cancelled or completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Booking not found or not owned by user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -2374,5 +2610,478 @@ components:
           maxItems: 100
           items:
             $ref: '#/components/schemas/Schedule'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    # --- Booking Enums ---
+    BookingStatus:
+      type: string
+      description: Status of a booking
+      enum:
+        - CONFIRMED
+        - CANCELLED
+        - COMPLETED
+
+    # --- Search Schemas ---
+    SearchResult:
+      type: object
+      description: A single search result representing an available trip between origin and destination
+      required:
+        - scheduleId
+        - providerName
+        - routeName
+        - origin
+        - destination
+        - departureTime
+        - arrivalTime
+        - tripDate
+        - price
+        - availableSeats
+        - totalSeats
+      properties:
+        scheduleId:
+          type: string
+          maxLength: 30
+          description: Schedule identifier for this trip
+        providerName:
+          type: string
+          maxLength: 200
+          description: Name of the transport provider
+        routeName:
+          type: string
+          maxLength: 200
+          description: Name of the route
+        origin:
+          type: string
+          maxLength: 200
+          description: Boarding stop name
+        destination:
+          type: string
+          maxLength: 200
+          description: Alighting stop name
+        departureTime:
+          type: string
+          format: date-time
+          description: Departure time from origin stop
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Arrival time at destination stop
+        tripDate:
+          type: string
+          format: date
+          description: Date of the trip
+        price:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100000
+          description: Computed segment price (price at destination minus price at origin)
+        availableSeats:
+          type: integer
+          minimum: 0
+          maximum: 1000
+          description: Number of seats currently available for this trip and date
+        totalSeats:
+          type: integer
+          minimum: 0
+          maximum: 1000
+          description: Total number of enabled seats on the bus
+
+    SeatAvailability:
+      type: object
+      description: A seat with its current availability status for a specific trip date
+      required:
+        - id
+        - row
+        - column
+        - label
+        - type
+        - price
+        - isEnabled
+        - isBooked
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique seat identifier (cuid)
+        row:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Seat row number
+        column:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Seat column number
+        label:
+          type: string
+          maxLength: 10
+          description: Seat label displayed to passengers (e.g., 1A, 2B)
+        type:
+          $ref: '#/components/schemas/SeatType'
+        price:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 10000
+          description: Price override for this seat (0 means use base price)
+        isEnabled:
+          type: boolean
+          description: Whether this seat is available for booking
+        isBooked:
+          type: boolean
+          description: Whether this seat is already booked for the requested trip date
+
+    TripDetail:
+      type: object
+      description: Detailed trip information with seat map and availability
+      required:
+        - scheduleId
+        - routeName
+        - providerName
+        - departureTime
+        - arrivalTime
+        - tripDate
+        - basePrice
+        - status
+        - stopTimes
+        - seats
+      properties:
+        scheduleId:
+          type: string
+          maxLength: 30
+          description: Schedule identifier
+        routeName:
+          type: string
+          maxLength: 200
+          description: Name of the route
+        providerName:
+          type: string
+          maxLength: 200
+          description: Name of the transport provider
+        departureTime:
+          type: string
+          format: date-time
+          description: Departure time from first stop
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Arrival time at last stop
+        tripDate:
+          type: string
+          format: date
+          description: Date of the trip
+        basePrice:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100000
+          description: Base price for the full route
+        status:
+          $ref: '#/components/schemas/ScheduleStatus'
+        stopTimes:
+          type: array
+          minItems: 0
+          maxItems: 100
+          description: Ordered stop times for this schedule
+          items:
+            $ref: '#/components/schemas/StopTime'
+        seats:
+          type: array
+          minItems: 0
+          maxItems: 1000
+          description: Seat map with availability status
+          items:
+            $ref: '#/components/schemas/SeatAvailability'
+
+    # --- Booking Schemas ---
+    Booking:
+      type: object
+      description: A booking record
+      required:
+        - id
+        - orderId
+        - userId
+        - scheduleId
+        - totalPrice
+        - status
+        - boardingStop
+        - alightingStop
+        - tripDate
+        - seatLabels
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique booking identifier (cuid)
+        orderId:
+          type: string
+          maxLength: 30
+          description: Human-friendly unique order identifier (cuid)
+        userId:
+          type: string
+          maxLength: 30
+          description: User who made the booking
+        scheduleId:
+          type: string
+          maxLength: 30
+          description: Booked schedule ID
+        totalPrice:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1000000
+          description: Total price for all booked seats
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        boardingStop:
+          type: string
+          maxLength: 200
+          description: Name of the boarding stop
+        alightingStop:
+          type: string
+          maxLength: 200
+          description: Name of the alighting stop
+        tripDate:
+          type: string
+          format: date-time
+          description: Date of the trip
+        seatLabels:
+          type: array
+          minItems: 1
+          maxItems: 10
+          description: Labels of booked seats
+          items:
+            type: string
+            maxLength: 10
+        createdAt:
+          type: string
+          format: date-time
+          description: Booking creation timestamp
+
+    BookingWithDetails:
+      type: object
+      description: A booking with expanded schedule, route, and provider details
+      required:
+        - id
+        - orderId
+        - userId
+        - scheduleId
+        - totalPrice
+        - status
+        - boardingStop
+        - alightingStop
+        - tripDate
+        - seatLabels
+        - schedule
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique booking identifier (cuid)
+        orderId:
+          type: string
+          maxLength: 30
+          description: Human-friendly unique order identifier (cuid)
+        userId:
+          type: string
+          maxLength: 30
+          description: User who made the booking
+        scheduleId:
+          type: string
+          maxLength: 30
+          description: Booked schedule ID
+        totalPrice:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1000000
+          description: Total price for all booked seats
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        boardingStop:
+          type: string
+          maxLength: 200
+          description: Name of the boarding stop
+        alightingStop:
+          type: string
+          maxLength: 200
+          description: Name of the alighting stop
+        tripDate:
+          type: string
+          format: date-time
+          description: Date of the trip
+        seatLabels:
+          type: array
+          minItems: 1
+          maxItems: 10
+          description: Labels of booked seats
+          items:
+            type: string
+            maxLength: 10
+        schedule:
+          type: object
+          description: Expanded schedule with route and provider info
+          required:
+            - departureTime
+            - arrivalTime
+            - route
+            - bus
+          properties:
+            departureTime:
+              type: string
+              format: date-time
+              description: Schedule departure time
+            arrivalTime:
+              type: string
+              format: date-time
+              description: Schedule arrival time
+            route:
+              type: object
+              description: Route summary
+              required:
+                - id
+                - name
+                - provider
+              properties:
+                id:
+                  type: string
+                  maxLength: 30
+                  description: Route ID
+                name:
+                  type: string
+                  maxLength: 200
+                  description: Route name
+                provider:
+                  type: object
+                  description: Provider summary
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: string
+                      maxLength: 30
+                      description: Provider ID
+                    name:
+                      type: string
+                      maxLength: 200
+                      description: Provider name
+            bus:
+              type: object
+              description: Bus summary
+              required:
+                - id
+                - licensePlate
+                - model
+              properties:
+                id:
+                  type: string
+                  maxLength: 30
+                  description: Bus ID
+                licensePlate:
+                  type: string
+                  maxLength: 20
+                  description: Bus license plate
+                model:
+                  type: string
+                  maxLength: 100
+                  description: Bus model name
+        createdAt:
+          type: string
+          format: date-time
+          description: Booking creation timestamp
+
+    CreateBookingRequest:
+      type: object
+      description: Request body for creating a booking
+      required:
+        - scheduleId
+        - seatLabels
+        - boardingStop
+        - alightingStop
+        - tripDate
+      properties:
+        scheduleId:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Schedule to book
+        seatLabels:
+          type: array
+          minItems: 1
+          maxItems: 10
+          description: Seat labels to book (e.g., ["1A", "1B"])
+          items:
+            type: string
+            minLength: 1
+            maxLength: 10
+        boardingStop:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Name of the boarding stop (must exist in schedule stop times)
+        alightingStop:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Name of the alighting stop (must come after boarding stop in route order)
+        tripDate:
+          type: string
+          format: date
+          description: Date of the trip (ISO 8601 date format, e.g. 2026-03-25)
+
+    # --- Response Envelopes (Search & Booking) ---
+    SearchResultListResponse:
+      type: object
+      description: Paginated list of search results
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    TripDetailDataResponse:
+      type: object
+      description: API response envelope wrapping trip detail data
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/TripDetail'
+
+    BookingWithDetailsDataResponse:
+      type: object
+      description: API response envelope wrapping booking with details
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/BookingWithDetails'
+
+    BookingListResponse:
+      type: object
+      description: Paginated list of bookings
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Booking'
         meta:
           $ref: '#/components/schemas/PaginationMeta'

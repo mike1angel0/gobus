@@ -39,27 +39,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-003: Design OpenAPI spec — Provider & Transport entities** - Designed all transport entity schemas (Provider, Route, Stop, Bus, Seat, Schedule, StopTime, Driver, enums) and 16 provider paths with full request/response/error schemas, pagination, ownership enforcement, and reusable parameters. Spec validates with zero errors.
 
-### TASK-004: Design OpenAPI spec — Passenger, Booking, Search
-**Description:** Add passenger-facing schemas and paths:
-
-**Schemas:** `SearchQuery` (origin, destination, date), `SearchResult` (schedule + availability + price), `Booking`, `BookingWithDetails`, `CreateBookingRequest` (scheduleId, seatLabels[], boardingStop, alightingStop, tripDate), `BookingStatus` enum.
-
-**Paths:**
-- `GET /api/v1/search` — Search trips (public, query params)
-- `GET /api/v1/trips/{scheduleId}` — Get trip details with seat availability (public)
-- `GET /api/v1/bookings` — List user's bookings (authenticated, paginated)
-- `POST /api/v1/bookings` — Create booking (authenticated)
-- `GET /api/v1/bookings/{id}` — Get booking details (authenticated, ownership enforced)
-- `DELETE /api/v1/bookings/{id}` — Cancel booking (authenticated, ownership enforced)
-
-**Acceptance Criteria:**
-- [ ] Search endpoint returns array of available trips with computed prices
-- [ ] Trip detail includes seat map with availability status per seat
-- [ ] Booking creation schema includes all required fields
-- [ ] BookingStatus enum: CONFIRMED, CANCELLED, COMPLETED
-- [ ] Ownership enforcement documented on booking endpoints
-- [ ] Error cases documented: seat conflict (409), not found (404), invalid stop order (400)
-- [ ] Spec validates with Redocly lint
+**TASK-004: Design OpenAPI spec — Passenger, Booking, Search** - Designed SearchResult, SeatAvailability, TripDetail, Booking, BookingWithDetails, CreateBookingRequest schemas and BookingStatus enum. Added 6 paths: search trips (public), trip details with seat availability (public), list/create/get/cancel bookings (authenticated with ownership). Spec validates with zero errors.
 
 ### TASK-005: Design OpenAPI spec — Tracking, Delays, Driver, Admin
 **Description:** Add remaining schemas and paths:

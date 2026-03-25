@@ -19,3 +19,12 @@
 - Added response envelopes for all entity types with pagination support
 - Learnings: Reusable $ref parameters (PageParam, PageSizeParam, IdParam) clean up path definitions significantly. BusTemplate schema triggers no-unused-components warning since it's a reference schema — acceptable for now.
 ---
+
+## Iteration 4 - TASK-004: Design OpenAPI spec — Passenger, Booking, Search
+- Added 6 passenger-facing paths: GET /search, GET /trips/{scheduleId}, GET/POST /bookings, GET/DELETE /bookings/{id}
+- Added schemas: SearchResult, SeatAvailability, TripDetail, Booking, BookingWithDetails, CreateBookingRequest, BookingStatus enum
+- Search is public (no auth), bookings are authenticated with ownership enforcement (404 not 403)
+- Trip detail includes seat map with isBooked availability per seat
+- Computed segment pricing: price at destination minus price at origin stop
+- Learnings: Used `format: date` (not `date-time`) for tripDate query params and request fields since these are date-only values. Cancel booking returns 200 with updated booking (not 204) to provide immediate feedback to the client.
+---
