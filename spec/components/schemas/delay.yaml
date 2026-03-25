@@ -117,9 +117,10 @@ DelayDataResponse:
 
 DelayListResponse:
   type: object
-  description: List of delays (not paginated, filtered by schedule+date)
+  description: Paginated list of delays filtered by schedule and date
   required:
     - data
+    - meta
   properties:
     data:
       type: array
@@ -128,3 +129,5 @@ DelayListResponse:
       description: Delays for the requested schedule and date
       items:
         $ref: '#/Delay'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'

@@ -4,8 +4,10 @@ import type {
   DriverTripDetail,
   DriverTripStopTime,
 } from '@/domain/driver-trips/driver-trip.entity.js';
+import type { PaginationMeta } from '@/shared/types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { buildPaginationMeta, parsePagination } from '@/shared/pagination.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
 
 const logger = createLogger('DriverTripService');
@@ -75,6 +77,14 @@ function toStopTime(record: StopTimeRecord): DriverTripStopTime {
   };
 }
 
+/** Paginated driver trip results. */
+export interface PaginatedDriverTrips {
+  /** List of driver trips for the current page. */
+  data: DriverTrip[];
+  /** Pagination metadata. */
+  meta: PaginationMeta;
+}
+
 /**
  * Service handling driver trip listing and detail queries.
  * Provide trip lists filtered by date and detailed trip views with passenger counts.
@@ -84,30 +94,46 @@ export class DriverTripService {
   constructor(private readonly prisma: PrismaClient) {}
 
   /**
-   * List trips assigned to a driver for a given date.
+   * List trips assigned to a driver for a given date with pagination.
    * Filter schedules where driverId matches and the tripDate matches the requested date
    * or the daysOfWeek pattern includes the requested day.
    */
-  async listTrips(driverId: string, date?: string): Promise<DriverTrip[]> {
+  async listTrips(
+    driverId: string,
+    date?: string,
+    page = 1,
+    pageSize = 20,
+  ): Promise<PaginatedDriverTrips> {
     const { dateStr, dateObj } = resolveTripDate(date);
     const dayOfWeek = getDayOfWeek(dateStr);
+    const { skip, take } = parsePagination(page, pageSize);
 
-    const schedules = await this.prisma.schedule.findMany({
-      where: {
-        driverId,
-        status: 'ACTIVE',
-        OR: [{ tripDate: dateObj }, { daysOfWeek: { has: dayOfWeek } }],
-      },
-      include: {
-        route: { select: { name: true } },
-        bus: { select: { licensePlate: true } },
-      },
-      orderBy: { departureTime: 'asc' },
-    });
+    const where = {
+      driverId,
+      status: 'ACTIVE' as const,
+      OR: [{ tripDate: dateObj }, { daysOfWeek: { has: dayOfWeek } }],
+    };
 
-    logger.debug('Driver trips listed', { driverId, date: dateStr, count: schedules.length });
+    const [schedules, total] = await Promise.all([
+      this.prisma.schedule.findMany({
+        where,
+        include: {
+          route: { select: { name: true } },
+          bus: { select: { licensePlate: true } },
+        },
+        orderBy: { departureTime: 'asc' },
+        skip,
+        take,
+      }),
+      this.prisma.schedule.count({ where }),
+    ]);
 
-    return schedules.map((s) => toDriverTrip(s, dateObj));
+    logger.debug('Driver trips listed', { driverId, date: dateStr, count: schedules.length, total });
+
+    return {
+      data: schedules.map((s) => toDriverTrip(s, dateObj)),
+      meta: buildPaginationMeta({ total, page, pageSize }),
+    };
   }
 
   /**

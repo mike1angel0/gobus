@@ -7,6 +7,7 @@ import { createTestApp, createAuthHeader } from '@/test/helpers.js';
 // --- Mock setup ---
 const mockScheduleFindMany = vi.fn();
 const mockScheduleFindUnique = vi.fn();
+const mockScheduleCount = vi.fn();
 const mockBookingCount = vi.fn();
 const mockUserFindUnique = vi.fn();
 
@@ -14,6 +15,7 @@ const mockPrisma = {
   schedule: {
     findMany: mockScheduleFindMany,
     findUnique: mockScheduleFindUnique,
+    count: mockScheduleCount,
   },
   booking: {
     count: mockBookingCount,
@@ -111,8 +113,9 @@ describe('Driver Trip Routes', () => {
 
   // --- GET /api/v1/driver/trips ---
   describe('GET /api/v1/driver/trips', () => {
-    it('returns 200 with list of driver trips', async () => {
+    it('returns 200 with list of driver trips and pagination meta', async () => {
       mockScheduleFindMany.mockResolvedValueOnce([makeScheduleRecord()]);
+      mockScheduleCount.mockResolvedValueOnce(1);
 
       const response = await supertest(app.server)
         .get('/api/v1/driver/trips?date=2026-03-25')
@@ -127,10 +130,12 @@ describe('Driver Trip Routes', () => {
       expect(response.body.data[0].routeName).toBe('Bucharest - Brasov');
       expect(response.body.data[0].busLicensePlate).toBe('B-123-ABC');
       expect(response.body.data[0].status).toBe('ACTIVE');
+      expect(response.body.meta).toEqual({ total: 1, page: 1, pageSize: 20, totalPages: 1 });
     });
 
     it('returns 200 with empty array when no trips assigned', async () => {
       mockScheduleFindMany.mockResolvedValueOnce([]);
+      mockScheduleCount.mockResolvedValueOnce(0);
 
       const response = await supertest(app.server)
         .get('/api/v1/driver/trips?date=2026-03-25')
@@ -138,10 +143,12 @@ describe('Driver Trip Routes', () => {
         .expect(200);
 
       expect(response.body.data).toEqual([]);
+      expect(response.body.meta).toEqual({ total: 0, page: 1, pageSize: 20, totalPages: 0 });
     });
 
     it('returns 200 with default date when date param omitted', async () => {
       mockScheduleFindMany.mockResolvedValueOnce([]);
+      mockScheduleCount.mockResolvedValueOnce(0);
 
       const response = await supertest(app.server)
         .get('/api/v1/driver/trips')
@@ -161,6 +168,7 @@ describe('Driver Trip Routes', () => {
         bus: { licensePlate: 'B-456-DEF' },
       });
       mockScheduleFindMany.mockResolvedValueOnce([makeScheduleRecord(), sched2]);
+      mockScheduleCount.mockResolvedValueOnce(2);
 
       const response = await supertest(app.server)
         .get('/api/v1/driver/trips?date=2026-03-25')
@@ -170,6 +178,7 @@ describe('Driver Trip Routes', () => {
       expect(response.body.data).toHaveLength(2);
       expect(response.body.data[0].scheduleId).toBe('sched-1');
       expect(response.body.data[1].scheduleId).toBe('sched-2');
+      expect(response.body.meta).toEqual({ total: 2, page: 1, pageSize: 20, totalPages: 1 });
     });
 
     it('returns 403 when user is not a DRIVER', async () => {
@@ -209,6 +218,19 @@ describe('Driver Trip Routes', () => {
       const response = await supertest(app.server).get('/api/v1/driver/trips').expect(401);
 
       expect(response.body.status).toBe(401);
+    });
+
+    it('supports custom page and pageSize query params', async () => {
+      mockScheduleFindMany.mockResolvedValueOnce([makeScheduleRecord()]);
+      mockScheduleCount.mockResolvedValueOnce(30);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/driver/trips?date=2026-03-25&page=2&pageSize=10')
+        .set('Authorization', DRIVER_AUTH)
+        .expect(200);
+
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.meta).toEqual({ total: 30, page: 2, pageSize: 10, totalPages: 3 });
     });
   });
 

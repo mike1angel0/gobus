@@ -86,6 +86,7 @@ describe('DelayService', () => {
       update: ReturnType<typeof vi.fn>;
       updateMany: ReturnType<typeof vi.fn>;
       create: ReturnType<typeof vi.fn>;
+      count: ReturnType<typeof vi.fn>;
     };
     schedule: {
       findUnique: ReturnType<typeof vi.fn>;
@@ -107,6 +108,7 @@ describe('DelayService', () => {
         update: vi.fn(),
         updateMany: vi.fn(),
         create: vi.fn(),
+        count: vi.fn(),
       },
       schedule: {
         findUnique: vi.fn(),
@@ -117,21 +119,23 @@ describe('DelayService', () => {
   });
 
   describe('getBySchedule', () => {
-    it('should return active delays for a schedule and trip date', async () => {
+    it('should return paginated active delays for a schedule and trip date', async () => {
       const records = [
         makeDelayRecord({ id: 'delay-1' }),
         makeDelayRecord({ id: 'delay-2', offsetMinutes: 30, reason: 'WEATHER' }),
       ];
       mockPrisma.delay.findMany.mockResolvedValue(records);
+      mockPrisma.delay.count.mockResolvedValue(2);
 
-      const result = await service.getBySchedule(SCHEDULE_ID, TRIP_DATE);
+      const result = await service.getBySchedule(SCHEDULE_ID, TRIP_DATE, 1, 20);
 
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe('delay-1');
-      expect(result[0].offsetMinutes).toBe(15);
-      expect(result[1].id).toBe('delay-2');
-      expect(result[1].offsetMinutes).toBe(30);
-      expect(result[1].reason).toBe('WEATHER');
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0].id).toBe('delay-1');
+      expect(result.data[0].offsetMinutes).toBe(15);
+      expect(result.data[1].id).toBe('delay-2');
+      expect(result.data[1].offsetMinutes).toBe(30);
+      expect(result.data[1].reason).toBe('WEATHER');
+      expect(result.meta).toEqual({ total: 2, page: 1, pageSize: 20, totalPages: 1 });
 
       expect(mockPrisma.delay.findMany).toHaveBeenCalledWith({
         where: {
@@ -140,15 +144,31 @@ describe('DelayService', () => {
           active: true,
         },
         orderBy: { createdAt: 'desc' },
+        skip: 0,
+        take: 20,
       });
     });
 
-    it('should return empty array when no delays exist', async () => {
+    it('should return empty data with zero totalPages when no delays exist', async () => {
       mockPrisma.delay.findMany.mockResolvedValue([]);
+      mockPrisma.delay.count.mockResolvedValue(0);
 
-      const result = await service.getBySchedule(SCHEDULE_ID, TRIP_DATE);
+      const result = await service.getBySchedule(SCHEDULE_ID, TRIP_DATE, 1, 20);
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
+      expect(result.meta).toEqual({ total: 0, page: 1, pageSize: 20, totalPages: 0 });
+    });
+
+    it('should apply skip/take for page 2', async () => {
+      mockPrisma.delay.findMany.mockResolvedValue([]);
+      mockPrisma.delay.count.mockResolvedValue(25);
+
+      const result = await service.getBySchedule(SCHEDULE_ID, TRIP_DATE, 2, 10);
+
+      expect(result.meta).toEqual({ total: 25, page: 2, pageSize: 10, totalPages: 3 });
+      expect(mockPrisma.delay.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 10, take: 10 }),
+      );
     });
   });
 

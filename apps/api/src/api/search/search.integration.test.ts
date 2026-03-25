@@ -297,6 +297,20 @@ describe('Search Routes', () => {
       expect(response.body.meta.pageSize).toBe(2);
       expect(response.body.meta.totalPages).toBe(2);
     });
+
+    it('rejects pageSize greater than 50 for search results', async () => {
+      const response = await supertest(app.server)
+        .get('/api/v1/search')
+        .query({
+          origin: 'Bucharest',
+          destination: 'Cluj',
+          date: '2026-03-25',
+          pageSize: 51,
+        })
+        .expect(400);
+
+      expect(response.body.status).toBe(400);
+    });
   });
 
   // --- GET /api/v1/trips/:scheduleId ---

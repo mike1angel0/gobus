@@ -38,12 +38,12 @@ function serializeDelay(data: DelayData): Record<string, unknown> {
 async function delayRoutes(app: FastifyInstance): Promise<void> {
   const delayService = new DelayService(getPrisma());
 
-  // GET /api/v1/delays — list delays for a schedule + tripDate
+  // GET /api/v1/delays — list delays for a schedule + tripDate (paginated)
   app.get('/api/v1/delays', { preHandler: [app.authenticate] }, async (request) => {
-    const { scheduleId, tripDate } = listDelaysQuerySchema.parse(request.query);
-    const delays = await delayService.getBySchedule(scheduleId, tripDate);
+    const { scheduleId, tripDate, page, pageSize } = listDelaysQuerySchema.parse(request.query);
+    const result = await delayService.getBySchedule(scheduleId, tripDate, page, pageSize);
 
-    return { data: delays.map(serializeDelay) };
+    return { data: result.data.map(serializeDelay), meta: result.meta };
   });
 
   // POST /api/v1/delays — report a delay (DRIVER or PROVIDER)

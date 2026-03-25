@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { dataResponse } from '@/shared/schemas.js';
+import { dataResponse, paginatedResponse } from '@/shared/schemas.js';
 
 /** Zod enum for delay reason matching OpenAPI DelayReason. */
 const delayReasonEnum = z.enum(['TRAFFIC', 'MECHANICAL', 'WEATHER', 'OTHER']);
@@ -13,6 +13,14 @@ export const listDelaysQuerySchema = z
       .date()
       .max(10)
       .describe('Trip date to filter delays. ISO 8601 date format.'),
+    page: z.coerce.number().int().min(1).max(10000).default(1).describe('Page number (1-based)'),
+    pageSize: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(20)
+      .describe('Number of items per page'),
   })
   .strict();
 
@@ -68,7 +76,5 @@ export const delaySchema = z.object({
 /** Zod schema for DelayDataResponse { data: Delay }. */
 export const delayDataResponseSchema = dataResponse(delaySchema);
 
-/** Zod schema for DelayListResponse { data: Delay[] }. */
-export const delayListResponseSchema = z.object({
-  data: z.array(delaySchema).max(100).describe('Delays for the requested schedule and date'),
-});
+/** Zod schema for DelayListResponse { data: Delay[], meta: PaginationMeta }. */
+export const delayListResponseSchema = paginatedResponse(delaySchema);

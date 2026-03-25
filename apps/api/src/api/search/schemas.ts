@@ -25,9 +25,9 @@ export const searchQuerySchema = z
       .number()
       .int()
       .min(1)
-      .max(100)
+      .max(50)
       .default(20)
-      .describe('Number of items per page'),
+      .describe('Number of items per page (max 50 for search)'),
   })
   .strict();
 

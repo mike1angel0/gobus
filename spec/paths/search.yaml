@@ -32,7 +32,14 @@ search:
           format: date
           maxLength: 10
       - $ref: '../components/parameters/common.yaml#/PageParam'
-      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: pageSize
+        in: query
+        description: Number of items per page (max 50 for search)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 20
     responses:
       '200':
         description: List of available trips matching the search criteria

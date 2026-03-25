@@ -10,6 +10,7 @@ const mockDelayFindUnique = vi.fn();
 const mockDelayCreate = vi.fn();
 const mockDelayUpdate = vi.fn();
 const mockDelayUpdateMany = vi.fn();
+const mockDelayCount = vi.fn();
 const mockScheduleFindUnique = vi.fn();
 const mockUserFindUnique = vi.fn();
 const mockTransaction = vi.fn();
@@ -21,6 +22,7 @@ const mockPrisma = {
     create: mockDelayCreate,
     update: mockDelayUpdate,
     updateMany: mockDelayUpdateMany,
+    count: mockDelayCount,
   },
   schedule: {
     findUnique: mockScheduleFindUnique,
@@ -101,11 +103,12 @@ describe('Delay Routes', () => {
 
   // --- GET /api/v1/delays ---
   describe('GET /api/v1/delays', () => {
-    it('returns 200 with list of delays for schedule and tripDate', async () => {
+    it('returns 200 with list of delays and pagination meta', async () => {
       mockDelayFindMany.mockResolvedValueOnce([
         makeDelayRecord(),
         makeDelayRecord({ id: 'delay-2', offsetMinutes: 30, reason: 'WEATHER' }),
       ]);
+      mockDelayCount.mockResolvedValueOnce(2);
 
       const response = await supertest(app.server)
         .get('/api/v1/delays?scheduleId=sched-1&tripDate=2026-03-25')
@@ -124,10 +127,12 @@ describe('Delay Routes', () => {
       expect(response.body.data[1].id).toBe('delay-2');
       expect(response.body.data[1].offsetMinutes).toBe(30);
       expect(response.body.data[1].reason).toBe('WEATHER');
+      expect(response.body.meta).toEqual({ total: 2, page: 1, pageSize: 20, totalPages: 1 });
     });
 
-    it('returns 200 with empty array when no delays match', async () => {
+    it('returns 200 with empty array and zero totalPages when no delays match', async () => {
       mockDelayFindMany.mockResolvedValueOnce([]);
+      mockDelayCount.mockResolvedValueOnce(0);
 
       const response = await supertest(app.server)
         .get('/api/v1/delays?scheduleId=sched-1&tripDate=2026-03-25')
@@ -135,6 +140,7 @@ describe('Delay Routes', () => {
         .expect(200);
 
       expect(response.body.data).toEqual([]);
+      expect(response.body.meta).toEqual({ total: 0, page: 1, pageSize: 20, totalPages: 0 });
     });
 
     it('returns 400 when scheduleId is missing', async () => {
@@ -170,6 +176,19 @@ describe('Delay Routes', () => {
         .expect(401);
 
       expect(response.body.status).toBe(401);
+    });
+
+    it('supports custom page and pageSize query params', async () => {
+      mockDelayFindMany.mockResolvedValueOnce([makeDelayRecord()]);
+      mockDelayCount.mockResolvedValueOnce(25);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/delays?scheduleId=sched-1&tripDate=2026-03-25&page=2&pageSize=10')
+        .set('Authorization', DRIVER_AUTH)
+        .expect(200);
+
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.meta).toEqual({ total: 25, page: 2, pageSize: 10, totalPages: 3 });
     });
   });
 

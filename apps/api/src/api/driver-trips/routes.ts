@@ -63,10 +63,10 @@ async function driverTripRoutes(app: FastifyInstance): Promise<void> {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access trip list');
     }
 
-    const { date } = listDriverTripsQuerySchema.parse(request.query);
-    const trips = await driverTripService.listTrips(request.user.id, date);
+    const { date, page, pageSize } = listDriverTripsQuerySchema.parse(request.query);
+    const result = await driverTripService.listTrips(request.user.id, date, page, pageSize);
 
-    return { data: trips.map(serializeDriverTrip) };
+    return { data: result.data.map(serializeDriverTrip), meta: result.meta };
   });
 
   app.get(

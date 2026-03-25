@@ -16,6 +16,8 @@ list:
           type: string
           format: date
           maxLength: 10
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
     responses:
       '200':
         description: List of driver's trips

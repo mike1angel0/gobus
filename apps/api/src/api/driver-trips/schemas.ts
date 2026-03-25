@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { dataResponse } from '@/shared/schemas.js';
+import { dataResponse, paginatedResponse } from '@/shared/schemas.js';
 
 /** Query parameters for listing driver trips. */
 export const listDriverTripsQuerySchema = z
@@ -10,6 +10,14 @@ export const listDriverTripsQuerySchema = z
       .max(10)
       .describe('Trip date to filter by (defaults to today). ISO 8601 date format.')
       .optional(),
+    page: z.coerce.number().int().min(1).max(10000).default(1).describe('Page number (1-based)'),
+    pageSize: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(20)
+      .describe('Number of items per page'),
   })
   .strict();
 
@@ -41,10 +49,8 @@ export const driverTripSchema = z.object({
   status: z.enum(['ACTIVE', 'CANCELLED']).describe('Schedule status'),
 });
 
-/** Driver trip list response (non-paginated). */
-export const driverTripListResponseSchema = z.object({
-  data: z.array(driverTripSchema).max(50).describe('List of driver trips'),
-});
+/** Driver trip list response { data: DriverTrip[], meta: PaginationMeta }. */
+export const driverTripListResponseSchema = paginatedResponse(driverTripSchema);
 
 /** Driver trip detail with stops and passenger info. */
 export const driverTripDetailSchema = z.object({

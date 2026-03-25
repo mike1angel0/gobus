@@ -286,17 +286,20 @@ DriverTripDetail:
 
 DriverTripListResponse:
   type: object
-  description: List of driver's assigned trips
+  description: Paginated list of driver's assigned trips
   required:
     - data
+    - meta
   properties:
     data:
       type: array
       minItems: 0
-      maxItems: 50
+      maxItems: 100
       description: Driver's trips for the requested date
       items:
         $ref: '#/DriverTrip'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'
 
 DriverTripDetailDataResponse:
   type: object

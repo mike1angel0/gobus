@@ -64,6 +64,7 @@ describe('DriverTripService', () => {
     schedule: {
       findMany: ReturnType<typeof vi.fn>;
       findUnique: ReturnType<typeof vi.fn>;
+      count: ReturnType<typeof vi.fn>;
     };
     booking: {
       count: ReturnType<typeof vi.fn>;
@@ -75,6 +76,7 @@ describe('DriverTripService', () => {
       schedule: {
         findMany: vi.fn(),
         findUnique: vi.fn(),
+        count: vi.fn(),
       },
       booking: {
         count: vi.fn(),
@@ -112,14 +114,15 @@ describe('DriverTripService', () => {
   });
 
   describe('listTrips', () => {
-    it('should return trips assigned to driver for matching date', async () => {
+    it('should return paginated trips assigned to driver for matching date', async () => {
       const schedule = makeScheduleRecord();
       mockPrisma.schedule.findMany.mockResolvedValue([schedule]);
+      mockPrisma.schedule.count.mockResolvedValue(1);
 
-      const result = await service.listTrips(DRIVER_ID, TRIP_DATE);
+      const result = await service.listTrips(DRIVER_ID, TRIP_DATE, 1, 20);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toEqual({
         scheduleId: SCHEDULE_ID,
         departureTime: schedule.departureTime,
         arrivalTime: schedule.arrivalTime,
@@ -128,12 +131,14 @@ describe('DriverTripService', () => {
         busLicensePlate: 'B-123-ABC',
         status: 'ACTIVE',
       });
+      expect(result.meta).toEqual({ total: 1, page: 1, pageSize: 20, totalPages: 1 });
     });
 
     it('should query with correct where clause including daysOfWeek and tripDate', async () => {
       mockPrisma.schedule.findMany.mockResolvedValue([]);
+      mockPrisma.schedule.count.mockResolvedValue(0);
 
-      await service.listTrips(DRIVER_ID, TRIP_DATE);
+      await service.listTrips(DRIVER_ID, TRIP_DATE, 1, 20);
 
       expect(mockPrisma.schedule.findMany).toHaveBeenCalledWith({
         where: {
@@ -149,15 +154,19 @@ describe('DriverTripService', () => {
           bus: { select: { licensePlate: true } },
         },
         orderBy: { departureTime: 'asc' },
+        skip: 0,
+        take: 20,
       });
     });
 
-    it('should return empty array when no trips assigned', async () => {
+    it('should return empty data with zero totalPages when no trips assigned', async () => {
       mockPrisma.schedule.findMany.mockResolvedValue([]);
+      mockPrisma.schedule.count.mockResolvedValue(0);
 
-      const result = await service.listTrips(DRIVER_ID, TRIP_DATE);
+      const result = await service.listTrips(DRIVER_ID, TRIP_DATE, 1, 20);
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
+      expect(result.meta).toEqual({ total: 0, page: 1, pageSize: 20, totalPages: 0 });
     });
 
     it('should return multiple trips sorted by departure time', async () => {
@@ -170,16 +179,18 @@ describe('DriverTripService', () => {
         departureTime: new Date('2026-03-25T14:00:00Z'),
       });
       mockPrisma.schedule.findMany.mockResolvedValue([schedule1, schedule2]);
+      mockPrisma.schedule.count.mockResolvedValue(2);
 
-      const result = await service.listTrips(DRIVER_ID, TRIP_DATE);
+      const result = await service.listTrips(DRIVER_ID, TRIP_DATE, 1, 20);
 
-      expect(result).toHaveLength(2);
-      expect(result[0].scheduleId).toBe('sched-1');
-      expect(result[1].scheduleId).toBe('sched-2');
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0].scheduleId).toBe('sched-1');
+      expect(result.data[1].scheduleId).toBe('sched-2');
     });
 
     it('should default to today when no date provided', async () => {
       mockPrisma.schedule.findMany.mockResolvedValue([]);
+      mockPrisma.schedule.count.mockResolvedValue(0);
       const today = new Date().toISOString().slice(0, 10);
       const todayObj = new Date(today);
       const todayDow = todayObj.getUTCDay();
@@ -188,6 +199,18 @@ describe('DriverTripService', () => {
 
       const call = mockPrisma.schedule.findMany.mock.calls[0][0];
       expect(call.where.OR).toEqual([{ tripDate: todayObj }, { daysOfWeek: { has: todayDow } }]);
+    });
+
+    it('should apply skip/take for page 2', async () => {
+      mockPrisma.schedule.findMany.mockResolvedValue([]);
+      mockPrisma.schedule.count.mockResolvedValue(30);
+
+      const result = await service.listTrips(DRIVER_ID, TRIP_DATE, 2, 10);
+
+      expect(result.meta).toEqual({ total: 30, page: 2, pageSize: 10, totalPages: 3 });
+      expect(mockPrisma.schedule.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 10, take: 10 }),
+      );
     });
   });
 

@@ -145,11 +145,11 @@
 **Description:** Audit all list endpoints and ensure they use pagination from `shared/pagination.ts`. Default pageSize: 20, max: 100. Verify search endpoint limits results. Add `totalCount` to all paginated responses.
 
 **Acceptance Criteria:**
-- [ ] All list endpoints paginated: routes, buses, drivers, schedules, bookings, admin/buses, driver/trips, delays
-- [ ] Default page=1, pageSize=20, max pageSize=100
-- [ ] Search results limited to 50 per page
-- [ ] All paginated responses include `meta: { total, page, pageSize, totalPages }`
-- [ ] Integration tests verify pagination
+- [x] All list endpoints paginated: routes, buses, drivers, schedules, bookings, admin/buses, driver/trips, delays
+- [x] Default page=1, pageSize=20, max pageSize=100
+- [x] Search results limited to 50 per page
+- [x] All paginated responses include `meta: { total, page, pageSize, totalPages }`
+- [x] Integration tests verify pagination
 
 ### TASK-013: Optimize database queries
 **Description:** Review all Prisma queries for: N+1 issues (use `include` or `select` appropriately), unnecessary fields loaded (use `select` to limit), missing indexes. Add composite indexes where needed (e.g., BookingSeat schedule+trip+seat, Schedule route+status). Add `@index` pragmas to schema.prisma where query patterns warrant.

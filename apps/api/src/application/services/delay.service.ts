@@ -1,7 +1,9 @@
 import type { PrismaClient } from '@/generated/prisma/client.js';
 import type { DelayData } from '@/domain/delays/delay.entity.js';
+import type { PaginationMeta } from '@/shared/types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { buildPaginationMeta, parsePagination } from '@/shared/pagination.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
 
 const logger = createLogger('DelayService');
@@ -30,6 +32,14 @@ export interface UpdateDelayInput {
   note?: string | null;
   /** Whether the delay is currently active. */
   active?: boolean;
+}
+
+/** Paginated delay results. */
+export interface PaginatedDelays {
+  /** List of delays for the current page. */
+  data: DelayData[];
+  /** Pagination metadata. */
+  meta: PaginationMeta;
 }
 
 /** User context needed for authorization checks. */
@@ -77,24 +87,35 @@ export class DelayService {
   constructor(private readonly prisma: PrismaClient) {}
 
   /**
-   * Retrieve active delays for a schedule on a specific trip date.
-   * Return all delay records matching the schedule and date.
+   * Retrieve active delays for a schedule on a specific trip date with pagination.
+   * Return paginated delay records matching the schedule and date.
    */
-  async getBySchedule(scheduleId: string, tripDate: string): Promise<DelayData[]> {
+  async getBySchedule(
+    scheduleId: string,
+    tripDate: string,
+    page: number,
+    pageSize: number,
+  ): Promise<PaginatedDelays> {
     const tripDateObj = new Date(tripDate);
+    const { skip, take } = parsePagination(page, pageSize);
+    const where = { scheduleId, tripDate: tripDateObj, active: true };
 
-    const records = await this.prisma.delay.findMany({
-      where: {
-        scheduleId,
-        tripDate: tripDateObj,
-        active: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const [records, total] = await Promise.all([
+      this.prisma.delay.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.delay.count({ where }),
+    ]);
 
-    logger.debug('Delays retrieved', { scheduleId, tripDate, count: records.length });
+    logger.debug('Delays retrieved', { scheduleId, tripDate, count: records.length, total });
 
-    return records.map(toDelayData);
+    return {
+      data: records.map(toDelayData),
+      meta: buildPaginationMeta({ total, page, pageSize }),
+    };
   }
 
   /**
