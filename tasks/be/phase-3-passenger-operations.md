@@ -27,11 +27,11 @@
 **Description:** Implement from spec: `GET /api/v1/search` (public, query params: origin, destination, date), `GET /api/v1/trips/{scheduleId}` (public, query param: date). Both public (no auth required).
 
 **Acceptance Criteria:**
-- [ ] Search returns array matching OpenAPI `SearchResult` schema
-- [ ] Trip detail returns full schedule + seat map matching spec
-- [ ] No auth required (public endpoints)
-- [ ] Integration tests: search with results, search with no results, trip detail with bookings
-- [ ] Typecheck passes
+- [x] Search returns array matching OpenAPI `SearchResult` schema
+- [x] Trip detail returns full schedule + seat map matching spec
+- [x] No auth required (public endpoints)
+- [x] Integration tests: search with results, search with no results, trip detail with bookings
+- [x] Typecheck passes
 
 ---
 
