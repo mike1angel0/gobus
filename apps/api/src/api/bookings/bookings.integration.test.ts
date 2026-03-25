@@ -193,9 +193,7 @@ describe('Booking Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/bookings')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/bookings').expect(401);
 
       expect(response.body.status).toBe(401);
     });
@@ -206,17 +204,19 @@ describe('Booking Routes', () => {
     it('returns 201 with booking details on successful creation', async () => {
       const createdBooking = makeBookingRecord();
 
-      mockTransaction.mockImplementationOnce(async (callback: (tx: unknown) => Promise<unknown>) => {
-        const txClient = {
-          schedule: { findUnique: mockScheduleFindUnique },
-          bookingSeat: { findMany: mockBookingSeatFindMany },
-          booking: { create: mockBookingCreate },
-        };
-        mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
-        mockBookingSeatFindMany.mockResolvedValueOnce([]);
-        mockBookingCreate.mockResolvedValueOnce(createdBooking);
-        return callback(txClient);
-      });
+      mockTransaction.mockImplementationOnce(
+        async (callback: (tx: unknown) => Promise<unknown>) => {
+          const txClient = {
+            schedule: { findUnique: mockScheduleFindUnique },
+            bookingSeat: { findMany: mockBookingSeatFindMany },
+            booking: { create: mockBookingCreate },
+          };
+          mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
+          mockBookingSeatFindMany.mockResolvedValueOnce([]);
+          mockBookingCreate.mockResolvedValueOnce(createdBooking);
+          return callback(txClient);
+        },
+      );
 
       const response = await supertest(app.server)
         .post('/api/v1/bookings')
@@ -244,16 +244,18 @@ describe('Booking Routes', () => {
     });
 
     it('returns 409 when seats are already booked (SEAT_CONFLICT)', async () => {
-      mockTransaction.mockImplementationOnce(async (callback: (tx: unknown) => Promise<unknown>) => {
-        const txClient = {
-          schedule: { findUnique: mockScheduleFindUnique },
-          bookingSeat: { findMany: mockBookingSeatFindMany },
-          booking: { create: mockBookingCreate },
-        };
-        mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
-        mockBookingSeatFindMany.mockResolvedValueOnce([{ seatLabel: '1A' }]);
-        return callback(txClient);
-      });
+      mockTransaction.mockImplementationOnce(
+        async (callback: (tx: unknown) => Promise<unknown>) => {
+          const txClient = {
+            schedule: { findUnique: mockScheduleFindUnique },
+            bookingSeat: { findMany: mockBookingSeatFindMany },
+            booking: { create: mockBookingCreate },
+          };
+          mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
+          mockBookingSeatFindMany.mockResolvedValueOnce([{ seatLabel: '1A' }]);
+          return callback(txClient);
+        },
+      );
 
       const response = await supertest(app.server)
         .post('/api/v1/bookings')
@@ -272,15 +274,17 @@ describe('Booking Routes', () => {
     });
 
     it('returns 404 when schedule does not exist', async () => {
-      mockTransaction.mockImplementationOnce(async (callback: (tx: unknown) => Promise<unknown>) => {
-        const txClient = {
-          schedule: { findUnique: mockScheduleFindUnique },
-          bookingSeat: { findMany: mockBookingSeatFindMany },
-          booking: { create: mockBookingCreate },
-        };
-        mockScheduleFindUnique.mockResolvedValueOnce(null);
-        return callback(txClient);
-      });
+      mockTransaction.mockImplementationOnce(
+        async (callback: (tx: unknown) => Promise<unknown>) => {
+          const txClient = {
+            schedule: { findUnique: mockScheduleFindUnique },
+            bookingSeat: { findMany: mockBookingSeatFindMany },
+            booking: { create: mockBookingCreate },
+          };
+          mockScheduleFindUnique.mockResolvedValueOnce(null);
+          return callback(txClient);
+        },
+      );
 
       const response = await supertest(app.server)
         .post('/api/v1/bookings')
@@ -309,15 +313,17 @@ describe('Booking Routes', () => {
     });
 
     it('returns 400 when boardingStop comes after alightingStop', async () => {
-      mockTransaction.mockImplementationOnce(async (callback: (tx: unknown) => Promise<unknown>) => {
-        const txClient = {
-          schedule: { findUnique: mockScheduleFindUnique },
-          bookingSeat: { findMany: mockBookingSeatFindMany },
-          booking: { create: mockBookingCreate },
-        };
-        mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
-        return callback(txClient);
-      });
+      mockTransaction.mockImplementationOnce(
+        async (callback: (tx: unknown) => Promise<unknown>) => {
+          const txClient = {
+            schedule: { findUnique: mockScheduleFindUnique },
+            bookingSeat: { findMany: mockBookingSeatFindMany },
+            booking: { create: mockBookingCreate },
+          };
+          mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
+          return callback(txClient);
+        },
+      );
 
       const response = await supertest(app.server)
         .post('/api/v1/bookings')
@@ -391,9 +397,7 @@ describe('Booking Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/bookings/booking-1')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/bookings/booking-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });
@@ -430,9 +434,7 @@ describe('Booking Routes', () => {
     });
 
     it('returns 400 when booking is already cancelled', async () => {
-      mockBookingFindUnique.mockResolvedValueOnce(
-        makeBookingRecord({ status: 'CANCELLED' }),
-      );
+      mockBookingFindUnique.mockResolvedValueOnce(makeBookingRecord({ status: 'CANCELLED' }));
 
       const response = await supertest(app.server)
         .delete('/api/v1/bookings/booking-1')
@@ -455,9 +457,7 @@ describe('Booking Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .delete('/api/v1/bookings/booking-1')
-        .expect(401);
+      const response = await supertest(app.server).delete('/api/v1/bookings/booking-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });

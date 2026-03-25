@@ -7,11 +7,7 @@ export const bookingStatusSchema = z.enum(['CONFIRMED', 'CANCELLED', 'COMPLETED'
 /** Zod schema for creating a booking matching OpenAPI CreateBookingRequest. */
 export const createBookingBodySchema = z
   .object({
-    scheduleId: z
-      .string()
-      .min(1)
-      .max(30)
-      .describe('Schedule to book'),
+    scheduleId: z.string().min(1).max(30).describe('Schedule to book'),
     seatLabels: z
       .array(z.string().min(1).max(10).describe('Seat label (e.g. 1A, 2B)'))
       .min(1)
@@ -27,11 +23,7 @@ export const createBookingBodySchema = z
       .min(1)
       .max(200)
       .describe('Name of alighting stop (must come after boarding stop in route order)'),
-    tripDate: z
-      .string()
-      .date()
-      .max(10)
-      .describe('ISO 8601 date format (e.g. 2026-03-25)'),
+    tripDate: z.string().date().max(10).describe('ISO 8601 date format (e.g. 2026-03-25)'),
   })
   .strict();
 

@@ -77,7 +77,11 @@ export const createStopTimeInputSchema = z
   .object({
     stopName: z.string().min(1).max(200).describe('Name of the stop'),
     arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at this stop'),
-    departureTime: z.string().datetime().max(30).describe('Scheduled departure time from this stop'),
+    departureTime: z
+      .string()
+      .datetime()
+      .max(30)
+      .describe('Scheduled departure time from this stop'),
     orderIndex: z.number().int().min(0).max(100).describe('Position in the schedule (0-based)'),
     priceFromStart: z
       .number()
@@ -93,7 +97,11 @@ export const createScheduleRequestSchema = z
     routeId: z.string().max(30).describe('Route to schedule'),
     busId: z.string().max(30).describe('Bus to assign'),
     driverId: z.string().max(30).optional().describe('Driver to assign (optional)'),
-    departureTime: z.string().datetime().max(30).describe('Scheduled departure time from first stop'),
+    departureTime: z
+      .string()
+      .datetime()
+      .max(30)
+      .describe('Scheduled departure time from first stop'),
     arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at last stop'),
     daysOfWeek: z
       .array(z.number().int().min(0).max(6))

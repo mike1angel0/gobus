@@ -116,9 +116,7 @@ describe('AdminService', () => {
 
       await service.listAllBuses({ page: 1, pageSize: 20 });
 
-      expect(mockPrisma.bus.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: {} }),
-      );
+      expect(mockPrisma.bus.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
       expect(mockPrisma.bus.count).toHaveBeenCalledWith({ where: {} });
     });
 

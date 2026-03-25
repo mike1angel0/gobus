@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  DriverTripService,
-  getDayOfWeek,
-  resolveTripDate,
-} from './driver-trip.service.js';
+import { DriverTripService, getDayOfWeek, resolveTripDate } from './driver-trip.service.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 
@@ -191,10 +187,7 @@ describe('DriverTripService', () => {
       await service.listTrips(DRIVER_ID);
 
       const call = mockPrisma.schedule.findMany.mock.calls[0][0];
-      expect(call.where.OR).toEqual([
-        { tripDate: todayObj },
-        { daysOfWeek: { has: todayDow } },
-      ]);
+      expect(call.where.OR).toEqual([{ tripDate: todayObj }, { daysOfWeek: { has: todayDow } }]);
     });
   });
 
@@ -249,9 +242,7 @@ describe('DriverTripService', () => {
     it('should throw 404 when schedule not found', async () => {
       mockPrisma.schedule.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.getTripDetail(DRIVER_ID, 'nonexistent', TRIP_DATE),
-      ).rejects.toThrow(
+      await expect(service.getTripDetail(DRIVER_ID, 'nonexistent', TRIP_DATE)).rejects.toThrow(
         expect.objectContaining({
           statusCode: 404,
           code: ErrorCodes.RESOURCE_NOT_FOUND,
@@ -264,9 +255,7 @@ describe('DriverTripService', () => {
       const schedule = makeScheduleRecord({ driverId: 'other-driver' });
       mockPrisma.schedule.findUnique.mockResolvedValue(schedule);
 
-      await expect(
-        service.getTripDetail(DRIVER_ID, SCHEDULE_ID, TRIP_DATE),
-      ).rejects.toThrow(
+      await expect(service.getTripDetail(DRIVER_ID, SCHEDULE_ID, TRIP_DATE)).rejects.toThrow(
         expect.objectContaining({
           statusCode: 404,
           code: ErrorCodes.RESOURCE_NOT_FOUND,
@@ -279,9 +268,9 @@ describe('DriverTripService', () => {
       const schedule = makeScheduleRecord({ driverId: null });
       mockPrisma.schedule.findUnique.mockResolvedValue(schedule);
 
-      await expect(
-        service.getTripDetail(DRIVER_ID, SCHEDULE_ID, TRIP_DATE),
-      ).rejects.toThrow(AppError);
+      await expect(service.getTripDetail(DRIVER_ID, SCHEDULE_ID, TRIP_DATE)).rejects.toThrow(
+        AppError,
+      );
     });
 
     it('should count only confirmed bookings for the trip date', async () => {

@@ -206,9 +206,7 @@ describe('Driver Trip Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/driver/trips')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/driver/trips').expect(401);
 
       expect(response.body.status).toBe(401);
     });
@@ -308,9 +306,7 @@ describe('Driver Trip Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/driver/trips/sched-1')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/driver/trips/sched-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });

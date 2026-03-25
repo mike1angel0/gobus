@@ -2,14 +2,15 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { DriverTripService } from '@/application/services/driver-trip.service.js';
-import type { DriverTrip, DriverTripDetail, DriverTripStopTime } from '@/domain/driver-trips/driver-trip.entity.js';
+import type {
+  DriverTrip,
+  DriverTripDetail,
+  DriverTripStopTime,
+} from '@/domain/driver-trips/driver-trip.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
-import {
-  listDriverTripsQuerySchema,
-  scheduleIdParamSchema,
-} from '@/api/driver-trips/schemas.js';
+import { listDriverTripsQuerySchema, scheduleIdParamSchema } from '@/api/driver-trips/schemas.js';
 
 /** Serialize a DriverTrip entity to a JSON-safe object. */
 function serializeDriverTrip(trip: DriverTrip): Record<string, unknown> {
@@ -57,20 +58,16 @@ function serializeDriverTripDetail(detail: DriverTripDetail): Record<string, unk
 async function driverTripRoutes(app: FastifyInstance): Promise<void> {
   const driverTripService = new DriverTripService(getPrisma());
 
-  app.get(
-    '/api/v1/driver/trips',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      if (request.user.role !== 'DRIVER') {
-        throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access trip list');
-      }
+  app.get('/api/v1/driver/trips', { preHandler: [app.authenticate] }, async (request) => {
+    if (request.user.role !== 'DRIVER') {
+      throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access trip list');
+    }
 
-      const { date } = listDriverTripsQuerySchema.parse(request.query);
-      const trips = await driverTripService.listTrips(request.user.id, date);
+    const { date } = listDriverTripsQuerySchema.parse(request.query);
+    const trips = await driverTripService.listTrips(request.user.id, date);
 
-      return { data: trips.map(serializeDriverTrip) };
-    },
-  );
+    return { data: trips.map(serializeDriverTrip) };
+  });
 
   app.get(
     '/api/v1/driver/trips/:scheduleId',
@@ -82,11 +79,7 @@ async function driverTripRoutes(app: FastifyInstance): Promise<void> {
 
       const { scheduleId } = scheduleIdParamSchema.parse(request.params);
       const query = listDriverTripsQuerySchema.parse(request.query);
-      const detail = await driverTripService.getTripDetail(
-        request.user.id,
-        scheduleId,
-        query.date,
-      );
+      const detail = await driverTripService.getTripDetail(request.user.id, scheduleId, query.date);
 
       return { data: serializeDriverTripDetail(detail) };
     },

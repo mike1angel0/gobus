@@ -94,13 +94,21 @@ export function validateSeatsOnBus(
   for (const label of requestedLabels) {
     const seat = seatMap.get(label);
     if (!seat) {
-      throw new AppError(400, ErrorCodes.VALIDATION_ERROR, `Seat ${label} does not exist on this bus`);
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        `Seat ${label} does not exist on this bus`,
+      );
     }
     if (!seat.isEnabled) {
       throw new AppError(400, ErrorCodes.VALIDATION_ERROR, `Seat ${label} is not enabled`);
     }
     if (seat.type === 'BLOCKED') {
-      throw new AppError(400, ErrorCodes.VALIDATION_ERROR, `Seat ${label} is blocked and cannot be booked`);
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        `Seat ${label} is blocked and cannot be booked`,
+      );
     }
   }
 }
@@ -116,12 +124,20 @@ export function validateStopOrder(
 ): { boardingStopTime: { priceFromStart: number }; alightingStopTime: { priceFromStart: number } } {
   const boarding = stopTimes.find((st) => st.stopName === boardingStop);
   if (!boarding) {
-    throw new AppError(400, ErrorCodes.VALIDATION_ERROR, `Boarding stop "${boardingStop}" not found in schedule`);
+    throw new AppError(
+      400,
+      ErrorCodes.VALIDATION_ERROR,
+      `Boarding stop "${boardingStop}" not found in schedule`,
+    );
   }
 
   const alighting = stopTimes.find((st) => st.stopName === alightingStop);
   if (!alighting) {
-    throw new AppError(400, ErrorCodes.VALIDATION_ERROR, `Alighting stop "${alightingStop}" not found in schedule`);
+    throw new AppError(
+      400,
+      ErrorCodes.VALIDATION_ERROR,
+      `Alighting stop "${alightingStop}" not found in schedule`,
+    );
   }
 
   if (boarding.orderIndex >= alighting.orderIndex) {

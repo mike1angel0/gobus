@@ -96,10 +96,7 @@ export class DriverTripService {
       where: {
         driverId,
         status: 'ACTIVE',
-        OR: [
-          { tripDate: dateObj },
-          { daysOfWeek: { has: dayOfWeek } },
-        ],
+        OR: [{ tripDate: dateObj }, { daysOfWeek: { has: dayOfWeek } }],
       },
       include: {
         route: { select: { name: true } },
@@ -118,7 +115,11 @@ export class DriverTripService {
    * Validate that the driver is assigned to this schedule.
    * Include stop times, passenger count (confirmed bookings), and total bus capacity.
    */
-  async getTripDetail(driverId: string, scheduleId: string, date?: string): Promise<DriverTripDetail> {
+  async getTripDetail(
+    driverId: string,
+    scheduleId: string,
+    date?: string,
+  ): Promise<DriverTripDetail> {
     const { dateStr, dateObj } = resolveTripDate(date);
 
     const schedule = await this.prisma.schedule.findUnique({

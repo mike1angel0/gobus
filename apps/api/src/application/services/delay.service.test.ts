@@ -245,9 +245,7 @@ describe('DelayService', () => {
     });
 
     it('should throw 403 when driver is not assigned to schedule', async () => {
-      mockPrisma.schedule.findUnique.mockResolvedValue(
-        makeSchedule({ driverId: 'other-driver' }),
-      );
+      mockPrisma.schedule.findUnique.mockResolvedValue(makeSchedule({ driverId: 'other-driver' }));
 
       await expect(service.create(makeDriverUser(), makeCreateInput())).rejects.toThrow(AppError);
       await expect(service.create(makeDriverUser(), makeCreateInput())).rejects.toMatchObject({
@@ -356,9 +354,9 @@ describe('DelayService', () => {
     it('should throw 404 when delay does not exist', async () => {
       mockPrisma.delay.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.update(DELAY_ID, PROVIDER_ID, { offsetMinutes: 30 }),
-      ).rejects.toThrow(AppError);
+      await expect(service.update(DELAY_ID, PROVIDER_ID, { offsetMinutes: 30 })).rejects.toThrow(
+        AppError,
+      );
       await expect(
         service.update(DELAY_ID, PROVIDER_ID, { offsetMinutes: 30 }),
       ).rejects.toMatchObject({
@@ -375,9 +373,9 @@ describe('DelayService', () => {
       };
       mockPrisma.delay.findUnique.mockResolvedValue(delay);
 
-      await expect(
-        service.update(DELAY_ID, PROVIDER_ID, { offsetMinutes: 30 }),
-      ).rejects.toThrow(AppError);
+      await expect(service.update(DELAY_ID, PROVIDER_ID, { offsetMinutes: 30 })).rejects.toThrow(
+        AppError,
+      );
       await expect(
         service.update(DELAY_ID, PROVIDER_ID, { offsetMinutes: 30 }),
       ).rejects.toMatchObject({

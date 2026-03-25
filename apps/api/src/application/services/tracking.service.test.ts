@@ -187,9 +187,7 @@ describe('TrackingService', () => {
     it('should handle null tripDate when not provided', async () => {
       mockPrisma.bus.findUnique.mockResolvedValue({ id: BUS_ID });
       mockPrisma.schedule.findFirst.mockResolvedValue({ id: SCHEDULE_ID });
-      mockPrisma.busTracking.upsert.mockResolvedValue(
-        makeTrackingRecord({ tripDate: null }),
-      );
+      mockPrisma.busTracking.upsert.mockResolvedValue(makeTrackingRecord({ tripDate: null }));
 
       const input = makeUpdateInput();
       delete (input as Record<string, unknown>).tripDate;

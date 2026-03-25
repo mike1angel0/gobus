@@ -282,7 +282,13 @@ describe('Search Routes', () => {
 
       const response = await supertest(app.server)
         .get('/api/v1/search')
-        .query({ origin: 'Bucharest', destination: 'Cluj', date: '2026-03-25', page: 1, pageSize: 2 })
+        .query({
+          origin: 'Bucharest',
+          destination: 'Cluj',
+          date: '2026-03-25',
+          page: 1,
+          pageSize: 2,
+        })
         .expect(200);
 
       expect(response.body.data).toHaveLength(2);
@@ -346,9 +352,7 @@ describe('Search Routes', () => {
     });
 
     it('returns 400 when tripDate is missing', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/trips/sched-1')
-        .expect(400);
+      const response = await supertest(app.server).get('/api/v1/trips/sched-1').expect(400);
 
       expect(response.body.status).toBe(400);
     });

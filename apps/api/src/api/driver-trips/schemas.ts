@@ -66,12 +66,7 @@ export const driverTripDetailSchema = z.object({
     .min(0)
     .max(200)
     .describe('Number of confirmed passengers for this trip'),
-  totalSeats: z
-    .number()
-    .int()
-    .min(0)
-    .max(200)
-    .describe('Total seat capacity of the bus'),
+  totalSeats: z.number().int().min(0).max(200).describe('Total seat capacity of the bus'),
 });
 
 /** Driver trip detail data response. */

@@ -7,11 +7,7 @@ const delayReasonEnum = z.enum(['TRAFFIC', 'MECHANICAL', 'WEATHER', 'OTHER']);
 /** Zod schema for GET /api/v1/delays query parameters matching OpenAPI spec. */
 export const listDelaysQuerySchema = z
   .object({
-    scheduleId: z
-      .string()
-      .min(1)
-      .max(30)
-      .describe('Schedule to get delays for'),
+    scheduleId: z.string().min(1).max(30).describe('Schedule to get delays for'),
     tripDate: z
       .string()
       .date()
@@ -23,23 +19,10 @@ export const listDelaysQuerySchema = z
 /** Zod schema for POST /api/v1/delays request body matching OpenAPI CreateDelayRequest. */
 export const createDelayBodySchema = z
   .object({
-    scheduleId: z
-      .string()
-      .min(1)
-      .max(30)
-      .describe('Schedule to report delay for'),
-    offsetMinutes: z
-      .number()
-      .int()
-      .min(1)
-      .max(1440)
-      .describe('Delay duration in minutes'),
+    scheduleId: z.string().min(1).max(30).describe('Schedule to report delay for'),
+    offsetMinutes: z.number().int().min(1).max(1440).describe('Delay duration in minutes'),
     reason: delayReasonEnum.describe('Reason for the delay'),
-    note: z
-      .string()
-      .max(500)
-      .describe('Optional free-text note about the delay')
-      .optional(),
+    note: z.string().max(500).describe('Optional free-text note about the delay').optional(),
     tripDate: z
       .string()
       .date()
@@ -58,19 +41,14 @@ export const updateDelayBodySchema = z
       .max(1440)
       .describe('Updated delay duration in minutes')
       .optional(),
-    reason: delayReasonEnum
-      .describe('Updated reason for the delay')
-      .optional(),
+    reason: delayReasonEnum.describe('Updated reason for the delay').optional(),
     note: z
       .string()
       .max(500)
       .nullable()
       .describe('Updated free-text note about the delay')
       .optional(),
-    active: z
-      .boolean()
-      .describe('Whether the delay is currently active')
-      .optional(),
+    active: z.boolean().describe('Whether the delay is currently active').optional(),
   })
   .strict();
 
@@ -78,29 +56,12 @@ export const updateDelayBodySchema = z
 export const delaySchema = z.object({
   id: z.string().max(30).describe('Unique delay record identifier (cuid)'),
   scheduleId: z.string().max(30).describe('Schedule affected by the delay'),
-  offsetMinutes: z
-    .number()
-    .int()
-    .min(1)
-    .max(1440)
-    .describe('Delay duration in minutes'),
+  offsetMinutes: z.number().int().min(1).max(1440).describe('Delay duration in minutes'),
   reason: delayReasonEnum.describe('Reason for a schedule delay'),
-  note: z
-    .string()
-    .max(500)
-    .nullable()
-    .describe('Optional free-text note about the delay'),
-  tripDate: z
-    .string()
-    .datetime()
-    .max(30)
-    .describe('Date of the affected trip'),
+  note: z.string().max(500).nullable().describe('Optional free-text note about the delay'),
+  tripDate: z.string().datetime().max(30).describe('Date of the affected trip'),
   active: z.boolean().describe('Whether the delay is currently active'),
-  createdAt: z
-    .string()
-    .datetime()
-    .max(30)
-    .describe('Delay creation timestamp'),
+  createdAt: z.string().datetime().max(30).describe('Delay creation timestamp'),
 });
 
 /** Zod schema for DelayDataResponse { data: Delay }. */

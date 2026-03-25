@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  BookingService,
-  validateSeatsOnBus,
-  validateStopOrder,
-} from './booking.service.js';
+import { BookingService, validateSeatsOnBus, validateStopOrder } from './booking.service.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import type { BookingStatus } from '@/generated/prisma/client.js';
@@ -203,7 +199,11 @@ describe('BookingService', () => {
 
   beforeEach(() => {
     prisma = createMockPrisma();
-    service = new BookingService(prisma as unknown as Parameters<typeof BookingService extends new (p: infer P) => unknown ? (p: P) => void : never>[0]);
+    service = new BookingService(
+      prisma as unknown as Parameters<
+        typeof BookingService extends new (p: infer P) => unknown ? (p: P) => void : never
+      >[0],
+    );
   });
 
   describe('create', () => {
@@ -337,9 +337,7 @@ describe('BookingService', () => {
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
       vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([]);
-      vi.mocked(prisma._tx.booking.create).mockResolvedValue(
-        makeBookingRecord({ totalPrice: 30 }),
-      );
+      vi.mocked(prisma._tx.booking.create).mockResolvedValue(makeBookingRecord({ totalPrice: 30 }));
 
       await service.create(USER_ID, {
         scheduleId: SCHEDULE_ID,
@@ -376,7 +374,11 @@ describe('BookingService', () => {
       vi.mocked(prisma.booking.findMany).mockResolvedValue([]);
       vi.mocked(prisma.booking.count).mockResolvedValue(0);
 
-      await service.listByUser(USER_ID, { page: 1, pageSize: 20, status: 'CANCELLED' as BookingStatus });
+      await service.listByUser(USER_ID, {
+        page: 1,
+        pageSize: 20,
+        status: 'CANCELLED' as BookingStatus,
+      });
 
       const findManyCall = vi.mocked(prisma.booking.findMany).mock.calls[0][0];
       expect(findManyCall?.where).toEqual({ userId: USER_ID, status: 'CANCELLED' });

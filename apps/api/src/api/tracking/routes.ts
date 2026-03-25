@@ -36,40 +36,28 @@ async function trackingRoutes(app: FastifyInstance): Promise<void> {
   const trackingService = new TrackingService(getPrisma());
 
   // GET /api/v1/tracking/:busId — get bus live position
-  app.get(
-    '/api/v1/tracking/:busId',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      const { busId } = busIdParamSchema.parse(request.params);
-      const tracking = await trackingService.getByBusId(busId);
+  app.get('/api/v1/tracking/:busId', { preHandler: [app.authenticate] }, async (request) => {
+    const { busId } = busIdParamSchema.parse(request.params);
+    const tracking = await trackingService.getByBusId(busId);
 
-      if (!tracking) {
-        throw new AppError(
-          404,
-          ErrorCodes.RESOURCE_NOT_FOUND,
-          'No tracking data found for this bus',
-        );
-      }
+    if (!tracking) {
+      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'No tracking data found for this bus');
+    }
 
-      return { data: serializeTrackingData(tracking) };
-    },
-  );
+    return { data: serializeTrackingData(tracking) };
+  });
 
   // POST /api/v1/tracking — update bus GPS position (DRIVER role)
-  app.post(
-    '/api/v1/tracking',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      if (request.user.role !== 'DRIVER') {
-        throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can update tracking');
-      }
+  app.post('/api/v1/tracking', { preHandler: [app.authenticate] }, async (request) => {
+    if (request.user.role !== 'DRIVER') {
+      throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can update tracking');
+    }
 
-      const body = trackingUpdateSchema.parse(request.body);
-      const tracking = await trackingService.updatePosition(request.user.id, body);
+    const body = trackingUpdateSchema.parse(request.body);
+    const tracking = await trackingService.updatePosition(request.user.id, body);
 
-      return { data: serializeTrackingData(tracking) };
-    },
-  );
+    return { data: serializeTrackingData(tracking) };
+  });
 }
 
 export default fp(trackingRoutes, {

@@ -7,13 +7,7 @@ const seatTypeEnum = z.enum(['STANDARD', 'PREMIUM', 'DISABLED_ACCESSIBLE', 'BLOC
 /** Zod schema for GET /api/v1/admin/buses query parameters matching OpenAPI spec. */
 export const adminListBusesQuerySchema = z
   .object({
-    page: z.coerce
-      .number()
-      .int()
-      .min(1)
-      .max(10000)
-      .default(1)
-      .describe('Page number (1-based)'),
+    page: z.coerce.number().int().min(1).max(10000).default(1).describe('Page number (1-based)'),
     pageSize: z.coerce
       .number()
       .int()
@@ -21,12 +15,7 @@ export const adminListBusesQuerySchema = z
       .max(100)
       .default(20)
       .describe('Number of items per page'),
-    providerId: z
-      .string()
-      .min(1)
-      .max(30)
-      .describe('Filter buses by provider')
-      .optional(),
+    providerId: z.string().min(1).max(30).describe('Filter buses by provider').optional(),
   })
   .strict();
 

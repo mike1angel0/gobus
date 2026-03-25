@@ -137,9 +137,7 @@ describe('Tracking Routes', () => {
     });
 
     it('returns 401 without authentication', async () => {
-      const response = await supertest(app.server)
-        .get('/api/v1/tracking/bus-1')
-        .expect(401);
+      const response = await supertest(app.server).get('/api/v1/tracking/bus-1').expect(401);
 
       expect(response.body.status).toBe(401);
     });

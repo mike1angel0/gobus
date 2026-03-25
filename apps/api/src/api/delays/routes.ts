@@ -39,60 +39,44 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
   const delayService = new DelayService(getPrisma());
 
   // GET /api/v1/delays — list delays for a schedule + tripDate
-  app.get(
-    '/api/v1/delays',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      const { scheduleId, tripDate } = listDelaysQuerySchema.parse(request.query);
-      const delays = await delayService.getBySchedule(scheduleId, tripDate);
+  app.get('/api/v1/delays', { preHandler: [app.authenticate] }, async (request) => {
+    const { scheduleId, tripDate } = listDelaysQuerySchema.parse(request.query);
+    const delays = await delayService.getBySchedule(scheduleId, tripDate);
 
-      return { data: delays.map(serializeDelay) };
-    },
-  );
+    return { data: delays.map(serializeDelay) };
+  });
 
   // POST /api/v1/delays — report a delay (DRIVER or PROVIDER)
-  app.post(
-    '/api/v1/delays',
-    { preHandler: [app.authenticate] },
-    async (request, reply) => {
-      if (request.user.role !== 'DRIVER' && request.user.role !== 'PROVIDER') {
-        throw new AppError(
-          403,
-          ErrorCodes.FORBIDDEN,
-          'Only drivers and providers can report delays',
-        );
-      }
+  app.post('/api/v1/delays', { preHandler: [app.authenticate] }, async (request, reply) => {
+    if (request.user.role !== 'DRIVER' && request.user.role !== 'PROVIDER') {
+      throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers and providers can report delays');
+    }
 
-      const body = createDelayBodySchema.parse(request.body);
-      const delay = await delayService.create(
-        {
-          id: request.user.id,
-          role: request.user.role,
-          providerId: request.user.providerId,
-        },
-        body,
-      );
+    const body = createDelayBodySchema.parse(request.body);
+    const delay = await delayService.create(
+      {
+        id: request.user.id,
+        role: request.user.role,
+        providerId: request.user.providerId,
+      },
+      body,
+    );
 
-      return reply.status(201).send({ data: serializeDelay(delay) });
-    },
-  );
+    return reply.status(201).send({ data: serializeDelay(delay) });
+  });
 
   // PUT /api/v1/delays/:id — update a delay (PROVIDER only)
-  app.put(
-    '/api/v1/delays/:id',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      if (request.user.role !== 'PROVIDER') {
-        throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only providers can update delays');
-      }
+  app.put('/api/v1/delays/:id', { preHandler: [app.authenticate] }, async (request) => {
+    if (request.user.role !== 'PROVIDER') {
+      throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only providers can update delays');
+    }
 
-      const { id } = idParamSchema.parse(request.params);
-      const body = updateDelayBodySchema.parse(request.body);
-      const delay = await delayService.update(id, request.user.providerId!, body);
+    const { id } = idParamSchema.parse(request.params);
+    const body = updateDelayBodySchema.parse(request.body);
+    const delay = await delayService.update(id, request.user.providerId!, body);
 
-      return { data: serializeDelay(delay) };
-    },
-  );
+    return { data: serializeDelay(delay) };
+  });
 }
 
 export default fp(delayRoutes, {
