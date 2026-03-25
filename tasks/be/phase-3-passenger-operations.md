@@ -70,16 +70,7 @@
 
 **TASK-007: Create delay service** - Implemented DelayService with create (driver assignment/provider ownership validation, atomic deactivation of previous delays via $transaction), getBySchedule, update (provider ownership check). 18 unit tests.
 
-### TASK-008: Create delay API routes
-**Description:** Implement from spec: `GET /api/v1/delays` (query: scheduleId, tripDate, authenticated), `POST /api/v1/delays` (DRIVER or PROVIDER), `PUT /api/v1/delays/{id}` (PROVIDER only).
-
-**Acceptance Criteria:**
-- [ ] All 3 endpoints match OpenAPI spec
-- [ ] GET filters by scheduleId + tripDate
-- [ ] POST validates role-based authorization
-- [ ] PUT restricted to PROVIDER role
-- [ ] Integration tests
-- [ ] Typecheck passes
+**TASK-008: Create delay API routes** - Implemented 3 authenticated endpoints (GET list, POST create, PUT update) with Zod validation, role-based authorization, 24 integration tests.
 
 ---
 

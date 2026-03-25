@@ -43,3 +43,19 @@
 - 13 integration tests covering: GET success, GET 404 no data, GET null fields, GET 401, POST success, POST with optional fields, POST 403 non-driver, POST 403 not assigned, POST 404 bus not found, POST 400 missing fields, POST 400 out of range, POST 400 unknown fields, POST 401
 - Learnings: Integration tests use vitest.integration.config.ts; role check in route handler (not service) since service validates assignment but not role; strict() on request schema rejects unknown fields per coding standards
 ---
+## Iteration 7 - TASK-007: Create delay service
+- Implemented DelayService with create, getBySchedule, update methods
+- Created DelayData domain entity in domain/delays/delay.entity.ts
+- create validates driver assignment (schedule.driverId === user.id) or provider ownership (route.providerId === user.providerId)
+- create uses $transaction to atomically deactivate previous active delays and create new one
+- update checks ownership via delay -> schedule -> route -> providerId chain, returns 404 on mismatch
+- 18 unit tests covering: getBySchedule with results/empty, create as driver/provider, deactivation, note handling, 404/403 errors, passenger rejection, transaction verification, update with ownership/partial fields/null note/not found
+- Learnings: Mock $transaction pattern: vi.fn((cb) => cb(mockTx)) where mockTx has the Prisma methods used inside the transaction; for provider ownership check on delays, chain is delay -> schedule -> route -> providerId; role check (DRIVER/PROVIDER only) belongs in route handler, authorization check (assignment/ownership) belongs in service
+---
+## Iteration 8 - TASK-008: Create delay API routes
+- Implemented 3 authenticated endpoints: GET /api/v1/delays (list by scheduleId+tripDate), POST /api/v1/delays (create, DRIVER/PROVIDER), PUT /api/v1/delays/:id (update, PROVIDER only)
+- Created Zod schemas (listDelaysQuerySchema, createDelayBodySchema, updateDelayBodySchema, delaySchema) with .describe() matching OpenAPI spec
+- serializeDelay converts Date fields (tripDate, createdAt) to ISO strings
+- 24 integration tests covering: GET with results, GET empty, GET 400 missing params, GET 400 invalid date, GET 401, POST 201 driver, POST 201 provider with note, POST 403 passenger, POST 403 unassigned driver, POST 404 schedule not found, POST 400 missing/invalid/unknown fields, POST 401, PUT 200 update fields, PUT 200 deactivate, PUT 200 null note, PUT 403 non-provider, PUT 404 not found, PUT 404 other provider, PUT 400 unknown fields, PUT 401
+- Learnings: DelayListResponse is not paginated (just { data: Delay[] }), unlike other list endpoints; for PUT update, provider ownership is enforced in service (returns 404 not 403); createAuthHeader supports providerId option for PROVIDER/DRIVER roles
+---

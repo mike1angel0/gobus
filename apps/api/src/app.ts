@@ -17,6 +17,7 @@ import scheduleRoutes from '@/api/schedules/routes.js';
 import searchRoutes from '@/api/search/routes.js';
 import bookingRoutes from '@/api/bookings/routes.js';
 import trackingRoutes from '@/api/tracking/routes.js';
+import delayRoutes from '@/api/delays/routes.js';
 
 /**
  * Load the bundled OpenAPI spec from spec/dist/openapi.json.
@@ -72,6 +73,7 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   await app.register(searchRoutes);
   await app.register(bookingRoutes);
   await app.register(trackingRoutes);
+  await app.register(delayRoutes);
 
   return app;
 }
