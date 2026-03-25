@@ -43,25 +43,25 @@
 **Description:** Create `src/application/services/route.service.ts`. Methods: `listByProvider(providerId, pagination)` — paginated, `getById(id, providerId)` — with ownership check, `create(providerId, data)` — creates route + stops in transaction, `delete(id, providerId)` — with ownership check, cascades stops.
 
 **Acceptance Criteria:**
-- [ ] All CRUD operations implemented
-- [ ] Ownership enforced: provider can only access own routes
-- [ ] `create` uses Prisma transaction for route + stops
-- [ ] `delete` verifies no active schedules reference the route
-- [ ] Pagination with `buildPaginationMeta`
-- [ ] Unit tests (happy path + ownership violation + not found)
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] All CRUD operations implemented
+- [x] Ownership enforced: provider can only access own routes
+- [x] `create` uses Prisma transaction for route + stops
+- [x] `delete` verifies no active schedules reference the route
+- [x] Pagination with `buildPaginationMeta`
+- [x] Unit tests (happy path + ownership violation + not found)
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-005: Create route API routes
 **Description:** Implement all 4 route endpoints from OpenAPI spec: `GET /api/v1/routes` (list, paginated), `POST /api/v1/routes` (create with stops), `GET /api/v1/routes/{id}` (detail with stops), `DELETE /api/v1/routes/{id}`. All require PROVIDER role. Zod schemas match spec.
 
 **Acceptance Criteria:**
-- [ ] All 4 endpoints match OpenAPI spec
-- [ ] List supports pagination (page, pageSize query params)
-- [ ] Create validates stops array (min 2 stops, valid coordinates)
-- [ ] Delete returns 204 No Content
-- [ ] Integration tests for all endpoints + error cases
-- [ ] Typecheck passes
+- [x] All 4 endpoints match OpenAPI spec
+- [x] List supports pagination (page, pageSize query params)
+- [x] Create validates stops array (min 2 stops, valid coordinates)
+- [x] Delete returns 204 No Content
+- [x] Integration tests for all endpoints + error cases
+- [x] Typecheck passes
 
 ---
 

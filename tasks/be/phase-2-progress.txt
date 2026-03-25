@@ -19,3 +19,19 @@
 - Followed same interface-only pattern as provider.entity.ts and user.entity.ts
 - All fields match OpenAPI spec field-by-field (types, constraints documented in JSDoc)
 ---
+## Iteration 4 - TASK-004: Create route service
+- Created RouteService with listByProvider, getById, create, delete methods
+- Ownership enforced on getById and delete (returns 404, not 403 to prevent enumeration)
+- create uses Prisma $transaction with nested stops creation
+- delete checks for active schedules before deletion (409 CONFLICT)
+- 11 unit tests: list pagination, getById happy/not-found/ownership, create with transaction, delete happy/not-found/ownership/conflict
+- Patterns: same class-based service as ProviderService, uses parsePagination + buildPaginationMeta, toEntity converters for clean domain boundaries
+---
+## Iteration 5 - TASK-005: Create route API routes
+- Created 4 endpoints: GET /api/v1/routes (list), POST /api/v1/routes (create), GET /api/v1/routes/:id (detail), DELETE /api/v1/routes/:id
+- Created Zod schemas in schemas.ts matching OpenAPI spec field-by-field (Stop, Route, RouteWithStops, CreateStopInput, CreateRouteRequest)
+- All schemas use .strict() and .describe() on every field
+- 21 integration tests: CRUD happy paths, pagination, validation (min 2 stops, invalid coords, unknown fields), auth (401/403), ownership (404), conflict (409)
+- Patterns: same fastify-plugin pattern as provider routes, serialize helpers for Date->ISO, manual Zod .parse() for body/query/params
+- POST returns 201, DELETE returns 204, list uses paginationQuerySchema, detail uses idParamSchema
+---
