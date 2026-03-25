@@ -144,14 +144,14 @@
 **Description:** Create `src/application/services/schedule.service.ts`. Methods: `listByProvider(providerId, pagination, filters)` — filterable by routeId, busId, status, date range. `getById(id, providerId)` — with details. `create(providerId, data)` — validates route/bus belong to provider, auto-generates stopTimes from route stops. `update(id, providerId, data)` — assign/unassign driver, change status. `cancel(id, providerId)` — sets status=CANCELLED.
 
 **Acceptance Criteria:**
-- [ ] All methods implemented with ownership enforcement
-- [ ] `create` validates route and bus belong to provider
-- [ ] `create` auto-generates stopTimes from route's stops with interpolated times
-- [ ] `update` validates driver belongs to same provider
-- [ ] List supports filters: routeId, busId, status, date range
-- [ ] Unit tests
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] All methods implemented with ownership enforcement
+- [x] `create` validates route and bus belong to provider
+- [x] `create` auto-generates stopTimes from route's stops with interpolated times
+- [x] `update` validates driver belongs to same provider
+- [x] List supports filters: routeId, busId, status, date range
+- [x] Unit tests
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-013: Create schedule API routes
 **Description:** Implement from spec: `GET /api/v1/schedules` (list, paginated, filterable), `POST /api/v1/schedules` (create), `GET /api/v1/schedules/{id}` (detail), `PUT /api/v1/schedules/{id}` (update), `DELETE /api/v1/schedules/{id}` (cancel). Require PROVIDER role.
