@@ -36,3 +36,10 @@
 - Total endpoints now: 40 (exceeds ~36 target)
 - Learnings: Reused existing BusListResponse for admin buses endpoint. DelayListResponse is not paginated (filtered by schedule+date returns small result set). UpdateDelayRequest has no required fields (partial update). SeatDataResponse was missing and needed to be created.
 ---
+
+## Iteration 6 - TASK-006: Split OpenAPI spec into multi-file structure
+- Split 3884-line monolithic spec into multi-file structure: 12 path files, 10 schema files, reusable params/responses/securitySchemes
+- Root openapi.yaml is 94 lines (under 100 requirement)
+- Bundled output preserves all 29 paths and 80 schemas
+- Learnings: Redocly resolves relative $ref paths correctly across files. Use `#/SchemaName` for same-file refs, `./other.yaml#/SchemaName` for sibling schema refs, `../components/schemas/X.yaml#/Y` from path files. A prior commit had already done the split, so my changes matched exactly — always check git log first.
+---
