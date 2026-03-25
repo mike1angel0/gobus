@@ -10,8 +10,8 @@ export const scheduleStatusSchema = z.enum(['ACTIVE', 'CANCELLED']);
 export const stopTimeSchema = z.object({
   id: z.string().max(30).describe('Unique stop time identifier (cuid)'),
   stopName: z.string().max(200).describe('Name of the stop'),
-  arrivalTime: z.string().datetime().describe('Scheduled arrival time at this stop'),
-  departureTime: z.string().datetime().describe('Scheduled departure time from this stop'),
+  arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at this stop'),
+  departureTime: z.string().datetime().max(30).describe('Scheduled departure time from this stop'),
   orderIndex: z.number().int().min(0).max(100).describe('Position in the schedule (0-based)'),
   priceFromStart: z
     .number()
@@ -26,8 +26,8 @@ export const scheduleSchema = z.object({
   routeId: z.string().max(30).describe('Associated route ID'),
   busId: z.string().max(30).describe('Assigned bus ID'),
   driverId: z.string().max(30).nullable().describe('Assigned driver ID (null if unassigned)'),
-  departureTime: z.string().datetime().describe('Scheduled departure time from first stop'),
-  arrivalTime: z.string().datetime().describe('Scheduled arrival time at last stop'),
+  departureTime: z.string().datetime().max(30).describe('Scheduled departure time from first stop'),
+  arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at last stop'),
   daysOfWeek: z
     .array(z.number().int().min(0).max(6))
     .min(0)
@@ -35,8 +35,8 @@ export const scheduleSchema = z.object({
     .describe('Days of the week this schedule runs (0=Sunday, 6=Saturday)'),
   basePrice: z.number().min(0).max(100000).describe('Base price for the full route'),
   status: scheduleStatusSchema.describe('Schedule status'),
-  tripDate: z.string().datetime().describe('Specific date for this trip instance'),
-  createdAt: z.string().datetime().describe('Schedule creation timestamp'),
+  tripDate: z.string().datetime().max(30).describe('Specific date for this trip instance'),
+  createdAt: z.string().datetime().max(30).describe('Schedule creation timestamp'),
 });
 
 /** Zod schema for the driver summary nested in ScheduleWithDetails. */
@@ -51,8 +51,8 @@ export const scheduleWithDetailsSchema = z.object({
   routeId: z.string().max(30).describe('Associated route ID'),
   busId: z.string().max(30).describe('Assigned bus ID'),
   driverId: z.string().max(30).nullable().describe('Assigned driver ID (null if unassigned)'),
-  departureTime: z.string().datetime().describe('Scheduled departure time from first stop'),
-  arrivalTime: z.string().datetime().describe('Scheduled arrival time at last stop'),
+  departureTime: z.string().datetime().max(30).describe('Scheduled departure time from first stop'),
+  arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at last stop'),
   daysOfWeek: z
     .array(z.number().int().min(0).max(6))
     .min(0)
@@ -60,7 +60,7 @@ export const scheduleWithDetailsSchema = z.object({
     .describe('Days of the week this schedule runs'),
   basePrice: z.number().min(0).max(100000).describe('Base price for the full route'),
   status: scheduleStatusSchema.describe('Schedule status'),
-  tripDate: z.string().datetime().describe('Specific date for this trip instance'),
+  tripDate: z.string().datetime().max(30).describe('Specific date for this trip instance'),
   stopTimes: z
     .array(stopTimeSchema)
     .min(0)
@@ -69,15 +69,15 @@ export const scheduleWithDetailsSchema = z.object({
   route: routeSchema.describe('Route assigned to this schedule'),
   bus: busSchema.describe('Bus assigned to this schedule'),
   driver: scheduleDriverSummarySchema.nullable().describe('Assigned driver (null if unassigned)'),
-  createdAt: z.string().datetime().describe('Schedule creation timestamp'),
+  createdAt: z.string().datetime().max(30).describe('Schedule creation timestamp'),
 });
 
 /** Zod schema for CreateStopTimeInput matching OpenAPI CreateStopTimeInput schema. */
 export const createStopTimeInputSchema = z
   .object({
     stopName: z.string().min(1).max(200).describe('Name of the stop'),
-    arrivalTime: z.string().datetime().describe('Scheduled arrival time at this stop'),
-    departureTime: z.string().datetime().describe('Scheduled departure time from this stop'),
+    arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at this stop'),
+    departureTime: z.string().datetime().max(30).describe('Scheduled departure time from this stop'),
     orderIndex: z.number().int().min(0).max(100).describe('Position in the schedule (0-based)'),
     priceFromStart: z
       .number()
@@ -93,8 +93,8 @@ export const createScheduleRequestSchema = z
     routeId: z.string().max(30).describe('Route to schedule'),
     busId: z.string().max(30).describe('Bus to assign'),
     driverId: z.string().max(30).optional().describe('Driver to assign (optional)'),
-    departureTime: z.string().datetime().describe('Scheduled departure time from first stop'),
-    arrivalTime: z.string().datetime().describe('Scheduled arrival time at last stop'),
+    departureTime: z.string().datetime().max(30).describe('Scheduled departure time from first stop'),
+    arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time at last stop'),
     daysOfWeek: z
       .array(z.number().int().min(0).max(6))
       .min(0)
@@ -102,7 +102,7 @@ export const createScheduleRequestSchema = z
       .optional()
       .describe('Days of the week this schedule runs (0=Sunday, 6=Saturday)'),
     basePrice: z.number().min(0).max(100000).describe('Base price for the full route'),
-    tripDate: z.string().datetime().describe('Specific date for this trip instance'),
+    tripDate: z.string().datetime().max(30).describe('Specific date for this trip instance'),
     stopTimes: z
       .array(createStopTimeInputSchema)
       .min(2)
@@ -121,8 +121,8 @@ export const updateScheduleRequestSchema = z
       .optional()
       .describe('Driver to assign (null to unassign)'),
     status: scheduleStatusSchema.optional().describe('Updated schedule status'),
-    departureTime: z.string().datetime().optional().describe('Updated departure time'),
-    arrivalTime: z.string().datetime().optional().describe('Updated arrival time'),
+    departureTime: z.string().datetime().max(30).optional().describe('Updated departure time'),
+    arrivalTime: z.string().datetime().max(30).optional().describe('Updated arrival time'),
   })
   .strict();
 
@@ -143,11 +143,13 @@ export const scheduleFilterQuerySchema = z
     fromDate: z
       .string()
       .date()
+      .max(10)
       .optional()
       .describe('Filter schedules from this date (inclusive, ISO 8601 date e.g. 2024-01-15)'),
     toDate: z
       .string()
       .date()
+      .max(10)
       .optional()
       .describe('Filter schedules until this date (inclusive, ISO 8601 date e.g. 2024-01-15)'),
   })

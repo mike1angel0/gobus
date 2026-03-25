@@ -147,3 +147,20 @@ All 3 blocking issues resolved:
 - Matches OpenAPI spec PageParam maximum: 10000
 ---
 
+
+## Validation Rejected - Fixes Needed (RESOLVED)
+All 3 blocking issues resolved:
+1. ✅ Schedule datetime fields — added `.max(30)` to all 15 datetime fields in schedule schemas
+2. ✅ Schedule date filter fields — added `.max(10)` to `fromDate` and `toDate` in `scheduleFilterQuerySchema`
+3. ✅ PRD items US-QA-008, US-QA-009, US-QA-010 — all marked [x]
+
+**Note (non-blocking)**: LoginRequest in OpenAPI spec has `password.minLength: 1` (vs registration's `minLength: 8`) and lacks a pattern — inconsistent but Phase 1 scope.
+---
+
+## Iteration 18 - Fix schedule schema maxLength parity (US-QA-008, US-QA-009, US-QA-010)
+- Added `.max(30)` to 15 datetime fields across stopTimeSchema, scheduleSchema, scheduleWithDetailsSchema, createStopTimeInputSchema, createScheduleRequestSchema, updateScheduleRequestSchema
+- Added `.max(10)` to 2 date fields in scheduleFilterQuerySchema (fromDate, toDate)
+- All 249 tests pass, typecheck clean, lint clean
+- Learnings: `replace_all` only matches exact whitespace patterns — request schemas had different indentation (4-space) vs response schemas (2-space), requiring separate edits
+---
+

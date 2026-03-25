@@ -266,16 +266,16 @@
 **API Conformance**: 4 schedule schema discrepancies found — datetime/date fields missing `.max()` bounds
 
 **US-QA-008** | Add `.max(30)` to datetime fields in schedule response schemas to match OpenAPI spec
-- [ ] AC1: Add `.max(30)` to `arrivalTime`, `departureTime` in `stopTimeSchema` (lines 13-14), `departureTime`, `arrivalTime`, `tripDate`, `createdAt` in `scheduleSchema` (lines 29-30, 38-39), and all corresponding fields in `scheduleWithDetailsSchema` (lines 54-55, 63, 72) in `src/api/schedules/schemas.ts`
-- [ ] AC2: All existing schedule integration tests still pass
+- [x] AC1: Add `.max(30)` to `arrivalTime`, `departureTime` in `stopTimeSchema` (lines 13-14), `departureTime`, `arrivalTime`, `tripDate`, `createdAt` in `scheduleSchema` (lines 29-30, 38-39), and all corresponding fields in `scheduleWithDetailsSchema` (lines 54-55, 63, 72) in `src/api/schedules/schemas.ts`
+- [x] AC2: All existing schedule integration tests still pass
 
 **US-QA-009** | Add `.max(30)` to datetime fields in schedule request schemas to match OpenAPI spec
-- [ ] AC1: Add `.max(30)` to `arrivalTime`, `departureTime` in `createStopTimeInputSchema` (lines 79-80), `departureTime`, `arrivalTime`, `tripDate` in `createScheduleRequestSchema` (lines 96-97, 105), and `departureTime`, `arrivalTime` in `updateScheduleRequestSchema` (lines 124-125) in `src/api/schedules/schemas.ts`
-- [ ] AC2: All existing schedule integration tests still pass
+- [x] AC1: Add `.max(30)` to `arrivalTime`, `departureTime` in `createStopTimeInputSchema` (lines 79-80), `departureTime`, `arrivalTime`, `tripDate` in `createScheduleRequestSchema` (lines 96-97, 105), and `departureTime`, `arrivalTime` in `updateScheduleRequestSchema` (lines 124-125) in `src/api/schedules/schemas.ts`
+- [x] AC2: All existing schedule integration tests still pass
 
 **US-QA-010** | Add `.max(10)` to date filter fields in schedule query schema to match OpenAPI spec
-- [ ] AC1: Add `.max(10)` to `fromDate` and `toDate` in `scheduleFilterQuerySchema` (lines 143-152) in `src/api/schedules/schemas.ts`
-- [ ] AC2: All existing schedule integration tests still pass
+- [x] AC1: Add `.max(10)` to `fromDate` and `toDate` in `scheduleFilterQuerySchema` (lines 143-152) in `src/api/schedules/schemas.ts`
+- [x] AC2: All existing schedule integration tests still pass
 
 #### Observed (Not Phase 2 Scope)
 
