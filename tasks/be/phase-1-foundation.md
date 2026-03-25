@@ -59,17 +59,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-011: Create project architecture directories and shared utilities** - Created layered architecture directories (api/, application/, domain/, infrastructure/, shared/), Zod-validated env config (env.ts), API envelope types (types.ts), reusable Zod schemas (schemas.ts with pagination/id/dataResponse/paginatedResponse), pagination helpers (pagination.ts). 39 unit tests passing.
 
-### TASK-012: Create error handling infrastructure
-**Description:** Create `src/domain/errors/error-codes.ts` with all error codes as const enum (AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_EXPIRED, AUTH_EMAIL_TAKEN, RESOURCE_NOT_FOUND, VALIDATION_ERROR, FORBIDDEN, CONFLICT, SEAT_CONFLICT, INTERNAL_ERROR, RATE_LIMITED). Create `src/domain/errors/app-error.ts` with `AppError` class. Create `src/api/plugins/error-handler.ts` plugin returning RFC 9457 Problem Details matching the `ErrorResponse` schema from the OpenAPI spec.
-
-**Acceptance Criteria:**
-- [ ] `ErrorCodes` enum with all codes
-- [ ] `AppError` class with statusCode, code, detail, errors[] properties
-- [ ] Error handler returns format matching spec: `{ type, title, status, detail, code, errors? }`
-- [ ] Zod validation errors mapped to `errors: [{ field, message }]`
-- [ ] Unknown errors return 500 without leaking internals
-- [ ] Unit tests for error handler and AppError
-- [ ] Typecheck passes
+**TASK-012: Create error handling infrastructure** - Created ErrorCodes const object (10 codes), AppError class with statusCode/code/detail/errors[], and error-handler Fastify plugin producing RFC 9457 Problem Details responses. Handles AppError, ZodError, Fastify validation errors, and unknown errors (safe 500). 53 unit tests passing.
 
 ### TASK-013: Create health check and Swagger setup
 **Description:** Register `@fastify/swagger` + `@fastify/swagger-ui` in `app.ts`. Import the bundled OpenAPI spec and serve it. Create `src/api/health/routes.ts` with `GET /health` (not in spec — internal). Swagger UI at `/docs`, JSON at `/docs/json`. Add `npm run api:validate` script that compares implemented routes against the spec.

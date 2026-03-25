@@ -1,5 +1,7 @@
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 
+import errorHandler from '@/api/plugins/error-handler.js';
+
 /**
  * Build and configure the Fastify application instance.
  *
@@ -13,6 +15,8 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
     },
     ...options,
   });
+
+  await app.register(errorHandler);
 
   return app;
 }
