@@ -9,9 +9,11 @@ import type { OpenAPIV3 } from 'openapi-types';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 
 import errorHandler from '@/api/plugins/error-handler.js';
+import requestLoggerPlugin from '@/api/plugins/request-logger.js';
 import rateLimitPlugin from '@/api/plugins/rate-limit.js';
 import authPlugin from '@/api/plugins/auth.js';
 import auditPlugin from '@/api/plugins/audit.js';
+import { getRootLogger } from '@/infrastructure/logger/logger.js';
 import healthRoutes from '@/api/health/routes.js';
 import authRoutes from '@/api/auth/routes.js';
 import providerRoutes from '@/api/providers/routes.js';
@@ -71,9 +73,7 @@ function loadOpenApiSpec(): OpenAPIV3.Document {
  */
 export async function buildApp(options: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify({
-    logger: options.logger ?? {
-      level: process.env.LOG_LEVEL ?? 'info',
-    },
+    logger: options.logger ?? getRootLogger(),
     bodyLimit: 1_048_576, // 1 MB request body size limit
     genReqId: () => randomUUID(),
     requestIdHeader: 'x-request-id',
@@ -122,6 +122,9 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   }
 
   await app.register(errorHandler);
+
+  // Request logging (method, url, status, timing)
+  await app.register(requestLoggerPlugin);
 
   // Rate limiting (disabled in test to avoid interference with integration tests)
   if (!isTest) {

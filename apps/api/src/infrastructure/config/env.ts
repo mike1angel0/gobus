@@ -25,6 +25,12 @@ const envSchema = z.object({
 
   /** Allowed CORS origin */
   CORS_ORIGIN: z.string().default('http://localhost:3001').describe('Allowed CORS origin'),
+
+  /** Log level for structured logging */
+  LOG_LEVEL: z
+    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+    .default('info')
+    .describe('Log level for structured logging'),
 });
 
 /** Inferred type of validated environment variables. */

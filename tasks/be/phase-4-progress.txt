@@ -75,3 +75,14 @@
 - All 387 unit + 308 integration tests pass, typecheck + lint + spec:lint clean
 - Learnings: OpenAPI 3.1 uses `type: ['string', 'null']` instead of `nullable: true`. Zod `z.record()` requires 2 args in this version: `z.record(z.string(), z.unknown())`. The updateUserStatus integration test needs 3 chained mockResolvedValueOnce calls (auth lookup, updateUserStatus findUnique, revokeAllSessions findUnique) for the suspend path.
 ---
+
+## Iteration 9 - TASK-009: Set up structured logging
+- Replaced custom JSON logger with Pino-backed `createLogger(name)` factory
+- `getRootLogger()` creates shared Pino instance: JSON in production, pino-pretty in dev, silent in test
+- Sensitive fields redacted: password, token, authorization, refreshToken, accessToken, secret, req.headers.authorization, req.headers.cookie
+- Added LOG_LEVEL to env.ts schema (enum: fatal|error|warn|info|debug|trace|silent, default: info)
+- Created request-logger.ts plugin (onResponse hook): logs method, url, statusCode, responseTime, requestId, userId
+- All existing services already used `createLogger` — no service changes needed
+- 10 unit tests + 3 integration tests, all 390 unit + 311 integration pass, typecheck + lint clean
+- Learnings: Pino requires `level` to be a valid string (not undefined) — env schema must provide default. `vi.hoisted()` needed when defining spies used inside `vi.mock()` factory functions.
+---

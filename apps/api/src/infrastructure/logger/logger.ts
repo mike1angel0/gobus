@@ -1,19 +1,11 @@
+import pino from 'pino';
 import { getEnv } from '@/infrastructure/config/env.js';
 
-/** Structured log entry shape. */
-interface LogEntry {
-  level: string;
-  name: string;
-  msg: string;
-  timestamp: string;
-  [key: string]: unknown;
-}
-
-/** Simple structured logger for services. */
+/** Structured logger interface for services and plugins. */
 export interface Logger {
   /** Log informational business events. */
   info(msg: string, data?: Record<string, unknown>): void;
-  /** Log technical debug details (suppressed in production). */
+  /** Log technical debug details. */
   debug(msg: string, data?: Record<string, unknown>): void;
   /** Log recoverable issues. */
   warn(msg: string, data?: Record<string, unknown>): void;
@@ -21,32 +13,66 @@ export interface Logger {
   error(msg: string, data?: Record<string, unknown>): void;
 }
 
+/** Sensitive field paths to redact from all log output. */
+const REDACT_PATHS = [
+  'password',
+  'token',
+  'authorization',
+  'refreshToken',
+  'accessToken',
+  'secret',
+  'req.headers.authorization',
+  'req.headers.cookie',
+];
+
+let _rootLogger: pino.Logger | undefined;
+
 /**
- * Create a structured JSON logger for a named service.
- * Debug logs are suppressed in production. All output goes to stdout/stderr as JSON.
+ * Return the shared root Pino logger instance, creating it on first access.
+ * Configures JSON output in production, pretty-print in development, and silent in test.
+ */
+export function getRootLogger(): pino.Logger {
+  if (_rootLogger) return _rootLogger;
+
+  const env = getEnv();
+  const isTest = env.NODE_ENV === 'test';
+  const isDev = env.NODE_ENV === 'development';
+
+  const transport = isDev
+    ? {
+        target: 'pino-pretty',
+        options: { colorize: true, translateTime: 'SYS:HH:MM:ss.l', ignore: 'pid,hostname' },
+      }
+    : undefined;
+
+  _rootLogger = pino({
+    level: isTest ? 'silent' : env.LOG_LEVEL,
+    redact: { paths: REDACT_PATHS, censor: '[REDACTED]' },
+    transport,
+  });
+
+  return _rootLogger;
+}
+
+/**
+ * Create a named child logger for a service or plugin.
+ * Inherits configuration (level, redaction, transport) from the shared root logger.
+ * @param name - Identifier for the service or module (appears in log output as `name` field).
  */
 export function createLogger(name: string): Logger {
-  const env = getEnv();
-  const isProduction = env.NODE_ENV === 'production';
-  const isTest = env.NODE_ENV === 'test';
-
-  function write(level: string, msg: string, data?: Record<string, unknown>): void {
-    if (isTest) return;
-    const entry: LogEntry = { level, name, msg, timestamp: new Date().toISOString(), ...data };
-    const output = JSON.stringify(entry);
-    if (level === 'error') {
-      process.stderr.write(output + '\n');
-    } else {
-      process.stdout.write(output + '\n');
-    }
-  }
+  const child = getRootLogger().child({ name });
 
   return {
-    info: (msg, data) => write('info', msg, data),
-    debug: (msg, data) => {
-      if (!isProduction) write('debug', msg, data);
-    },
-    warn: (msg, data) => write('warn', msg, data),
-    error: (msg, data) => write('error', msg, data),
+    info: (msg, data) => child.info(data ?? {}, msg),
+    debug: (msg, data) => child.debug(data ?? {}, msg),
+    warn: (msg, data) => child.warn(data ?? {}, msg),
+    error: (msg, data) => child.error(data ?? {}, msg),
   };
+}
+
+/**
+ * Reset the root logger instance. Used only in tests to ensure a clean state.
+ */
+export function resetRootLogger(): void {
+  _rootLogger = undefined;
 }

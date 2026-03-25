@@ -110,13 +110,13 @@
 **Description:** Create `src/infrastructure/observability/logger.ts` with `createLogger(name)` factory using Pino (Fastify's built-in logger). Configure: JSON format in production, pretty-print in dev. Log levels from LOG_LEVEL env var. Add request logging plugin with: method, url, statusCode, responseTime, requestId. Redact sensitive fields (password, token, authorization).
 
 **Acceptance Criteria:**
-- [ ] `createLogger(name)` factory exported
-- [ ] JSON logs in production, pretty in dev
-- [ ] Request logging with timing
-- [ ] Sensitive fields redacted from logs
-- [ ] All existing services use `createLogger`
-- [ ] Typecheck passes
-- [ ] JSDoc on createLogger
+- [x] `createLogger(name)` factory exported
+- [x] JSON logs in production, pretty in dev
+- [x] Request logging with timing
+- [x] Sensitive fields redacted from logs
+- [x] All existing services use `createLogger`
+- [x] Typecheck passes
+- [x] JSDoc on createLogger
 
 ### TASK-010: Add health check enhancements
 **Description:** Enhance `GET /health` to include: database connectivity check (Prisma `$queryRaw`), memory usage, environment indicator. Add `GET /health/ready` (readiness probe for k8s) that checks DB connection. Add `GET /health/live` (liveness probe) that always returns 200.
