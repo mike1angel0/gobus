@@ -138,3 +138,12 @@ All 3 blocking issues resolved:
 - All 249 tests pass, typecheck clean, lint clean
 ---
 
+
+## Iteration 17 - Fix unbounded page fields (Validation Rejection)
+- Added `.max(10000)` to `paginationQuerySchema.page` in shared/schemas.ts (affects all 4 list endpoints)
+- Added `.max(10000)` to `paginationMetaSchema.page` in shared/schemas.ts (response meta)
+- Added `.max(10000)` to `scheduleFilterQuerySchema.page` in schedules/schemas.ts (schedule filters)
+- All 249 tests pass, typecheck clean, lint clean
+- Matches OpenAPI spec PageParam maximum: 10000
+---
+

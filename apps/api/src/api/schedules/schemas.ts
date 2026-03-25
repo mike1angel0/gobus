@@ -129,7 +129,7 @@ export const updateScheduleRequestSchema = z
 /** Zod schema for schedule list filter query parameters. */
 export const scheduleFilterQuerySchema = z
   .object({
-    page: z.coerce.number().int().min(1).default(1).describe('Page number (1-based)'),
+    page: z.coerce.number().int().min(1).max(10000).default(1).describe('Page number (1-based)'),
     pageSize: z.coerce
       .number()
       .int()

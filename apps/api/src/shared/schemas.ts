@@ -6,7 +6,7 @@ import { z } from 'zod';
  */
 export const paginationQuerySchema = z
   .object({
-    page: z.coerce.number().int().min(1).default(1).describe('Page number (1-based)'),
+    page: z.coerce.number().int().min(1).max(10000).default(1).describe('Page number (1-based)'),
     pageSize: z.coerce
       .number()
       .int()
@@ -65,7 +65,7 @@ export const paginationMetaSchema = z.object({
     .min(0)
     .max(2147483647)
     .describe('Total number of records matching the query'),
-  page: z.number().int().min(1).describe('Current page number (1-based)'),
+  page: z.number().int().min(1).max(10000).describe('Current page number (1-based)'),
   pageSize: z.number().int().min(1).max(100).describe('Number of records per page'),
   totalPages: z.number().int().min(0).max(2147483647).describe('Total number of pages'),
 });
