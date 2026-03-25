@@ -114,3 +114,34 @@
 - [x] JSDoc on all exported functions/classes/methods
 - [x] All responses match OpenAPI spec schemas
 - [x] `npm run spec:lint` — spec validates
+
+---
+
+### Quality Assurance (Auto-Generated)
+
+**QA Batch 1** — Generated 2026-03-25
+**Coverage**: 99.41% statements | 95.22% branches | 99.6% functions | 99.39% lines
+**Audit**: 0 vulnerabilities | **Lint**: 0 errors | **Type safety**: 0 `any` in src/ | **Architecture**: 0 violations
+
+#### API Contract Compliance
+
+| US-QA-001 | Add `.strict()` to `toggleSeatBodySchema` for mass assignment prevention |
+|-----------|-------------------------------------------------------------------------|
+| **Priority** | High — Security |
+| **File** | `apps/api/src/api/admin/schemas.ts` |
+| **AC-1** | `toggleSeatBodySchema` uses `.strict()` so extra fields are rejected with 400 |
+| **AC-2** | Integration test sends request with extra field and asserts 400 response |
+
+| US-QA-002 | Fix `providerId` validation in admin list buses to match OpenAPI spec |
+|-----------|----------------------------------------------------------------------|
+| **Priority** | Medium — API Contract |
+| **File** | `apps/api/src/api/admin/schemas.ts` |
+| **AC-1** | `providerId` query param uses `.max(30).optional()` without `.min(1)` to match spec |
+| **AC-2** | Existing integration tests still pass after change |
+
+| US-QA-003 | Add `.describe()` to enum types in driver-trips and admin schemas |
+|-----------|------------------------------------------------------------------|
+| **Priority** | Low — OpenAPI Docs |
+| **Files** | `apps/api/src/api/driver-trips/schemas.ts`, `apps/api/src/api/admin/schemas.ts` |
+| **AC-1** | All Zod enum definitions in Phase 3 schema files have `.describe()` with meaningful text |
+| **AC-2** | `npm run typecheck` passes after changes |
