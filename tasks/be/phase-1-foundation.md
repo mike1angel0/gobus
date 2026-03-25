@@ -96,3 +96,62 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 **TASK-023: Create CLAUDE.md for backend** - Created apps/api/CLAUDE.md with tech stack, quick start, layered architecture rules, API-first workflow, API conventions (envelope + RFC 9457 errors), route/service patterns, quality gate commands, test conventions, env vars table, and key patterns.
 
 **TASK-024: Run all Phase 1 quality gates** - All quality gates pass: typecheck (zero errors), lint (zero errors), format (all clean), 181 tests passing (145 unit + 36 integration), coverage ≥85% (statements 98%, branches 89%, functions 98%, lines 98%), build succeeds, zero `any` in production code, JSDoc on all exports, spec validates with zero errors.
+
+---
+
+### Quality Assurance (Auto-Generated)
+
+**QA Run**: 2026-03-25 | **Batch**: 1 of 3
+**Coverage**: Statements 98.01% | Branches 88.63% | Functions 98.33% | Lines 97.99% (target: 90% ✅)
+**Tests**: 181 passing (15 test files) | **Lint**: 0 errors | **Typecheck**: clean
+**Type safety**: 0 `any` in production code (all matches in `src/generated/`) ✅
+**Architecture**: No domain→outer-layer violations ✅
+**JSDoc**: All exports documented ✅
+**API conformance**: All error responses RFC 9457 compliant, all endpoint shapes match OpenAPI spec ✅
+**Zod schemas**: All have `.strict()`, `.describe()`, and proper field constraints matching spec ✅
+**Security audit**: 11 vulnerabilities (5 moderate, 6 high) — all transitive from Prisma dependencies (hono, lodash, effect)
+
+#### Coverage Stories
+
+**US-QA-001** | Add tests for `disconnectPrisma` in prisma/client.ts
+- **Priority**: Medium | **File**: `src/infrastructure/prisma/client.ts:27-31`
+- AC1: Test that `disconnectPrisma()` calls `$disconnect()` when client exists and resets singleton
+- AC2: Test that `disconnectPrisma()` is a no-op when no client has been created
+
+**US-QA-002** | Add branch coverage for error-handler fallback title
+- **Priority**: Low | **File**: `src/api/plugins/error-handler.ts:35`
+- AC1: Test that an unrecognized HTTP status code (e.g., 418) returns `'Error'` as the title
+- AC2: Test that a known status code (e.g., 409) returns the correct title `'Conflict'`
+
+**US-QA-003** | Add branch coverage for Fastify validation error edge cases
+- **Priority**: Low | **File**: `src/api/plugins/error-handler.ts:117-123`
+- AC1: Test Fastify validation error with missing `instancePath` produces `_root` field
+- AC2: Test Fastify validation error with missing `message` produces `'Validation failed'` default
+
+**US-QA-004** | Add branch coverage for empty Bearer token in auth plugin
+- **Priority**: Low | **File**: `src/api/plugins/auth.ts:55-56`
+- AC1: Test that `Authorization: Bearer ` (with trailing space, empty token) returns 401 with `'Missing access token'`
+
+**US-QA-005** | Add branch coverage for app.ts logger defaults
+- **Priority**: Low | **File**: `src/app.ts:33-34`
+- AC1: Test `buildApp()` with no options uses default logger config
+- AC2: Test `buildApp({ logger: false })` overrides the default logger
+
+**US-QA-006** | Add tests for auth service getProfile/updateProfile not-found branches
+- **Priority**: Medium | **File**: `src/application/services/auth.service.ts:432-433,448-449`
+- AC1: Test `getProfile()` throws 401 when user ID doesn't exist in DB
+- AC2: Test `updateProfile()` throws 401 when user ID doesn't exist in DB
+
+#### Security Stories
+
+**US-QA-007** | Investigate and mitigate high npm audit vulnerabilities
+- **Priority**: High | **Category**: Security
+- AC1: Document which high-severity CVEs are exploitable in Transio's usage context (hono, lodash, effect are transitive Prisma deps)
+- AC2: Apply `npm audit fix` or add overrides for non-exploitable transitive deps; re-run audit to confirm ≤0 high-severity direct vulnerabilities
+
+#### Complexity Stories
+
+**US-QA-008** | Refactor auth.service.ts: extract token management into TokenService
+- **Priority**: Low | **File**: `src/application/services/auth.service.ts` (508 lines, over 500-line limit)
+- AC1: Extract `generateTokens`, `hashToken`, and `refreshToken` logic into a dedicated `TokenService` class
+- AC2: `auth.service.ts` is under 500 lines after extraction; all existing tests still pass
