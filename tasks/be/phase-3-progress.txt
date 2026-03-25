@@ -6,3 +6,17 @@
 - 16 unit tests covering: segment pricing, availability computation, stop ordering, case-insensitive search, pagination, seat booking status
 - Learnings: Prisma ScheduleStatus enum type must be cast with `as ScheduleStatus` in test mocks; search service filters in-memory after Prisma query since we need to match both origin and destination stops in correct order
 ---
+## Iteration 2 - TASK-002: Create search API routes
+- Implemented GET /api/v1/search and GET /api/v1/trips/:scheduleId as public endpoints (no auth)
+- Serializers convert Date fields to ISO strings, tripDate uses .slice(0,10) for date-only format
+- 15 integration tests covering: search with results, empty results, reversed stops filter, missing params, invalid date, pagination, trip detail with bookings, 404, no auth required, all seats unbooked
+- Learnings: Integration tests use vitest.integration.config.ts (separate from unit); mock Prisma + env + logger pattern consistent across all route tests; public routes have no preHandler and no dependencies on auth plugin
+---
+## Iteration 3 - TASK-003: Create booking service
+- Implemented BookingService with create, listByUser, getById, cancel methods
+- Exported pure validation functions (validateSeatsOnBus, validateStopOrder) for testability
+- create uses prisma.$transaction with Serializable isolation to prevent double-booking
+- toBookingWithDetails maps Prisma records to BookingWithDetails shape (extracts seatLabels from bookingSeats)
+- 26 unit tests covering: seat validation (non-existent, disabled, blocked), stop order validation, create with price calc, seat conflict 409, schedule not found, list with pagination and status filter, getById ownership enforcement, cancel states
+- Learnings: Mock $transaction by extracting txClient and having $transaction call the callback with it; reuse computeSegmentPrice from search.service for segment pricing; ownership returns 404 not 403 per spec
+---

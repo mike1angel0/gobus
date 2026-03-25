@@ -41,18 +41,18 @@
 **Description:** Create `src/application/services/booking.service.ts`. Methods: `listByUser(userId, pagination)` — user's bookings with schedule details. `getById(id, userId)` — with ownership enforcement. `create(userId, data)` — **MUST use Prisma `$transaction` with isolation level** to prevent race conditions: check seat availability, create booking + booking seats atomically. `cancel(id, userId)` — with ownership enforcement, sets status=CANCELLED.
 
 **Acceptance Criteria:**
-- [ ] `create` uses `prisma.$transaction` with serializable isolation
-- [ ] Double-booking prevented by transaction + unique constraint on BookingSeat(scheduleId, seatLabel, tripDate)
-- [ ] `create` validates: seats exist on bus, seats are enabled, seats not BLOCKED type
-- [ ] `create` validates: boardingStop and alightingStop exist in schedule's stops, boarding comes before alighting
-- [ ] `create` calculates totalPrice from segment pricing
-- [ ] Generates unique orderId (cuid) for each booking
-- [ ] `cancel` enforces ownership (user can only cancel own bookings)
-- [ ] `cancel` only works on CONFIRMED bookings
-- [ ] Unit tests for validation logic
-- [ ] Unit tests for price calculation
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] `create` uses `prisma.$transaction` with serializable isolation
+- [x] Double-booking prevented by transaction + unique constraint on BookingSeat(scheduleId, seatLabel, tripDate)
+- [x] `create` validates: seats exist on bus, seats are enabled, seats not BLOCKED type
+- [x] `create` validates: boardingStop and alightingStop exist in schedule's stops, boarding comes before alighting
+- [x] `create` calculates totalPrice from segment pricing
+- [x] Generates unique orderId (cuid) for each booking
+- [x] `cancel` enforces ownership (user can only cancel own bookings)
+- [x] `cancel` only works on CONFIRMED bookings
+- [x] Unit tests for validation logic
+- [x] Unit tests for price calculation
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-004: Create booking API routes
 **Description:** Implement from spec: `GET /api/v1/bookings` (list, paginated, authenticated), `POST /api/v1/bookings` (create, authenticated), `GET /api/v1/bookings/{id}` (detail, authenticated, ownership), `DELETE /api/v1/bookings/{id}` (cancel, authenticated, ownership).
