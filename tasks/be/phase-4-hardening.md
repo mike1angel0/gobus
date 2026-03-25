@@ -57,14 +57,14 @@
 **Description:** Create `src/application/services/audit.service.ts` with `AuditService`. Logs security-relevant events to the AuditLog table: LOGIN_SUCCESS, LOGIN_FAILURE, LOGIN_LOCKED, REGISTER, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_COMPLETE, PASSWORD_CHANGE, ACCOUNT_SUSPENDED, ACCOUNT_LOCKED, BOOKING_CREATED, BOOKING_CANCELLED. Methods: `log(event)` — fire-and-forget (never block the request), `getByUser(userId, pagination)` — for admin viewing. Captures: userId, action, resource, resourceId, ipAddress (from request), userAgent (from request).
 
 **Acceptance Criteria:**
-- [ ] All security events logged (login, logout, password changes, lockouts)
-- [ ] Booking events logged (create, cancel)
-- [ ] IP address and user agent captured from Fastify request
-- [ ] `log()` is fire-and-forget (errors caught, never blocks response)
-- [ ] `getByUser()` supports pagination for admin queries
-- [ ] Unit tests
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] All security events logged (login, logout, password changes, lockouts)
+- [x] Booking events logged (create, cancel)
+- [x] IP address and user agent captured from Fastify request
+- [x] `log()` is fire-and-forget (errors caught, never blocks response)
+- [x] `getByUser()` supports pagination for admin queries
+- [x] Unit tests
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-006: Add audit logging hooks to existing services
 **Description:** Integrate AuditService into: AuthService (login success/failure/lockout, register, logout, password reset/change), BookingService (create, cancel). Create a Fastify plugin `src/api/plugins/audit.ts` that decorates request with `request.audit(action, resource, resourceId?)` helper extracting IP + userAgent automatically.
