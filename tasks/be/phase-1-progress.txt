@@ -102,3 +102,10 @@
 - Indexes on User.email (unique), User.providerId, User.role, RefreshToken.userId, PasswordResetToken.userId, AuditLog.userId+createdAt
 - Learnings: Prisma 7 cuid() default works out of the box. VarChar lengths should match OpenAPI maxLength constraints. AuditLog.userId is nullable (system actions have no user).
 ---
+
+## Iteration 16 - TASK-016: Create transport entity models
+- Added SeatType enum (STANDARD, PREMIUM, DISABLED_ACCESSIBLE, BLOCKED), Route, Stop, Bus, Seat models
+- Cascade deletes: Stop→Route, Seat→Bus. Bus.licensePlate unique. Indexes on all FKs.
+- Provider model updated with routes[] and buses[] relations
+- Learnings: Straightforward schema-only task. No tests needed since it's just Prisma models — db:generate validates the schema.
+---

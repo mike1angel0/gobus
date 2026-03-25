@@ -27,6 +27,13 @@ enum ProviderStatus {
   PENDING
 }
 
+enum SeatType {
+  STANDARD
+  PREMIUM
+  DISABLED_ACCESSIBLE
+  BLOCKED
+}
+
 // ─── User ───────────────────────────────────────────────────────────────────
 
 model User {
@@ -67,6 +74,8 @@ model Provider {
   updatedAt    DateTime       @updatedAt
 
   users        User[]
+  routes       Route[]
+  buses        Bus[]
 }
 
 // ─── RefreshToken ───────────────────────────────────────────────────────────
@@ -115,4 +124,68 @@ model AuditLog {
   user       User?    @relation(fields: [userId], references: [id])
 
   @@index([userId, createdAt])
+}
+
+// ─── Route ─────────────────────────────────────────────────────────────────
+
+model Route {
+  id         String   @id @default(cuid())
+  name       String   @db.VarChar(200)
+  providerId String
+  createdAt  DateTime @default(now())
+
+  provider   Provider @relation(fields: [providerId], references: [id])
+  stops      Stop[]
+
+  @@index([providerId])
+}
+
+// ─── Stop ──────────────────────────────────────────────────────────────────
+
+model Stop {
+  id         String @id @default(cuid())
+  name       String @db.VarChar(200)
+  lat        Float
+  lng        Float
+  orderIndex Int
+  routeId    String
+
+  route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@index([routeId])
+}
+
+// ─── Bus ───────────────────────────────────────────────────────────────────
+
+model Bus {
+  id           String   @id @default(cuid())
+  licensePlate String   @unique @db.VarChar(20)
+  model        String   @db.VarChar(200)
+  capacity     Int
+  rows         Int
+  columns      Int
+  providerId   String
+  createdAt    DateTime @default(now())
+
+  provider     Provider @relation(fields: [providerId], references: [id])
+  seats        Seat[]
+
+  @@index([providerId])
+}
+
+// ─── Seat ──────────────────────────────────────────────────────────────────
+
+model Seat {
+  id        String   @id @default(cuid())
+  row       Int
+  column    Int
+  label     String   @db.VarChar(10)
+  type      SeatType @default(STANDARD)
+  price     Float    @default(0)
+  isEnabled Boolean  @default(true)
+  busId     String
+
+  bus       Bus      @relation(fields: [busId], references: [id], onDelete: Cascade)
+
+  @@index([busId])
 }

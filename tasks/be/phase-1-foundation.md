@@ -71,15 +71,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-015: Create User, Provider, and security-related models** - Created User (with status/lockout fields), Provider (with ProviderStatus), RefreshToken, PasswordResetToken, AuditLog models. Role/UserStatus/ProviderStatus enums matching OpenAPI spec. Cascade deletes, proper indexes, db:generate succeeds.
 
-### TASK-016: Create transport entity models
-**Description:** Route (id, name, providerId FK). Stop (id, name, lat, lng, orderIndex, routeId FK cascade). Bus (id, licensePlate unique, model, capacity, rows, columns, providerId FK). Seat (id, row, column, label, type enum, price Float default 0, isEnabled Boolean default true, busId FK cascade). Add all indexes.
-
-**Acceptance Criteria:**
-- [ ] All models match OpenAPI schemas
-- [ ] Bus.licensePlate is unique
-- [ ] Cascade deletes on Stop→Route and Seat→Bus
-- [ ] SeatType enum matches spec
-- [ ] `npm run db:generate` succeeds
+**TASK-016: Create transport entity models** - Added SeatType enum, Route, Stop, Bus, Seat models with proper FKs, cascade deletes, unique licensePlate, and indexes. db:generate succeeds.
 
 ### TASK-017: Create Schedule, Booking, and operational models
 **Description:** Schedule (id, routeId, busId, driverId nullable, departureTime, arrivalTime, daysOfWeek, basePrice Float, status enum, tripDate DateTime, createdAt). StopTime (id, scheduleId FK cascade, stopName, arrivalTime, departureTime, orderIndex, priceFromStart Float). Booking (id, orderId unique cuid, userId FK, scheduleId FK, totalPrice Float, status enum, boardingStop, alightingStop, tripDate DateTime, createdAt). BookingSeat (id, bookingId FK cascade, seatLabel, unique constraint on scheduleId+seatLabel+tripDate). Delay (id, scheduleId FK, offsetMinutes Int, reason enum, note, tripDate DateTime, active Boolean, createdAt). BusTracking (id, busId FK unique, lat, lng, speed, heading, scheduleId nullable, currentStopIndex, isActive, tripDate DateTime nullable, updatedAt). Message (id, senderId FK, receiverId FK, content, read Boolean, createdAt).
