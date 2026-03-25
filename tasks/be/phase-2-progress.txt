@@ -13,3 +13,9 @@
 - Patterns: same fastify-plugin pattern as auth routes, serializeProvider for Date->ISO, preHandler chain [app.authenticate, requireProvider]
 - Integration tests use vitest.integration.config.ts (separate from unit tests)
 ---
+## Iteration 3 - TASK-003: Create route domain types
+- Created StopEntity, RouteEntity, RouteWithStops, CreateStopData, CreateRouteData interfaces
+- RouteWithStops extends RouteEntity (avoids duplication)
+- Followed same interface-only pattern as provider.entity.ts and user.entity.ts
+- All fields match OpenAPI spec field-by-field (types, constraints documented in JSDoc)
+---

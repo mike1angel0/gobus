@@ -35,9 +35,9 @@
 **Description:** Create `src/domain/routes/route.entity.ts` with `RouteEntity`, `RouteWithStops`, `CreateRouteData`, `StopData` types matching OpenAPI schemas.
 
 **Acceptance Criteria:**
-- [ ] Types match OpenAPI schemas
-- [ ] JSDoc on all types
-- [ ] Typecheck passes
+- [x] Types match OpenAPI schemas
+- [x] JSDoc on all types
+- [x] Typecheck passes
 
 ### TASK-004: Create route service
 **Description:** Create `src/application/services/route.service.ts`. Methods: `listByProvider(providerId, pagination)` — paginated, `getById(id, providerId)` — with ownership check, `create(providerId, data)` — creates route + stops in transaction, `delete(id, providerId)` — with ownership check, cascades stops.
