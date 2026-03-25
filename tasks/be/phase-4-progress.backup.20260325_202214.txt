@@ -1,0 +1,119 @@
+## Iteration 1 - TASK-001: Configure CORS properly
+- Configured @fastify/cors in app.ts with parseCorsOrigins() that reads CORS_ORIGIN env var (comma-separated)
+- Dev mode auto-includes localhost:3000, 3001, 5173; production restricts to configured origins only
+- Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS; credentials: true; maxAge: 86400
+- Exposed X-Request-Id header, allowed Content-Type + Authorization headers
+- 7 integration tests covering: allowed origin, disallowed origin, preflight OPTIONS, exposed headers, parseCorsOrigins in dev/prod
+- All 350 unit tests + 7 new integration tests pass, typecheck clean, lint clean
+---
+
+## Iteration 2 - TASK-002: Configure Helmet security headers
+- Registered @fastify/helmet in app.ts with: strict CSP (default-src 'self', script-src 'self', frame-ancestors 'none'), HSTS (1 year, includeSubDomains, preload), X-Frame-Options DENY, referrer-policy strict-origin-when-cross-origin
+- Helmet disabled in NODE_ENV=test to avoid noise in other integration tests
+- Created dedicated integration test (helmet.integration.test.ts) that builds app with NODE_ENV=development to verify all 5 headers
+- All 350 unit + 263 integration tests pass, typecheck + lint clean
+---
+
+## Iteration 3 - TASK-003: Configure rate limiting
+- Registered @fastify/rate-limit globally (100 req/min per user, falls back to IP)
+- Per-route overrides via config.rateLimit: auth routes (10/min per IP), search routes (30/min per IP)
+- Added 429 handling in error-handler.ts since rate-limit plugin throws errors that reach the error handler
+- RFC 9457 response with RATE_LIMITED code and Retry-After header
+- Learnings: @fastify/rate-limit v10 throws errors that hit the error handler — must handle statusCode 429 explicitly. Don't use custom onRoute hooks; use config.rateLimit per-route instead. Use app.inject() with remoteAddress for consistent IP in tests.
+- 4 integration tests: global headers, auth limit=10, search limit=30, 429 trigger
+- All 350 unit tests pass, typecheck + lint clean
+---
+
+## Iteration 4 - TASK-004: Input sanitization and validation hardening
+- All Zod schemas already had maxLength/min/max constraints from prior phases — verified in audit
+- Added `.trim()` to all user-provided string fields in request schemas (email, name, phone, providerName, licensePlate, model, label, stopName, origin, destination, boardingStop, alightingStop, seatLabels items, note, language, avatarUrl)
+- Added `bodyLimit: 1_048_576` (1MB) to Fastify config
+- Added `genReqId: () => randomUUID()` and `requestIdHeader: 'x-request-id'` for request tracing
+- Added onRequest hook to propagate x-request-id to responses
+- Added 413 handling in error-handler.ts for payload too large errors (RFC 9457)
+- 6 integration tests: UUID generation, client ID echo, unique IDs, 413 for oversized payload, trim passes validation, whitespace-only name rejected
+- Learnings: Fastify bodyLimit errors hit the error handler as statusCode 413 — need explicit handling. `.trim()` before `.min(1)` properly rejects whitespace-only strings.
+---
+
+## Iteration 5 - TASK-005: Create audit logging service
+- Created AuditActions constants (12 actions: auth, account, booking events) in domain/audit/audit-actions.ts
+- Created AuditLogEntity and AuditLogInput interfaces in domain/audit/audit.entity.ts
+- Implemented AuditService with fire-and-forget log() and paginated getByUser()
+- 11 unit tests covering: all field mapping, null defaults, fire-and-forget error handling, all security event types, booking events, IP/userAgent capture, pagination skip/take, empty results, ordering, totalPages calculation
+- Learnings: Prisma JSON field type requires intersection with `& object` for Record<string, unknown> to satisfy InputJsonValue — `(input.metadata as Record<string, unknown> & object)`. AuditLog model already existed in schema with composite index on [userId, createdAt].
+---
+
+## Iteration 6 - TASK-006: Add audit logging hooks to existing services
+- Created `src/api/plugins/audit.ts` Fastify plugin that decorates request with `request.audit()` helper
+- The helper extracts IP from x-forwarded-for (first entry) or socket, and user agent from headers automatically
+- Integrated audit calls into auth routes: REGISTER, LOGIN_SUCCESS, LOGIN_FAILURE, LOGIN_LOCKED, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_COMPLETE, PASSWORD_CHANGE
+- Login failure/locked events use try/catch around authService.login() to audit on error before re-throwing
+- Integrated audit calls into booking routes: BOOKING_CREATED, BOOKING_CANCELLED
+- Added try/catch wrapper in AuditService.log() to handle synchronous errors (e.g., when prisma.auditLog is undefined in test mocks)
+- 13 integration tests covering: helper availability, IP extraction from x-forwarded-for, user agent capture, all 8 auth events, both booking events
+- Learnings: `decorateRequest('audit', null)` needs `as unknown as FastifyRequest['audit']` type cast. AuditService.log() must wrap in try/catch (not just .catch()) because if prisma.auditLog is undefined, the synchronous property access throws before any promise is created. Booking create uses interactive $transaction (callback), not array-style.
+---
+
+## Iteration 7 - TASK-007: Token cleanup and session management
+- Created `src/jobs/token-cleanup.ts` with `cleanupTokens(prisma)` function: deletes expired refresh tokens, deletes used/expired password reset tokens, unlocks accounts past lockedUntil
+- Added `npm run jobs:cleanup-tokens` script that runs the job standalone via tsx
+- Added `revokeAllSessions(userId)` method to AdminService — revokes all active refresh tokens for a user
+- Added `DELETE /api/v1/admin/users/:id/sessions` endpoint in admin routes (requires ADMIN role, returns 204)
+- Updated OpenAPI spec with `userSessions` path definition
+- 6 unit tests for cleanup logic, 4 unit tests for revokeAllSessions, 4 integration tests for force-logout endpoint
+- All 371 unit + 290 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: Integration tests with auth plugin need `mockResolvedValueOnce` chaining for the auth lookup and then the service lookup on `user.findUnique`. The cleanup job uses `deleteMany` (not `updateMany`) for tokens since expired tokens have no value to retain.
+---
+
+## Iteration 8 - TASK-008: Admin user management endpoints
+- Implemented 3 new admin endpoints: GET /api/v1/admin/users (paginated, filterable by role/status), PATCH /api/v1/admin/users/:id/status (suspend/unsuspend/unlock), GET /api/v1/admin/audit-logs (paginated, filterable by userId/action/dateRange)
+- Added AdminUserEntity interface with admin-visible fields (includes failedLoginAttempts, lockedUntil unlike the public UserEntity)
+- Suspend action also revokes all refresh tokens via revokeAllSessions; unsuspend/unlock do not
+- Added ACCOUNT_UNSUSPENDED and ACCOUNT_UNLOCKED audit actions
+- All endpoints require ADMIN role (preHandler: [app.authenticate, requireAdmin])
+- 16 new unit tests for listUsers, updateUserStatus, listAuditLogs; 17 new integration tests for all 3 endpoints
+- All 387 unit + 308 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: OpenAPI 3.1 uses `type: ['string', 'null']` instead of `nullable: true`. Zod `z.record()` requires 2 args in this version: `z.record(z.string(), z.unknown())`. The updateUserStatus integration test needs 3 chained mockResolvedValueOnce calls (auth lookup, updateUserStatus findUnique, revokeAllSessions findUnique) for the suspend path.
+---
+
+## Iteration 9 - TASK-009: Set up structured logging
+- Replaced custom JSON logger with Pino-backed `createLogger(name)` factory
+- `getRootLogger()` creates shared Pino instance: JSON in production, pino-pretty in dev, silent in test
+- Sensitive fields redacted: password, token, authorization, refreshToken, accessToken, secret, req.headers.authorization, req.headers.cookie
+- Added LOG_LEVEL to env.ts schema (enum: fatal|error|warn|info|debug|trace|silent, default: info)
+- Created request-logger.ts plugin (onResponse hook): logs method, url, statusCode, responseTime, requestId, userId
+- All existing services already used `createLogger` — no service changes needed
+- 10 unit tests + 3 integration tests, all 390 unit + 311 integration pass, typecheck + lint clean
+- Learnings: Pino requires `level` to be a valid string (not undefined) — env schema must provide default. `vi.hoisted()` needed when defining spies used inside `vi.mock()` factory functions.
+---
+
+## Iteration 10 - TASK-010: Add health check enhancements
+- Enhanced `/health` to include: database connectivity check (via `$queryRawUnsafe('SELECT 1')`), memory usage (rss, heapUsed, heapTotal), environment indicator, status degraded/ok based on DB
+- Added `/health/ready` readiness probe — returns 503 if DB unreachable, 200 if ready
+- Added `/health/live` liveness probe — always returns 200
+- 8 integration tests covering: ok+degraded states, ready/not_ready, live always 200, docs endpoints
+- All 390 unit + 315 integration tests pass, typecheck + lint clean
+- Learnings: Health routes need Prisma mock (`$queryRawUnsafe`) in integration tests since they now check DB connectivity. Previous health tests had no mocks — now need full mock setup like other integration tests.
+---
+
+## Iteration 11 - TASK-011: Add request timing and metrics hooks
+- Created `src/api/plugins/metrics.ts` Fastify plugin with onResponse hook tracking request count, response times, error counts by status code
+- Logs slow requests (>5s) with warn level including method, url, responseTime, requestId
+- In production: logs periodic summary every 60s with requestCount, avgResponseTime, p50/p95/p99 percentiles, errorCountByStatus
+- Interval uses `.unref()` to not block process exit; cleans up on app close
+- Exported helper functions (percentile, buildSummary, createMetricsState) for testability
+- 11 unit tests for helpers + 3 integration tests for plugin behavior
+- All 401 unit tests pass, typecheck + lint clean
+- Learnings: Integration test mocks for createLogger need to distinguish by name parameter to capture only the Metrics logger's calls, not other loggers.
+---
+
+## Iteration 12 - TASK-012: Add pagination to all list endpoints
+- Added pagination to delays endpoint (GET /api/v1/delays): updated OpenAPI spec, Zod query schema, service (getBySchedule now takes page/pageSize, returns PaginatedDelays), route, and response schema
+- Added pagination to driver/trips endpoint (GET /api/v1/driver/trips): updated OpenAPI spec, Zod query schema, service (listTrips now takes page/pageSize, returns PaginatedDriverTrips), route, and response schema
+- Capped search results to 50 per page (pageSize max reduced from 100 to 50 in both Zod schema and OpenAPI spec)
+- Bus templates endpoint intentionally left unpaginated (static/fixed list)
+- Updated all existing unit and integration tests to use new paginated response format (data + meta)
+- Added pagination-specific integration tests for delays, driver-trips, and search (pageSize >50 rejected)
+- All 403 unit + 321 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: When adding pagination to an existing endpoint, the integration test mock must also include `.count()` mock alongside `.findMany()` since `Promise.all([findMany, count])` is used. CWD matters for running spec:lint — must run from monorepo root.
+---
