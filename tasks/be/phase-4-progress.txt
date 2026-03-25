@@ -86,3 +86,23 @@
 - 10 unit tests + 3 integration tests, all 390 unit + 311 integration pass, typecheck + lint clean
 - Learnings: Pino requires `level` to be a valid string (not undefined) — env schema must provide default. `vi.hoisted()` needed when defining spies used inside `vi.mock()` factory functions.
 ---
+
+## Iteration 10 - TASK-010: Add health check enhancements
+- Enhanced `/health` to include: database connectivity check (via `$queryRawUnsafe('SELECT 1')`), memory usage (rss, heapUsed, heapTotal), environment indicator, status degraded/ok based on DB
+- Added `/health/ready` readiness probe — returns 503 if DB unreachable, 200 if ready
+- Added `/health/live` liveness probe — always returns 200
+- 8 integration tests covering: ok+degraded states, ready/not_ready, live always 200, docs endpoints
+- All 390 unit + 315 integration tests pass, typecheck + lint clean
+- Learnings: Health routes need Prisma mock (`$queryRawUnsafe`) in integration tests since they now check DB connectivity. Previous health tests had no mocks — now need full mock setup like other integration tests.
+---
+
+## Iteration 11 - TASK-011: Add request timing and metrics hooks
+- Created `src/api/plugins/metrics.ts` Fastify plugin with onResponse hook tracking request count, response times, error counts by status code
+- Logs slow requests (>5s) with warn level including method, url, responseTime, requestId
+- In production: logs periodic summary every 60s with requestCount, avgResponseTime, p50/p95/p99 percentiles, errorCountByStatus
+- Interval uses `.unref()` to not block process exit; cleans up on app close
+- Exported helper functions (percentile, buildSummary, createMetricsState) for testability
+- 11 unit tests for helpers + 3 integration tests for plugin behavior
+- All 401 unit tests pass, typecheck + lint clean
+- Learnings: Integration test mocks for createLogger need to distinguish by name parameter to capture only the Metrics logger's calls, not other loggers.
+---

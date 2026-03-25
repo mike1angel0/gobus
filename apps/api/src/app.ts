@@ -13,6 +13,7 @@ import requestLoggerPlugin from '@/api/plugins/request-logger.js';
 import rateLimitPlugin from '@/api/plugins/rate-limit.js';
 import authPlugin from '@/api/plugins/auth.js';
 import auditPlugin from '@/api/plugins/audit.js';
+import metricsPlugin from '@/api/plugins/metrics.js';
 import { getRootLogger } from '@/infrastructure/logger/logger.js';
 import healthRoutes from '@/api/health/routes.js';
 import authRoutes from '@/api/auth/routes.js';
@@ -125,6 +126,9 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
 
   // Request logging (method, url, status, timing)
   await app.register(requestLoggerPlugin);
+
+  // Request metrics (timing percentiles, error rates, periodic summary)
+  await app.register(metricsPlugin);
 
   // Rate limiting (disabled in test to avoid interference with integration tests)
   if (!isTest) {

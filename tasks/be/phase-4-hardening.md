@@ -132,10 +132,10 @@
 **Description:** Create `src/api/plugins/metrics.ts` Fastify plugin that logs: request count by route, response time percentiles (logged on each request), error rate by status code. Use Fastify onResponse hook to capture timing. Log summary stats every 60s in production.
 
 **Acceptance Criteria:**
-- [ ] Request timing logged on every response
-- [ ] Error count tracked by status code
-- [ ] Summary stats logged periodically in production
-- [ ] Typecheck passes
+- [x] Request timing logged on every response
+- [x] Error count tracked by status code
+- [x] Summary stats logged periodically in production
+- [x] Typecheck passes
 
 ---
 
