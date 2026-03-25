@@ -230,3 +230,26 @@
 - **JSDoc**: All exported functions documented — no stories needed
 - **Complexity**: No Phase 2 files exceed 500 lines; no functions exceed 100 lines — no stories needed
 - **SPEC_GAPS.md**: Empty, no FE-reported gaps — no stories needed
+
+#### Batch 2 — Re-Audit (2026-03-25)
+
+**Updated Coverage**: 99.13% stmts | 93.54% branch | 99.4% funcs | 99.1% lines
+**Security Audit**: 0 vulnerabilities
+**Type Safety**: 0 `any` in user code
+**Architecture**: 0 domain layer violations
+**Lint**: 0 errors
+**JSDoc**: All exports documented
+**API Conformance**: 1 minor schema discrepancy found
+
+**US-QA-007** | Fix driver response schema: add `.email()` validation to match OpenAPI spec
+- [ ] AC1: Add `.email()` to `driverSchema.email` field in `src/api/drivers/schemas.ts` line 10 so it reads `z.string().email().max(255).describe('Driver email address')`, matching the OpenAPI `format: email` constraint
+- [ ] AC2: Verify existing driver integration tests still pass after the change
+
+#### No New Issues Found (Verified Clean in Batch 2)
+
+- **Coverage Gaps**: All remaining uncovered branches are in Phase 1 files (`app.ts`, `error-handler.ts`, `auth.ts`, `auth.service.ts`, `prisma/client.ts`) — not Phase 2 scope
+- **Security**: All mutation endpoints have ownership enforcement; all request schemas use `.strict()` — no new stories
+- **Type Safety**: Zero `any` in production code — no new stories
+- **Architecture**: Domain layer has zero imports from outer layers — no new stories
+- **Complexity**: No Phase 2 files exceed 500 lines; no functions exceed 100 lines — no new stories (`auth.service.ts` at 508 lines is Phase 1)
+- **SPEC_GAPS.md**: Empty, no FE-reported gaps — no new stories
