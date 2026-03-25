@@ -37,10 +37,10 @@ export class ProviderService {
   async getByUserId(userId: string): Promise<ProviderEntity> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { providerId: true },
+      select: { provider: true },
     });
 
-    if (!user?.providerId) {
+    if (!user?.provider) {
       throw new AppError(
         404,
         ErrorCodes.RESOURCE_NOT_FOUND,
@@ -48,7 +48,7 @@ export class ProviderService {
       );
     }
 
-    return this.getById(user.providerId);
+    return this.toEntity(user.provider);
   }
 
   /**

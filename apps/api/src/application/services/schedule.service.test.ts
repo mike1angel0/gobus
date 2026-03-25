@@ -185,6 +185,19 @@ describe('ScheduleService', () => {
         orderBy: { tripDate: 'desc' },
         skip: 0,
         take: 20,
+        select: {
+          id: true,
+          routeId: true,
+          busId: true,
+          driverId: true,
+          departureTime: true,
+          arrivalTime: true,
+          daysOfWeek: true,
+          basePrice: true,
+          status: true,
+          tripDate: true,
+          createdAt: true,
+        },
       });
     });
 
@@ -457,7 +470,7 @@ describe('ScheduleService', () => {
           stopTimes: { orderBy: { orderIndex: 'asc' } },
           route: true,
           bus: true,
-          driver: true,
+          driver: { select: { id: true, name: true } },
         },
       });
     });
@@ -597,7 +610,7 @@ describe('ScheduleService', () => {
           stopTimes: { orderBy: { orderIndex: 'asc' } },
           route: true,
           bus: true,
-          driver: true,
+          driver: { select: { id: true, name: true } },
         },
       });
     });

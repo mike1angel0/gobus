@@ -146,6 +146,7 @@ model AuditLog {
   user       User?    @relation(fields: [userId], references: [id])
 
   @@index([userId, createdAt])
+  @@index([action, createdAt])
 }
 
 // ─── Route ─────────────────────────────────────────────────────────────────
@@ -241,6 +242,9 @@ model Schedule {
   @@index([routeId])
   @@index([busId])
   @@index([driverId])
+  @@index([routeId, status, tripDate])
+  @@index([busId, status, tripDate])
+  @@index([driverId, status])
 }
 
 // ─── StopTime ─────────────────────────────────────────────────────────────────
@@ -279,6 +283,7 @@ model Booking {
 
   @@index([userId])
   @@index([scheduleId])
+  @@index([userId, status, createdAt])
 }
 
 // ─── BookingSeat ──────────────────────────────────────────────────────────────
@@ -295,6 +300,7 @@ model BookingSeat {
 
   @@unique([scheduleId, seatLabel, tripDate])
   @@index([bookingId])
+  @@index([scheduleId, tripDate])
 }
 
 // ─── Delay ────────────────────────────────────────────────────────────────────
@@ -312,6 +318,7 @@ model Delay {
   schedule      Schedule    @relation(fields: [scheduleId], references: [id])
 
   @@index([scheduleId])
+  @@index([scheduleId, tripDate, active])
 }
 
 // ─── BusTracking ──────────────────────────────────────────────────────────────

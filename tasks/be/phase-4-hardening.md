@@ -155,12 +155,12 @@
 **Description:** Review all Prisma queries for: N+1 issues (use `include` or `select` appropriately), unnecessary fields loaded (use `select` to limit), missing indexes. Add composite indexes where needed (e.g., BookingSeat schedule+trip+seat, Schedule route+status). Add `@index` pragmas to schema.prisma where query patterns warrant.
 
 **Acceptance Criteria:**
-- [ ] All list queries use `select` to limit fields
-- [ ] Related data loaded with `include` (not separate queries)
-- [ ] Composite indexes added for common query patterns
-- [ ] Migration created for new indexes
-- [ ] No N+1 queries in search or list endpoints
-- [ ] Typecheck passes
+- [x] All list queries use `select` to limit fields
+- [x] Related data loaded with `include` (not separate queries)
+- [x] Composite indexes added for common query patterns
+- [x] Migration created for new indexes
+- [x] No N+1 queries in search or list endpoints
+- [x] Typecheck passes
 
 ### TASK-014: Add response caching headers
 **Description:** Add appropriate Cache-Control headers: search results (public, max-age=30), trip details (public, max-age=10), bus templates (public, max-age=3600), tracking data (no-cache), user data (private, no-cache). Create a Fastify preHandler helper for setting cache headers.

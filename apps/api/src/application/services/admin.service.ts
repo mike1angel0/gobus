@@ -122,6 +122,16 @@ export class AdminService {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
+        select: {
+          id: true,
+          licensePlate: true,
+          model: true,
+          capacity: true,
+          rows: true,
+          columns: true,
+          providerId: true,
+          createdAt: true,
+        },
       }),
       this.prisma.bus.count({ where }),
     ]);
@@ -190,7 +200,10 @@ export class AdminService {
     userId: string,
     action: 'suspend' | 'unsuspend' | 'unlock',
   ): Promise<AdminUserEntity> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
 
     if (!user) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'User not found');
@@ -290,7 +303,10 @@ export class AdminService {
    * Return the number of revoked tokens. Throw RESOURCE_NOT_FOUND if user does not exist.
    */
   async revokeAllSessions(userId: string): Promise<number> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
 
     if (!user) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'User not found');
@@ -312,7 +328,10 @@ export class AdminService {
    * Throw RESOURCE_NOT_FOUND if the seat does not exist.
    */
   async toggleSeat(seatId: string, isEnabled: boolean): Promise<SeatEntity> {
-    const seat = await this.prisma.seat.findUnique({ where: { id: seatId } });
+    const seat = await this.prisma.seat.findUnique({
+      where: { id: seatId },
+      select: { id: true },
+    });
 
     if (!seat) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Seat not found');

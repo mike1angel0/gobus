@@ -53,6 +53,7 @@ export class RouteService {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
+        select: { id: true, name: true, providerId: true, createdAt: true },
       }),
       this.prisma.route.count({ where: { providerId } }),
     ]);

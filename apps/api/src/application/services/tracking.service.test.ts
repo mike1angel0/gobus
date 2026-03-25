@@ -216,6 +216,7 @@ describe('TrackingService', () => {
           driverId: DRIVER_ID,
           status: 'ACTIVE',
         },
+        select: { id: true },
       });
     });
   });

@@ -75,21 +75,18 @@ export class TrackingService {
   async updatePosition(driverId: string, input: UpdatePositionInput): Promise<BusTrackingData> {
     const { busId, lat, lng, speed, heading, currentStopIndex, tripDate } = input;
 
-    // Validate bus exists
-    const bus = await this.prisma.bus.findUnique({ where: { id: busId } });
+    // Validate bus exists and driver is assigned in parallel
+    const [bus, assignedSchedule] = await Promise.all([
+      this.prisma.bus.findUnique({ where: { id: busId }, select: { id: true } }),
+      this.prisma.schedule.findFirst({
+        where: { busId, driverId, status: 'ACTIVE' },
+        select: { id: true },
+      }),
+    ]);
+
     if (!bus) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Bus not found');
     }
-
-    // Validate driver is assigned to an active schedule for this bus
-    const assignedSchedule = await this.prisma.schedule.findFirst({
-      where: {
-        busId,
-        driverId,
-        status: 'ACTIVE',
-      },
-    });
-
     if (!assignedSchedule) {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Not assigned to this bus');
     }

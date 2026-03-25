@@ -111,6 +111,16 @@ describe('BusService', () => {
         orderBy: { createdAt: 'desc' },
         skip: 0,
         take: 20,
+        select: {
+          id: true,
+          licensePlate: true,
+          model: true,
+          capacity: true,
+          rows: true,
+          columns: true,
+          providerId: true,
+          createdAt: true,
+        },
       });
     });
 

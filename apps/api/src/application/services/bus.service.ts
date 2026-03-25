@@ -56,6 +56,16 @@ export class BusService {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
+        select: {
+          id: true,
+          licensePlate: true,
+          model: true,
+          capacity: true,
+          rows: true,
+          columns: true,
+          providerId: true,
+          createdAt: true,
+        },
       }),
       this.prisma.bus.count({ where: { providerId } }),
     ]);

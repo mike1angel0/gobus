@@ -4,7 +4,6 @@ import type {
   StopTime,
   Route,
   Bus,
-  User,
 } from '@/generated/prisma/client.js';
 import type {
   ScheduleEntity,
@@ -60,7 +59,7 @@ type ScheduleWithRelations = Schedule & {
   stopTimes: StopTime[];
   route: Route;
   bus: Bus;
-  driver: User | null;
+  driver: { id: string; name: string } | null;
 };
 
 /**
@@ -91,6 +90,19 @@ export class ScheduleService {
         orderBy: { tripDate: 'desc' },
         skip,
         take,
+        select: {
+          id: true,
+          routeId: true,
+          busId: true,
+          driverId: true,
+          departureTime: true,
+          arrivalTime: true,
+          daysOfWeek: true,
+          basePrice: true,
+          status: true,
+          tripDate: true,
+          createdAt: true,
+        },
       }),
       this.prisma.schedule.count({ where }),
     ]);
@@ -113,7 +125,7 @@ export class ScheduleService {
         stopTimes: { orderBy: { orderIndex: 'asc' } },
         route: true,
         bus: true,
-        driver: true,
+        driver: { select: { id: true, name: true } },
       },
     });
 
@@ -131,12 +143,14 @@ export class ScheduleService {
    * Return the created schedule with full details.
    */
   async create(providerId: string, data: CreateScheduleData): Promise<ScheduleWithDetails> {
-    await this.validateRouteOwnership(data.routeId, providerId);
-    await this.validateBusOwnership(data.busId, providerId);
-
+    const validations: Promise<void>[] = [
+      this.validateRouteOwnership(data.routeId, providerId),
+      this.validateBusOwnership(data.busId, providerId),
+    ];
     if (data.driverId) {
-      await this.validateDriverOwnership(data.driverId, providerId);
+      validations.push(this.validateDriverOwnership(data.driverId, providerId));
     }
+    await Promise.all(validations);
 
     const schedule = await this.prisma.$transaction(async (tx) => {
       return tx.schedule.create({
@@ -163,7 +177,7 @@ export class ScheduleService {
           stopTimes: { orderBy: { orderIndex: 'asc' } },
           route: true,
           bus: true,
-          driver: true,
+          driver: { select: { id: true, name: true } },
         },
       });
     });
@@ -210,7 +224,7 @@ export class ScheduleService {
         stopTimes: { orderBy: { orderIndex: 'asc' } },
         route: true,
         bus: true,
-        driver: true,
+        driver: { select: { id: true, name: true } },
       },
     });
 
@@ -374,8 +388,8 @@ export class ScheduleService {
     };
   }
 
-  /** Convert a Prisma User record to a ScheduleDriverSummary. */
-  private toDriverSummary(driver: User): ScheduleDriverSummary {
+  /** Convert a driver record to a ScheduleDriverSummary. */
+  private toDriverSummary(driver: { id: string; name: string }): ScheduleDriverSummary {
     return {
       id: driver.id,
       name: driver.name,

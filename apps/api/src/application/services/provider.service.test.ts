@@ -90,9 +90,8 @@ describe('ProviderService', () => {
     it('should return the provider for a user with a providerId', async () => {
       const provider = makeProvider();
       (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
-        providerId: 'provider-1',
+        provider,
       });
-      (prisma.provider.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(provider);
 
       const result = await service.getByUserId('user-1');
 
@@ -100,7 +99,7 @@ describe('ProviderService', () => {
       expect(result.name).toBe('Test Transport Co');
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'user-1' },
-        select: { providerId: true },
+        select: { provider: true },
       });
     });
 
@@ -116,7 +115,7 @@ describe('ProviderService', () => {
 
     it('should throw RESOURCE_NOT_FOUND when user has no providerId', async () => {
       (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
-        providerId: null,
+        provider: null,
       });
 
       await expect(service.getByUserId('user-1')).rejects.toThrow(AppError);
