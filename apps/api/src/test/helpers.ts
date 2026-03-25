@@ -5,8 +5,9 @@ import { buildApp } from '@/app.js';
 /** Payload embedded in JWT tokens during tests. */
 export interface TestTokenPayload {
   sub: string;
+  email: string;
   role: string;
-  providerId?: string;
+  providerId?: string | null;
 }
 
 /** Overrides for creating test user data. */
@@ -55,21 +56,19 @@ export async function createTestApp(): Promise<FastifyInstance> {
  *
  * @param userId - The user ID to embed in the token `sub` claim.
  * @param role - The user role to embed in the token.
- * @param providerId - Optional provider ID for PROVIDER/DRIVER roles.
+ * @param options - Optional email and provider ID for the token.
  */
 export function createAuthHeader(
   userId: string,
   role: string,
-  providerId?: string,
+  options?: { email?: string; providerId?: string | null },
 ): string {
   const payload: TestTokenPayload = {
     sub: userId,
+    email: options?.email ?? `${userId}@test.com`,
     role,
+    providerId: options?.providerId ?? null,
   };
-
-  if (providerId) {
-    payload.providerId = providerId;
-  }
 
   const secret = process.env.JWT_SECRET ?? 'test-jwt-secret-do-not-use-in-prod';
   const token = jwt.sign(payload, secret, { expiresIn: '15m' });

@@ -85,19 +85,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-020: Create auth service with security features** - Created AuthService class with register, login, logout, refreshToken, forgotPassword, resetPassword, changePassword, generateTokens methods. Password strength validation (8+ chars, upper+lower+digit), account lockout (5 failures → 15min lock), SHA-256 hashed refresh/reset tokens, token rotation with reuse detection, timing-safe forgotPassword. Also created createLogger utility and added ACCOUNT_LOCKED/ACCOUNT_SUSPENDED/AUTH_INVALID_RESET_TOKEN error codes. 35 unit tests with mocked Prisma.
 
-### TASK-021: Create auth plugin and role guards with account status checks
-**Description:** Create `src/api/plugins/auth.ts` (decorates request.user, adds app.authenticate preHandler). After JWT validation, check user status from DB: SUSPENDED → 403, LOCKED → 423. Create `src/api/plugins/role-guard.ts` with `requireRole(...roles)`, `requireProvider`, `requireDriver`, `requireAdmin` factories. Proper Fastify type augmentation (zero `as any`).
-
-**Acceptance Criteria:**
-- [ ] `request.user` properly typed via Fastify type augmentation
-- [ ] Zero `as any` casts
-- [ ] 401 for missing/invalid/expired tokens (RFC 9457 format)
-- [ ] 403 for insufficient role OR suspended account (RFC 9457 format)
-- [ ] 423 for locked account (RFC 9457 format)
-- [ ] User status checked on every authenticated request
-- [ ] Unit tests for auth plugin and each guard
-- [ ] Unit tests for suspended/locked account scenarios
-- [ ] Typecheck passes
+**TASK-021: Create auth plugin and role guards with account status checks** - Created auth.ts plugin (JWT validation, DB user status check: SUSPENDED→403, LOCKED→423, decorates request.user with Fastify type augmentation) and role-guard.ts (requireRole, requireProvider, requireDriver, requireAdmin factories). Zero `as any` casts. 28 unit tests covering all error scenarios.
 
 ### TASK-022: Create auth routes
 **Description:** Create `src/api/auth/routes.ts` and `src/api/auth/schemas.ts`. Implement all 9 auth endpoints from the OpenAPI spec. Zod schemas must mirror the spec schemas exactly. Register at `/api/v1/auth` prefix.
