@@ -59,3 +59,19 @@
 - 24 integration tests covering: GET with results, GET empty, GET 400 missing params, GET 400 invalid date, GET 401, POST 201 driver, POST 201 provider with note, POST 403 passenger, POST 403 unassigned driver, POST 404 schedule not found, POST 400 missing/invalid/unknown fields, POST 401, PUT 200 update fields, PUT 200 deactivate, PUT 200 null note, PUT 403 non-provider, PUT 404 not found, PUT 404 other provider, PUT 400 unknown fields, PUT 401
 - Learnings: DelayListResponse is not paginated (just { data: Delay[] }), unlike other list endpoints; for PUT update, provider ownership is enforced in service (returns 404 not 403); createAuthHeader supports providerId option for PROVIDER/DRIVER roles
 ---
+## Iteration 9 - TASK-009: Create driver trip service
+- Implemented DriverTripService with listTrips and getTripDetail methods
+- Created DriverTrip and DriverTripDetail domain entities in domain/driver-trips/driver-trip.entity.ts
+- listTrips filters by driverId + (tripDate OR daysOfWeek has dayOfWeek) using Prisma OR clause
+- getTripDetail validates driver assignment (returns 404 not 403 to prevent enumeration), counts confirmed bookings, includes stop times and bus details
+- Exported pure helper functions getDayOfWeek and resolveTripDate for testability
+- 19 unit tests covering: getDayOfWeek for different days, resolveTripDate with/without date, listTrips with results/empty/multiple/default date, getTripDetail full detail/404/not assigned/null driver/booking count/bus details/empty stops/default date
+- Learnings: PRD mentioned "passenger list, tracking status, active delay" in detail response but OpenAPI spec only has passengerCount/totalSeats — followed spec as source of truth per CLAUDE.md; documented in DOUBTS_AND_DECISIONS.md
+---
+## Iteration 10 - TASK-010: Create driver trip API routes
+- Implemented GET /api/v1/driver/trips (list) and GET /api/v1/driver/trips/:scheduleId (detail) with DRIVER role enforcement
+- Created Zod schemas (listDriverTripsQuerySchema, scheduleIdParamSchema, driverTripSchema, driverTripDetailSchema) with .describe() matching OpenAPI spec
+- Serializers convert Date fields (departureTime, arrivalTime, tripDate, stop times) to ISO strings
+- 15 integration tests covering: list with results, empty list, default date, multiple trips, 403 passenger, 403 provider, 400 invalid date, 401, detail with stops/passengers, default date detail, 404 not found, 404 not assigned, 403 non-driver, 401
+- Learnings: Driver trip list response is non-paginated (just { data: DriverTrip[] }), similar to delays; reuse listDriverTripsQuerySchema for both list and detail date param
+---

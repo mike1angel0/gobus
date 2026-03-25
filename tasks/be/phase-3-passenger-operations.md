@@ -82,11 +82,11 @@
 **Description:** Implement from spec: `GET /api/v1/driver/trips` (query: date, DRIVER role), `GET /api/v1/driver/trips/{scheduleId}` (DRIVER role, validates assignment).
 
 **Acceptance Criteria:**
-- [ ] Both endpoints match OpenAPI spec
-- [ ] Requires DRIVER role
-- [ ] Assignment validation on detail endpoint
-- [ ] Integration tests
-- [ ] Typecheck passes
+- [x] Both endpoints match OpenAPI spec
+- [x] Requires DRIVER role
+- [x] Assignment validation on detail endpoint
+- [x] Integration tests
+- [x] Typecheck passes
 
 ---
 
