@@ -1,0 +1,8 @@
+## Iteration 1 - TASK-001: Create search service
+- Implemented SearchService with searchTrips and getTripDetails methods
+- Created domain entities (SearchResult, SeatAvailability, TripDetail, TripStopTime)
+- Created Zod schemas matching OpenAPI spec (searchQuerySchema, searchResultSchema, seatAvailabilitySchema, tripDetailSchema)
+- Exported pure functions computeSegmentPrice and computeAvailability for testability
+- 16 unit tests covering: segment pricing, availability computation, stop ordering, case-insensitive search, pagination, seat booking status
+- Learnings: Prisma ScheduleStatus enum type must be cast with `as ScheduleStatus` in test mocks; search service filters in-memory after Prisma query since we need to match both origin and destination stops in correct order
+---

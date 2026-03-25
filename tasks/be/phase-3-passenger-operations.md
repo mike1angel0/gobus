@@ -12,16 +12,16 @@
 **Description:** Create `src/application/services/search.service.ts`. Methods: `searchTrips(query: { origin, destination, date? })` — finds schedules matching origin/destination stops, computes segment pricing (destStop.priceFromStart - originStop.priceFromStart), returns available seat count per schedule, includes active delays. `getTripDetails(scheduleId, tripDate)` — returns full schedule with seat availability map (which seats are booked for that tripDate).
 
 **Acceptance Criteria:**
-- [ ] `searchTrips` matches routes containing both origin and destination stops (in correct order)
-- [ ] Segment pricing calculated correctly
-- [ ] Available seats = total enabled seats - booked seats for tripDate
-- [ ] Active delays included in results
-- [ ] `getTripDetails` returns per-seat availability status
-- [ ] Date filtering works (specific date or upcoming)
-- [ ] Unit tests for pricing calculation logic
-- [ ] Unit tests for seat availability logic
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] `searchTrips` matches routes containing both origin and destination stops (in correct order)
+- [x] Segment pricing calculated correctly
+- [x] Available seats = total enabled seats - booked seats for tripDate
+- [x] Active delays included in results
+- [x] `getTripDetails` returns per-seat availability status
+- [x] Date filtering works (specific date or upcoming)
+- [x] Unit tests for pricing calculation logic
+- [x] Unit tests for seat availability logic
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-002: Create search API routes
 **Description:** Implement from spec: `GET /api/v1/search` (public, query params: origin, destination, date), `GET /api/v1/trips/{scheduleId}` (public, query param: date). Both public (no auth required).
