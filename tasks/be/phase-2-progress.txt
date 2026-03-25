@@ -5,3 +5,11 @@
 - Patterns: follows same class-based service pattern as AuthService, uses createLogger, throws AppError with ErrorCodes
 - getByUserId fetches user first to get providerId, then delegates to getById
 ---
+## Iteration 2 - TASK-002: Create provider routes
+- Created GET /api/v1/providers/me with PROVIDER role guard
+- Created provider Zod schemas matching OpenAPI spec (providerSchema, providerDataResponseSchema)
+- Registered provider routes plugin in app.ts with auth dependency
+- 5 integration tests: happy path, 401 unauthenticated, 403 for PASSENGER, 403 for DRIVER, 404 for no associated provider
+- Patterns: same fastify-plugin pattern as auth routes, serializeProvider for Date->ISO, preHandler chain [app.authenticate, requireProvider]
+- Integration tests use vitest.integration.config.ts (separate from unit tests)
+---

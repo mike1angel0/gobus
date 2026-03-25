@@ -9,6 +9,7 @@ import errorHandler from '@/api/plugins/error-handler.js';
 import authPlugin from '@/api/plugins/auth.js';
 import healthRoutes from '@/api/health/routes.js';
 import authRoutes from '@/api/auth/routes.js';
+import providerRoutes from '@/api/providers/routes.js';
 
 /**
  * Load the bundled OpenAPI spec from spec/dist/openapi.json.
@@ -56,6 +57,7 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   // Routes
   await app.register(healthRoutes);
   await app.register(authRoutes);
+  await app.register(providerRoutes);
 
   return app;
 }

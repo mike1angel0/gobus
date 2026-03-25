@@ -22,10 +22,10 @@
 **Description:** Create `src/api/providers/routes.ts` and `schemas.ts`. Implement `GET /api/v1/providers/me` matching OpenAPI spec. Requires PROVIDER role.
 
 **Acceptance Criteria:**
-- [ ] Response matches spec schema exactly
-- [ ] Requires PROVIDER role (403 otherwise)
-- [ ] Integration test with Supertest
-- [ ] Typecheck passes
+- [x] Response matches spec schema exactly
+- [x] Requires PROVIDER role (403 otherwise)
+- [x] Integration test with Supertest
+- [x] Typecheck passes
 
 ---
 
