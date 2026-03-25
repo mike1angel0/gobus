@@ -54,3 +54,11 @@
 - Installed Fastify 5, TypeScript 5, tsx, tsc-alias. Created tsconfig with strict + path aliases, buildApp() factory in app.ts, graceful shutdown in server.ts
 - Learnings: Fastify 5 works with Node16 module resolution. Dev scripts (dev, build, start, typecheck) were already in package.json from TASK-001, just needed dependencies and source files.
 ---
+
+## Iteration 9 - TASK-009: Install and configure core dependencies
+- Installed all production and dev dependencies in apps/api/package.json
+- Created eslint.config.mjs (ESLint 10 flat config) with typescript-eslint, complexity warnings (max-lines:500, max-lines-per-function:250, complexity:15, max-depth:4), JSDoc enforcement on exports, relaxed rules for test files
+- Created .prettierrc (semi, singleQuote, printWidth:100)
+- Added lint, lint:fix, format, format:check scripts
+- Learnings: ESLint 10 uses flat config (eslint.config.mjs). Use `tseslint.config()` wrapper from typescript-eslint. eslint-plugin-jsdoc v62 works as a standard plugin object in flat config. No `"type": "module"` in root package.json so use .mjs extension for ESM config.
+---

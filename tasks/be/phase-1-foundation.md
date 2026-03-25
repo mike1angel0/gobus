@@ -53,15 +53,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-008: Set up Fastify 5 with TypeScript strict** - Installed Fastify 5, TypeScript 5 strict, tsx, tsc-alias. Created buildApp() factory, graceful shutdown server, path aliases (@/ → src/). All scripts work: dev, build, start, typecheck.
 
-### TASK-009: Install and configure core dependencies
-**Description:** Install: `@fastify/cors`, `@fastify/helmet`, `@fastify/rate-limit`, `@fastify/swagger`, `@fastify/swagger-ui`, `zod`, `bcryptjs`, `jsonwebtoken`, `date-fns`. Dev deps: `vitest`, `supertest`, `@types/*`, `eslint`, `prettier`, `eslint-plugin-jsdoc`, `@vitest/coverage-v8`. Configure ESLint with TypeScript + complexity rules (max-lines: 500, max-lines-per-function: 250, complexity: 15, max-depth: 4, jsdoc/require-jsdoc on exports). Configure Prettier (semi, singleQuote, printWidth: 100).
-
-**Acceptance Criteria:**
-- [ ] All dependencies installed in `apps/api/package.json`
-- [ ] `.eslintrc.json` with complexity rules as warnings, jsdoc enforcement
-- [ ] `.prettierrc` configured
-- [ ] `npm run lint` works
-- [ ] `npm run format:check` works
+**TASK-009: Install and configure core dependencies** - Installed all production deps (@fastify/cors, helmet, rate-limit, swagger, swagger-ui, zod, bcryptjs, jsonwebtoken, date-fns) and dev deps (vitest, supertest, @types/*, eslint 10, prettier, eslint-plugin-jsdoc, @vitest/coverage-v8, typescript-eslint). Configured ESLint flat config (eslint.config.mjs) with complexity warnings and JSDoc enforcement. Configured Prettier (.prettierrc). All lint/format scripts work.
 
 ### TASK-010: Set up Vitest with test infrastructure
 **Description:** Configure Vitest in `apps/api/`. Create `vitest.config.ts` with path aliases and v8 coverage. Create `src/test/setup.ts` for global test setup. Create `src/test/helpers.ts` with `createTestApp()` (builds Fastify app with test config), `createAuthHeader(userId, role, providerId?)` (creates test JWT), `createTestUser(overrides?)` factory. Add npm scripts: `test`, `test:watch`, `test:coverage`, `test:integration`.
