@@ -43,22 +43,73 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-005: Design OpenAPI spec — Tracking, Delays, Driver, Admin** - Added BusTracking, TrackingUpdate, Delay, DelayReason, CreateDelayRequest, UpdateDelayRequest, DriverTrip, DriverTripDetail, AdminToggleSeatRequest schemas and 9 paths (tracking GET/POST, driver trips GET list/detail, delays GET/POST/PUT, admin buses GET, admin seats PATCH). Total: 40 endpoints. Spec validates with zero errors.
 
-### TASK-006: Add spec validation tooling and npm scripts
-**Description:** Install `@redocly/cli` as root devDep. Add root npm scripts: `spec:lint` (validates spec), `spec:preview` (serves Redoc preview), `spec:bundle` (bundles split files into single openapi.json for consumers). Create `spec/.redocly.yaml` config with rules (no-unused-components, no-empty-servers, etc.). Verify the complete spec passes linting.
+### TASK-006: Split OpenAPI spec into multi-file structure
+**Description:** The single `spec/openapi.yaml` is ~4000 lines. Split it into a multi-file structure using `$ref` references:
+```
+spec/
+├── openapi.yaml              # Root file — info, servers, security, path refs only
+├── paths/
+│   ├── auth.yaml             # /api/v1/auth/* paths
+│   ├── providers.yaml        # /api/v1/providers/* paths
+│   ├── routes.yaml           # /api/v1/routes/* paths
+│   ├── buses.yaml            # /api/v1/buses/* paths
+│   ├── drivers.yaml          # /api/v1/drivers/* paths
+│   ├── schedules.yaml        # /api/v1/schedules/* paths
+│   ├── search.yaml           # /api/v1/search, /api/v1/trips/* paths
+│   ├── bookings.yaml         # /api/v1/bookings/* paths
+│   ├── tracking.yaml         # /api/v1/tracking/* paths
+│   ├── delays.yaml           # /api/v1/delays/* paths
+│   ├── driver-trips.yaml     # /api/v1/driver/trips/* paths
+│   └── admin.yaml            # /api/v1/admin/* paths
+├── components/
+│   ├── schemas/
+│   │   ├── auth.yaml         # User, LoginRequest, RegisterRequest, TokenPair, etc.
+│   │   ├── provider.yaml     # Provider schema
+│   │   ├── transport.yaml    # Route, Stop, Bus, Seat, SeatType, etc.
+│   │   ├── schedule.yaml     # Schedule, StopTime, ScheduleStatus, etc.
+│   │   ├── booking.yaml      # Booking, BookingStatus, CreateBookingRequest, etc.
+│   │   ├── tracking.yaml     # BusTracking, TrackingUpdate
+│   │   ├── delay.yaml        # Delay, DelayReason, CreateDelayRequest
+│   │   ├── search.yaml       # SearchResult, TripDetail, SeatAvailability
+│   │   ├── admin.yaml        # Admin-specific schemas
+│   │   └── common.yaml       # ErrorResponse, PaginationMeta, ApiResponse wrappers
+│   ├── parameters/
+│   │   └── common.yaml       # Reusable query params (page, pageSize, id path param)
+│   ├── responses/
+│   │   └── errors.yaml       # Reusable error responses (400, 401, 403, 404, 409, 423, 429)
+│   └── securitySchemes.yaml  # Bearer JWT definition
+└── .redocly.yaml             # Linter config
+```
+The root `openapi.yaml` should contain only info, servers, security, and `$ref` pointers to path files. Each path file contains the operations for that domain. Each schema file contains the schemas for that domain. Reusable error responses and parameters are shared. After splitting, the spec must still validate with `npx @redocly/cli lint spec/openapi.yaml`.
+
+**Acceptance Criteria:**
+- [ ] Root `openapi.yaml` is under 100 lines (only refs)
+- [ ] 12 path files in `spec/paths/` (one per domain)
+- [ ] 10 schema files in `spec/components/schemas/` (one per domain + common)
+- [ ] Reusable error responses in `spec/components/responses/errors.yaml`
+- [ ] Reusable parameters in `spec/components/parameters/common.yaml`
+- [ ] Security scheme in `spec/components/securitySchemes.yaml`
+- [ ] All `$ref` pointers resolve correctly
+- [ ] `npx @redocly/cli lint spec/openapi.yaml` passes with zero errors
+- [ ] No content lost — bundled output identical to original single file
+
+### TASK-007: Add spec validation tooling and npm scripts
+**Description:** Install `@redocly/cli` as root devDep. Add root npm scripts: `spec:lint` (validates split spec), `spec:preview` (serves Redoc preview), `spec:bundle` (bundles split files into single `spec/dist/openapi.json` for consumers — FE type generation, Swagger UI). Create `spec/.redocly.yaml` config with rules (no-unused-components, no-empty-servers, etc.). Add `spec/dist/` to `.gitignore`. Verify the complete spec passes linting.
 
 **Acceptance Criteria:**
 - [ ] `@redocly/cli` installed as root devDep
-- [ ] `npm run spec:lint` validates the OpenAPI spec
-- [ ] `npm run spec:bundle` outputs `spec/dist/openapi.json`
+- [ ] `npm run spec:lint` validates the split OpenAPI spec
+- [ ] `npm run spec:bundle` outputs `spec/dist/openapi.json` (single bundled file)
 - [ ] `npm run spec:preview` serves interactive Redoc docs
 - [ ] `.redocly.yaml` config with recommended rules
+- [ ] `spec/dist/` in `.gitignore`
 - [ ] Complete spec passes lint with zero errors
 
 ---
 
 ## Backend Scaffold
 
-### TASK-007: Set up Fastify 5 with TypeScript strict
+### TASK-008: Set up Fastify 5 with TypeScript strict
 **Description:** In `apps/api/`, install Fastify 5, TypeScript 5.5+, `tsx` for dev, `tsc` + `tsc-alias` for build. Configure `tsconfig.json` with strict mode, path aliases (`@/` → `src/`). Create `src/app.ts` (Fastify app factory with plugin registration), `src/server.ts` (entry point with graceful shutdown). Add npm scripts: `dev`, `build`, `start`, `typecheck`.
 
 **Acceptance Criteria:**
@@ -70,7 +121,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 - [ ] `npm run typecheck` passes with zero errors
 - [ ] JSDoc on exported functions
 
-### TASK-008: Install and configure core dependencies
+### TASK-009: Install and configure core dependencies
 **Description:** Install: `@fastify/cors`, `@fastify/helmet`, `@fastify/rate-limit`, `@fastify/swagger`, `@fastify/swagger-ui`, `zod`, `bcryptjs`, `jsonwebtoken`, `date-fns`. Dev deps: `vitest`, `supertest`, `@types/*`, `eslint`, `prettier`, `eslint-plugin-jsdoc`, `@vitest/coverage-v8`. Configure ESLint with TypeScript + complexity rules (max-lines: 500, max-lines-per-function: 250, complexity: 15, max-depth: 4, jsdoc/require-jsdoc on exports). Configure Prettier (semi, singleQuote, printWidth: 100).
 
 **Acceptance Criteria:**
@@ -80,7 +131,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 - [ ] `npm run lint` works
 - [ ] `npm run format:check` works
 
-### TASK-009: Set up Vitest with test infrastructure
+### TASK-010: Set up Vitest with test infrastructure
 **Description:** Configure Vitest in `apps/api/`. Create `vitest.config.ts` with path aliases and v8 coverage. Create `src/test/setup.ts` for global test setup. Create `src/test/helpers.ts` with `createTestApp()` (builds Fastify app with test config), `createAuthHeader(userId, role, providerId?)` (creates test JWT), `createTestUser(overrides?)` factory. Add npm scripts: `test`, `test:watch`, `test:coverage`, `test:integration`.
 
 **Acceptance Criteria:**
@@ -91,7 +142,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 - [ ] `npm run test:coverage` produces coverage report (target: 85%)
 - [ ] JSDoc on all exported helpers
 
-### TASK-010: Create project architecture directories and shared utilities
+### TASK-011: Create project architecture directories and shared utilities
 **Description:** Create the layered architecture under `apps/api/src/`:
 ```
 api/plugins/       api/health/        api/auth/
@@ -112,7 +163,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] Typecheck passes
 - [ ] JSDoc on all exports
 
-### TASK-011: Create error handling infrastructure
+### TASK-012: Create error handling infrastructure
 **Description:** Create `src/domain/errors/error-codes.ts` with all error codes as const enum (AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_EXPIRED, AUTH_EMAIL_TAKEN, RESOURCE_NOT_FOUND, VALIDATION_ERROR, FORBIDDEN, CONFLICT, SEAT_CONFLICT, INTERNAL_ERROR, RATE_LIMITED). Create `src/domain/errors/app-error.ts` with `AppError` class. Create `src/api/plugins/error-handler.ts` plugin returning RFC 9457 Problem Details matching the `ErrorResponse` schema from the OpenAPI spec.
 
 **Acceptance Criteria:**
@@ -124,7 +175,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] Unit tests for error handler and AppError
 - [ ] Typecheck passes
 
-### TASK-012: Create health check and Swagger setup
+### TASK-013: Create health check and Swagger setup
 **Description:** Register `@fastify/swagger` + `@fastify/swagger-ui` in `app.ts`. Import the bundled OpenAPI spec and serve it. Create `src/api/health/routes.ts` with `GET /health` (not in spec — internal). Swagger UI at `/docs`, JSON at `/docs/json`. Add `npm run api:validate` script that compares implemented routes against the spec.
 
 **Acceptance Criteria:**
@@ -137,7 +188,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 
 ## Prisma Schema (PostgreSQL)
 
-### TASK-013: Set up Prisma with PostgreSQL
+### TASK-014: Set up Prisma with PostgreSQL
 **Description:** Install `prisma` and `@prisma/client`. Create `prisma/schema.prisma` with PostgreSQL provider. Create `src/infrastructure/prisma/client.ts` with singleton (query logging in dev). Add scripts: `db:generate`, `db:push`, `db:migrate`, `db:seed`, `db:studio`.
 
 **Acceptance Criteria:**
@@ -146,7 +197,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] All db scripts work
 - [ ] Typecheck passes
 
-### TASK-014: Create User, Provider, and security-related models
+### TASK-015: Create User, Provider, and security-related models
 **Description:** User: id (cuid), email (unique), name, passwordHash, role (enum PASSENGER/PROVIDER/DRIVER/ADMIN), phone, avatarUrl, preferences (Json), providerId (FK nullable), status (enum ACTIVE/SUSPENDED/LOCKED default ACTIVE), failedLoginAttempts (Int default 0), lockedUntil (DateTime nullable), createdAt, updatedAt. Provider: id (cuid), name, logo, contactEmail, contactPhone, status (enum APPROVED/PENDING), createdAt, updatedAt. RefreshToken: id (cuid), token (unique, hashed), userId (FK), expiresAt (DateTime), revokedAt (DateTime nullable), createdAt. PasswordResetToken: id (cuid), token (unique, hashed), userId (FK), expiresAt (DateTime), usedAt (DateTime nullable), createdAt. AuditLog: id (cuid), userId (FK nullable), action (String), resource (String), resourceId (String nullable), ipAddress (String nullable), userAgent (String nullable), metadata (Json nullable), createdAt. Indexes on User.email (unique), User.providerId, User.role, RefreshToken.token, PasswordResetToken.token, AuditLog.userId+createdAt.
 
 **Acceptance Criteria:**
@@ -161,7 +212,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] Cascade delete RefreshTokens and PasswordResetTokens when User deleted
 - [ ] `npm run db:generate` succeeds
 
-### TASK-015: Create transport entity models
+### TASK-016: Create transport entity models
 **Description:** Route (id, name, providerId FK). Stop (id, name, lat, lng, orderIndex, routeId FK cascade). Bus (id, licensePlate unique, model, capacity, rows, columns, providerId FK). Seat (id, row, column, label, type enum, price Float default 0, isEnabled Boolean default true, busId FK cascade). Add all indexes.
 
 **Acceptance Criteria:**
@@ -171,7 +222,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] SeatType enum matches spec
 - [ ] `npm run db:generate` succeeds
 
-### TASK-016: Create Schedule, Booking, and operational models
+### TASK-017: Create Schedule, Booking, and operational models
 **Description:** Schedule (id, routeId, busId, driverId nullable, departureTime, arrivalTime, daysOfWeek, basePrice Float, status enum, tripDate DateTime, createdAt). StopTime (id, scheduleId FK cascade, stopName, arrivalTime, departureTime, orderIndex, priceFromStart Float). Booking (id, orderId unique cuid, userId FK, scheduleId FK, totalPrice Float, status enum, boardingStop, alightingStop, tripDate DateTime, createdAt). BookingSeat (id, bookingId FK cascade, seatLabel, unique constraint on scheduleId+seatLabel+tripDate). Delay (id, scheduleId FK, offsetMinutes Int, reason enum, note, tripDate DateTime, active Boolean, createdAt). BusTracking (id, busId FK unique, lat, lng, speed, heading, scheduleId nullable, currentStopIndex, isActive, tripDate DateTime nullable, updatedAt). Message (id, senderId FK, receiverId FK, content, read Boolean, createdAt).
 
 **Acceptance Criteria:**
@@ -183,7 +234,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] All foreign keys indexed
 - [ ] Full schema compiles: `npm run db:generate`
 
-### TASK-017: Create initial migration and seed script
+### TASK-018: Create initial migration and seed script
 **Description:** Run initial migration. Create `prisma/seed.ts` with: 3 providers, 15 cities, 8 routes with stops, 5 buses with seat grids, 15 schedules with stop times and segment pricing, demo accounts (2 passengers, 3 provider admins, 3 drivers, 1 admin) — all passwords hashed with bcryptjs.
 
 **Acceptance Criteria:**
@@ -197,7 +248,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 
 ## Auth Implementation
 
-### TASK-018: Create auth domain types
+### TASK-019: Create auth domain types
 **Description:** Create `src/domain/auth/auth.types.ts` and `src/domain/users/user.entity.ts`. Types must match the OpenAPI spec schemas exactly. Include: LoginCredentials, RegisterData, AuthTokenPayload, TokenPair, UserEntity.
 
 **Acceptance Criteria:**
@@ -205,7 +256,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] JSDoc on all exported types
 - [ ] Typecheck passes
 
-### TASK-019: Create auth service with security features
+### TASK-020: Create auth service with security features
 **Description:** Create `src/application/services/auth.service.ts`. Methods:
 - `register(data)` — validates password strength (min 8 chars, uppercase+lowercase+digit), creates user (+provider if PROVIDER role), hashes password (bcryptjs cost 12), returns tokens.
 - `login(credentials, ipAddress?)` — checks account lockout (lockedUntil), validates credentials, on failure increments failedLoginAttempts (lock account after 5 failures for 15min), on success resets counter, returns tokens+user. Suspended users get 403.
@@ -231,7 +282,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] JSDoc on all public methods
 - [ ] Typecheck passes
 
-### TASK-020: Create auth plugin and role guards with account status checks
+### TASK-021: Create auth plugin and role guards with account status checks
 **Description:** Create `src/api/plugins/auth.ts` (decorates request.user, adds app.authenticate preHandler). After JWT validation, check user status from DB: SUSPENDED → 403, LOCKED → 423. Create `src/api/plugins/role-guard.ts` with `requireRole(...roles)`, `requireProvider`, `requireDriver`, `requireAdmin` factories. Proper Fastify type augmentation (zero `as any`).
 
 **Acceptance Criteria:**
@@ -245,7 +296,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] Unit tests for suspended/locked account scenarios
 - [ ] Typecheck passes
 
-### TASK-021: Create auth routes
+### TASK-022: Create auth routes
 **Description:** Create `src/api/auth/routes.ts` and `src/api/auth/schemas.ts`. Implement all 9 auth endpoints from the OpenAPI spec. Zod schemas must mirror the spec schemas exactly. Register at `/api/v1/auth` prefix.
 
 **Acceptance Criteria:**
@@ -265,7 +316,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 
 ## Quality Gates
 
-### TASK-022: Create CLAUDE.md for backend
+### TASK-023: Create CLAUDE.md for backend
 **Description:** Create `apps/api/CLAUDE.md` documenting: tech stack, quick start, architecture (layered with rules), API-first workflow (spec → implement → validate), API conventions (response/error format), route implementation pattern, service pattern, quality gates, test conventions, env vars table.
 
 **Acceptance Criteria:**
@@ -274,7 +325,7 @@ Create `src/infrastructure/config/env.ts` with Zod-validated env vars (DATABASE_
 - [ ] Quality gate commands listed
 - [ ] Test conventions (unit vs integration, assertion style)
 
-### TASK-023: Run all Phase 1 quality gates
+### TASK-024: Run all Phase 1 quality gates
 **Description:** Run and fix: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test`, `npm run test:coverage`, `npm run build`. Ensure all pass, coverage ≥ 85%, zero `any` in production code, JSDoc on all exports.
 
 **Acceptance Criteria:**
