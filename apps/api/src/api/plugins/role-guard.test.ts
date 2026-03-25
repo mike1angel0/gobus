@@ -51,9 +51,17 @@ describe('role-guard', () => {
 
     // Routes with different role guards
     app.get('/admin-only', { preHandler: [app.authenticate, requireAdmin] }, () => ({ ok: true }));
-    app.get('/provider-only', { preHandler: [app.authenticate, requireProvider] }, () => ({ ok: true }));
-    app.get('/driver-only', { preHandler: [app.authenticate, requireDriver] }, () => ({ ok: true }));
-    app.get('/multi-role', { preHandler: [app.authenticate, requireRole('ADMIN', 'PROVIDER')] }, () => ({ ok: true }));
+    app.get('/provider-only', { preHandler: [app.authenticate, requireProvider] }, () => ({
+      ok: true,
+    }));
+    app.get('/driver-only', { preHandler: [app.authenticate, requireDriver] }, () => ({
+      ok: true,
+    }));
+    app.get(
+      '/multi-role',
+      { preHandler: [app.authenticate, requireRole('ADMIN', 'PROVIDER')] },
+      () => ({ ok: true }),
+    );
 
     await app.ready();
   });

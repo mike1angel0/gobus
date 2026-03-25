@@ -25,10 +25,7 @@ export const userPreferencesSchema = z
   .object({
     language: z.string().max(10).describe('Preferred language code (e.g., en, ro)').optional(),
     notifications: z.boolean().describe('Whether to receive push notifications').optional(),
-    emailNotifications: z
-      .boolean()
-      .describe('Whether to receive email notifications')
-      .optional(),
+    emailNotifications: z.boolean().describe('Whether to receive email notifications').optional(),
   })
   .strict()
   .describe('User notification and display preferences');
@@ -43,7 +40,9 @@ export const userSchema = z.object({
     .describe('User role determining access level'),
   phone: z.string().max(20).nullable().describe("User's phone number"),
   avatarUrl: z.string().url().max(2048).nullable().describe("URL to user's avatar image"),
-  preferences: userPreferencesSchema.nullable().describe('User notification and display preferences'),
+  preferences: userPreferencesSchema
+    .nullable()
+    .describe('User notification and display preferences'),
   providerId: z
     .string()
     .max(30)
@@ -83,11 +82,7 @@ export const registerBodySchema = z
     password: strongPasswordSchema.describe(
       'Password must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one digit.',
     ),
-    name: z
-      .string()
-      .min(1)
-      .max(100)
-      .describe("User's full name"),
+    name: z.string().min(1).max(100).describe("User's full name"),
     role: z
       .enum(['PASSENGER', 'PROVIDER'])
       .describe('Account type (only PASSENGER and PROVIDER can self-register)'),
@@ -133,11 +128,7 @@ export const logoutBodySchema = z
 /** Zod schema for POST /auth/forgot-password request body matching OpenAPI ForgotPasswordRequest. */
 export const forgotPasswordBodySchema = z
   .object({
-    email: z
-      .string()
-      .email()
-      .max(255)
-      .describe('Email address associated with the account'),
+    email: z.string().email().max(255).describe('Email address associated with the account'),
   })
   .strict()
   .describe('Request body for requesting a password reset');
@@ -156,10 +147,7 @@ export const resetPasswordBodySchema = z
 /** Zod schema for POST /auth/change-password request body matching OpenAPI ChangePasswordRequest. */
 export const changePasswordBodySchema = z
   .object({
-    currentPassword: z
-      .string()
-      .max(128)
-      .describe("The user's current password for verification"),
+    currentPassword: z.string().max(128).describe("The user's current password for verification"),
     newPassword: strongPasswordSchema.describe(
       'New password. Must be at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one digit.',
     ),
@@ -173,7 +161,9 @@ export const updateProfileBodySchema = z
     name: z.string().min(1).max(100).describe("User's full name").optional(),
     phone: z.string().max(20).describe('Phone number').optional(),
     avatarUrl: z.string().url().max(2048).describe("URL to user's avatar image").optional(),
-    preferences: userPreferencesSchema.describe('User notification and display preferences').optional(),
+    preferences: userPreferencesSchema
+      .describe('User notification and display preferences')
+      .optional(),
   })
   .strict()
   .describe('Request body for updating user profile. Only provided fields are updated.');

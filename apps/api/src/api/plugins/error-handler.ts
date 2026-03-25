@@ -116,7 +116,8 @@ async function errorHandlerPlugin(app: FastifyInstance): Promise<void> {
       const fieldErrors: FieldError[] = fastifyError.validation.map((v) => {
         const instancePath = v.instancePath ?? '';
         const params = v.params as Record<string, unknown> | undefined;
-        const missingProp = typeof params?.missingProperty === 'string' ? params.missingProperty : '';
+        const missingProp =
+          typeof params?.missingProperty === 'string' ? params.missingProperty : '';
         return {
           field: instancePath.replace(/^\//, '').replace(/\//g, '.') || missingProp || '_root',
           message: v.message ?? 'Validation failed',

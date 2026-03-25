@@ -35,10 +35,7 @@ vi.mock('@/infrastructure/prisma/client.js', () => ({
 }));
 
 /** Sign a JWT token with the test secret. */
-function signToken(
-  payload: Record<string, unknown>,
-  options?: jwt.SignOptions,
-): string {
+function signToken(payload: Record<string, unknown>, options?: jwt.SignOptions): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m', ...options });
 }
 
@@ -191,7 +188,9 @@ describe('auth plugin', () => {
 
   it('attaches providerId for PROVIDER role users', async () => {
     mockFindUnique.mockResolvedValueOnce({ id: 'prov-1', status: 'ACTIVE' });
-    const token = signToken(validPayload({ sub: 'prov-1', role: 'PROVIDER', providerId: 'provider-abc' }));
+    const token = signToken(
+      validPayload({ sub: 'prov-1', role: 'PROVIDER', providerId: 'provider-abc' }),
+    );
     const response = await app.inject({
       method: 'GET',
       url: '/protected',

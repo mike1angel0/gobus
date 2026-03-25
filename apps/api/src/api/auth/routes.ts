@@ -77,16 +77,12 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/logout
-  app.post(
-    '/api/v1/auth/logout',
-    { preHandler: [app.authenticate] },
-    async (request, reply) => {
-      const body = logoutBodySchema.parse(request.body);
-      await authService.logout(request.user.id, body.refreshToken);
+  app.post('/api/v1/auth/logout', { preHandler: [app.authenticate] }, async (request, reply) => {
+    const body = logoutBodySchema.parse(request.body);
+    await authService.logout(request.user.id, body.refreshToken);
 
-      return reply.status(204).send();
-    },
-  );
+    return reply.status(204).send();
+  });
 
   // POST /api/v1/auth/forgot-password
   app.post('/api/v1/auth/forgot-password', async (request) => {
@@ -109,41 +105,29 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/change-password
-  app.post(
-    '/api/v1/auth/change-password',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      const body = changePasswordBodySchema.parse(request.body);
-      await authService.changePassword(request.user.id, body.currentPassword, body.newPassword);
+  app.post('/api/v1/auth/change-password', { preHandler: [app.authenticate] }, async (request) => {
+    const body = changePasswordBodySchema.parse(request.body);
+    await authService.changePassword(request.user.id, body.currentPassword, body.newPassword);
 
-      return {
-        data: { message: 'Password has been changed successfully.' },
-      };
-    },
-  );
+    return {
+      data: { message: 'Password has been changed successfully.' },
+    };
+  });
 
   // GET /api/v1/auth/me
-  app.get(
-    '/api/v1/auth/me',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      const user = await authService.getProfile(request.user.id);
+  app.get('/api/v1/auth/me', { preHandler: [app.authenticate] }, async (request) => {
+    const user = await authService.getProfile(request.user.id);
 
-      return { data: serializeUser(user) };
-    },
-  );
+    return { data: serializeUser(user) };
+  });
 
   // PATCH /api/v1/auth/me
-  app.patch(
-    '/api/v1/auth/me',
-    { preHandler: [app.authenticate] },
-    async (request) => {
-      const body = updateProfileBodySchema.parse(request.body);
-      const user = await authService.updateProfile(request.user.id, body);
+  app.patch('/api/v1/auth/me', { preHandler: [app.authenticate] }, async (request) => {
+    const body = updateProfileBodySchema.parse(request.body);
+    const user = await authService.updateProfile(request.user.id, body);
 
-      return { data: serializeUser(user) };
-    },
-  );
+    return { data: serializeUser(user) };
+  });
 }
 
 export default fp(authRoutes, {

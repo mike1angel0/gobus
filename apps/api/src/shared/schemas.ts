@@ -6,12 +6,7 @@ import { z } from 'zod';
  */
 export const paginationQuerySchema = z
   .object({
-    page: z.coerce
-      .number()
-      .int()
-      .min(1)
-      .default(1)
-      .describe('Page number (1-based)'),
+    page: z.coerce.number().int().min(1).default(1).describe('Page number (1-based)'),
     pageSize: z.coerce
       .number()
       .int()

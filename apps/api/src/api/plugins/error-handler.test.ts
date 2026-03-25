@@ -49,6 +49,26 @@ describe('error-handler plugin', () => {
       throw new AppError(409, ErrorCodes.SEAT_CONFLICT, 'Seat already booked');
     });
 
+    // Route with Fastify JSON Schema validation (triggers fastifyError.validation branch)
+    app.post(
+      '/test/fastify-validation',
+      {
+        schema: {
+          body: {
+            type: 'object',
+            required: ['email'],
+            properties: {
+              email: { type: 'string' },
+              age: { type: 'number' },
+            },
+          },
+        },
+      },
+      async () => {
+        return { ok: true };
+      },
+    );
+
     await app.ready();
   });
 
@@ -151,5 +171,27 @@ describe('error-handler plugin', () => {
     const response = await app.inject({ method: 'GET', url: '/test/app-error' });
     const body = response.json();
     expect(body).not.toHaveProperty('errors');
+  });
+
+  it('handles Fastify JSON Schema validation errors as RFC 9457', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/test/fastify-validation',
+      payload: { age: 'not-a-number' },
+    });
+
+    expect(response.statusCode).toBe(400);
+    const body = response.json();
+    expect(body.type).toBe('https://httpstatuses.com/400');
+    expect(body.title).toBe('Bad Request');
+    expect(body.status).toBe(400);
+    expect(body.detail).toBe('Validation failed');
+    expect(body.code).toBe('VALIDATION_ERROR');
+    expect(body.errors).toBeInstanceOf(Array);
+    expect(body.errors.length).toBeGreaterThanOrEqual(1);
+    for (const fieldError of body.errors) {
+      expect(typeof fieldError.field).toBe('string');
+      expect(typeof fieldError.message).toBe('string');
+    }
   });
 });

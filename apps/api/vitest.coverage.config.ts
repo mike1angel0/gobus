@@ -1,6 +1,10 @@
 import { defineConfig } from 'vitest/config';
 import path from 'node:path';
 
+/**
+ * Combined coverage config that runs both unit and integration tests.
+ * Used by `npm run test:coverage` to get accurate coverage across all test types.
+ */
 export default defineConfig({
   resolve: {
     alias: {
@@ -10,8 +14,7 @@ export default defineConfig({
   test: {
     globals: true,
     root: '.',
-    include: ['src/**/*.test.ts'],
-    exclude: ['src/**/*.integration.test.ts', 'node_modules', 'dist'],
+    include: ['src/**/*.test.ts', 'src/**/*.integration.test.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],

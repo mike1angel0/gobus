@@ -43,7 +43,11 @@ function extractAndVerifyToken(request: FastifyRequest): AuthTokenPayload {
   const authHeader = request.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new AppError(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'Missing or invalid authorization header');
+    throw new AppError(
+      401,
+      ErrorCodes.AUTH_INVALID_CREDENTIALS,
+      'Missing or invalid authorization header',
+    );
   }
 
   const token = authHeader.slice(7);
@@ -87,7 +91,11 @@ async function authenticateHandler(request: FastifyRequest, _reply: FastifyReply
   }
 
   if (user.status === 'LOCKED') {
-    throw new AppError(423, ErrorCodes.ACCOUNT_LOCKED, 'Account is locked due to too many failed login attempts');
+    throw new AppError(
+      423,
+      ErrorCodes.ACCOUNT_LOCKED,
+      'Account is locked due to too many failed login attempts',
+    );
   }
 
   request.user = {

@@ -24,12 +24,7 @@ export class AppError extends Error {
   readonly errors: FieldError[];
 
   /** Create an application error with HTTP status, error code, and optional field errors. */
-  constructor(
-    statusCode: number,
-    code: ErrorCode,
-    detail: string,
-    errors: FieldError[] = [],
-  ) {
+  constructor(statusCode: number, code: ErrorCode, detail: string, errors: FieldError[] = []) {
     super(detail);
     this.name = 'AppError';
     this.statusCode = statusCode;

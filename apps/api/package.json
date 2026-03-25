@@ -13,7 +13,7 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --config vitest.coverage.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts --passWithNoTests",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",

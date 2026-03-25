@@ -55,7 +55,11 @@ export class AuthService {
 
     if (data.role === 'PROVIDER') {
       if (!data.providerName) {
-        throw new AppError(400, ErrorCodes.VALIDATION_ERROR, 'Provider name is required for PROVIDER role');
+        throw new AppError(
+          400,
+          ErrorCodes.VALIDATION_ERROR,
+          'Provider name is required for PROVIDER role',
+        );
       }
 
       const provider = await this.prisma.provider.create({
@@ -111,7 +115,11 @@ export class AuthService {
 
     // Check lockout
     if (user.status === 'LOCKED' && user.lockedUntil && user.lockedUntil > new Date()) {
-      throw new AppError(423, ErrorCodes.ACCOUNT_LOCKED, 'Account is locked due to too many failed login attempts');
+      throw new AppError(
+        423,
+        ErrorCodes.ACCOUNT_LOCKED,
+        'Account is locked due to too many failed login attempts',
+      );
     }
 
     // If lockout has expired, reset status
@@ -143,7 +151,11 @@ export class AuthService {
           ipAddress,
         });
 
-        throw new AppError(423, ErrorCodes.ACCOUNT_LOCKED, 'Account is locked due to too many failed login attempts');
+        throw new AppError(
+          423,
+          ErrorCodes.ACCOUNT_LOCKED,
+          'Account is locked due to too many failed login attempts',
+        );
       }
 
       await this.prisma.user.update({
@@ -282,15 +294,27 @@ export class AuthService {
     });
 
     if (!resetToken) {
-      throw new AppError(400, ErrorCodes.AUTH_INVALID_RESET_TOKEN, 'Invalid or expired password reset token');
+      throw new AppError(
+        400,
+        ErrorCodes.AUTH_INVALID_RESET_TOKEN,
+        'Invalid or expired password reset token',
+      );
     }
 
     if (resetToken.usedAt) {
-      throw new AppError(400, ErrorCodes.AUTH_INVALID_RESET_TOKEN, 'Password reset token has already been used');
+      throw new AppError(
+        400,
+        ErrorCodes.AUTH_INVALID_RESET_TOKEN,
+        'Password reset token has already been used',
+      );
     }
 
     if (resetToken.expiresAt < new Date()) {
-      throw new AppError(400, ErrorCodes.AUTH_INVALID_RESET_TOKEN, 'Password reset token has expired');
+      throw new AppError(
+        400,
+        ErrorCodes.AUTH_INVALID_RESET_TOKEN,
+        'Password reset token has expired',
+      );
     }
 
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
@@ -319,7 +343,11 @@ export class AuthService {
    * Validates the current password, enforces password strength,
    * and revokes all other refresh tokens (forces re-login elsewhere).
    */
-  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
     this.validatePasswordStrength(newPassword);
 
     const user = await this.prisma.user.findUnique({
@@ -356,7 +384,9 @@ export class AuthService {
    * Generate a JWT access token and a refresh token for the given user.
    * The refresh token is stored as a SHA-256 hash in the database.
    */
-  async generateTokens(user: Pick<User, 'id' | 'email' | 'role' | 'providerId'>): Promise<TokenPair> {
+  async generateTokens(
+    user: Pick<User, 'id' | 'email' | 'role' | 'providerId'>,
+  ): Promise<TokenPair> {
     const env = getEnv();
 
     const payload: Omit<AuthTokenPayload, 'iat' | 'exp'> = {

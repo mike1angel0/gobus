@@ -38,7 +38,9 @@ function createMockPrisma() {
       update: vi.fn(),
     },
     $transaction: vi.fn((actions: unknown[]) => Promise.all(actions)),
-  } as unknown as Parameters<typeof AuthService extends new (p: infer P) => unknown ? (p: P) => void : never>[0];
+  } as unknown as Parameters<
+    typeof AuthService extends new (p: infer P) => unknown ? (p: P) => void : never
+  >[0];
 }
 
 function makeUser(overrides: Record<string, unknown> = {}) {
@@ -628,9 +630,7 @@ describe('AuthService', () => {
     });
 
     it('should throw 400 for weak new password', async () => {
-      await expect(
-        service.changePassword('user-1', 'Password1', 'weak'),
-      ).rejects.toThrow(
+      await expect(service.changePassword('user-1', 'Password1', 'weak')).rejects.toThrow(
         expect.objectContaining({
           statusCode: 400,
           code: ErrorCodes.VALIDATION_ERROR,

@@ -95,5 +95,21 @@ Iterations 1–17 established the full project foundation: monorepo structure, c
 - Learnings: Fastify doesn't understand Zod schemas in route `schema` property without a type provider — pass Zod schemas to `.parse()` manually instead. `vi.clearAllMocks()` doesn't reset `mockResolvedValue` defaults — use `vi.resetAllMocks()` for integration tests that share a single app instance. For authenticated routes, the auth plugin's `findUnique` call must be mocked separately (first mock call consumed by plugin, second by service). Prisma JSON fields need `as Prisma.InputJsonValue` cast for UserPreferences.
 ---
 
+## Iteration 23 - TASK-023: Create CLAUDE.md for backend
+- Created apps/api/CLAUDE.md with all required sections: tech stack, quick start, architecture (layered with dependency rules), API-first workflow, API conventions (envelope + RFC 9457), route/service patterns, quality gates, test conventions, env vars table, key patterns
+- All quality checks pass: typecheck, lint, 137 unit tests
+- Learnings: This is a documentation-only task — no code changes needed. The CLAUDE.md serves as onboarding reference for both humans and AI agents working in apps/api/.
+---
+
+## Iteration 24 - TASK-024: Run all Phase 1 quality gates
+- All quality gates pass: typecheck, lint, format, 181 tests (145 unit + 36 integration), coverage ≥85% (stmts 98%, branches 89%, funcs 98%, lines 98%), build, spec:lint
+- Fixed Prettier formatting across 11 files
+- Created vitest.coverage.config.ts that combines unit + integration tests for accurate coverage
+- Updated coverage exclusions: generated Prisma files (src/generated/**), type-only domain files, barrel exports
+- Added 7 logger unit tests (mock getEnv to control NODE_ENV per test)
+- Added Fastify JSON Schema validation error test to error-handler
+- Learnings: Generated Prisma files live at src/generated/ not src/infrastructure/prisma/generated/. Coverage config must exclude them or they drag down metrics. Logger tests must mock getEnv() since it caches NODE_ENV. Combining unit + integration tests in one vitest config gives accurate coverage. Root devDependencies may need `npm install` if node_modules was cleaned.
+---
+
 ## Learnings
 See per-iteration learnings above and the "Important Gotchas" section in Compacted History.

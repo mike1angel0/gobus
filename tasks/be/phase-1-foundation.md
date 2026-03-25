@@ -95,16 +95,4 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-023: Create CLAUDE.md for backend** - Created apps/api/CLAUDE.md with tech stack, quick start, layered architecture rules, API-first workflow, API conventions (envelope + RFC 9457 errors), route/service patterns, quality gate commands, test conventions, env vars table, and key patterns.
 
-### TASK-024: Run all Phase 1 quality gates
-**Description:** Run and fix: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test`, `npm run test:coverage`, `npm run build`. Ensure all pass, coverage ≥ 85%, zero `any` in production code, JSDoc on all exports.
-
-**Acceptance Criteria:**
-- [ ] `npm run typecheck` — zero errors
-- [ ] `npm run lint` — zero errors
-- [ ] `npm run format:check` — passes
-- [ ] `npm run test` — all pass
-- [ ] `npm run test:coverage` ≥ 85%
-- [ ] `npm run build` — succeeds
-- [ ] Zero `any` in src/ (excluding test/)
-- [ ] JSDoc on all exported functions/classes/methods
-- [ ] `npm run spec:lint` — spec validates
+**TASK-024: Run all Phase 1 quality gates** - All quality gates pass: typecheck (zero errors), lint (zero errors), format (all clean), 181 tests passing (145 unit + 36 integration), coverage ≥85% (statements 98%, branches 89%, functions 98%, lines 98%), build succeeds, zero `any` in production code, JSDoc on all exports, spec validates with zero errors.
