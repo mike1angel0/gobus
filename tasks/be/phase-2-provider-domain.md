@@ -254,15 +254,39 @@
 - **Complexity**: No Phase 2 files exceed 500 lines; no functions exceed 100 lines — no new stories (`auth.service.ts` at 508 lines is Phase 1)
 - **SPEC_GAPS.md**: Empty, no FE-reported gaps — no new stories
 
-#### Batch 3 — Final Audit (2026-03-25)
+#### Batch 3 — Final Re-Audit (2026-03-25)
 
 **Updated Coverage**: 99.13% stmts | 93.54% branch | 99.4% funcs | 99.1% lines
 **Security Audit**: 0 vulnerabilities
 **Type Safety**: 0 `any` in user code
 **Architecture**: 0 domain layer violations
 **Lint**: 0 errors
-**JSDoc**: All exports documented
-**API Conformance**: All Zod schemas match OpenAPI spec (field-by-field verified)
+**JSDoc**: All exports documented (1 minor: `paginationMetaSchema` in `shared/schemas.ts` lacks JSDoc — shared file, not Phase 2 scope)
 **Complexity**: All Phase 2 files <500 lines; all functions <100 lines
+**API Conformance**: 4 schedule schema discrepancies found — datetime/date fields missing `.max()` bounds
 
-**Result**: No new QA stories needed. All 7 stories from Batches 1-2 are resolved. Phase 2 quality gates fully satisfied.
+**US-QA-008** | Add `.max(30)` to datetime fields in schedule response schemas to match OpenAPI spec
+- [ ] AC1: Add `.max(30)` to `arrivalTime`, `departureTime` in `stopTimeSchema` (lines 13-14), `departureTime`, `arrivalTime`, `tripDate`, `createdAt` in `scheduleSchema` (lines 29-30, 38-39), and all corresponding fields in `scheduleWithDetailsSchema` (lines 54-55, 63, 72) in `src/api/schedules/schemas.ts`
+- [ ] AC2: All existing schedule integration tests still pass
+
+**US-QA-009** | Add `.max(30)` to datetime fields in schedule request schemas to match OpenAPI spec
+- [ ] AC1: Add `.max(30)` to `arrivalTime`, `departureTime` in `createStopTimeInputSchema` (lines 79-80), `departureTime`, `arrivalTime`, `tripDate` in `createScheduleRequestSchema` (lines 96-97, 105), and `departureTime`, `arrivalTime` in `updateScheduleRequestSchema` (lines 124-125) in `src/api/schedules/schemas.ts`
+- [ ] AC2: All existing schedule integration tests still pass
+
+**US-QA-010** | Add `.max(10)` to date filter fields in schedule query schema to match OpenAPI spec
+- [ ] AC1: Add `.max(10)` to `fromDate` and `toDate` in `scheduleFilterQuerySchema` (lines 143-152) in `src/api/schedules/schemas.ts`
+- [ ] AC2: All existing schedule integration tests still pass
+
+#### Observed (Not Phase 2 Scope)
+
+- **2 failing auth tests**: `POST /api/v1/auth/logout` returns 404 (expected 401) and `POST /api/v1/auth/reset-password` returns 404 (expected 400) — these are Phase 1 routes not yet implemented; tests are aspirational
+- **JSDoc**: `paginationMetaSchema` in `src/shared/schemas.ts` lacks JSDoc — shared utility, not Phase 2 scope
+
+#### No New Issues Found (Verified Clean in Batch 3)
+
+- **Coverage Gaps**: All remaining uncovered branches are in Phase 1 files (`app.ts`, `error-handler.ts`, `auth.ts`, `auth.service.ts`, `prisma/client.ts`) — not Phase 2 scope
+- **Security**: All mutation endpoints have ownership enforcement; all request schemas use `.strict()` — no new stories
+- **Type Safety**: Zero `any` in production code — no new stories
+- **Architecture**: Domain layer has zero imports from outer layers — no new stories
+- **Complexity**: No Phase 2 files exceed 500 lines; no functions exceed 100 lines — no new stories
+- **SPEC_GAPS.md**: Empty, no FE-reported gaps — no new stories
