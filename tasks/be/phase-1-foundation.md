@@ -55,16 +55,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-009: Install and configure core dependencies** - Installed all production deps (@fastify/cors, helmet, rate-limit, swagger, swagger-ui, zod, bcryptjs, jsonwebtoken, date-fns) and dev deps (vitest, supertest, @types/*, eslint 10, prettier, eslint-plugin-jsdoc, @vitest/coverage-v8, typescript-eslint). Configured ESLint flat config (eslint.config.mjs) with complexity warnings and JSDoc enforcement. Configured Prettier (.prettierrc). All lint/format scripts work.
 
-### TASK-010: Set up Vitest with test infrastructure
-**Description:** Configure Vitest in `apps/api/`. Create `vitest.config.ts` with path aliases and v8 coverage. Create `src/test/setup.ts` for global test setup. Create `src/test/helpers.ts` with `createTestApp()` (builds Fastify app with test config), `createAuthHeader(userId, role, providerId?)` (creates test JWT), `createTestUser(overrides?)` factory. Add npm scripts: `test`, `test:watch`, `test:coverage`, `test:integration`.
-
-**Acceptance Criteria:**
-- [ ] `vitest.config.ts` configured with path aliases and v8 coverage provider
-- [ ] `src/test/helpers.ts` exports all test utilities with proper types
-- [ ] `npm run test` runs unit tests only
-- [ ] `npm run test:integration` runs integration tests
-- [ ] `npm run test:coverage` produces coverage report (target: 85%)
-- [ ] JSDoc on all exported helpers
+**TASK-010: Set up Vitest with test infrastructure** - Configured vitest.config.ts with path aliases (@/ → src/) and v8 coverage (85% thresholds). Created test setup (env vars), helpers (createTestApp, createAuthHeader, createTestUser with JSDoc). Added npm scripts: test, test:watch, test:coverage, test:integration. Separate vitest.integration.config.ts for integration tests. 7 unit tests passing.
 
 ### TASK-011: Create project architecture directories and shared utilities
 **Description:** Create the layered architecture under `apps/api/src/`:
