@@ -1,122 +1,55 @@
-## Iteration 1 - TASK-001: Initialize monorepo with shared API spec
-- Converted flat Next.js project to npm workspaces monorepo
-- Moved existing code to _legacy/ for reference during migration
-- Created spec/, apps/api/, apps/web/ with placeholder configs
-- Root CLAUDE.md documents API-first workflow and monorepo structure
-- Learnings: Old package-lock.json must be removed when restructuring to workspaces
----
+# Progress Log
 
-## Iteration 2 - TASK-002: Design OpenAPI 3.1 spec — Auth & Users
-- Designed complete OpenAPI 3.1 spec with all auth schemas and 9 auth paths
-- Learnings: OpenAPI 3.1 uses `type: ['string', 'null']` instead of `nullable: true` (3.0 syntax). Redocly requires `license` in info object. PaginationMeta unused warning is expected until list endpoints are added in TASK-003/004.
----
+## Compacted History (Iterations 1–17)
 
-## Iteration 3 - TASK-003: Design OpenAPI spec — Provider & Transport entities
-- Added 16 provider paths (providers/me, routes CRUD, buses CRUD, drivers CRUD, schedules CRUD with filtering)
-- Added all transport schemas: Provider, Route, RouteWithStops, Stop, Bus, BusWithSeats, Seat, Schedule, ScheduleWithDetails, StopTime, Driver, BusTemplate
-- Added enums: SeatType (4 values), ScheduleStatus (2 values), ProviderStatus (2 values)
-- Added reusable parameters: PageParam, PageSizeParam, IdParam
-- Added response envelopes for all entity types with pagination support
-- Learnings: Reusable $ref parameters (PageParam, PageSizeParam, IdParam) clean up path definitions significantly. BusTemplate schema triggers no-unused-components warning since it's a reference schema — acceptable for now.
----
+### Summary
+Iterations 1–17 established the full project foundation: monorepo structure, complete OpenAPI 3.1 spec (40 endpoints, 80 schemas), Fastify 5 backend with TypeScript strict, Prisma 7 with PostgreSQL, and all domain models.
 
-## Iteration 4 - TASK-004: Design OpenAPI spec — Passenger, Booking, Search
-- Added 6 passenger-facing paths: GET /search, GET /trips/{scheduleId}, GET/POST /bookings, GET/DELETE /bookings/{id}
-- Added schemas: SearchResult, SeatAvailability, TripDetail, Booking, BookingWithDetails, CreateBookingRequest, BookingStatus enum
-- Search is public (no auth), bookings are authenticated with ownership enforcement (404 not 403)
-- Trip detail includes seat map with isBooked availability per seat
-- Computed segment pricing: price at destination minus price at origin stop
-- Learnings: Used `format: date` (not `date-time`) for tripDate query params and request fields since these are date-only values. Cancel booking returns 200 with updated booking (not 204) to provide immediate feedback to the client.
----
+### Key Milestones
+- **TASK-001**: Converted flat Next.js project to npm workspaces monorepo (spec/, apps/api/, apps/web/, _legacy/)
+- **TASK-002–005**: Designed complete OpenAPI 3.1 spec — auth (9 paths), provider/transport (16 paths), passenger/booking (6 paths), tracking/delays/driver/admin (9 paths)
+- **TASK-006–007**: Split spec into multi-file structure (root 94 lines), added Redocly validation tooling
+- **TASK-008–009**: Set up Fastify 5, TypeScript 5, ESLint 10 flat config, Prettier
+- **TASK-011**: Created layered architecture (api/application/domain/infrastructure/shared), env validation, pagination, response wrappers — 39 unit tests
+- **TASK-012**: Error handling with RFC 9457 Problem Details, AppError class, 10 error codes — 53 unit tests
+- **TASK-013**: Health check endpoint, Swagger UI at /docs with static bundled spec — 53 unit + 4 integration tests
+- **TASK-014**: Prisma 7 with @prisma/adapter-pg driver adapter
+- **TASK-015**: User, Provider, RefreshToken, PasswordResetToken, AuditLog models (3 enums)
+- **TASK-016**: Route, Stop, Bus, Seat models (SeatType enum), cascade deletes
+- **TASK-017**: Schedule, StopTime, Booking, BookingSeat, Delay, BusTracking, Message models (3 enums), double-booking prevention via @@unique
 
-## Iteration 5 - TASK-005: Design OpenAPI spec — Tracking, Delays, Driver, Admin
-- Added 9 new paths: tracking (GET/POST), driver trips (GET list/detail), delays (GET/POST/PUT), admin buses (GET), admin seats (PATCH)
-- Added schemas: BusTracking, TrackingUpdate, DelayReason enum, Delay, CreateDelayRequest, UpdateDelayRequest, DriverTrip, DriverTripDetail, AdminToggleSeatRequest
-- Added response envelopes: BusTrackingDataResponse, DelayDataResponse, DelayListResponse, DriverTripListResponse, DriverTripDetailDataResponse, SeatDataResponse
-- Total endpoints now: 40 (exceeds ~36 target)
-- Learnings: Reused existing BusListResponse for admin buses endpoint. DelayListResponse is not paginated (filtered by schedule+date returns small result set). UpdateDelayRequest has no required fields (partial update). SeatDataResponse was missing and needed to be created.
----
+### Key Patterns & Conventions
+- API-first: spec/openapi.yaml is source of truth, implement to match
+- Response envelope: `{ data: T }` single, `{ data: T[], meta: PaginationMeta }` lists
+- Error format: RFC 9457 Problem Details
+- Layered architecture: api/ → application/ → domain/ ← infrastructure/
+- Lazy singletons for env (getEnv()) and Prisma client
+- Reusable $ref parameters (PageParam, PageSizeParam, IdParam) in spec
+- Named Prisma relations when multiple FKs point to same model
 
-## Iteration 6 - TASK-006: Split OpenAPI spec into multi-file structure
-- Split 3884-line monolithic spec into multi-file structure: 12 path files, 10 schema files, reusable params/responses/securitySchemes
-- Root openapi.yaml is 94 lines (under 100 requirement)
-- Bundled output preserves all 29 paths and 80 schemas
-- Learnings: Redocly resolves relative $ref paths correctly across files. Use `#/SchemaName` for same-file refs, `./other.yaml#/SchemaName` for sibling schema refs, `../components/schemas/X.yaml#/Y` from path files. A prior commit had already done the split, so my changes matched exactly — always check git log first.
----
+### Important Gotchas
+- OpenAPI 3.1: use `type: ['string', 'null']` not `nullable: true`
+- Zod 4: import from "zod" (not "zod/v4")
+- Module-level parseEnv() breaks tests — use lazy getEnv() instead
+- `vi.stubEnv(key, undefined)` doesn't delete env vars; use `delete process.env.KEY`; add `unstubEnvs: true` to vitest config
+- Prisma 7 requires driver adapters; generated client dir must be excluded from tsc and eslint
+- Prisma 7 uses `migrations.seed` in prisma.config.ts (not package.json `prisma.seed`); doesn't auto-load .env
+- Fastify error handler receives `unknown` type in strict mode — cast to `FastifyError` for `.validation`
+- `@fastify/swagger` StaticDocumentSpec expects `OpenAPIV3.Document` type; spec must be pre-bundled
+- `__dirname` resolves to src/ at runtime; spec path is 3 levels up
+- ESLint 10 uses flat config (.mjs); use `tseslint.config()` wrapper
+- Old package-lock.json must be removed when restructuring to workspaces
+- `as const` is compile-time only — don't test runtime immutability
+- Always check git log before implementing — prior commits may already have done the work
 
-## Iteration 7 - TASK-007: Add spec validation tooling and npm scripts
-- All tooling was already in place from previous iterations (redocly/cli, npm scripts, .redocly.yaml, .gitignore)
-- Verified: spec:lint passes (0 errors, 3 acceptable warnings), spec:bundle produces spec/dist/openapi.json
-- Learnings: Check existing setup before implementing — previous tasks had already set up the tooling incrementally. The 3 warnings (license-strict, localhost server, forgot-password missing 4XX) are all acceptable by design.
----
+### Useful Commands
+- `npm run spec:lint` — validate OpenAPI spec
+- `npm run spec:bundle` — bundle to spec/dist/openapi.json
+- `npm run spec:preview` — Redoc interactive docs
+- `npm run dev` / `npm run build` / `npm run start` — API dev/build/run
+- `npm run typecheck` / `npm run lint` / `npm run format` — code quality
+- `npx prisma db push` / `npx prisma generate` / `npx prisma db seed` — database
 
-## Iteration 8 - TASK-008: Set up Fastify 5 with TypeScript strict
-- Installed Fastify 5, TypeScript 5, tsx, tsc-alias. Created tsconfig with strict + path aliases, buildApp() factory in app.ts, graceful shutdown in server.ts
-- Learnings: Fastify 5 works with Node16 module resolution. Dev scripts (dev, build, start, typecheck) were already in package.json from TASK-001, just needed dependencies and source files.
----
-
-## Iteration 9 - TASK-009: Install and configure core dependencies
-- Installed all production and dev dependencies in apps/api/package.json
-- Created eslint.config.mjs (ESLint 10 flat config) with typescript-eslint, complexity warnings (max-lines:500, max-lines-per-function:250, complexity:15, max-depth:4), JSDoc enforcement on exports, relaxed rules for test files
-- Created .prettierrc (semi, singleQuote, printWidth:100)
-- Added lint, lint:fix, format, format:check scripts
-- Learnings: ESLint 10 uses flat config (eslint.config.mjs). Use `tseslint.config()` wrapper from typescript-eslint. eslint-plugin-jsdoc v62 works as a standard plugin object in flat config. No `"type": "module"` in root package.json so use .mjs extension for ESM config.
----
-
-## Iteration 11 - TASK-011: Create project architecture directories and shared utilities
-- Created layered architecture directories: api/{plugins,health,auth}, application/services, domain/{errors,auth,users}, infrastructure/{config,prisma}, shared/
-- env.ts: Zod-validated env (DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET, PORT, NODE_ENV, CORS_ORIGIN) with lazy getEnv() singleton
-- shared/types.ts: ApiResponse<T>, PaginatedResponse<T>, PaginationMeta interfaces matching OpenAPI spec
-- shared/schemas.ts: paginationQuerySchema, idParamSchema, dataResponse(), paginatedResponse() wrappers, paginationMetaSchema
-- shared/pagination.ts: buildPaginationMeta() and parsePagination() for Prisma skip/take
-- 39 total unit tests passing (7 env, 10 pagination, 15 schemas, 7 test helpers)
-- Learnings: Zod 4 is at root "zod" import (not "zod/v4"). Module-level parseEnv() breaks tests — use lazy getEnv() instead. vi.stubEnv(key, undefined) doesn't delete env vars; use `delete process.env.KEY`. Add `unstubEnvs: true` to vitest config for auto-cleanup between tests.
----
-
-## Iteration 12 - TASK-012: Create error handling infrastructure
-- Created ErrorCodes const object (10 codes), AppError class, error-handler Fastify plugin with RFC 9457 Problem Details
-- Handles AppError, ZodError, Fastify validation errors, and unknown errors (safe 500 without leaking internals)
-- Installed fastify-plugin, registered error handler in app.ts
-- 53 total unit tests passing (14 new: 4 AppError, 3 ErrorCodes, 7 error-handler plugin)
-- Learnings: `as const` is compile-time only in TS — don't test runtime immutability of const objects. Fastify's error handler receives `unknown` error type in strict mode — need `FastifyError` cast for `.validation` access. `FastifySchemaValidationError` has specific typed properties (instancePath, params, message), don't use `Record<string, unknown>`.
----
-
-## Iteration 13 - TASK-013: Create health check and Swagger setup
-- Registered @fastify/swagger (static mode) with bundled OpenAPI spec from spec/dist/openapi.json
-- Registered @fastify/swagger-ui at /docs prefix, JSON spec at /docs/json
-- Created GET /health endpoint via fastify-plugin in src/api/health/routes.ts
-- 4 integration tests: health status + content type, swagger UI + JSON spec
-- 53 unit + 4 integration tests passing
-- Learnings: @fastify/swagger StaticDocumentSpec expects `OpenAPIV3.Document` type (from openapi-types, a transitive dep). OpenAPI 3.1 spec can be cast to OpenAPIV3.Document safely. `__dirname` resolves to src/ dir at runtime, so spec path is 3 levels up. Spec must be pre-bundled via `npm run spec:bundle` before tests/runtime.
----
-
-## Iteration 14 - TASK-014: Set up Prisma with PostgreSQL
-- Installed Prisma 7.5 with @prisma/adapter-pg driver adapter, created schema, singleton client, graceful disconnect, db:* scripts
-- Learnings: Prisma 7 requires driver adapters (@prisma/adapter-pg for PostgreSQL). PrismaClient constructor needs `adapter` or `accelerateUrl`. Generated client output dir (src/generated/prisma) must be excluded from tsc and eslint.
----
-
-## Iteration 15 - TASK-015: Create User, Provider, and security-related models
-- Created 5 models (User, Provider, RefreshToken, PasswordResetToken, AuditLog) and 3 enums (Role, UserStatus, ProviderStatus)
-- All fields match OpenAPI spec (VarChar lengths, nullable fields, defaults)
-- Cascade deletes on RefreshToken/PasswordResetToken when User deleted
-- Indexes on User.email (unique), User.providerId, User.role, RefreshToken.userId, PasswordResetToken.userId, AuditLog.userId+createdAt
-- Learnings: Prisma 7 cuid() default works out of the box. VarChar lengths should match OpenAPI maxLength constraints. AuditLog.userId is nullable (system actions have no user).
----
-
-## Iteration 16 - TASK-016: Create transport entity models
-- Added SeatType enum (STANDARD, PREMIUM, DISABLED_ACCESSIBLE, BLOCKED), Route, Stop, Bus, Seat models
-- Cascade deletes: Stop→Route, Seat→Bus. Bus.licensePlate unique. Indexes on all FKs.
-- Provider model updated with routes[] and buses[] relations
-- Learnings: Straightforward schema-only task. No tests needed since it's just Prisma models — db:generate validates the schema.
----
-
-## Iteration 17 - TASK-017: Create Schedule, Booking, and operational models
-- Added 7 models: Schedule, StopTime, Booking, BookingSeat, Delay, BusTracking, Message
-- Added 3 enums: ScheduleStatus, BookingStatus, DelayReason
-- BookingSeat has @@unique([scheduleId, seatLabel, tripDate]) for DB-level double-booking prevention
-- BusTracking.busId is @unique (one tracking record per bus)
-- Updated User (bookings, driverSchedules, sentMessages, receivedMessages), Route (schedules), Bus (schedules, tracking) with new relations
-- Learnings: Named relations ("DriverSchedules", "SentMessages", "ReceivedMessages") required when a model has multiple relations to the same target model. daysOfWeek stored as Int[] (Prisma native PostgreSQL array).
 ---
 
 ## Iteration 18 - TASK-018: Create initial migration and seed script
@@ -143,3 +76,6 @@
 - 35 new unit tests with mocked Prisma, 109 total tests passing
 - Learnings: Use `createHash` from `node:crypto` import in tests (not `require('crypto')`) to satisfy ESLint no-require-imports rule. bcrypt.hashSync with low rounds (4) in tests for speed. Prisma `$transaction` receives an array of promises — mock it with `vi.fn((actions) => Promise.all(actions))`.
 ---
+
+## Learnings
+See per-iteration learnings above and the "Important Gotchas" section in Compacted History.
