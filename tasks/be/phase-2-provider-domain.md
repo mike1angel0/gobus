@@ -109,14 +109,14 @@
 **Description:** Create `src/application/services/driver.service.ts`. Methods: `listByProvider(providerId, pagination)` — includes assigned schedule count, `create(providerId, data)` — creates user with DRIVER role + links to provider, `delete(id, providerId)` — unassigns from schedules, soft or hard delete.
 
 **Acceptance Criteria:**
-- [ ] List includes assigned schedule count per driver
-- [ ] Create hashes password, sets role=DRIVER, links providerId
-- [ ] Create checks email uniqueness (409 CONFLICT)
-- [ ] Delete unassigns driver from all schedules first
-- [ ] Ownership enforced
-- [ ] Unit tests
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] List includes assigned schedule count per driver
+- [x] Create hashes password, sets role=DRIVER, links providerId
+- [x] Create checks email uniqueness (409 CONFLICT)
+- [x] Delete unassigns driver from all schedules first
+- [x] Ownership enforced
+- [x] Unit tests
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-010: Create driver API routes
 **Description:** Implement from spec: `GET /api/v1/drivers` (list), `POST /api/v1/drivers` (create), `DELETE /api/v1/drivers/{id}`. Require PROVIDER role.

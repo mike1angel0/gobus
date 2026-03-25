@@ -453,6 +453,7 @@ Driver:
     - role
     - status
     - providerId
+    - assignedScheduleCount
     - createdAt
   properties:
     id:
@@ -485,6 +486,11 @@ Driver:
       type: string
       maxLength: 30
       description: Associated provider ID
+    assignedScheduleCount:
+      type: integer
+      minimum: 0
+      maximum: 10000
+      description: Number of schedules currently assigned to this driver
     createdAt:
       type: string
       format: date-time
