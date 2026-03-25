@@ -73,8 +73,14 @@ paths:
     $ref: paths/delays.yaml#/byId
   /api/v1/admin/buses:
     $ref: paths/admin.yaml#/buses
+  /api/v1/admin/users:
+    $ref: paths/admin.yaml#/users
+  /api/v1/admin/users/{id}/status:
+    $ref: paths/admin.yaml#/userStatus
   /api/v1/admin/users/{id}/sessions:
     $ref: paths/admin.yaml#/userSessions
+  /api/v1/admin/audit-logs:
+    $ref: paths/admin.yaml#/auditLogs
   /api/v1/admin/seats/{id}:
     $ref: paths/admin.yaml#/seatById
 

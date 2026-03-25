@@ -93,14 +93,14 @@
 **Description:** Add admin endpoints to OpenAPI spec and implement: `GET /api/v1/admin/users` (list all users, paginated, filterable by role/status), `PATCH /api/v1/admin/users/{id}/status` (suspend/unsuspend/unlock user), `GET /api/v1/admin/audit-logs` (view audit logs, paginated, filterable by userId/action/dateRange). All require ADMIN role.
 
 **Acceptance Criteria:**
-- [ ] List users with pagination + role/status filters
-- [ ] Suspend user: sets status=SUSPENDED, revokes all refresh tokens
-- [ ] Unsuspend user: sets status=ACTIVE
-- [ ] Unlock user: sets status=ACTIVE, resets failedLoginAttempts, clears lockedUntil
-- [ ] Audit log viewer with filters
-- [ ] All responses match OpenAPI spec
-- [ ] Integration tests
-- [ ] Typecheck passes
+- [x] List users with pagination + role/status filters
+- [x] Suspend user: sets status=SUSPENDED, revokes all refresh tokens
+- [x] Unsuspend user: sets status=ACTIVE
+- [x] Unlock user: sets status=ACTIVE, resets failedLoginAttempts, clears lockedUntil
+- [x] Audit log viewer with filters
+- [x] All responses match OpenAPI spec
+- [x] Integration tests
+- [x] Typecheck passes
 
 ---
 

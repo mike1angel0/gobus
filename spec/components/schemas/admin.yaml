@@ -8,6 +8,173 @@ AdminToggleSeatRequest:
       type: boolean
       description: Whether the seat should be enabled (true) or disabled (false)
 
+AdminUser:
+  type: object
+  description: User record for admin management
+  required:
+    - id
+    - email
+    - name
+    - role
+    - status
+    - failedLoginAttempts
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique user identifier (cuid)
+    email:
+      type: string
+      format: email
+      maxLength: 254
+      description: User email address
+    name:
+      type: string
+      maxLength: 100
+      description: User display name
+    role:
+      type: string
+      enum: [PASSENGER, PROVIDER, DRIVER, ADMIN]
+      description: User role
+    phone:
+      type: ['string', 'null']
+      maxLength: 20
+      description: User phone number
+    avatarUrl:
+      type: ['string', 'null']
+      maxLength: 2048
+      description: User avatar URL
+    providerId:
+      type: ['string', 'null']
+      maxLength: 30
+      description: Associated provider ID (for PROVIDER and DRIVER roles)
+    status:
+      type: string
+      enum: [ACTIVE, SUSPENDED, LOCKED]
+      description: Account status
+    failedLoginAttempts:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: Number of consecutive failed login attempts
+    lockedUntil:
+      type: ['string', 'null']
+      format: date-time
+      maxLength: 30
+      description: Account locked until this timestamp
+    createdAt:
+      type: string
+      format: date-time
+      maxLength: 30
+      description: Account creation timestamp
+    updatedAt:
+      type: string
+      format: date-time
+      maxLength: 30
+      description: Account last update timestamp
+
+AdminUserListResponse:
+  type: object
+  description: Paginated list of users for admin management
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Users for the current page
+      items:
+        $ref: '#/AdminUser'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'
+
+AdminUserDataResponse:
+  type: object
+  description: Single user response for admin management
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/AdminUser'
+
+AdminUpdateUserStatusRequest:
+  type: object
+  description: Request body for updating a user account status
+  required:
+    - action
+  properties:
+    action:
+      type: string
+      enum: [suspend, unsuspend, unlock]
+      description: The status action to perform on the user account
+
+AdminAuditLog:
+  type: object
+  description: Audit log entry for admin viewing
+  required:
+    - id
+    - action
+    - resource
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique audit log identifier (cuid)
+    userId:
+      type: ['string', 'null']
+      maxLength: 30
+      description: User who performed the action
+    action:
+      type: string
+      maxLength: 100
+      description: The auditable action performed
+    resource:
+      type: string
+      maxLength: 100
+      description: The resource type affected
+    resourceId:
+      type: ['string', 'null']
+      maxLength: 100
+      description: The specific resource ID affected
+    ipAddress:
+      type: ['string', 'null']
+      maxLength: 45
+      description: Client IP address
+    userAgent:
+      type: ['string', 'null']
+      maxLength: 500
+      description: Client user agent string
+    metadata:
+      type: ['object', 'null']
+      description: Additional context data for the event
+    createdAt:
+      type: string
+      format: date-time
+      maxLength: 30
+      description: When the event occurred
+
+AdminAuditLogListResponse:
+  type: object
+  description: Paginated list of audit log entries
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Audit logs for the current page
+      items:
+        $ref: '#/AdminAuditLog'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'
+
 DriverTrip:
   type: object
   description: A trip assigned to a driver with summary info

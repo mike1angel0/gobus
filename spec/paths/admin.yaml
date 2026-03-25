@@ -70,6 +70,163 @@ userSessions:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
 
+users:
+  get:
+    operationId: adminListUsers
+    summary: List all users (admin)
+    description: Returns a paginated list of all users with optional role and status filters. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: role
+        in: query
+        required: false
+        description: Filter users by role
+        schema:
+          type: string
+          enum: [PASSENGER, PROVIDER, DRIVER, ADMIN]
+      - name: status
+        in: query
+        required: false
+        description: Filter users by account status
+        schema:
+          type: string
+          enum: [ACTIVE, SUSPENDED, LOCKED]
+    responses:
+      '200':
+        description: Paginated list of users
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/admin.yaml#/AdminUserListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+userStatus:
+  patch:
+    operationId: adminUpdateUserStatus
+    summary: Update user account status (admin)
+    description: Suspend, unsuspend, or unlock a user account. Suspending also revokes all refresh tokens. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/admin.yaml#/AdminUpdateUserStatusRequest'
+    responses:
+      '200':
+        description: User status updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/admin.yaml#/AdminUserDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: User not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+auditLogs:
+  get:
+    operationId: adminListAuditLogs
+    summary: List audit logs (admin)
+    description: Returns a paginated list of audit log entries with optional filters by user, action, and date range. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: userId
+        in: query
+        required: false
+        description: Filter audit logs by user ID
+        schema:
+          type: string
+          maxLength: 30
+      - name: action
+        in: query
+        required: false
+        description: Filter audit logs by action type
+        schema:
+          type: string
+          maxLength: 100
+      - name: dateFrom
+        in: query
+        required: false
+        description: Filter audit logs from this date (inclusive)
+        schema:
+          type: string
+          format: date-time
+          maxLength: 30
+      - name: dateTo
+        in: query
+        required: false
+        description: Filter audit logs until this date (inclusive)
+        schema:
+          type: string
+          format: date-time
+          maxLength: 30
+    responses:
+      '200':
+        description: Paginated list of audit logs
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/admin.yaml#/AdminAuditLogListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
 seatById:
   patch:
     operationId: adminToggleSeat

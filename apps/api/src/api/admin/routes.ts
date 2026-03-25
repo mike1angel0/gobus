@@ -2,12 +2,21 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { AdminService } from '@/application/services/admin.service.js';
+import type { AdminUserEntity } from '@/application/services/admin.service.js';
 import type { BusEntity } from '@/domain/buses/bus.entity.js';
 import type { SeatEntity } from '@/domain/buses/bus.entity.js';
+import type { AuditLogEntity } from '@/domain/audit/audit.entity.js';
+import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireAdmin } from '@/api/plugins/role-guard.js';
 import { idParamSchema } from '@/shared/schemas.js';
-import { adminListBusesQuerySchema, toggleSeatBodySchema } from '@/api/admin/schemas.js';
+import {
+  adminListBusesQuerySchema,
+  toggleSeatBodySchema,
+  adminListUsersQuerySchema,
+  updateUserStatusBodySchema,
+  adminListAuditLogsQuerySchema,
+} from '@/api/admin/schemas.js';
 
 /**
  * Serialize a BusEntity to a JSON-safe response object.
@@ -43,7 +52,53 @@ function serializeSeat(seat: SeatEntity): Record<string, unknown> {
 }
 
 /**
- * Register admin endpoints: buses list, seat toggle, and force-logout.
+ * Serialize an AdminUserEntity to a JSON-safe response object.
+ * Convert Date fields to ISO strings to match the OpenAPI spec.
+ */
+function serializeUser(user: AdminUserEntity): Record<string, unknown> {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    phone: user.phone,
+    avatarUrl: user.avatarUrl,
+    providerId: user.providerId,
+    status: user.status,
+    failedLoginAttempts: user.failedLoginAttempts,
+    lockedUntil: user.lockedUntil?.toISOString() ?? null,
+    createdAt: user.createdAt.toISOString(),
+    updatedAt: user.updatedAt.toISOString(),
+  };
+}
+
+/**
+ * Serialize an AuditLogEntity to a JSON-safe response object.
+ * Convert Date fields to ISO strings to match the OpenAPI spec.
+ */
+function serializeAuditLog(log: AuditLogEntity): Record<string, unknown> {
+  return {
+    id: log.id,
+    userId: log.userId,
+    action: log.action,
+    resource: log.resource,
+    resourceId: log.resourceId,
+    ipAddress: log.ipAddress,
+    userAgent: log.userAgent,
+    metadata: log.metadata,
+    createdAt: log.createdAt.toISOString(),
+  };
+}
+
+/** Map status action to the corresponding audit action. */
+const auditActionMap = {
+  suspend: AuditActions.ACCOUNT_SUSPENDED,
+  unsuspend: AuditActions.ACCOUNT_UNSUSPENDED,
+  unlock: AuditActions.ACCOUNT_UNLOCKED,
+} as const;
+
+/**
+ * Register admin endpoints: user management, audit logs, buses, seats, and sessions.
  * All endpoints require ADMIN role.
  */
 async function adminRoutes(app: FastifyInstance): Promise<void> {
@@ -59,6 +114,51 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
 
       return {
         data: result.data.map(serializeBus),
+        meta: result.meta,
+      };
+    },
+  );
+
+  // GET /api/v1/admin/users — list all users (paginated, optional role/status filter)
+  app.get(
+    '/api/v1/admin/users',
+    { preHandler: [app.authenticate, requireAdmin] },
+    async (request) => {
+      const query = adminListUsersQuerySchema.parse(request.query);
+      const result = await adminService.listUsers(query);
+
+      return {
+        data: result.data.map(serializeUser),
+        meta: result.meta,
+      };
+    },
+  );
+
+  // PATCH /api/v1/admin/users/:id/status — update user account status
+  app.patch(
+    '/api/v1/admin/users/:id/status',
+    { preHandler: [app.authenticate, requireAdmin] },
+    async (request) => {
+      const { id } = idParamSchema.parse(request.params);
+      const { action } = updateUserStatusBodySchema.parse(request.body);
+      const user = await adminService.updateUserStatus(id, action);
+
+      request.audit(auditActionMap[action], 'user', id);
+
+      return { data: serializeUser(user) };
+    },
+  );
+
+  // GET /api/v1/admin/audit-logs — list audit logs (paginated, optional filters)
+  app.get(
+    '/api/v1/admin/audit-logs',
+    { preHandler: [app.authenticate, requireAdmin] },
+    async (request) => {
+      const query = adminListAuditLogsQuerySchema.parse(request.query);
+      const result = await adminService.listAuditLogs(query);
+
+      return {
+        data: result.data.map(serializeAuditLog),
         meta: result.meta,
       };
     },

@@ -53,3 +53,25 @@
 - 13 integration tests covering: helper availability, IP extraction from x-forwarded-for, user agent capture, all 8 auth events, both booking events
 - Learnings: `decorateRequest('audit', null)` needs `as unknown as FastifyRequest['audit']` type cast. AuditService.log() must wrap in try/catch (not just .catch()) because if prisma.auditLog is undefined, the synchronous property access throws before any promise is created. Booking create uses interactive $transaction (callback), not array-style.
 ---
+
+## Iteration 7 - TASK-007: Token cleanup and session management
+- Created `src/jobs/token-cleanup.ts` with `cleanupTokens(prisma)` function: deletes expired refresh tokens, deletes used/expired password reset tokens, unlocks accounts past lockedUntil
+- Added `npm run jobs:cleanup-tokens` script that runs the job standalone via tsx
+- Added `revokeAllSessions(userId)` method to AdminService — revokes all active refresh tokens for a user
+- Added `DELETE /api/v1/admin/users/:id/sessions` endpoint in admin routes (requires ADMIN role, returns 204)
+- Updated OpenAPI spec with `userSessions` path definition
+- 6 unit tests for cleanup logic, 4 unit tests for revokeAllSessions, 4 integration tests for force-logout endpoint
+- All 371 unit + 290 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: Integration tests with auth plugin need `mockResolvedValueOnce` chaining for the auth lookup and then the service lookup on `user.findUnique`. The cleanup job uses `deleteMany` (not `updateMany`) for tokens since expired tokens have no value to retain.
+---
+
+## Iteration 8 - TASK-008: Admin user management endpoints
+- Implemented 3 new admin endpoints: GET /api/v1/admin/users (paginated, filterable by role/status), PATCH /api/v1/admin/users/:id/status (suspend/unsuspend/unlock), GET /api/v1/admin/audit-logs (paginated, filterable by userId/action/dateRange)
+- Added AdminUserEntity interface with admin-visible fields (includes failedLoginAttempts, lockedUntil unlike the public UserEntity)
+- Suspend action also revokes all refresh tokens via revokeAllSessions; unsuspend/unlock do not
+- Added ACCOUNT_UNSUSPENDED and ACCOUNT_UNLOCKED audit actions
+- All endpoints require ADMIN role (preHandler: [app.authenticate, requireAdmin])
+- 16 new unit tests for listUsers, updateUserStatus, listAuditLogs; 17 new integration tests for all 3 endpoints
+- All 387 unit + 308 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: OpenAPI 3.1 uses `type: ['string', 'null']` instead of `nullable: true`. Zod `z.record()` requires 2 args in this version: `z.record(z.string(), z.unknown())`. The updateUserStatus integration test needs 3 chained mockResolvedValueOnce calls (auth lookup, updateUserStatus findUnique, revokeAllSessions findUnique) for the suspend path.
+---
