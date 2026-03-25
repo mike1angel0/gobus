@@ -68,17 +68,7 @@
 
 ## Delay Management
 
-### TASK-007: Create delay service
-**Description:** Create `src/application/services/delay.service.ts`. Methods: `getBySchedule(scheduleId, tripDate)` — returns active delay(s). `create(userId, data)` — validates user is driver assigned to schedule OR provider owning schedule, deactivates previous active delays for same schedule+tripDate, creates new active delay. `update(id, providerId, data)` — provider can activate/deactivate delays.
-
-**Acceptance Criteria:**
-- [ ] `create` validates authorization (driver assignment or provider ownership)
-- [ ] `create` deactivates previous delays atomically (transaction)
-- [ ] Only one active delay per schedule+tripDate at any time
-- [ ] `update` restricted to PROVIDER role
-- [ ] Unit tests
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+**TASK-007: Create delay service** - Implemented DelayService with create (driver assignment/provider ownership validation, atomic deactivation of previous delays via $transaction), getBySchedule, update (provider ownership check). 18 unit tests.
 
 ### TASK-008: Create delay API routes
 **Description:** Implement from spec: `GET /api/v1/delays` (query: scheduleId, tripDate, authenticated), `POST /api/v1/delays` (DRIVER or PROVIDER), `PUT /api/v1/delays/{id}` (PROVIDER only).
