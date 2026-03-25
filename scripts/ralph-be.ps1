@@ -387,7 +387,7 @@ $apiContractSection
 ## Coding Standards
 - **No Hardcoding**: Never hardcode provider names, feature flags, rate limits, or configuration values. Use database-driven or env-driven configuration.
 - **Constants OK**: Technical constants (timeouts, retry limits, validation bounds) that would break the system if changed arbitrarily can stay in code.
-- **Zero `any`**: Never use `any` in production code. Use `unknown` + type guards.
+- **Zero 'any'**: Never use 'any' in production code. Use 'unknown' + type guards.
 - **API-First**: When implementing an endpoint, read the OpenAPI spec first to understand the expected request/response shapes.
 
 ## Critical: Only Complete If Tests AND Quality Checks Pass
@@ -651,7 +651,7 @@ $observabilitySection = "
 
 ## Observability Requirements
 
-- Use `createLogger(name)` for structured logging in all services
+- Use createLogger(name) for structured logging in all services
 - Log levels: info for business events, debug for technical details, warn for recoverable issues, error for failures
 - No console.log in production code (use logger)
 "

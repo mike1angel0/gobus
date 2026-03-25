@@ -361,21 +361,21 @@ If test framework not set up yet, set it up first and document in CLAUDE.md.
 ## Frontend Patterns
 
 ### API Client (API-First)
-- Types are auto-generated from the OpenAPI spec via `openapi-typescript`
-- Use `openapi-fetch` typed client — never raw `fetch()`
-- Run `npm run api:sync` after spec changes to regenerate types
+- Types are auto-generated from the OpenAPI spec via 'openapi-typescript'
+- Use 'openapi-fetch' typed client — never raw fetch()
+- Run 'npm run api:sync' after spec changes to regenerate types
 
 ### React Query
-- Use query key factories from `src/api/keys.ts`
-- Mutations must `invalidateQueries` on success
-- Use `staleTime` per query type (search: 30s, lists: 60s, tracking: 5s)
+- Use query key factories from src/api/keys.ts
+- Mutations must invalidateQueries on success
+- Use staleTime per query type (search: 30s, lists: 60s, tracking: 5s)
 
 ### Components
 - Skeleton loaders (not spinners) for loading states
 - Error state + retry button
 - Empty state + CTA
 - Toast for mutation feedback
-- Compose from `src/components/ui/` (shadcn) — never create new base UI components
+- Compose from src/components/ui/ (shadcn) — never create new base UI components
 
 ### Accessibility (WCAG 2.1 AA)
 - Semantic HTML (headings hierarchy, landmarks)
@@ -385,19 +385,19 @@ If test framework not set up yet, set it up first and document in CLAUDE.md.
 - Form errors: aria-describedby linking errors to fields
 
 ### Forms
-- Zod schema → `z.infer<typeof schema>` → `zodResolver`
-- Map API RFC 9457 `errors[]` to `setError(field, { message })`
+- Zod schema -> z.infer<typeof schema> -> zodResolver
+- Map API RFC 9457 errors[] to setError(field, { message })
 - Client-side Zod limits MUST match OpenAPI spec limits (maxLength, min, max, pattern)
 
 ### Security
-- NEVER use `dangerouslySetInnerHTML`
+- NEVER use dangerouslySetInnerHTML
 - NEVER store access tokens in localStorage/sessionStorage (memory only)
 - NEVER put sensitive data in URL query params
-- Use `sanitizeUrl()` for all user-provided URLs (reject javascript:, data: schemes)
+- Use sanitizeUrl() for all user-provided URLs (reject javascript:, data: schemes)
 - Handle all auth error codes: 401 (expired) → refresh, 403 (suspended) → logout+message, 423 (locked) → message
 
 ## Coding Standards
-- **Zero `any`**: Never use `any`. Use `unknown` + type guards or proper types from generated API types.
+- **Zero 'any'**: Never use 'any'. Use 'unknown' + type guards or proper types from generated API types.
 - **No hardcoded URLs**: API base URL from VITE_API_URL env var.
 - **No console.log**: Use proper error handling.
 - **No raw fetch**: Always use the typed API client.
@@ -413,7 +413,7 @@ When implementing a feature and you discover that the OpenAPI spec is:
 - Doesn't document a query parameter you need
 
 DO NOT work around it. Instead:
-1. Document the gap in `SPEC_GAPS.md` at the monorepo root with format:
+1. Document the gap in SPEC_GAPS.md at the monorepo root with format:
    ```
    ## [endpoint or schema name]
    - **Issue**: [what's missing or wrong]
