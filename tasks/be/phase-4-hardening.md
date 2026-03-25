@@ -70,12 +70,12 @@
 **Description:** Integrate AuditService into: AuthService (login success/failure/lockout, register, logout, password reset/change), BookingService (create, cancel). Create a Fastify plugin `src/api/plugins/audit.ts` that decorates request with `request.audit(action, resource, resourceId?)` helper extracting IP + userAgent automatically.
 
 **Acceptance Criteria:**
-- [ ] Auth events: LOGIN_SUCCESS, LOGIN_FAILURE, LOGIN_LOCKED, REGISTER, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_COMPLETE, PASSWORD_CHANGE
-- [ ] Booking events: BOOKING_CREATED, BOOKING_CANCELLED
-- [ ] `request.audit()` helper available in all routes
-- [ ] IP address extracted from x-forwarded-for or socket
-- [ ] Integration tests verify audit log entries created
-- [ ] Typecheck passes
+- [x] Auth events: LOGIN_SUCCESS, LOGIN_FAILURE, LOGIN_LOCKED, REGISTER, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_COMPLETE, PASSWORD_CHANGE
+- [x] Booking events: BOOKING_CREATED, BOOKING_CANCELLED
+- [x] `request.audit()` helper available in all routes
+- [x] IP address extracted from x-forwarded-for or socket
+- [x] Integration tests verify audit log entries created
+- [x] Typecheck passes
 
 ### TASK-007: Token cleanup and session management
 **Description:** Create `src/jobs/token-cleanup.ts` with a function (invokable via npm script or cron) that: deletes expired refresh tokens, deletes expired/used password reset tokens, unlocks accounts past their lockout period (reset failedLoginAttempts, clear lockedUntil). Add `npm run jobs:cleanup-tokens` script. Add admin endpoint `DELETE /api/v1/admin/users/{id}/sessions` to revoke all refresh tokens for a user (force logout).

@@ -62,26 +62,35 @@ export class AuditService {
    * Errors are caught and logged — the caller is never blocked.
    */
   log(input: AuditLogInput): void {
-    this.prisma.auditLog
-      .create({
-        data: {
-          userId: input.userId ?? null,
-          action: input.action,
-          resource: input.resource,
-          resourceId: input.resourceId ?? null,
-          ipAddress: input.ipAddress ?? null,
-          userAgent: input.userAgent ?? null,
-          metadata: (input.metadata as Record<string, unknown> & object) ?? undefined,
-        },
-      })
-      .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : String(err);
-        logger.error('Failed to write audit log', {
-          action: input.action,
-          resource: input.resource,
-          error: message,
+    try {
+      this.prisma.auditLog
+        .create({
+          data: {
+            userId: input.userId ?? null,
+            action: input.action,
+            resource: input.resource,
+            resourceId: input.resourceId ?? null,
+            ipAddress: input.ipAddress ?? null,
+            userAgent: input.userAgent ?? null,
+            metadata: (input.metadata as Record<string, unknown> & object) ?? undefined,
+          },
+        })
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : String(err);
+          logger.error('Failed to write audit log', {
+            action: input.action,
+            resource: input.resource,
+            error: message,
+          });
         });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error('Failed to write audit log', {
+        action: input.action,
+        resource: input.resource,
+        error: message,
       });
+    }
   }
 
   /**

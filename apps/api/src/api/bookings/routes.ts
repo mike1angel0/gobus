@@ -3,6 +3,7 @@ import fp from 'fastify-plugin';
 
 import { BookingService } from '@/application/services/booking.service.js';
 import type { BookingWithDetails } from '@/application/services/booking.service.js';
+import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { idParamSchema } from '@/shared/schemas.js';
 import { createBookingBodySchema, listBookingsQuerySchema } from '@/api/bookings/schemas.js';
@@ -87,6 +88,8 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
     const body = createBookingBodySchema.parse(request.body);
     const booking = await bookingService.create(request.user.id, body);
 
+    request.audit(AuditActions.BOOKING_CREATED, 'booking', booking.id);
+
     return reply.status(201).send({ data: serializeBookingWithDetails(booking) });
   });
 
@@ -103,11 +106,13 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
     const { id } = idParamSchema.parse(request.params);
     const booking = await bookingService.cancel(id, request.user.id);
 
+    request.audit(AuditActions.BOOKING_CANCELLED, 'booking', booking.id);
+
     return { data: serializeBookingWithDetails(booking) };
   });
 }
 
 export default fp(bookingRoutes, {
   name: 'booking-routes',
-  dependencies: ['auth'],
+  dependencies: ['auth', 'audit'],
 });

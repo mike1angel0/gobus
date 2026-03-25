@@ -3,6 +3,9 @@ import fp from 'fastify-plugin';
 
 import { AuthService } from '@/application/services/auth.service.js';
 import { AUTH_RATE_LIMIT } from '@/api/plugins/rate-limit.js';
+import { AuditActions } from '@/domain/audit/audit-actions.js';
+import { AppError } from '@/domain/errors/app-error.js';
+import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import type { UserEntity } from '@/domain/users/user.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import {
@@ -41,6 +44,8 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
     const body = registerBodySchema.parse(request.body);
     const { user, tokens } = await authService.register(body);
 
+    request.audit(AuditActions.REGISTER, 'user', user.id);
+
     return reply.status(201).send({
       data: {
         accessToken: tokens.accessToken,
@@ -53,15 +58,29 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/auth/login
   app.post('/api/v1/auth/login', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = loginBodySchema.parse(request.body);
-    const { user, tokens } = await authService.login(body, request.ip);
 
-    return {
-      data: {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        user: serializeUser(user),
-      },
-    };
+    try {
+      const { user, tokens } = await authService.login(body, request.ip);
+
+      request.audit(AuditActions.LOGIN_SUCCESS, 'user', user.id);
+
+      return {
+        data: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          user: serializeUser(user),
+        },
+      };
+    } catch (err) {
+      if (err instanceof AppError) {
+        if (err.code === ErrorCodes.ACCOUNT_LOCKED) {
+          request.audit(AuditActions.LOGIN_LOCKED, 'user', null, { email: body.email });
+        } else if (err.code === ErrorCodes.AUTH_INVALID_CREDENTIALS) {
+          request.audit(AuditActions.LOGIN_FAILURE, 'user', null, { email: body.email });
+        }
+      }
+      throw err;
+    }
   });
 
   // POST /api/v1/auth/refresh
@@ -82,6 +101,8 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
     const body = logoutBodySchema.parse(request.body);
     await authService.logout(request.user.id, body.refreshToken);
 
+    request.audit(AuditActions.LOGOUT, 'user', request.user.id);
+
     return reply.status(204).send();
   });
 
@@ -89,6 +110,8 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   app.post('/api/v1/auth/forgot-password', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = forgotPasswordBodySchema.parse(request.body);
     await authService.forgotPassword(body.email);
+
+    request.audit(AuditActions.PASSWORD_RESET_REQUEST, 'user', null, { email: body.email });
 
     return {
       data: { message: 'If the email exists, a password reset link has been sent.' },
@@ -100,6 +123,8 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
     const body = resetPasswordBodySchema.parse(request.body);
     await authService.resetPassword(body.token, body.newPassword);
 
+    request.audit(AuditActions.PASSWORD_RESET_COMPLETE, 'user');
+
     return {
       data: { message: 'Password has been reset successfully.' },
     };
@@ -109,6 +134,8 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   app.post('/api/v1/auth/change-password', { preHandler: [app.authenticate] }, async (request) => {
     const body = changePasswordBodySchema.parse(request.body);
     await authService.changePassword(request.user.id, body.currentPassword, body.newPassword);
+
+    request.audit(AuditActions.PASSWORD_CHANGE, 'user', request.user.id);
 
     return {
       data: { message: 'Password has been changed successfully.' },
@@ -133,5 +160,5 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
 
 export default fp(authRoutes, {
   name: 'auth-routes',
-  dependencies: ['auth'],
+  dependencies: ['auth', 'audit'],
 });

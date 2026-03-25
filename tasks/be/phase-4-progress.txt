@@ -34,3 +34,22 @@
 - 6 integration tests: UUID generation, client ID echo, unique IDs, 413 for oversized payload, trim passes validation, whitespace-only name rejected
 - Learnings: Fastify bodyLimit errors hit the error handler as statusCode 413 — need explicit handling. `.trim()` before `.min(1)` properly rejects whitespace-only strings.
 ---
+
+## Iteration 5 - TASK-005: Create audit logging service
+- Created AuditActions constants (12 actions: auth, account, booking events) in domain/audit/audit-actions.ts
+- Created AuditLogEntity and AuditLogInput interfaces in domain/audit/audit.entity.ts
+- Implemented AuditService with fire-and-forget log() and paginated getByUser()
+- 11 unit tests covering: all field mapping, null defaults, fire-and-forget error handling, all security event types, booking events, IP/userAgent capture, pagination skip/take, empty results, ordering, totalPages calculation
+- Learnings: Prisma JSON field type requires intersection with `& object` for Record<string, unknown> to satisfy InputJsonValue — `(input.metadata as Record<string, unknown> & object)`. AuditLog model already existed in schema with composite index on [userId, createdAt].
+---
+
+## Iteration 6 - TASK-006: Add audit logging hooks to existing services
+- Created `src/api/plugins/audit.ts` Fastify plugin that decorates request with `request.audit()` helper
+- The helper extracts IP from x-forwarded-for (first entry) or socket, and user agent from headers automatically
+- Integrated audit calls into auth routes: REGISTER, LOGIN_SUCCESS, LOGIN_FAILURE, LOGIN_LOCKED, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_COMPLETE, PASSWORD_CHANGE
+- Login failure/locked events use try/catch around authService.login() to audit on error before re-throwing
+- Integrated audit calls into booking routes: BOOKING_CREATED, BOOKING_CANCELLED
+- Added try/catch wrapper in AuditService.log() to handle synchronous errors (e.g., when prisma.auditLog is undefined in test mocks)
+- 13 integration tests covering: helper availability, IP extraction from x-forwarded-for, user agent capture, all 8 auth events, both booking events
+- Learnings: `decorateRequest('audit', null)` needs `as unknown as FastifyRequest['audit']` type cast. AuditService.log() must wrap in try/catch (not just .catch()) because if prisma.auditLog is undefined, the synchronous property access throws before any promise is created. Booking create uses interactive $transaction (callback), not array-style.
+---

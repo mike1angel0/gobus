@@ -11,6 +11,7 @@ import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastif
 import errorHandler from '@/api/plugins/error-handler.js';
 import rateLimitPlugin from '@/api/plugins/rate-limit.js';
 import authPlugin from '@/api/plugins/auth.js';
+import auditPlugin from '@/api/plugins/audit.js';
 import healthRoutes from '@/api/health/routes.js';
 import authRoutes from '@/api/auth/routes.js';
 import providerRoutes from '@/api/providers/routes.js';
@@ -141,6 +142,7 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
 
   // Plugins
   await app.register(authPlugin);
+  await app.register(auditPlugin);
 
   // Routes
   await app.register(healthRoutes);
