@@ -135,10 +135,10 @@
 **Description:** Create `src/domain/schedules/schedule.entity.ts` with types: `ScheduleEntity`, `ScheduleWithDetails` (includes route, bus, driver, stopTimes, booking count), `CreateScheduleData`, `UpdateScheduleData`.
 
 **Acceptance Criteria:**
-- [ ] Types match OpenAPI schemas
-- [ ] `ScheduleWithDetails` includes computed fields (availableSeats, bookingCount)
-- [ ] JSDoc on all types
-- [ ] Typecheck passes
+- [x] Types match OpenAPI schemas
+- [x] `ScheduleWithDetails` includes computed fields (availableSeats, bookingCount)
+- [x] JSDoc on all types
+- [x] Typecheck passes
 
 ### TASK-012: Create schedule service
 **Description:** Create `src/application/services/schedule.service.ts`. Methods: `listByProvider(providerId, pagination, filters)` — filterable by routeId, busId, status, date range. `getById(id, providerId)` — with details. `create(providerId, data)` — validates route/bus belong to provider, auto-generates stopTimes from route stops. `update(id, providerId, data)` — assign/unassign driver, change status. `cancel(id, providerId)` — sets status=CANCELLED.

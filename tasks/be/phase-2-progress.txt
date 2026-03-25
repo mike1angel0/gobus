@@ -80,3 +80,9 @@
 - 19 integration tests: CRUD happy paths, pagination, validation (missing fields, weak password, short password, unknown fields), auth (401/403), ownership (404), conflict (409)
 - Patterns: same fastify-plugin pattern as bus routes, serializeDriver for Date→ISO
 ---
+## Iteration 11 - TASK-011: Create schedule domain types
+- Created ScheduleEntity, ScheduleWithDetails, StopTimeEntity, CreateScheduleData, UpdateScheduleData, CreateStopTimeData interfaces
+- ScheduleWithDetails extends ScheduleEntity with stopTimes, route (ScheduleRouteSummary), bus (ScheduleBusSummary), driver (ScheduleDriverSummary | null)
+- Nested summary types (ScheduleRouteSummary, ScheduleBusSummary, ScheduleDriverSummary) match OpenAPI nested schemas
+- Patterns: same interface-only pattern as route.entity.ts and bus.entity.ts, extends for detail types
+---
