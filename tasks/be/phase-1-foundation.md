@@ -24,14 +24,14 @@ transio/
 ├── package.json           # Root workspaces
 └── CLAUDE.md              # Root conventions
 ```
-Set up root `package.json` with npm workspaces (`apps/*`). Move existing Next.js code to `_legacy/` for reference during migration. Add root `.gitignore`, `.editorconfig`.
+Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js code in place — it stays as the working app until the new apps are ready, and serves as the design reference (Tailwind theme, glass-morphism components, color palette, globals.css utilities). The new `apps/web/` must replicate the exact same visual design. Add root `.gitignore`, `.editorconfig`.
 
 **Acceptance Criteria:**
 - [x] Root `package.json` with `"workspaces": ["apps/*"]`
 - [x] `spec/` directory created with placeholder `openapi.yaml`
 - [x] `apps/api/package.json` initialized with name `@transio/api`
 - [x] `apps/web/package.json` initialized with name `@transio/web`
-- [x] Existing source moved to `_legacy/` for reference
+- [x] Existing Next.js code kept in place as design reference (not moved or deleted)
 - [x] Root `.gitignore` updated (node_modules, dist, .env, *.db, coverage/)
 - [x] Root `CLAUDE.md` created with monorepo overview and API-first workflow
 

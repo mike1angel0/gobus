@@ -19,14 +19,15 @@
 - [ ] `npm run build` produces production bundle
 - [ ] `npm run typecheck` passes with zero errors
 
-### TASK-002: Configure Tailwind CSS + shadcn/ui
-**Description:** Install and configure Tailwind CSS v3.4. Set up the Transio dark theme: custom colors (primary blue, accent green, dark slate palette from dark-50 to dark-950). Install shadcn/ui with the dark theme. Create `src/components/ui/` directory. Add utility classes in `globals.css`: `.glass`, `.glass-card`, `.btn-primary`, `.btn-accent`, `.btn-secondary`, `.input-field` matching the existing design language.
+### TASK-002: Configure Tailwind CSS + shadcn/ui — replicate existing design
+**Description:** Install and configure Tailwind CSS v3.4. **Copy the exact design system from the existing Next.js app** — read `tailwind.config.ts` and `src/app/globals.css` from the project root to replicate: custom colors (primary blue #3B82F6, accent green #10B981, dark slate palette dark-50 through dark-950), glass-morphism effects (backdrop-blur, border opacity), gradient text. Install shadcn/ui with the dark theme. Create `src/components/ui/` directory. Port ALL utility classes from existing `globals.css`: `.glass`, `.glass-card`, `.btn-primary`, `.btn-accent`, `.btn-secondary`, `.input-field`, and any others found. The new app must be visually identical to the existing one.
 
 **Acceptance Criteria:**
-- [ ] Tailwind configured with custom theme colors
+- [ ] Tailwind theme colors copied exactly from existing `tailwind.config.ts`
+- [ ] ALL utility classes from existing `globals.css` ported (`.glass`, `.glass-card`, `.btn-primary`, `.btn-accent`, `.btn-secondary`, `.input-field`, etc.)
 - [ ] shadcn/ui initialized with dark theme
-- [ ] Utility classes defined in globals.css
 - [ ] `src/components/ui/` directory with shadcn base components (button, input, card, dialog, toast)
+- [ ] Visual comparison: new app shell matches existing app's look and feel
 - [ ] Typecheck passes
 
 ### TASK-003: Configure ESLint, Prettier, and quality gates
