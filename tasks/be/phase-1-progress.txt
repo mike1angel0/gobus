@@ -89,3 +89,16 @@
 - 53 unit + 4 integration tests passing
 - Learnings: @fastify/swagger StaticDocumentSpec expects `OpenAPIV3.Document` type (from openapi-types, a transitive dep). OpenAPI 3.1 spec can be cast to OpenAPIV3.Document safely. `__dirname` resolves to src/ dir at runtime, so spec path is 3 levels up. Spec must be pre-bundled via `npm run spec:bundle` before tests/runtime.
 ---
+
+## Iteration 14 - TASK-014: Set up Prisma with PostgreSQL
+- Installed Prisma 7.5 with @prisma/adapter-pg driver adapter, created schema, singleton client, graceful disconnect, db:* scripts
+- Learnings: Prisma 7 requires driver adapters (@prisma/adapter-pg for PostgreSQL). PrismaClient constructor needs `adapter` or `accelerateUrl`. Generated client output dir (src/generated/prisma) must be excluded from tsc and eslint.
+---
+
+## Iteration 15 - TASK-015: Create User, Provider, and security-related models
+- Created 5 models (User, Provider, RefreshToken, PasswordResetToken, AuditLog) and 3 enums (Role, UserStatus, ProviderStatus)
+- All fields match OpenAPI spec (VarChar lengths, nullable fields, defaults)
+- Cascade deletes on RefreshToken/PasswordResetToken when User deleted
+- Indexes on User.email (unique), User.providerId, User.role, RefreshToken.userId, PasswordResetToken.userId, AuditLog.userId+createdAt
+- Learnings: Prisma 7 cuid() default works out of the box. VarChar lengths should match OpenAPI maxLength constraints. AuditLog.userId is nullable (system actions have no user).
+---

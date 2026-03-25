@@ -6,3 +6,113 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum Role {
+  PASSENGER
+  PROVIDER
+  DRIVER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  LOCKED
+}
+
+enum ProviderStatus {
+  APPROVED
+  PENDING
+}
+
+// ─── User ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                  String     @id @default(cuid())
+  email               String     @unique @db.VarChar(255)
+  name                String     @db.VarChar(100)
+  passwordHash        String     @db.VarChar(255)
+  role                Role       @default(PASSENGER)
+  phone               String?    @db.VarChar(20)
+  avatarUrl           String?    @db.VarChar(2048)
+  preferences         Json?
+  providerId          String?
+  status              UserStatus @default(ACTIVE)
+  failedLoginAttempts Int        @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  provider            Provider?       @relation(fields: [providerId], references: [id])
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  auditLogs           AuditLog[]
+
+  @@index([providerId])
+  @@index([role])
+}
+
+// ─── Provider ───────────────────────────────────────────────────────────────
+
+model Provider {
+  id           String         @id @default(cuid())
+  name         String         @db.VarChar(200)
+  logo         String?        @db.VarChar(2048)
+  contactEmail String?        @db.VarChar(255)
+  contactPhone String?        @db.VarChar(20)
+  status       ProviderStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  users        User[]
+}
+
+// ─── RefreshToken ───────────────────────────────────────────────────────────
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  token     String    @unique @db.VarChar(500)
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─── PasswordResetToken ─────────────────────────────────────────────────────
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique @db.VarChar(500)
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─── AuditLog ───────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   @db.VarChar(100)
+  resource   String   @db.VarChar(100)
+  resourceId String?  @db.VarChar(100)
+  ipAddress  String?  @db.VarChar(45)
+  userAgent  String?  @db.VarChar(500)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}

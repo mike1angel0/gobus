@@ -69,20 +69,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-014: Set up Prisma with PostgreSQL** - Installed Prisma 7 with @prisma/adapter-pg driver adapter, created PostgreSQL schema, singleton client with query logging in dev, graceful disconnect in server shutdown, and all db:* npm scripts.
 
-### TASK-015: Create User, Provider, and security-related models
-**Description:** User: id (cuid), email (unique), name, passwordHash, role (enum PASSENGER/PROVIDER/DRIVER/ADMIN), phone, avatarUrl, preferences (Json), providerId (FK nullable), status (enum ACTIVE/SUSPENDED/LOCKED default ACTIVE), failedLoginAttempts (Int default 0), lockedUntil (DateTime nullable), createdAt, updatedAt. Provider: id (cuid), name, logo, contactEmail, contactPhone, status (enum APPROVED/PENDING), createdAt, updatedAt. RefreshToken: id (cuid), token (unique, hashed), userId (FK), expiresAt (DateTime), revokedAt (DateTime nullable), createdAt. PasswordResetToken: id (cuid), token (unique, hashed), userId (FK), expiresAt (DateTime), usedAt (DateTime nullable), createdAt. AuditLog: id (cuid), userId (FK nullable), action (String), resource (String), resourceId (String nullable), ipAddress (String nullable), userAgent (String nullable), metadata (Json nullable), createdAt. Indexes on User.email (unique), User.providerId, User.role, RefreshToken.token, PasswordResetToken.token, AuditLog.userId+createdAt.
-
-**Acceptance Criteria:**
-- [ ] User model with status enum (ACTIVE, SUSPENDED, LOCKED) and lockout fields
-- [ ] Provider model with status enum
-- [ ] RefreshToken model (hashed tokens, expiry, revocation tracking)
-- [ ] PasswordResetToken model (hashed tokens, expiry, single-use)
-- [ ] AuditLog model for security event tracking
-- [ ] Role enum matching OpenAPI `Role` enum
-- [ ] UserStatus enum (ACTIVE, SUSPENDED, LOCKED)
-- [ ] Proper indexes and relations
-- [ ] Cascade delete RefreshTokens and PasswordResetTokens when User deleted
-- [ ] `npm run db:generate` succeeds
+**TASK-015: Create User, Provider, and security-related models** - Created User (with status/lockout fields), Provider (with ProviderStatus), RefreshToken, PasswordResetToken, AuditLog models. Role/UserStatus/ProviderStatus enums matching OpenAPI spec. Cascade deletes, proper indexes, db:generate succeeds.
 
 ### TASK-016: Create transport entity models
 **Description:** Route (id, name, providerId FK). Stop (id, name, lat, lng, orderIndex, routeId FK cascade). Bus (id, licensePlate unique, model, capacity, rows, columns, providerId FK). Seat (id, row, column, label, type enum, price Float default 0, isEnabled Boolean default true, busId FK cascade). Add all indexes.
