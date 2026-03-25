@@ -1151,6 +1151,390 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  # --- Tracking Endpoints ---
+  /api/v1/tracking/{busId}:
+    get:
+      operationId: getBusTracking
+      summary: Get bus live position
+      description: Returns the current GPS position and tracking status for a bus. Requires authentication.
+      tags:
+        - Tracking
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: busId
+          in: path
+          required: true
+          description: Bus identifier to track
+          schema:
+            type: string
+            maxLength: 30
+      responses:
+        '200':
+          description: Current bus tracking data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusTrackingDataResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No tracking data found for this bus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/tracking:
+    post:
+      operationId: updateTracking
+      summary: Update bus GPS position
+      description: Updates the live GPS position for a bus. Only DRIVER role can update tracking. The driver must be assigned to the bus's active schedule.
+      tags:
+        - Tracking
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackingUpdate'
+      responses:
+        '200':
+          description: Tracking position updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusTrackingDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a driver or not assigned to this bus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Driver Endpoints ---
+  /api/v1/driver/trips:
+    get:
+      operationId: listDriverTrips
+      summary: List driver's assigned trips for a date
+      description: Returns the list of schedules assigned to the authenticated driver for a given date. Requires DRIVER role.
+      tags:
+        - Driver
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          required: false
+          description: Trip date to filter by (defaults to today). ISO 8601 date format.
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of driver's trips
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverTripListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a driver
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/driver/trips/{scheduleId}:
+    get:
+      operationId: getDriverTripDetail
+      summary: Get driver trip detail
+      description: Returns detailed information about a specific trip assigned to the authenticated driver. Includes route stops, passengers, and bus info. Requires DRIVER role. Returns 404 if schedule is not assigned to this driver.
+      tags:
+        - Driver
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          description: Schedule identifier
+          schema:
+            type: string
+            maxLength: 30
+        - name: date
+          in: query
+          required: false
+          description: Trip date (defaults to today). ISO 8601 date format.
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Driver trip detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverTripDetailDataResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a driver
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Schedule not found or not assigned to this driver
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Delay Endpoints ---
+  /api/v1/delays:
+    get:
+      operationId: listDelays
+      summary: Get delays for a schedule and trip date
+      description: Returns active delays for a specific schedule on a given trip date. Requires authentication.
+      tags:
+        - Delays
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: scheduleId
+          in: query
+          required: true
+          description: Schedule to get delays for
+          schema:
+            type: string
+            maxLength: 30
+        - name: tripDate
+          in: query
+          required: true
+          description: Trip date to filter delays. ISO 8601 date format.
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of delays
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: createDelay
+      summary: Report a delay
+      description: Reports a delay for a schedule on a specific trip date. Requires DRIVER or PROVIDER role. Drivers can only report delays for their assigned schedules. Providers can only report delays for their own schedules.
+      tags:
+        - Delays
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDelayRequest'
+      responses:
+        '201':
+          description: Delay reported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not authorized (not DRIVER/PROVIDER or not assigned/owned)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/delays/{id}:
+    put:
+      operationId: updateDelay
+      summary: Update a delay
+      description: Updates an existing delay record. Only PROVIDER role can update delays, and only for their own schedules. Returns 404 if delay belongs to another provider.
+      tags:
+        - Delays
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDelayRequest'
+      responses:
+        '200':
+          description: Delay updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Delay not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Admin Endpoints ---
+  /api/v1/admin/buses:
+    get:
+      operationId: adminListBuses
+      summary: List all buses (admin)
+      description: Returns a paginated list of all buses across all providers. Requires ADMIN role.
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: providerId
+          in: query
+          required: false
+          description: Filter buses by provider
+          schema:
+            type: string
+            maxLength: 30
+      responses:
+        '200':
+          description: Paginated list of buses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/admin/seats/{id}:
+    patch:
+      operationId: adminToggleSeat
+      summary: Enable or disable a seat (admin)
+      description: Allows an admin to enable or disable a specific seat. Useful for marking damaged seats as unavailable. Requires ADMIN role.
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminToggleSeatRequest'
+      responses:
+        '200':
+          description: Seat updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Seat not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -3085,3 +3469,416 @@ components:
             $ref: '#/components/schemas/Booking'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
+
+    # --- Tracking Schemas ---
+    BusTracking:
+      type: object
+      description: Live GPS tracking data for a bus
+      required:
+        - id
+        - busId
+        - lat
+        - lng
+        - speed
+        - heading
+        - currentStopIndex
+        - isActive
+        - updatedAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique tracking record identifier (cuid)
+        busId:
+          type: string
+          maxLength: 30
+          description: Bus being tracked
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Current latitude coordinate
+        lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Current longitude coordinate
+        speed:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 300
+          description: Current speed in km/h
+        heading:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 360
+          description: Compass heading in degrees (0 = North, 90 = East)
+        scheduleId:
+          type:
+            - string
+            - 'null'
+          maxLength: 30
+          description: Active schedule this bus is running
+        currentStopIndex:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Index of the current or next stop in the route
+        isActive:
+          type: boolean
+          description: Whether the bus is actively transmitting position
+        tripDate:
+          type:
+            - string
+            - 'null'
+          format: date-time
+          description: Date of the current trip
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last position update timestamp
+
+    TrackingUpdate:
+      type: object
+      description: Request body for updating bus GPS position
+      required:
+        - busId
+        - lat
+        - lng
+        - speed
+        - heading
+        - currentStopIndex
+      properties:
+        busId:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Bus to update tracking for
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Current latitude coordinate
+        lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Current longitude coordinate
+        speed:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 300
+          description: Current speed in km/h
+        heading:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 360
+          description: Compass heading in degrees (0 = North, 90 = East)
+        currentStopIndex:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Index of the current or next stop in the route
+        scheduleId:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Active schedule ID (optional, inferred from assignment if omitted)
+        tripDate:
+          type: string
+          format: date
+          description: Date of the current trip
+
+    # --- Delay Schemas ---
+    DelayReason:
+      type: string
+      description: Reason for a schedule delay
+      enum:
+        - TRAFFIC
+        - MECHANICAL
+        - WEATHER
+        - OTHER
+
+    Delay:
+      type: object
+      description: A delay record for a schedule on a specific trip date
+      required:
+        - id
+        - scheduleId
+        - offsetMinutes
+        - reason
+        - tripDate
+        - active
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique delay record identifier (cuid)
+        scheduleId:
+          type: string
+          maxLength: 30
+          description: Schedule affected by the delay
+        offsetMinutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+          description: Delay duration in minutes
+        reason:
+          $ref: '#/components/schemas/DelayReason'
+        note:
+          type:
+            - string
+            - 'null'
+          maxLength: 500
+          description: Optional free-text note about the delay
+        tripDate:
+          type: string
+          format: date-time
+          description: Date of the affected trip
+        active:
+          type: boolean
+          description: Whether the delay is currently active
+        createdAt:
+          type: string
+          format: date-time
+          description: Delay creation timestamp
+
+    CreateDelayRequest:
+      type: object
+      description: Request body for reporting a delay
+      required:
+        - scheduleId
+        - offsetMinutes
+        - reason
+        - tripDate
+      properties:
+        scheduleId:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Schedule to report delay for
+        offsetMinutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+          description: Delay duration in minutes
+        reason:
+          $ref: '#/components/schemas/DelayReason'
+        note:
+          type: string
+          maxLength: 500
+          description: Optional free-text note about the delay
+        tripDate:
+          type: string
+          format: date
+          description: Date of the affected trip (ISO 8601 date format)
+
+    UpdateDelayRequest:
+      type: object
+      description: Request body for updating a delay
+      properties:
+        offsetMinutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+          description: Updated delay duration in minutes
+        reason:
+          $ref: '#/components/schemas/DelayReason'
+        note:
+          type:
+            - string
+            - 'null'
+          maxLength: 500
+          description: Updated free-text note about the delay
+        active:
+          type: boolean
+          description: Whether the delay is currently active
+
+    # --- Driver Schemas ---
+    DriverTrip:
+      type: object
+      description: A trip assigned to a driver with summary info
+      required:
+        - scheduleId
+        - departureTime
+        - arrivalTime
+        - tripDate
+        - routeName
+        - busLicensePlate
+        - status
+      properties:
+        scheduleId:
+          type: string
+          maxLength: 30
+          description: Schedule identifier
+        departureTime:
+          type: string
+          format: date-time
+          description: Scheduled departure time
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Scheduled arrival time
+        tripDate:
+          type: string
+          format: date-time
+          description: Date of this trip
+        routeName:
+          type: string
+          maxLength: 200
+          description: Name of the route
+        busLicensePlate:
+          type: string
+          maxLength: 20
+          description: License plate of the assigned bus
+        status:
+          $ref: '#/components/schemas/ScheduleStatus'
+
+    DriverTripDetail:
+      type: object
+      description: Detailed trip information for a driver including stops and passenger count
+      required:
+        - scheduleId
+        - departureTime
+        - arrivalTime
+        - tripDate
+        - routeName
+        - busLicensePlate
+        - busModel
+        - status
+        - stops
+        - passengerCount
+        - totalSeats
+      properties:
+        scheduleId:
+          type: string
+          maxLength: 30
+          description: Schedule identifier
+        departureTime:
+          type: string
+          format: date-time
+          description: Scheduled departure time
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Scheduled arrival time
+        tripDate:
+          type: string
+          format: date-time
+          description: Date of this trip
+        routeName:
+          type: string
+          maxLength: 200
+          description: Name of the route
+        busLicensePlate:
+          type: string
+          maxLength: 20
+          description: License plate of the assigned bus
+        busModel:
+          type: string
+          maxLength: 100
+          description: Model name of the assigned bus
+        status:
+          $ref: '#/components/schemas/ScheduleStatus'
+        stops:
+          type: array
+          minItems: 0
+          maxItems: 100
+          description: Ordered list of stop times for this trip
+          items:
+            $ref: '#/components/schemas/StopTime'
+        passengerCount:
+          type: integer
+          minimum: 0
+          maximum: 200
+          description: Number of confirmed passengers for this trip
+        totalSeats:
+          type: integer
+          minimum: 0
+          maximum: 200
+          description: Total seat capacity of the bus
+
+    # --- Admin Schemas ---
+    AdminToggleSeatRequest:
+      type: object
+      description: Request body for enabling or disabling a seat
+      required:
+        - isEnabled
+      properties:
+        isEnabled:
+          type: boolean
+          description: Whether the seat should be enabled (true) or disabled (false)
+
+    # --- Response Envelopes (Tracking, Delay, Driver, Admin) ---
+    BusTrackingDataResponse:
+      type: object
+      description: API response envelope wrapping bus tracking data
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/BusTracking'
+
+    DelayDataResponse:
+      type: object
+      description: API response envelope wrapping a single delay
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/Delay'
+
+    DelayListResponse:
+      type: object
+      description: List of delays (not paginated, filtered by schedule+date)
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 100
+          description: Delays for the requested schedule and date
+          items:
+            $ref: '#/components/schemas/Delay'
+
+    DriverTripListResponse:
+      type: object
+      description: List of driver's assigned trips
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 50
+          description: Driver's trips for the requested date
+          items:
+            $ref: '#/components/schemas/DriverTrip'
+
+    DriverTripDetailDataResponse:
+      type: object
+      description: API response envelope wrapping driver trip detail
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/DriverTripDetail'
+
+    SeatDataResponse:
+      type: object
+      description: API response envelope wrapping a single seat
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/Seat'
