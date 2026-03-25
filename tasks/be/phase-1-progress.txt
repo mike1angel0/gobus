@@ -113,3 +113,13 @@ Iterations 1–17 established the full project foundation: monorepo structure, c
 
 ## Learnings
 See per-iteration learnings above and the "Important Gotchas" section in Compacted History.
+
+## Iteration 25 - Validation Fix: npm audit + spec password pattern
+- Added npm `overrides` in root package.json to pin hono>=4.12.7, @hono/node-server>=1.19.10, effect>=3.20.0, js-yaml>=4.1.1, lodash>=4.17.22 → 0 vulnerabilities
+- Added `pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+'` to RegisterRequest.password, ResetPasswordRequest.newPassword, ChangePasswordRequest.newPassword, CreateDriverRequest.password in OpenAPI spec
+- Added `minLength: 1` to LoginRequest.password in spec
+- Rebundled spec/dist/openapi.json
+- All quality gates pass: 0 vulnerabilities, spec valid, typecheck clean, lint clean, 181 tests passing
+- Learnings: npm overrides require deleting node_modules + package-lock.json and clean install to take effect. Overrides only work in the root package.json of a workspace monorepo.
+---
+

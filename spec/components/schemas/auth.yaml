@@ -33,6 +33,7 @@ RegisterRequest:
       type: string
       minLength: 8
       maxLength: 128
+      pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+'
       description: >-
         Password must be at least 8 characters and contain at least one
         uppercase letter, one lowercase letter, and one digit.
@@ -71,6 +72,7 @@ LoginRequest:
       description: Registered email address
     password:
       type: string
+      minLength: 1
       maxLength: 128
       description: Account password
 
@@ -123,6 +125,7 @@ ResetPasswordRequest:
       type: string
       minLength: 8
       maxLength: 128
+      pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+'
       description: >-
         New password. Must be at least 8 characters and contain at least one
         uppercase letter, one lowercase letter, and one digit.
@@ -142,6 +145,7 @@ ChangePasswordRequest:
       type: string
       minLength: 8
       maxLength: 128
+      pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+'
       description: >-
         New password. Must be at least 8 characters and contain at least one
         uppercase letter, one lowercase letter, and one digit.

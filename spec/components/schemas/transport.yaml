@@ -507,6 +507,7 @@ CreateDriverRequest:
       type: string
       minLength: 8
       maxLength: 128
+      pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+'
       description: >-
         Initial password. Must be at least 8 characters and contain at least
         one uppercase letter, one lowercase letter, and one digit.
