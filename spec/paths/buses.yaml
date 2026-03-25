@@ -1,0 +1,162 @@
+list:
+  get:
+    operationId: listBuses
+    summary: List provider's buses
+    description: Returns a paginated list of buses belonging to the authenticated provider. Ownership enforced.
+    tags:
+      - Buses
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+    responses:
+      '200':
+        description: Paginated list of buses
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/transport.yaml#/BusListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+  post:
+    operationId: createBus
+    summary: Create a new bus with seat layout
+    description: Creates a bus with a grid-based seat layout. Requires PROVIDER role. The bus is automatically associated with the authenticated provider.
+    tags:
+      - Buses
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/transport.yaml#/CreateBusRequest'
+    responses:
+      '201':
+        description: Bus created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/transport.yaml#/BusWithSeatsDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '409':
+        description: License plate already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+byId:
+  put:
+    operationId: updateBus
+    summary: Update a bus
+    description: Updates bus details (model, license plate, capacity). Ownership enforced — providers can only update their own buses. Returns 404 if not found or not owned.
+    tags:
+      - Buses
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/transport.yaml#/UpdateBusRequest'
+    responses:
+      '200':
+        description: Bus updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/transport.yaml#/BusWithSeatsDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Bus not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '409':
+        description: License plate already exists
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+  delete:
+    operationId: deleteBus
+    summary: Delete a bus
+    description: Deletes a bus and its associated seats (cascade). Ownership enforced. Returns 404 if not found or not owned.
+    tags:
+      - Buses
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '204':
+        description: Bus deleted successfully
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Bus not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

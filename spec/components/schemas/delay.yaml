@@ -1,0 +1,127 @@
+DelayReason:
+  type: string
+  description: Reason for a schedule delay
+  enum:
+    - TRAFFIC
+    - MECHANICAL
+    - WEATHER
+    - OTHER
+
+Delay:
+  type: object
+  description: A delay record for a schedule on a specific trip date
+  required:
+    - id
+    - scheduleId
+    - offsetMinutes
+    - reason
+    - tripDate
+    - active
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique delay record identifier (cuid)
+    scheduleId:
+      type: string
+      maxLength: 30
+      description: Schedule affected by the delay
+    offsetMinutes:
+      type: integer
+      minimum: 1
+      maximum: 1440
+      description: Delay duration in minutes
+    reason:
+      $ref: '#/DelayReason'
+    note:
+      type:
+        - string
+        - 'null'
+      maxLength: 500
+      description: Optional free-text note about the delay
+    tripDate:
+      type: string
+      format: date-time
+      description: Date of the affected trip
+    active:
+      type: boolean
+      description: Whether the delay is currently active
+    createdAt:
+      type: string
+      format: date-time
+      description: Delay creation timestamp
+
+CreateDelayRequest:
+  type: object
+  description: Request body for reporting a delay
+  required:
+    - scheduleId
+    - offsetMinutes
+    - reason
+    - tripDate
+  properties:
+    scheduleId:
+      type: string
+      minLength: 1
+      maxLength: 30
+      description: Schedule to report delay for
+    offsetMinutes:
+      type: integer
+      minimum: 1
+      maximum: 1440
+      description: Delay duration in minutes
+    reason:
+      $ref: '#/DelayReason'
+    note:
+      type: string
+      maxLength: 500
+      description: Optional free-text note about the delay
+    tripDate:
+      type: string
+      format: date
+      description: Date of the affected trip (ISO 8601 date format)
+
+UpdateDelayRequest:
+  type: object
+  description: Request body for updating a delay
+  properties:
+    offsetMinutes:
+      type: integer
+      minimum: 1
+      maximum: 1440
+      description: Updated delay duration in minutes
+    reason:
+      $ref: '#/DelayReason'
+    note:
+      type:
+        - string
+        - 'null'
+      maxLength: 500
+      description: Updated free-text note about the delay
+    active:
+      type: boolean
+      description: Whether the delay is currently active
+
+DelayDataResponse:
+  type: object
+  description: API response envelope wrapping a single delay
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/Delay'
+
+DelayListResponse:
+  type: object
+  description: List of delays (not paginated, filtered by schedule+date)
+  required:
+    - data
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Delays for the requested schedule and date
+      items:
+        $ref: '#/Delay'

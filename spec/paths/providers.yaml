@@ -1,0 +1,28 @@
+me:
+  get:
+    operationId: getOwnProvider
+    summary: Get own provider profile
+    description: Returns the authenticated provider's profile. Requires PROVIDER role. Provider can only access their own profile.
+    tags:
+      - Providers
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: Provider profile
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/provider.yaml#/ProviderDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

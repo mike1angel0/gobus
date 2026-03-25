@@ -1,0 +1,267 @@
+register:
+  post:
+    operationId: register
+    summary: Register a new user account
+    description: Creates a new user account. If role is PROVIDER, also creates a provider entity.
+    tags:
+      - Auth
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/RegisterRequest'
+    responses:
+      '201':
+        description: User registered successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/AuthDataResponse'
+      '400':
+        description: Validation error (weak password, missing fields)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '409':
+        description: Email already registered
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+login:
+  post:
+    operationId: login
+    summary: Log in with email and password
+    description: Authenticates a user and returns JWT tokens. Returns 423 if the account is locked due to too many failed attempts.
+    tags:
+      - Auth
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/LoginRequest'
+    responses:
+      '200':
+        description: Login successful
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/AuthDataResponse'
+      '401':
+        description: Invalid credentials
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Account is suspended
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '423':
+        description: Account is locked due to too many failed login attempts
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+refresh:
+  post:
+    operationId: refreshToken
+    summary: Refresh access token
+    description: Exchanges a valid refresh token for a new token pair. The old refresh token is revoked (rotation).
+    tags:
+      - Auth
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/TokenRefreshRequest'
+    responses:
+      '200':
+        description: Tokens refreshed successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/TokenRefreshDataResponse'
+      '401':
+        description: Invalid, expired, or revoked refresh token
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+logout:
+  post:
+    operationId: logout
+    summary: Log out and revoke refresh token
+    description: Revokes the provided refresh token, effectively logging the user out of that session.
+    tags:
+      - Auth
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/LogoutRequest'
+    responses:
+      '204':
+        description: Logged out successfully
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+forgot-password:
+  post:
+    operationId: forgotPassword
+    summary: Request a password reset email
+    description: Generates a password reset token and sends a reset email. Always returns 200 to prevent email enumeration.
+    tags:
+      - Auth
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/ForgotPasswordRequest'
+    responses:
+      '200':
+        description: If the email exists, a reset link has been sent. Always returns 200.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/MessageDataResponse'
+
+reset-password:
+  post:
+    operationId: resetPassword
+    summary: Reset password using a token
+    description: Resets the user's password using a valid reset token. The token is single-use and expires after 1 hour. All existing refresh tokens are revoked.
+    tags:
+      - Auth
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/ResetPasswordRequest'
+    responses:
+      '200':
+        description: Password reset successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/MessageDataResponse'
+      '400':
+        description: Invalid or expired reset token, or weak password
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+change-password:
+  post:
+    operationId: changePassword
+    summary: Change password while logged in
+    description: Changes the user's password. Requires the current password for verification. All other refresh tokens are revoked.
+    tags:
+      - Auth
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/ChangePasswordRequest'
+    responses:
+      '200':
+        description: Password changed successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/MessageDataResponse'
+      '400':
+        description: Weak new password
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Current password is incorrect or not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+me:
+  get:
+    operationId: getProfile
+    summary: Get current user profile
+    description: Returns the authenticated user's profile information.
+    tags:
+      - Auth
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: User profile
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/UserDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+  patch:
+    operationId: updateProfile
+    summary: Update current user profile
+    description: Updates the authenticated user's profile. Only provided fields are updated.
+    tags:
+      - Auth
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.yaml#/UserUpdate'
+    responses:
+      '200':
+        description: Updated user profile
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/UserDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

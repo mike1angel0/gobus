@@ -1,0 +1,79 @@
+PaginationMeta:
+  type: object
+  description: Pagination metadata for list responses
+  required:
+    - total
+    - page
+    - pageSize
+    - totalPages
+  properties:
+    total:
+      type: integer
+      minimum: 0
+      description: Total number of records matching the query
+    page:
+      type: integer
+      minimum: 1
+      description: Current page number (1-based)
+    pageSize:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Number of records per page
+    totalPages:
+      type: integer
+      minimum: 0
+      description: Total number of pages
+
+ErrorResponse:
+  type: object
+  description: Error response following RFC 9457 Problem Details format
+  required:
+    - type
+    - title
+    - status
+  properties:
+    type:
+      type: string
+      format: uri
+      maxLength: 500
+      description: A URI reference identifying the problem type
+    title:
+      type: string
+      maxLength: 200
+      description: A short human-readable summary of the problem
+    status:
+      type: integer
+      minimum: 100
+      maximum: 599
+      description: The HTTP status code
+    detail:
+      type: string
+      maxLength: 1000
+      description: A human-readable explanation specific to this occurrence
+    code:
+      type: string
+      maxLength: 100
+      description: Application-specific error code
+    errors:
+      type: array
+      maxItems: 100
+      description: Validation errors for individual fields
+      items:
+        $ref: '#/FieldError'
+
+FieldError:
+  type: object
+  description: A validation error for a specific field
+  required:
+    - field
+    - message
+  properties:
+    field:
+      type: string
+      maxLength: 200
+      description: The field path that caused the error
+    message:
+      type: string
+      maxLength: 500
+      description: Human-readable error message for this field

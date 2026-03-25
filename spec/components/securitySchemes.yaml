@@ -1,0 +1,5 @@
+BearerAuth:
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: JWT access token with 15-minute expiry

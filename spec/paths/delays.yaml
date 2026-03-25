@@ -1,0 +1,126 @@
+list:
+  get:
+    operationId: listDelays
+    summary: Get delays for a schedule and trip date
+    description: Returns active delays for a specific schedule on a given trip date. Requires authentication.
+    tags:
+      - Delays
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: scheduleId
+        in: query
+        required: true
+        description: Schedule to get delays for
+        schema:
+          type: string
+          maxLength: 30
+      - name: tripDate
+        in: query
+        required: true
+        description: Trip date to filter delays. ISO 8601 date format.
+        schema:
+          type: string
+          format: date
+    responses:
+      '200':
+        description: List of delays
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/delay.yaml#/DelayListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+  post:
+    operationId: createDelay
+    summary: Report a delay
+    description: Reports a delay for a schedule on a specific trip date. Requires DRIVER or PROVIDER role. Drivers can only report delays for their assigned schedules. Providers can only report delays for their own schedules.
+    tags:
+      - Delays
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/delay.yaml#/CreateDelayRequest'
+    responses:
+      '201':
+        description: Delay reported successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/delay.yaml#/DelayDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not authorized (not DRIVER/PROVIDER or not assigned/owned)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+byId:
+  put:
+    operationId: updateDelay
+    summary: Update a delay
+    description: Updates an existing delay record. Only PROVIDER role can update delays, and only for their own schedules. Returns 404 if delay belongs to another provider.
+    tags:
+      - Delays
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/delay.yaml#/UpdateDelayRequest'
+    responses:
+      '200':
+        description: Delay updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/delay.yaml#/DelayDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Delay not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

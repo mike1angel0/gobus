@@ -1,0 +1,86 @@
+list:
+  get:
+    operationId: listDriverTrips
+    summary: List driver's assigned trips for a date
+    description: Returns the list of schedules assigned to the authenticated driver for a given date. Requires DRIVER role.
+    tags:
+      - Driver
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: date
+        in: query
+        required: false
+        description: Trip date to filter by (defaults to today). ISO 8601 date format.
+        schema:
+          type: string
+          format: date
+    responses:
+      '200':
+        description: List of driver's trips
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/admin.yaml#/DriverTripListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a driver
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+detail:
+  get:
+    operationId: getDriverTripDetail
+    summary: Get driver trip detail
+    description: Returns detailed information about a specific trip assigned to the authenticated driver. Includes route stops, passengers, and bus info. Requires DRIVER role. Returns 404 if schedule is not assigned to this driver.
+    tags:
+      - Driver
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: scheduleId
+        in: path
+        required: true
+        description: Schedule identifier
+        schema:
+          type: string
+          maxLength: 30
+      - name: date
+        in: query
+        required: false
+        description: Trip date (defaults to today). ISO 8601 date format.
+        schema:
+          type: string
+          format: date
+    responses:
+      '200':
+        description: Driver trip detail
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/admin.yaml#/DriverTripDetailDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a driver
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Schedule not found or not assigned to this driver
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

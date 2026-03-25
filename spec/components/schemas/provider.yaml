@@ -1,0 +1,64 @@
+ProviderStatus:
+  type: string
+  description: Provider approval status
+  enum:
+    - APPROVED
+    - PENDING
+
+Provider:
+  type: object
+  description: Transport provider (bus company)
+  required:
+    - id
+    - name
+    - status
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique provider identifier (cuid)
+    name:
+      type: string
+      maxLength: 200
+      description: Provider company name
+    logo:
+      type:
+        - string
+        - 'null'
+      format: uri
+      maxLength: 2048
+      description: URL to provider logo image
+    contactEmail:
+      type:
+        - string
+        - 'null'
+      format: email
+      maxLength: 255
+      description: Provider contact email
+    contactPhone:
+      type:
+        - string
+        - 'null'
+      maxLength: 20
+      description: Provider contact phone number
+    status:
+      $ref: '#/ProviderStatus'
+    createdAt:
+      type: string
+      format: date-time
+      description: Provider creation timestamp
+    updatedAt:
+      type: string
+      format: date-time
+      description: Last update timestamp
+
+ProviderDataResponse:
+  type: object
+  description: API response envelope wrapping provider data
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/Provider'

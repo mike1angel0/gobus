@@ -1,0 +1,197 @@
+SearchResult:
+  type: object
+  description: A single search result representing an available trip between origin and destination
+  required:
+    - scheduleId
+    - providerName
+    - routeName
+    - origin
+    - destination
+    - departureTime
+    - arrivalTime
+    - tripDate
+    - price
+    - availableSeats
+    - totalSeats
+  properties:
+    scheduleId:
+      type: string
+      maxLength: 30
+      description: Schedule identifier for this trip
+    providerName:
+      type: string
+      maxLength: 200
+      description: Name of the transport provider
+    routeName:
+      type: string
+      maxLength: 200
+      description: Name of the route
+    origin:
+      type: string
+      maxLength: 200
+      description: Boarding stop name
+    destination:
+      type: string
+      maxLength: 200
+      description: Alighting stop name
+    departureTime:
+      type: string
+      format: date-time
+      description: Departure time from origin stop
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Arrival time at destination stop
+    tripDate:
+      type: string
+      format: date
+      description: Date of the trip
+    price:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100000
+      description: Computed segment price (price at destination minus price at origin)
+    availableSeats:
+      type: integer
+      minimum: 0
+      maximum: 1000
+      description: Number of seats currently available for this trip and date
+    totalSeats:
+      type: integer
+      minimum: 0
+      maximum: 1000
+      description: Total number of enabled seats on the bus
+
+SeatAvailability:
+  type: object
+  description: A seat with its current availability status for a specific trip date
+  required:
+    - id
+    - row
+    - column
+    - label
+    - type
+    - price
+    - isEnabled
+    - isBooked
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique seat identifier (cuid)
+    row:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Seat row number
+    column:
+      type: integer
+      minimum: 1
+      maximum: 10
+      description: Seat column number
+    label:
+      type: string
+      maxLength: 10
+      description: Seat label displayed to passengers (e.g., 1A, 2B)
+    type:
+      $ref: './transport.yaml#/SeatType'
+    price:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 10000
+      description: Price override for this seat (0 means use base price)
+    isEnabled:
+      type: boolean
+      description: Whether this seat is available for booking
+    isBooked:
+      type: boolean
+      description: Whether this seat is already booked for the requested trip date
+
+TripDetail:
+  type: object
+  description: Detailed trip information with seat map and availability
+  required:
+    - scheduleId
+    - routeName
+    - providerName
+    - departureTime
+    - arrivalTime
+    - tripDate
+    - basePrice
+    - status
+    - stopTimes
+    - seats
+  properties:
+    scheduleId:
+      type: string
+      maxLength: 30
+      description: Schedule identifier
+    routeName:
+      type: string
+      maxLength: 200
+      description: Name of the route
+    providerName:
+      type: string
+      maxLength: 200
+      description: Name of the transport provider
+    departureTime:
+      type: string
+      format: date-time
+      description: Departure time from first stop
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Arrival time at last stop
+    tripDate:
+      type: string
+      format: date
+      description: Date of the trip
+    basePrice:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100000
+      description: Base price for the full route
+    status:
+      $ref: './schedule.yaml#/ScheduleStatus'
+    stopTimes:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Ordered stop times for this schedule
+      items:
+        $ref: './schedule.yaml#/StopTime'
+    seats:
+      type: array
+      minItems: 0
+      maxItems: 1000
+      description: Seat map with availability status
+      items:
+        $ref: '#/SeatAvailability'
+
+SearchResultListResponse:
+  type: object
+  description: Paginated list of search results
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      items:
+        $ref: '#/SearchResult'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'
+
+TripDetailDataResponse:
+  type: object
+  description: API response envelope wrapping trip detail data
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/TripDetail'

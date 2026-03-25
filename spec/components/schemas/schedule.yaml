@@ -1,0 +1,345 @@
+ScheduleStatus:
+  type: string
+  description: Status of a schedule
+  enum:
+    - ACTIVE
+    - CANCELLED
+
+StopTime:
+  type: object
+  description: Arrival and departure times for a stop in a schedule
+  required:
+    - id
+    - stopName
+    - arrivalTime
+    - departureTime
+    - orderIndex
+    - priceFromStart
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique stop time identifier (cuid)
+    stopName:
+      type: string
+      maxLength: 200
+      description: Name of the stop
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Scheduled arrival time at this stop
+    departureTime:
+      type: string
+      format: date-time
+      description: Scheduled departure time from this stop
+    orderIndex:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: Position in the schedule (0-based)
+    priceFromStart:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100000
+      description: Cumulative price from the first stop to this stop
+
+Schedule:
+  type: object
+  description: A scheduled trip for a route
+  required:
+    - id
+    - routeId
+    - busId
+    - departureTime
+    - arrivalTime
+    - basePrice
+    - status
+    - tripDate
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique schedule identifier (cuid)
+    routeId:
+      type: string
+      maxLength: 30
+      description: Associated route ID
+    busId:
+      type: string
+      maxLength: 30
+      description: Assigned bus ID
+    driverId:
+      type:
+        - string
+        - 'null'
+      maxLength: 30
+      description: Assigned driver ID (null if unassigned)
+    departureTime:
+      type: string
+      format: date-time
+      description: Scheduled departure time from first stop
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Scheduled arrival time at last stop
+    daysOfWeek:
+      type: array
+      minItems: 0
+      maxItems: 7
+      description: Days of the week this schedule runs (0=Sunday, 6=Saturday)
+      items:
+        type: integer
+        minimum: 0
+        maximum: 6
+    basePrice:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100000
+      description: Base price for the full route
+    status:
+      $ref: '#/ScheduleStatus'
+    tripDate:
+      type: string
+      format: date-time
+      description: Specific date for this trip instance
+    createdAt:
+      type: string
+      format: date-time
+      description: Schedule creation timestamp
+
+ScheduleWithDetails:
+  type: object
+  description: A schedule with its route, bus, driver, and stop times
+  required:
+    - id
+    - routeId
+    - busId
+    - departureTime
+    - arrivalTime
+    - basePrice
+    - status
+    - tripDate
+    - stopTimes
+    - route
+    - bus
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique schedule identifier (cuid)
+    routeId:
+      type: string
+      maxLength: 30
+      description: Associated route ID
+    busId:
+      type: string
+      maxLength: 30
+      description: Assigned bus ID
+    driverId:
+      type:
+        - string
+        - 'null'
+      maxLength: 30
+      description: Assigned driver ID (null if unassigned)
+    departureTime:
+      type: string
+      format: date-time
+      description: Scheduled departure time from first stop
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Scheduled arrival time at last stop
+    daysOfWeek:
+      type: array
+      minItems: 0
+      maxItems: 7
+      description: Days of the week this schedule runs
+      items:
+        type: integer
+        minimum: 0
+        maximum: 6
+    basePrice:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100000
+      description: Base price for the full route
+    status:
+      $ref: '#/ScheduleStatus'
+    tripDate:
+      type: string
+      format: date-time
+      description: Specific date for this trip instance
+    stopTimes:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Ordered stop times for this schedule
+      items:
+        $ref: '#/StopTime'
+    route:
+      $ref: './transport.yaml#/Route'
+    bus:
+      $ref: './transport.yaml#/Bus'
+    driver:
+      type:
+        - object
+        - 'null'
+      description: Assigned driver (null if unassigned)
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Driver user ID
+        name:
+          type: string
+          maxLength: 100
+          description: Driver name
+    createdAt:
+      type: string
+      format: date-time
+      description: Schedule creation timestamp
+
+CreateStopTimeInput:
+  type: object
+  description: Input for creating a stop time in a schedule
+  required:
+    - stopName
+    - arrivalTime
+    - departureTime
+    - orderIndex
+    - priceFromStart
+  properties:
+    stopName:
+      type: string
+      minLength: 1
+      maxLength: 200
+      description: Name of the stop
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Scheduled arrival time at this stop
+    departureTime:
+      type: string
+      format: date-time
+      description: Scheduled departure time from this stop
+    orderIndex:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: Position in the schedule (0-based)
+    priceFromStart:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100000
+      description: Cumulative price from the first stop to this stop
+
+CreateScheduleRequest:
+  type: object
+  description: Request body for creating a schedule with stop times
+  required:
+    - routeId
+    - busId
+    - departureTime
+    - arrivalTime
+    - basePrice
+    - tripDate
+    - stopTimes
+  properties:
+    routeId:
+      type: string
+      maxLength: 30
+      description: Route to schedule
+    busId:
+      type: string
+      maxLength: 30
+      description: Bus to assign
+    driverId:
+      type: string
+      maxLength: 30
+      description: Driver to assign (optional)
+    departureTime:
+      type: string
+      format: date-time
+      description: Scheduled departure time from first stop
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Scheduled arrival time at last stop
+    daysOfWeek:
+      type: array
+      minItems: 0
+      maxItems: 7
+      description: Days of the week this schedule runs (0=Sunday, 6=Saturday)
+      items:
+        type: integer
+        minimum: 0
+        maximum: 6
+    basePrice:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 100000
+      description: Base price for the full route
+    tripDate:
+      type: string
+      format: date-time
+      description: Specific date for this trip instance
+    stopTimes:
+      type: array
+      minItems: 2
+      maxItems: 100
+      description: Ordered stop times (minimum 2 for a valid schedule)
+      items:
+        $ref: '#/CreateStopTimeInput'
+
+UpdateScheduleRequest:
+  type: object
+  description: Request body for updating a schedule
+  properties:
+    driverId:
+      type:
+        - string
+        - 'null'
+      maxLength: 30
+      description: Driver to assign (null to unassign)
+    status:
+      $ref: '#/ScheduleStatus'
+    departureTime:
+      type: string
+      format: date-time
+      description: Updated departure time
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Updated arrival time
+
+ScheduleWithDetailsDataResponse:
+  type: object
+  description: API response envelope wrapping schedule with details
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/ScheduleWithDetails'
+
+ScheduleListResponse:
+  type: object
+  description: Paginated list of schedules
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      items:
+        $ref: '#/Schedule'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'

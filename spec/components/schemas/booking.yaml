@@ -1,0 +1,270 @@
+BookingStatus:
+  type: string
+  description: Status of a booking
+  enum:
+    - CONFIRMED
+    - CANCELLED
+    - COMPLETED
+
+Booking:
+  type: object
+  description: A booking record
+  required:
+    - id
+    - orderId
+    - userId
+    - scheduleId
+    - totalPrice
+    - status
+    - boardingStop
+    - alightingStop
+    - tripDate
+    - seatLabels
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique booking identifier (cuid)
+    orderId:
+      type: string
+      maxLength: 30
+      description: Human-friendly unique order identifier (cuid)
+    userId:
+      type: string
+      maxLength: 30
+      description: User who made the booking
+    scheduleId:
+      type: string
+      maxLength: 30
+      description: Booked schedule ID
+    totalPrice:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1000000
+      description: Total price for all booked seats
+    status:
+      $ref: '#/BookingStatus'
+    boardingStop:
+      type: string
+      maxLength: 200
+      description: Name of the boarding stop
+    alightingStop:
+      type: string
+      maxLength: 200
+      description: Name of the alighting stop
+    tripDate:
+      type: string
+      format: date-time
+      description: Date of the trip
+    seatLabels:
+      type: array
+      minItems: 1
+      maxItems: 10
+      description: Labels of booked seats
+      items:
+        type: string
+        maxLength: 10
+    createdAt:
+      type: string
+      format: date-time
+      description: Booking creation timestamp
+
+BookingWithDetails:
+  type: object
+  description: A booking with expanded schedule, route, and provider details
+  required:
+    - id
+    - orderId
+    - userId
+    - scheduleId
+    - totalPrice
+    - status
+    - boardingStop
+    - alightingStop
+    - tripDate
+    - seatLabels
+    - schedule
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique booking identifier (cuid)
+    orderId:
+      type: string
+      maxLength: 30
+      description: Human-friendly unique order identifier (cuid)
+    userId:
+      type: string
+      maxLength: 30
+      description: User who made the booking
+    scheduleId:
+      type: string
+      maxLength: 30
+      description: Booked schedule ID
+    totalPrice:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1000000
+      description: Total price for all booked seats
+    status:
+      $ref: '#/BookingStatus'
+    boardingStop:
+      type: string
+      maxLength: 200
+      description: Name of the boarding stop
+    alightingStop:
+      type: string
+      maxLength: 200
+      description: Name of the alighting stop
+    tripDate:
+      type: string
+      format: date-time
+      description: Date of the trip
+    seatLabels:
+      type: array
+      minItems: 1
+      maxItems: 10
+      description: Labels of booked seats
+      items:
+        type: string
+        maxLength: 10
+    schedule:
+      type: object
+      description: Expanded schedule with route and provider info
+      required:
+        - departureTime
+        - arrivalTime
+        - route
+        - bus
+      properties:
+        departureTime:
+          type: string
+          format: date-time
+          description: Schedule departure time
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Schedule arrival time
+        route:
+          type: object
+          description: Route summary
+          required:
+            - id
+            - name
+            - provider
+          properties:
+            id:
+              type: string
+              maxLength: 30
+              description: Route ID
+            name:
+              type: string
+              maxLength: 200
+              description: Route name
+            provider:
+              type: object
+              description: Provider summary
+              required:
+                - id
+                - name
+              properties:
+                id:
+                  type: string
+                  maxLength: 30
+                  description: Provider ID
+                name:
+                  type: string
+                  maxLength: 200
+                  description: Provider name
+        bus:
+          type: object
+          description: Bus summary
+          required:
+            - id
+            - licensePlate
+            - model
+          properties:
+            id:
+              type: string
+              maxLength: 30
+              description: Bus ID
+            licensePlate:
+              type: string
+              maxLength: 20
+              description: Bus license plate
+            model:
+              type: string
+              maxLength: 100
+              description: Bus model name
+    createdAt:
+      type: string
+      format: date-time
+      description: Booking creation timestamp
+
+CreateBookingRequest:
+  type: object
+  description: Request body for creating a booking
+  required:
+    - scheduleId
+    - seatLabels
+    - boardingStop
+    - alightingStop
+    - tripDate
+  properties:
+    scheduleId:
+      type: string
+      minLength: 1
+      maxLength: 30
+      description: Schedule to book
+    seatLabels:
+      type: array
+      minItems: 1
+      maxItems: 10
+      description: Seat labels to book (e.g., ["1A", "1B"])
+      items:
+        type: string
+        minLength: 1
+        maxLength: 10
+    boardingStop:
+      type: string
+      minLength: 1
+      maxLength: 200
+      description: Name of the boarding stop (must exist in schedule stop times)
+    alightingStop:
+      type: string
+      minLength: 1
+      maxLength: 200
+      description: Name of the alighting stop (must come after boarding stop in route order)
+    tripDate:
+      type: string
+      format: date
+      description: Date of the trip (ISO 8601 date format, e.g. 2026-03-25)
+
+BookingWithDetailsDataResponse:
+  type: object
+  description: API response envelope wrapping booking with details
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/BookingWithDetails'
+
+BookingListResponse:
+  type: object
+  description: Paginated list of bookings
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      items:
+        $ref: '#/Booking'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'

@@ -1,0 +1,134 @@
+BusTracking:
+  type: object
+  description: Live GPS tracking data for a bus
+  required:
+    - id
+    - busId
+    - lat
+    - lng
+    - speed
+    - heading
+    - currentStopIndex
+    - isActive
+    - updatedAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique tracking record identifier (cuid)
+    busId:
+      type: string
+      maxLength: 30
+      description: Bus being tracked
+    lat:
+      type: number
+      format: double
+      minimum: -90
+      maximum: 90
+      description: Current latitude coordinate
+    lng:
+      type: number
+      format: double
+      minimum: -180
+      maximum: 180
+      description: Current longitude coordinate
+    speed:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 300
+      description: Current speed in km/h
+    heading:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 360
+      description: Compass heading in degrees (0 = North, 90 = East)
+    scheduleId:
+      type:
+        - string
+        - 'null'
+      maxLength: 30
+      description: Active schedule this bus is running
+    currentStopIndex:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: Index of the current or next stop in the route
+    isActive:
+      type: boolean
+      description: Whether the bus is actively transmitting position
+    tripDate:
+      type:
+        - string
+        - 'null'
+      format: date-time
+      description: Date of the current trip
+    updatedAt:
+      type: string
+      format: date-time
+      description: Last position update timestamp
+
+TrackingUpdate:
+  type: object
+  description: Request body for updating bus GPS position
+  required:
+    - busId
+    - lat
+    - lng
+    - speed
+    - heading
+    - currentStopIndex
+  properties:
+    busId:
+      type: string
+      minLength: 1
+      maxLength: 30
+      description: Bus to update tracking for
+    lat:
+      type: number
+      format: double
+      minimum: -90
+      maximum: 90
+      description: Current latitude coordinate
+    lng:
+      type: number
+      format: double
+      minimum: -180
+      maximum: 180
+      description: Current longitude coordinate
+    speed:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 300
+      description: Current speed in km/h
+    heading:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 360
+      description: Compass heading in degrees (0 = North, 90 = East)
+    currentStopIndex:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: Index of the current or next stop in the route
+    scheduleId:
+      type: string
+      minLength: 1
+      maxLength: 30
+      description: Active schedule ID (optional, inferred from assignment if omitted)
+    tripDate:
+      type: string
+      format: date
+      description: Date of the current trip
+
+BusTrackingDataResponse:
+  type: object
+  description: API response envelope wrapping bus tracking data
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/BusTracking'

@@ -1,0 +1,142 @@
+list:
+  get:
+    operationId: listBookings
+    summary: List user's bookings
+    description: Returns a paginated list of bookings belonging to the authenticated user. Ownership enforced — users can only see their own bookings.
+    tags:
+      - Bookings
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: status
+        in: query
+        required: false
+        description: Filter bookings by status
+        schema:
+          $ref: '../components/schemas/booking.yaml#/BookingStatus'
+    responses:
+      '200':
+        description: Paginated list of bookings
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/booking.yaml#/BookingListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+  post:
+    operationId: createBooking
+    summary: Create a new booking
+    description: Creates a booking for the authenticated user. Validates seat availability, stop order (boarding must come before alighting on the route), and schedule existence. Uses database-level unique constraint to prevent double-booking.
+    tags:
+      - Bookings
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/booking.yaml#/CreateBookingRequest'
+    responses:
+      '201':
+        description: Booking created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/booking.yaml#/BookingWithDetailsDataResponse'
+      '400':
+        description: Validation error (invalid stop order, missing fields)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Schedule not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '409':
+        description: Seat conflict — one or more selected seats are already booked
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+byId:
+  get:
+    operationId: getBooking
+    summary: Get booking details
+    description: Returns detailed booking information. Ownership enforced — users can only view their own bookings. Returns 404 (not 403) if booking belongs to another user.
+    tags:
+      - Bookings
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '200':
+        description: Booking details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/booking.yaml#/BookingWithDetailsDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Booking not found or not owned by user
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+  delete:
+    operationId: cancelBooking
+    summary: Cancel a booking
+    description: Cancels a booking by setting its status to CANCELLED. Ownership enforced — users can only cancel their own bookings. Only CONFIRMED bookings can be cancelled. Returns 404 (not 403) if booking belongs to another user.
+    tags:
+      - Bookings
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '200':
+        description: Booking cancelled successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/booking.yaml#/BookingWithDetailsDataResponse'
+      '400':
+        description: Booking cannot be cancelled (already cancelled or completed)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Booking not found or not owned by user
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

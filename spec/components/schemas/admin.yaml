@@ -1,0 +1,135 @@
+AdminToggleSeatRequest:
+  type: object
+  description: Request body for enabling or disabling a seat
+  required:
+    - isEnabled
+  properties:
+    isEnabled:
+      type: boolean
+      description: Whether the seat should be enabled (true) or disabled (false)
+
+DriverTrip:
+  type: object
+  description: A trip assigned to a driver with summary info
+  required:
+    - scheduleId
+    - departureTime
+    - arrivalTime
+    - tripDate
+    - routeName
+    - busLicensePlate
+    - status
+  properties:
+    scheduleId:
+      type: string
+      maxLength: 30
+      description: Schedule identifier
+    departureTime:
+      type: string
+      format: date-time
+      description: Scheduled departure time
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Scheduled arrival time
+    tripDate:
+      type: string
+      format: date-time
+      description: Date of this trip
+    routeName:
+      type: string
+      maxLength: 200
+      description: Name of the route
+    busLicensePlate:
+      type: string
+      maxLength: 20
+      description: License plate of the assigned bus
+    status:
+      $ref: './schedule.yaml#/ScheduleStatus'
+
+DriverTripDetail:
+  type: object
+  description: Detailed trip information for a driver including stops and passenger count
+  required:
+    - scheduleId
+    - departureTime
+    - arrivalTime
+    - tripDate
+    - routeName
+    - busLicensePlate
+    - busModel
+    - status
+    - stops
+    - passengerCount
+    - totalSeats
+  properties:
+    scheduleId:
+      type: string
+      maxLength: 30
+      description: Schedule identifier
+    departureTime:
+      type: string
+      format: date-time
+      description: Scheduled departure time
+    arrivalTime:
+      type: string
+      format: date-time
+      description: Scheduled arrival time
+    tripDate:
+      type: string
+      format: date-time
+      description: Date of this trip
+    routeName:
+      type: string
+      maxLength: 200
+      description: Name of the route
+    busLicensePlate:
+      type: string
+      maxLength: 20
+      description: License plate of the assigned bus
+    busModel:
+      type: string
+      maxLength: 100
+      description: Model name of the assigned bus
+    status:
+      $ref: './schedule.yaml#/ScheduleStatus'
+    stops:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Ordered list of stop times for this trip
+      items:
+        $ref: './schedule.yaml#/StopTime'
+    passengerCount:
+      type: integer
+      minimum: 0
+      maximum: 200
+      description: Number of confirmed passengers for this trip
+    totalSeats:
+      type: integer
+      minimum: 0
+      maximum: 200
+      description: Total seat capacity of the bus
+
+DriverTripListResponse:
+  type: object
+  description: List of driver's assigned trips
+  required:
+    - data
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 50
+      description: Driver's trips for the requested date
+      items:
+        $ref: '#/DriverTrip'
+
+DriverTripDetailDataResponse:
+  type: object
+  description: API response envelope wrapping driver trip detail
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/DriverTripDetail'

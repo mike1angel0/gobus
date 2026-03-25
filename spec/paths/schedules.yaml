@@ -1,0 +1,185 @@
+list:
+  get:
+    operationId: listSchedules
+    summary: List provider's schedules
+    description: Returns a paginated list of schedules for the authenticated provider. Supports filtering by routeId, busId, status, and date range. Ownership enforced.
+    tags:
+      - Schedules
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: routeId
+        in: query
+        description: Filter by route ID
+        schema:
+          type: string
+          maxLength: 30
+      - name: busId
+        in: query
+        description: Filter by bus ID
+        schema:
+          type: string
+          maxLength: 30
+      - name: status
+        in: query
+        description: Filter by schedule status
+        schema:
+          $ref: '../components/schemas/schedule.yaml#/ScheduleStatus'
+      - name: fromDate
+        in: query
+        description: Filter schedules from this date (inclusive, ISO 8601)
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        description: Filter schedules until this date (inclusive, ISO 8601)
+        schema:
+          type: string
+          format: date
+    responses:
+      '200':
+        description: Paginated list of schedules
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/schedule.yaml#/ScheduleListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+  post:
+    operationId: createSchedule
+    summary: Create a schedule with stop times
+    description: Creates a schedule for a route with a bus assignment and ordered stop times. Requires PROVIDER role. Route and bus must belong to the authenticated provider.
+    tags:
+      - Schedules
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/schedule.yaml#/CreateScheduleRequest'
+    responses:
+      '201':
+        description: Schedule created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/schedule.yaml#/ScheduleWithDetailsDataResponse'
+      '400':
+        description: Validation error (invalid route/bus, time conflicts)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Referenced route, bus, or driver not found or not owned
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+byId:
+  put:
+    operationId: updateSchedule
+    summary: Update a schedule
+    description: Updates schedule details such as driver assignment or status. Ownership enforced — providers can only update schedules for their own routes. Returns 404 if not found or not owned.
+    tags:
+      - Schedules
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/schedule.yaml#/UpdateScheduleRequest'
+    responses:
+      '200':
+        description: Schedule updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/schedule.yaml#/ScheduleWithDetailsDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Schedule not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+  delete:
+    operationId: deleteSchedule
+    summary: Cancel a schedule
+    description: Cancels a schedule by setting its status to CANCELLED. Ownership enforced. Returns 404 if not found or not owned.
+    tags:
+      - Schedules
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '204':
+        description: Schedule cancelled successfully
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Schedule not found or not owned by provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

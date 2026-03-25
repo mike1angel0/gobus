@@ -1,0 +1,605 @@
+SeatType:
+  type: string
+  description: Type of bus seat
+  enum:
+    - STANDARD
+    - PREMIUM
+    - DISABLED_ACCESSIBLE
+    - BLOCKED
+
+Stop:
+  type: object
+  description: A stop along a route
+  required:
+    - id
+    - name
+    - lat
+    - lng
+    - orderIndex
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique stop identifier (cuid)
+    name:
+      type: string
+      maxLength: 200
+      description: Stop name (city or station name)
+    lat:
+      type: number
+      format: double
+      minimum: -90
+      maximum: 90
+      description: Latitude coordinate
+    lng:
+      type: number
+      format: double
+      minimum: -180
+      maximum: 180
+      description: Longitude coordinate
+    orderIndex:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: Position in the route (0-based)
+
+Route:
+  type: object
+  description: A transport route
+  required:
+    - id
+    - name
+    - providerId
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique route identifier (cuid)
+    name:
+      type: string
+      maxLength: 200
+      description: Route name (e.g., Bucharest - Cluj)
+    providerId:
+      type: string
+      maxLength: 30
+      description: Provider who owns this route
+    createdAt:
+      type: string
+      format: date-time
+      description: Route creation timestamp
+
+RouteWithStops:
+  type: object
+  description: A route with its ordered list of stops
+  required:
+    - id
+    - name
+    - providerId
+    - stops
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique route identifier (cuid)
+    name:
+      type: string
+      maxLength: 200
+      description: Route name (e.g., Bucharest - Cluj)
+    providerId:
+      type: string
+      maxLength: 30
+      description: Provider who owns this route
+    stops:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Ordered list of stops on this route
+      items:
+        $ref: '#/Stop'
+    createdAt:
+      type: string
+      format: date-time
+      description: Route creation timestamp
+
+CreateStopInput:
+  type: object
+  description: Input for creating a stop on a route
+  required:
+    - name
+    - lat
+    - lng
+    - orderIndex
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 200
+      description: Stop name (city or station name)
+    lat:
+      type: number
+      format: double
+      minimum: -90
+      maximum: 90
+      description: Latitude coordinate
+    lng:
+      type: number
+      format: double
+      minimum: -180
+      maximum: 180
+      description: Longitude coordinate
+    orderIndex:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: Position in the route (0-based)
+
+CreateRouteRequest:
+  type: object
+  description: Request body for creating a route with stops
+  required:
+    - name
+    - stops
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 200
+      description: Route name (e.g., Bucharest - Cluj)
+    stops:
+      type: array
+      minItems: 2
+      maxItems: 100
+      description: Ordered list of stops (minimum 2 for a valid route)
+      items:
+        $ref: '#/CreateStopInput'
+
+Seat:
+  type: object
+  description: A seat in a bus
+  required:
+    - id
+    - row
+    - column
+    - label
+    - type
+    - price
+    - isEnabled
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique seat identifier (cuid)
+    row:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Seat row number
+    column:
+      type: integer
+      minimum: 1
+      maximum: 10
+      description: Seat column number
+    label:
+      type: string
+      maxLength: 10
+      description: Seat label displayed to passengers (e.g., 1A, 2B)
+    type:
+      $ref: '#/SeatType'
+    price:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 10000
+      description: Price override for this seat (0 means use base price)
+    isEnabled:
+      type: boolean
+      description: Whether this seat is available for booking
+
+Bus:
+  type: object
+  description: A bus belonging to a provider
+  required:
+    - id
+    - licensePlate
+    - model
+    - capacity
+    - rows
+    - columns
+    - providerId
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique bus identifier (cuid)
+    licensePlate:
+      type: string
+      maxLength: 20
+      description: Unique license plate number
+    model:
+      type: string
+      maxLength: 100
+      description: Bus model name
+    capacity:
+      type: integer
+      minimum: 1
+      maximum: 200
+      description: Total number of seats
+    rows:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Number of seat rows
+    columns:
+      type: integer
+      minimum: 1
+      maximum: 10
+      description: Number of seat columns
+    providerId:
+      type: string
+      maxLength: 30
+      description: Provider who owns this bus
+    createdAt:
+      type: string
+      format: date-time
+      description: Bus creation timestamp
+
+BusWithSeats:
+  type: object
+  description: A bus with its full seat layout
+  required:
+    - id
+    - licensePlate
+    - model
+    - capacity
+    - rows
+    - columns
+    - providerId
+    - seats
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique bus identifier (cuid)
+    licensePlate:
+      type: string
+      maxLength: 20
+      description: Unique license plate number
+    model:
+      type: string
+      maxLength: 100
+      description: Bus model name
+    capacity:
+      type: integer
+      minimum: 1
+      maximum: 200
+      description: Total number of seats
+    rows:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Number of seat rows
+    columns:
+      type: integer
+      minimum: 1
+      maximum: 10
+      description: Number of seat columns
+    providerId:
+      type: string
+      maxLength: 30
+      description: Provider who owns this bus
+    seats:
+      type: array
+      minItems: 0
+      maxItems: 1000
+      description: Full seat layout
+      items:
+        $ref: '#/Seat'
+    createdAt:
+      type: string
+      format: date-time
+      description: Bus creation timestamp
+
+CreateSeatInput:
+  type: object
+  description: Input for creating a seat in a bus
+  required:
+    - row
+    - column
+    - label
+    - type
+  properties:
+    row:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Seat row number
+    column:
+      type: integer
+      minimum: 1
+      maximum: 10
+      description: Seat column number
+    label:
+      type: string
+      minLength: 1
+      maxLength: 10
+      description: Seat label (e.g., 1A, 2B)
+    type:
+      $ref: '#/SeatType'
+    price:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 10000
+      default: 0
+      description: Price override for this seat (0 means use base price)
+
+CreateBusRequest:
+  type: object
+  description: Request body for creating a bus with seats
+  required:
+    - licensePlate
+    - model
+    - capacity
+    - rows
+    - columns
+    - seats
+  properties:
+    licensePlate:
+      type: string
+      minLength: 1
+      maxLength: 20
+      description: Unique license plate number
+    model:
+      type: string
+      minLength: 1
+      maxLength: 100
+      description: Bus model name
+    capacity:
+      type: integer
+      minimum: 1
+      maximum: 200
+      description: Total number of seats
+    rows:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Number of seat rows
+    columns:
+      type: integer
+      minimum: 1
+      maximum: 10
+      description: Number of seat columns
+    seats:
+      type: array
+      minItems: 1
+      maxItems: 1000
+      description: Seat layout definition
+      items:
+        $ref: '#/CreateSeatInput'
+
+UpdateBusRequest:
+  type: object
+  description: Request body for updating a bus
+  properties:
+    licensePlate:
+      type: string
+      minLength: 1
+      maxLength: 20
+      description: Unique license plate number
+    model:
+      type: string
+      minLength: 1
+      maxLength: 100
+      description: Bus model name
+    capacity:
+      type: integer
+      minimum: 1
+      maximum: 200
+      description: Total number of seats
+
+BusTemplate:
+  type: object
+  description: A predefined bus layout template
+  required:
+    - id
+    - name
+    - rows
+    - columns
+    - capacity
+    - seats
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Template identifier
+    name:
+      type: string
+      maxLength: 100
+      description: Template name (e.g., Standard 50-seat)
+    rows:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: Number of seat rows
+    columns:
+      type: integer
+      minimum: 1
+      maximum: 10
+      description: Number of seat columns
+    capacity:
+      type: integer
+      minimum: 1
+      maximum: 200
+      description: Total number of seats
+    seats:
+      type: array
+      minItems: 1
+      maxItems: 1000
+      description: Predefined seat layout
+      items:
+        $ref: '#/CreateSeatInput'
+
+Driver:
+  type: object
+  description: A driver user associated with a provider
+  required:
+    - id
+    - email
+    - name
+    - role
+    - status
+    - providerId
+    - createdAt
+  properties:
+    id:
+      type: string
+      maxLength: 30
+      description: Unique user identifier (cuid)
+    email:
+      type: string
+      format: email
+      maxLength: 255
+      description: Driver's email address
+    name:
+      type: string
+      maxLength: 100
+      description: Driver's full name
+    role:
+      type: string
+      enum:
+        - DRIVER
+      description: Always DRIVER
+    phone:
+      type:
+        - string
+        - 'null'
+      maxLength: 20
+      description: Driver's phone number
+    status:
+      $ref: './auth.yaml#/UserStatus'
+    providerId:
+      type: string
+      maxLength: 30
+      description: Associated provider ID
+    createdAt:
+      type: string
+      format: date-time
+      description: Account creation timestamp
+
+CreateDriverRequest:
+  type: object
+  description: Request body for creating a driver account
+  required:
+    - email
+    - password
+    - name
+  properties:
+    email:
+      type: string
+      format: email
+      maxLength: 255
+      description: Driver's email address (must be unique)
+    password:
+      type: string
+      minLength: 8
+      maxLength: 128
+      description: >-
+        Initial password. Must be at least 8 characters and contain at least
+        one uppercase letter, one lowercase letter, and one digit.
+    name:
+      type: string
+      minLength: 1
+      maxLength: 100
+      description: Driver's full name
+    phone:
+      type: string
+      maxLength: 20
+      description: Driver's phone number
+
+RouteWithStopsDataResponse:
+  type: object
+  description: API response envelope wrapping route with stops
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/RouteWithStops'
+
+RouteListResponse:
+  type: object
+  description: Paginated list of routes
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      items:
+        $ref: '#/Route'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'
+
+BusWithSeatsDataResponse:
+  type: object
+  description: API response envelope wrapping bus with seats
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/BusWithSeats'
+
+BusListResponse:
+  type: object
+  description: Paginated list of buses
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      items:
+        $ref: '#/Bus'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'
+
+DriverDataResponse:
+  type: object
+  description: API response envelope wrapping driver data
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/Driver'
+
+DriverListResponse:
+  type: object
+  description: Paginated list of drivers
+  required:
+    - data
+    - meta
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 100
+      items:
+        $ref: '#/Driver'
+    meta:
+      $ref: './common.yaml#/PaginationMeta'
+
+SeatDataResponse:
+  type: object
+  description: API response envelope wrapping a single seat
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/Seat'

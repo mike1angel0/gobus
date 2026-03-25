@@ -1,0 +1,77 @@
+byBusId:
+  get:
+    operationId: getBusTracking
+    summary: Get bus live position
+    description: Returns the current GPS position and tracking status for a bus. Requires authentication.
+    tags:
+      - Tracking
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: busId
+        in: path
+        required: true
+        description: Bus identifier to track
+        schema:
+          type: string
+          maxLength: 30
+    responses:
+      '200':
+        description: Current bus tracking data
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/tracking.yaml#/BusTrackingDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: No tracking data found for this bus
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+update:
+  post:
+    operationId: updateTracking
+    summary: Update bus GPS position
+    description: Updates the live GPS position for a bus. Only DRIVER role can update tracking. The driver must be assigned to the bus's active schedule.
+    tags:
+      - Tracking
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/tracking.yaml#/TrackingUpdate'
+    responses:
+      '200':
+        description: Tracking position updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/tracking.yaml#/BusTrackingDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a driver or not assigned to this bus
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'

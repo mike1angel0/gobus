@@ -1,0 +1,87 @@
+buses:
+  get:
+    operationId: adminListBuses
+    summary: List all buses (admin)
+    description: Returns a paginated list of all buses across all providers. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: providerId
+        in: query
+        required: false
+        description: Filter buses by provider
+        schema:
+          type: string
+          maxLength: 30
+    responses:
+      '200':
+        description: Paginated list of buses
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/transport.yaml#/BusListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
+seatById:
+  patch:
+    operationId: adminToggleSeat
+    summary: Enable or disable a seat (admin)
+    description: Allows an admin to enable or disable a specific seat. Useful for marking damaged seats as unavailable. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/admin.yaml#/AdminToggleSeatRequest'
+    responses:
+      '200':
+        description: Seat updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/transport.yaml#/SeatDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Seat not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
