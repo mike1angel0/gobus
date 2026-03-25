@@ -283,6 +283,638 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  # --- Provider Endpoints ---
+  /api/v1/providers/me:
+    get:
+      operationId: getOwnProvider
+      summary: Get own provider profile
+      description: Returns the authenticated provider's profile. Requires PROVIDER role. Provider can only access their own profile.
+      tags:
+        - Providers
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Provider profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderDataResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Route Endpoints ---
+  /api/v1/routes:
+    get:
+      operationId: listRoutes
+      summary: List provider's routes
+      description: Returns a paginated list of routes belonging to the authenticated provider. Ownership enforced — providers can only see their own routes.
+      tags:
+        - Routes
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated list of routes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createRoute
+      summary: Create a new route with stops
+      description: Creates a route with an ordered list of stops. Requires PROVIDER role. The route is automatically associated with the authenticated provider.
+      tags:
+        - Routes
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRouteRequest'
+      responses:
+        '201':
+          description: Route created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteWithStopsDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/routes/{id}:
+    get:
+      operationId: getRoute
+      summary: Get route details with stops
+      description: Returns a route with its ordered stops. Ownership enforced — providers can only access their own routes. Returns 404 if not found or not owned.
+      tags:
+        - Routes
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Route details with stops
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteWithStopsDataResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Route not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteRoute
+      summary: Delete a route
+      description: Deletes a route and its associated stops (cascade). Ownership enforced — providers can only delete their own routes. Returns 404 if not found or not owned.
+      tags:
+        - Routes
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Route deleted successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Route not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Bus Endpoints ---
+  /api/v1/buses:
+    get:
+      operationId: listBuses
+      summary: List provider's buses
+      description: Returns a paginated list of buses belonging to the authenticated provider. Ownership enforced.
+      tags:
+        - Buses
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated list of buses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createBus
+      summary: Create a new bus with seat layout
+      description: Creates a bus with a grid-based seat layout. Requires PROVIDER role. The bus is automatically associated with the authenticated provider.
+      tags:
+        - Buses
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBusRequest'
+      responses:
+        '201':
+          description: Bus created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusWithSeatsDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: License plate already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/buses/{id}:
+    put:
+      operationId: updateBus
+      summary: Update a bus
+      description: Updates bus details (model, license plate, capacity). Ownership enforced — providers can only update their own buses. Returns 404 if not found or not owned.
+      tags:
+        - Buses
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBusRequest'
+      responses:
+        '200':
+          description: Bus updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusWithSeatsDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Bus not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: License plate already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteBus
+      summary: Delete a bus
+      description: Deletes a bus and its associated seats (cascade). Ownership enforced. Returns 404 if not found or not owned.
+      tags:
+        - Buses
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Bus deleted successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Bus not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Driver Endpoints ---
+  /api/v1/drivers:
+    get:
+      operationId: listDrivers
+      summary: List provider's drivers
+      description: Returns a paginated list of drivers belonging to the authenticated provider. Ownership enforced.
+      tags:
+        - Drivers
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated list of drivers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createDriver
+      summary: Create a driver account
+      description: Creates a new user account with DRIVER role linked to the authenticated provider. Requires PROVIDER role. Ownership enforced — drivers are automatically linked to the provider.
+      tags:
+        - Drivers
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDriverRequest'
+      responses:
+        '201':
+          description: Driver created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/drivers/{id}:
+    delete:
+      operationId: deleteDriver
+      summary: Delete a driver
+      description: Deletes a driver account. Ownership enforced — providers can only delete drivers linked to their organization. Returns 404 if not found or not owned.
+      tags:
+        - Drivers
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Driver deleted successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Driver not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # --- Schedule Endpoints ---
+  /api/v1/schedules:
+    get:
+      operationId: listSchedules
+      summary: List provider's schedules
+      description: Returns a paginated list of schedules for the authenticated provider. Supports filtering by routeId, busId, status, and date range. Ownership enforced.
+      tags:
+        - Schedules
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - name: routeId
+          in: query
+          description: Filter by route ID
+          schema:
+            type: string
+            maxLength: 30
+        - name: busId
+          in: query
+          description: Filter by bus ID
+          schema:
+            type: string
+            maxLength: 30
+        - name: status
+          in: query
+          description: Filter by schedule status
+          schema:
+            $ref: '#/components/schemas/ScheduleStatus'
+        - name: fromDate
+          in: query
+          description: Filter schedules from this date (inclusive, ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          description: Filter schedules until this date (inclusive, ISO 8601)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Paginated list of schedules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleListResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createSchedule
+      summary: Create a schedule with stop times
+      description: Creates a schedule for a route with a bus assignment and ordered stop times. Requires PROVIDER role. Route and bus must belong to the authenticated provider.
+      tags:
+        - Schedules
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScheduleRequest'
+      responses:
+        '201':
+          description: Schedule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleWithDetailsDataResponse'
+        '400':
+          description: Validation error (invalid route/bus, time conflicts)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Referenced route, bus, or driver not found or not owned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/schedules/{id}:
+    put:
+      operationId: updateSchedule
+      summary: Update a schedule
+      description: Updates schedule details such as driver assignment or status. Ownership enforced — providers can only update schedules for their own routes. Returns 404 if not found or not owned.
+      tags:
+        - Schedules
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScheduleRequest'
+      responses:
+        '200':
+          description: Schedule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleWithDetailsDataResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Schedule not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteSchedule
+      summary: Cancel a schedule
+      description: Cancels a schedule by setting its status to CANCELLED. Ownership enforced. Returns 404 if not found or not owned.
+      tags:
+        - Schedules
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '204':
+          description: Schedule cancelled successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Not a provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Schedule not found or not owned by provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -290,6 +922,33 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: JWT access token with 15-minute expiry
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-based)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSizeParam:
+      name: pageSize
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    IdParam:
+      name: id
+      in: path
+      required: true
+      description: Resource identifier (cuid)
+      schema:
+        type: string
+        maxLength: 30
 
   schemas:
     # --- Enums ---
@@ -702,3 +1361,1018 @@ components:
           type: string
           maxLength: 500
           description: Human-readable error message for this field
+
+    # --- Transport Enums ---
+    SeatType:
+      type: string
+      description: Type of bus seat
+      enum:
+        - STANDARD
+        - PREMIUM
+        - DISABLED_ACCESSIBLE
+        - BLOCKED
+
+    ScheduleStatus:
+      type: string
+      description: Status of a schedule
+      enum:
+        - ACTIVE
+        - CANCELLED
+
+    ProviderStatus:
+      type: string
+      description: Provider approval status
+      enum:
+        - APPROVED
+        - PENDING
+
+    # --- Provider Schemas ---
+    Provider:
+      type: object
+      description: Transport provider (bus company)
+      required:
+        - id
+        - name
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique provider identifier (cuid)
+        name:
+          type: string
+          maxLength: 200
+          description: Provider company name
+        logo:
+          type:
+            - string
+            - 'null'
+          format: uri
+          maxLength: 2048
+          description: URL to provider logo image
+        contactEmail:
+          type:
+            - string
+            - 'null'
+          format: email
+          maxLength: 255
+          description: Provider contact email
+        contactPhone:
+          type:
+            - string
+            - 'null'
+          maxLength: 20
+          description: Provider contact phone number
+        status:
+          $ref: '#/components/schemas/ProviderStatus'
+        createdAt:
+          type: string
+          format: date-time
+          description: Provider creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    # --- Route Schemas ---
+    Stop:
+      type: object
+      description: A stop along a route
+      required:
+        - id
+        - name
+        - lat
+        - lng
+        - orderIndex
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique stop identifier (cuid)
+        name:
+          type: string
+          maxLength: 200
+          description: Stop name (city or station name)
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude coordinate
+        lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude coordinate
+        orderIndex:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Position in the route (0-based)
+
+    Route:
+      type: object
+      description: A transport route
+      required:
+        - id
+        - name
+        - providerId
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique route identifier (cuid)
+        name:
+          type: string
+          maxLength: 200
+          description: Route name (e.g., Bucharest - Cluj)
+        providerId:
+          type: string
+          maxLength: 30
+          description: Provider who owns this route
+        createdAt:
+          type: string
+          format: date-time
+          description: Route creation timestamp
+
+    RouteWithStops:
+      type: object
+      description: A route with its ordered list of stops
+      required:
+        - id
+        - name
+        - providerId
+        - stops
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique route identifier (cuid)
+        name:
+          type: string
+          maxLength: 200
+          description: Route name (e.g., Bucharest - Cluj)
+        providerId:
+          type: string
+          maxLength: 30
+          description: Provider who owns this route
+        stops:
+          type: array
+          minItems: 0
+          maxItems: 100
+          description: Ordered list of stops on this route
+          items:
+            $ref: '#/components/schemas/Stop'
+        createdAt:
+          type: string
+          format: date-time
+          description: Route creation timestamp
+
+    CreateStopInput:
+      type: object
+      description: Input for creating a stop on a route
+      required:
+        - name
+        - lat
+        - lng
+        - orderIndex
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Stop name (city or station name)
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Latitude coordinate
+        lng:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Longitude coordinate
+        orderIndex:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Position in the route (0-based)
+
+    CreateRouteRequest:
+      type: object
+      description: Request body for creating a route with stops
+      required:
+        - name
+        - stops
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Route name (e.g., Bucharest - Cluj)
+        stops:
+          type: array
+          minItems: 2
+          maxItems: 100
+          description: Ordered list of stops (minimum 2 for a valid route)
+          items:
+            $ref: '#/components/schemas/CreateStopInput'
+
+    # --- Bus Schemas ---
+    Seat:
+      type: object
+      description: A seat in a bus
+      required:
+        - id
+        - row
+        - column
+        - label
+        - type
+        - price
+        - isEnabled
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique seat identifier (cuid)
+        row:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Seat row number
+        column:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Seat column number
+        label:
+          type: string
+          maxLength: 10
+          description: Seat label displayed to passengers (e.g., 1A, 2B)
+        type:
+          $ref: '#/components/schemas/SeatType'
+        price:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 10000
+          description: Price override for this seat (0 means use base price)
+        isEnabled:
+          type: boolean
+          description: Whether this seat is available for booking
+
+    Bus:
+      type: object
+      description: A bus belonging to a provider
+      required:
+        - id
+        - licensePlate
+        - model
+        - capacity
+        - rows
+        - columns
+        - providerId
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique bus identifier (cuid)
+        licensePlate:
+          type: string
+          maxLength: 20
+          description: Unique license plate number
+        model:
+          type: string
+          maxLength: 100
+          description: Bus model name
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 200
+          description: Total number of seats
+        rows:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Number of seat rows
+        columns:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Number of seat columns
+        providerId:
+          type: string
+          maxLength: 30
+          description: Provider who owns this bus
+        createdAt:
+          type: string
+          format: date-time
+          description: Bus creation timestamp
+
+    BusWithSeats:
+      type: object
+      description: A bus with its full seat layout
+      required:
+        - id
+        - licensePlate
+        - model
+        - capacity
+        - rows
+        - columns
+        - providerId
+        - seats
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique bus identifier (cuid)
+        licensePlate:
+          type: string
+          maxLength: 20
+          description: Unique license plate number
+        model:
+          type: string
+          maxLength: 100
+          description: Bus model name
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 200
+          description: Total number of seats
+        rows:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Number of seat rows
+        columns:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Number of seat columns
+        providerId:
+          type: string
+          maxLength: 30
+          description: Provider who owns this bus
+        seats:
+          type: array
+          minItems: 0
+          maxItems: 1000
+          description: Full seat layout
+          items:
+            $ref: '#/components/schemas/Seat'
+        createdAt:
+          type: string
+          format: date-time
+          description: Bus creation timestamp
+
+    CreateSeatInput:
+      type: object
+      description: Input for creating a seat in a bus
+      required:
+        - row
+        - column
+        - label
+        - type
+      properties:
+        row:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Seat row number
+        column:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Seat column number
+        label:
+          type: string
+          minLength: 1
+          maxLength: 10
+          description: Seat label (e.g., 1A, 2B)
+        type:
+          $ref: '#/components/schemas/SeatType'
+        price:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 10000
+          default: 0
+          description: Price override for this seat (0 means use base price)
+
+    CreateBusRequest:
+      type: object
+      description: Request body for creating a bus with seats
+      required:
+        - licensePlate
+        - model
+        - capacity
+        - rows
+        - columns
+        - seats
+      properties:
+        licensePlate:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Unique license plate number
+        model:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Bus model name
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 200
+          description: Total number of seats
+        rows:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Number of seat rows
+        columns:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Number of seat columns
+        seats:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          description: Seat layout definition
+          items:
+            $ref: '#/components/schemas/CreateSeatInput'
+
+    UpdateBusRequest:
+      type: object
+      description: Request body for updating a bus
+      properties:
+        licensePlate:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Unique license plate number
+        model:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Bus model name
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 200
+          description: Total number of seats
+
+    BusTemplate:
+      type: object
+      description: A predefined bus layout template
+      required:
+        - id
+        - name
+        - rows
+        - columns
+        - capacity
+        - seats
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Template identifier
+        name:
+          type: string
+          maxLength: 100
+          description: Template name (e.g., Standard 50-seat)
+        rows:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Number of seat rows
+        columns:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Number of seat columns
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 200
+          description: Total number of seats
+        seats:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          description: Predefined seat layout
+          items:
+            $ref: '#/components/schemas/CreateSeatInput'
+
+    # --- Driver Schemas ---
+    Driver:
+      type: object
+      description: A driver user associated with a provider
+      required:
+        - id
+        - email
+        - name
+        - role
+        - status
+        - providerId
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique user identifier (cuid)
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          description: Driver's email address
+        name:
+          type: string
+          maxLength: 100
+          description: Driver's full name
+        role:
+          type: string
+          enum:
+            - DRIVER
+          description: Always DRIVER
+        phone:
+          type:
+            - string
+            - 'null'
+          maxLength: 20
+          description: Driver's phone number
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        providerId:
+          type: string
+          maxLength: 30
+          description: Associated provider ID
+        createdAt:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+
+    CreateDriverRequest:
+      type: object
+      description: Request body for creating a driver account
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          description: Driver's email address (must be unique)
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+          description: >-
+            Initial password. Must be at least 8 characters and contain at least
+            one uppercase letter, one lowercase letter, and one digit.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Driver's full name
+        phone:
+          type: string
+          maxLength: 20
+          description: Driver's phone number
+
+    # --- Schedule Schemas ---
+    StopTime:
+      type: object
+      description: Arrival and departure times for a stop in a schedule
+      required:
+        - id
+        - stopName
+        - arrivalTime
+        - departureTime
+        - orderIndex
+        - priceFromStart
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique stop time identifier (cuid)
+        stopName:
+          type: string
+          maxLength: 200
+          description: Name of the stop
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Scheduled arrival time at this stop
+        departureTime:
+          type: string
+          format: date-time
+          description: Scheduled departure time from this stop
+        orderIndex:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Position in the schedule (0-based)
+        priceFromStart:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100000
+          description: Cumulative price from the first stop to this stop
+
+    Schedule:
+      type: object
+      description: A scheduled trip for a route
+      required:
+        - id
+        - routeId
+        - busId
+        - departureTime
+        - arrivalTime
+        - basePrice
+        - status
+        - tripDate
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique schedule identifier (cuid)
+        routeId:
+          type: string
+          maxLength: 30
+          description: Associated route ID
+        busId:
+          type: string
+          maxLength: 30
+          description: Assigned bus ID
+        driverId:
+          type:
+            - string
+            - 'null'
+          maxLength: 30
+          description: Assigned driver ID (null if unassigned)
+        departureTime:
+          type: string
+          format: date-time
+          description: Scheduled departure time from first stop
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Scheduled arrival time at last stop
+        daysOfWeek:
+          type: array
+          minItems: 0
+          maxItems: 7
+          description: Days of the week this schedule runs (0=Sunday, 6=Saturday)
+          items:
+            type: integer
+            minimum: 0
+            maximum: 6
+        basePrice:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100000
+          description: Base price for the full route
+        status:
+          $ref: '#/components/schemas/ScheduleStatus'
+        tripDate:
+          type: string
+          format: date-time
+          description: Specific date for this trip instance
+        createdAt:
+          type: string
+          format: date-time
+          description: Schedule creation timestamp
+
+    ScheduleWithDetails:
+      type: object
+      description: A schedule with its route, bus, driver, and stop times
+      required:
+        - id
+        - routeId
+        - busId
+        - departureTime
+        - arrivalTime
+        - basePrice
+        - status
+        - tripDate
+        - stopTimes
+        - route
+        - bus
+        - createdAt
+      properties:
+        id:
+          type: string
+          maxLength: 30
+          description: Unique schedule identifier (cuid)
+        routeId:
+          type: string
+          maxLength: 30
+          description: Associated route ID
+        busId:
+          type: string
+          maxLength: 30
+          description: Assigned bus ID
+        driverId:
+          type:
+            - string
+            - 'null'
+          maxLength: 30
+          description: Assigned driver ID (null if unassigned)
+        departureTime:
+          type: string
+          format: date-time
+          description: Scheduled departure time from first stop
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Scheduled arrival time at last stop
+        daysOfWeek:
+          type: array
+          minItems: 0
+          maxItems: 7
+          description: Days of the week this schedule runs
+          items:
+            type: integer
+            minimum: 0
+            maximum: 6
+        basePrice:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100000
+          description: Base price for the full route
+        status:
+          $ref: '#/components/schemas/ScheduleStatus'
+        tripDate:
+          type: string
+          format: date-time
+          description: Specific date for this trip instance
+        stopTimes:
+          type: array
+          minItems: 0
+          maxItems: 100
+          description: Ordered stop times for this schedule
+          items:
+            $ref: '#/components/schemas/StopTime'
+        route:
+          $ref: '#/components/schemas/Route'
+        bus:
+          $ref: '#/components/schemas/Bus'
+        driver:
+          type:
+            - object
+            - 'null'
+          description: Assigned driver (null if unassigned)
+          properties:
+            id:
+              type: string
+              maxLength: 30
+              description: Driver user ID
+            name:
+              type: string
+              maxLength: 100
+              description: Driver name
+        createdAt:
+          type: string
+          format: date-time
+          description: Schedule creation timestamp
+
+    CreateStopTimeInput:
+      type: object
+      description: Input for creating a stop time in a schedule
+      required:
+        - stopName
+        - arrivalTime
+        - departureTime
+        - orderIndex
+        - priceFromStart
+      properties:
+        stopName:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Name of the stop
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Scheduled arrival time at this stop
+        departureTime:
+          type: string
+          format: date-time
+          description: Scheduled departure time from this stop
+        orderIndex:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Position in the schedule (0-based)
+        priceFromStart:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100000
+          description: Cumulative price from the first stop to this stop
+
+    CreateScheduleRequest:
+      type: object
+      description: Request body for creating a schedule with stop times
+      required:
+        - routeId
+        - busId
+        - departureTime
+        - arrivalTime
+        - basePrice
+        - tripDate
+        - stopTimes
+      properties:
+        routeId:
+          type: string
+          maxLength: 30
+          description: Route to schedule
+        busId:
+          type: string
+          maxLength: 30
+          description: Bus to assign
+        driverId:
+          type: string
+          maxLength: 30
+          description: Driver to assign (optional)
+        departureTime:
+          type: string
+          format: date-time
+          description: Scheduled departure time from first stop
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Scheduled arrival time at last stop
+        daysOfWeek:
+          type: array
+          minItems: 0
+          maxItems: 7
+          description: Days of the week this schedule runs (0=Sunday, 6=Saturday)
+          items:
+            type: integer
+            minimum: 0
+            maximum: 6
+        basePrice:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100000
+          description: Base price for the full route
+        tripDate:
+          type: string
+          format: date-time
+          description: Specific date for this trip instance
+        stopTimes:
+          type: array
+          minItems: 2
+          maxItems: 100
+          description: Ordered stop times (minimum 2 for a valid schedule)
+          items:
+            $ref: '#/components/schemas/CreateStopTimeInput'
+
+    UpdateScheduleRequest:
+      type: object
+      description: Request body for updating a schedule
+      properties:
+        driverId:
+          type:
+            - string
+            - 'null'
+          maxLength: 30
+          description: Driver to assign (null to unassign)
+        status:
+          $ref: '#/components/schemas/ScheduleStatus'
+        departureTime:
+          type: string
+          format: date-time
+          description: Updated departure time
+        arrivalTime:
+          type: string
+          format: date-time
+          description: Updated arrival time
+
+    # --- Response Envelopes (Transport) ---
+    ProviderDataResponse:
+      type: object
+      description: API response envelope wrapping provider data
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/Provider'
+
+    RouteWithStopsDataResponse:
+      type: object
+      description: API response envelope wrapping route with stops
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/RouteWithStops'
+
+    RouteListResponse:
+      type: object
+      description: Paginated list of routes
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Route'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    BusWithSeatsDataResponse:
+      type: object
+      description: API response envelope wrapping bus with seats
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/BusWithSeats'
+
+    BusListResponse:
+      type: object
+      description: Paginated list of buses
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Bus'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    DriverDataResponse:
+      type: object
+      description: API response envelope wrapping driver data
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/Driver'
+
+    DriverListResponse:
+      type: object
+      description: Paginated list of drivers
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Driver'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ScheduleWithDetailsDataResponse:
+      type: object
+      description: API response envelope wrapping schedule with details
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ScheduleWithDetails'
+
+    ScheduleListResponse:
+      type: object
+      description: Paginated list of schedules
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Schedule'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'

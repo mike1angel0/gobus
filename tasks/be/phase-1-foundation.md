@@ -37,37 +37,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-002: Design OpenAPI 3.1 spec — Auth & Users** - Designed complete auth/user schemas (RegisterRequest, LoginRequest, User, Role, UserStatus, ErrorResponse RFC 9457, PaginationMeta, etc.) and all 9 auth paths with request/response/error schemas. Spec validates with zero errors.
 
-### TASK-003: Design OpenAPI spec — Provider & Transport entities
-**Description:** Add provider and transport entity schemas and paths to the spec:
-
-**Schemas:** `Provider`, `Route`, `RouteWithStops`, `Stop`, `CreateRouteRequest`, `Bus`, `BusWithSeats`, `Seat`, `SeatType` enum, `CreateBusRequest`, `BusTemplate`, `Schedule`, `ScheduleWithDetails`, `StopTime`, `CreateScheduleRequest`, `ScheduleStatus` enum.
-
-**Paths (all require PROVIDER role):**
-- `GET /api/v1/providers/me` — Get own provider profile
-- `GET /api/v1/routes` — List provider's routes (paginated)
-- `POST /api/v1/routes` — Create route with stops
-- `GET /api/v1/routes/{id}` — Get route details
-- `DELETE /api/v1/routes/{id}` — Delete route
-- `GET /api/v1/buses` — List provider's buses (paginated)
-- `POST /api/v1/buses` — Create bus with seats
-- `PUT /api/v1/buses/{id}` — Update bus
-- `DELETE /api/v1/buses/{id}` — Delete bus
-- `GET /api/v1/drivers` — List provider's drivers (paginated)
-- `POST /api/v1/drivers` — Create driver account
-- `DELETE /api/v1/drivers/{id}` — Delete driver
-- `GET /api/v1/schedules` — List provider's schedules (paginated, filterable)
-- `POST /api/v1/schedules` — Create schedule with stop times
-- `PUT /api/v1/schedules/{id}` — Update schedule (assign driver, change status)
-- `DELETE /api/v1/schedules/{id}` — Cancel schedule
-
-**Acceptance Criteria:**
-- [ ] All transport entity schemas defined with field descriptions
-- [ ] SeatType enum: STANDARD, PREMIUM, DISABLED_ACCESSIBLE, BLOCKED
-- [ ] ScheduleStatus enum: ACTIVE, CANCELLED
-- [ ] All 16 provider paths defined with request/response/error schemas
-- [ ] Pagination on all list endpoints (page, pageSize query params)
-- [ ] Ownership enforcement documented (provider can only access own resources)
-- [ ] Spec validates with Redocly lint
+**TASK-003: Design OpenAPI spec — Provider & Transport entities** - Designed all transport entity schemas (Provider, Route, Stop, Bus, Seat, Schedule, StopTime, Driver, enums) and 16 provider paths with full request/response/error schemas, pagination, ownership enforcement, and reusable parameters. Spec validates with zero errors.
 
 ### TASK-004: Design OpenAPI spec — Passenger, Booking, Search
 **Description:** Add passenger-facing schemas and paths:

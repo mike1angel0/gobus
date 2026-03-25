@@ -5,3 +5,17 @@
 - Root CLAUDE.md documents API-first workflow and monorepo structure
 - Learnings: Old package-lock.json must be removed when restructuring to workspaces
 ---
+
+## Iteration 2 - TASK-002: Design OpenAPI 3.1 spec — Auth & Users
+- Designed complete OpenAPI 3.1 spec with all auth schemas and 9 auth paths
+- Learnings: OpenAPI 3.1 uses `type: ['string', 'null']` instead of `nullable: true` (3.0 syntax). Redocly requires `license` in info object. PaginationMeta unused warning is expected until list endpoints are added in TASK-003/004.
+---
+
+## Iteration 3 - TASK-003: Design OpenAPI spec — Provider & Transport entities
+- Added 16 provider paths (providers/me, routes CRUD, buses CRUD, drivers CRUD, schedules CRUD with filtering)
+- Added all transport schemas: Provider, Route, RouteWithStops, Stop, Bus, BusWithSeats, Seat, Schedule, ScheduleWithDetails, StopTime, Driver, BusTemplate
+- Added enums: SeatType (4 values), ScheduleStatus (2 values), ProviderStatus (2 values)
+- Added reusable parameters: PageParam, PageSizeParam, IdParam
+- Added response envelopes for all entity types with pagination support
+- Learnings: Reusable $ref parameters (PageParam, PageSizeParam, IdParam) clean up path definitions significantly. BusTemplate schema triggers no-unused-components warning since it's a reference schema — acceptable for now.
+---
