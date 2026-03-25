@@ -64,13 +64,13 @@
 **Description:** Create `src/application/services/tracking.service.ts`. Methods: `getByBusId(busId)` — returns current tracking data. `updatePosition(driverId, data: { busId, lat, lng, speed?, heading?, scheduleId, currentStopIndex, tripDate })` — validates driver is assigned to the schedule, upserts tracking record. `getActiveByProvider(providerId)` — returns all active tracking for provider's buses.
 
 **Acceptance Criteria:**
-- [ ] `updatePosition` validates driver assignment (driver must be assigned to the schedule)
-- [ ] `updatePosition` upserts (creates or updates) the BusTracking record
-- [ ] `getByBusId` returns null if no tracking data (not error)
-- [ ] `getActiveByProvider` returns only isActive=true records
-- [ ] Unit tests
-- [ ] JSDoc on all public methods
-- [ ] Typecheck passes
+- [x] `updatePosition` validates driver assignment (driver must be assigned to the schedule)
+- [x] `updatePosition` upserts (creates or updates) the BusTracking record
+- [x] `getByBusId` returns null if no tracking data (not error)
+- [x] `getActiveByProvider` returns only isActive=true records
+- [x] Unit tests
+- [x] JSDoc on all public methods
+- [x] Typecheck passes
 
 ### TASK-006: Create tracking API routes
 **Description:** Implement from spec: `GET /api/v1/tracking/{busId}` (authenticated), `POST /api/v1/tracking` (DRIVER role, validates assignment).

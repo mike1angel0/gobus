@@ -20,3 +20,19 @@
 - 26 unit tests covering: seat validation (non-existent, disabled, blocked), stop order validation, create with price calc, seat conflict 409, schedule not found, list with pagination and status filter, getById ownership enforcement, cancel states
 - Learnings: Mock $transaction by extracting txClient and having $transaction call the callback with it; reuse computeSegmentPrice from search.service for segment pricing; ownership returns 404 not 403 per spec
 ---
+## Iteration 4 - TASK-004: Create booking API routes
+- Implemented 4 authenticated endpoints: GET /api/v1/bookings (list), POST /api/v1/bookings (create), GET /api/v1/bookings/:id (detail), DELETE /api/v1/bookings/:id (cancel)
+- Created Zod schemas (createBookingBodySchema, listBookingsQuerySchema, bookingSchema, bookingWithDetailsSchema) with .describe() on all fields
+- Separate serializers for list (bookingSchema, no schedule) vs detail (bookingWithDetailsSchema, with schedule/route/bus)
+- 19 integration tests covering: list with pagination, empty list, status filter, create 201, seat conflict 409, schedule not found, invalid body, invalid stop order, get detail, ownership 404, cancel, cancel already-cancelled, auth 401
+- Learnings: Auth plugin calls prisma.user.findUnique to check user status — integration tests MUST include user mock in mockPrisma and set mockUserFindUnique.mockResolvedValue in beforeEach; PRD said cancel returns 204 but OpenAPI spec says 200 with BookingWithDetailsDataResponse — always follow spec (source of truth)
+---
+## Iteration 5 - TASK-005: Create tracking service
+- Implemented TrackingService with updatePosition, getByBusId, getActiveByProvider methods
+- Created BusTrackingData domain entity in domain/tracking/tracking.entity.ts
+- updatePosition validates bus existence (404), driver assignment via schedule.findFirst (403), then upserts BusTracking record
+- scheduleId inferred from driver's assigned schedule if not provided in input
+- toTrackingData mapper extracts clean entity from Prisma record
+- 11 unit tests covering: upsert success, scheduleId inference, explicit scheduleId, bus not found 404, driver not assigned 403, null tripDate, assignment query filters, getByBusId found/null, getActiveByProvider with results/empty
+- Learnings: BusTracking has @unique on busId — use prisma.busTracking.upsert for create-or-update; tracking 403 is correct per spec (not 404 like ownership checks) because it's about role-based assignment, not resource enumeration
+---
