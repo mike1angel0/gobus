@@ -81,13 +81,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 ## Auth Implementation
 
-### TASK-019: Create auth domain types
-**Description:** Create `src/domain/auth/auth.types.ts` and `src/domain/users/user.entity.ts`. Types must match the OpenAPI spec schemas exactly. Include: LoginCredentials, RegisterData, AuthTokenPayload, TokenPair, UserEntity.
-
-**Acceptance Criteria:**
-- [ ] All types match OpenAPI schemas
-- [ ] JSDoc on all exported types
-- [ ] Typecheck passes
+**TASK-019: Create auth domain types** - Created auth.types.ts (RegisterData, LoginCredentials, AuthTokenPayload, TokenPair, ForgotPasswordData, ResetPasswordData, ChangePasswordData) and user.entity.ts (UserEntity, UserPreferences, UserUpdateData) matching OpenAPI spec schemas exactly. 21 tests passing.
 
 ### TASK-020: Create auth service with security features
 **Description:** Create `src/application/services/auth.service.ts`. Methods:
