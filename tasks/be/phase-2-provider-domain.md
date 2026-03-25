@@ -122,10 +122,10 @@
 **Description:** Implement from spec: `GET /api/v1/drivers` (list), `POST /api/v1/drivers` (create), `DELETE /api/v1/drivers/{id}`. Require PROVIDER role.
 
 **Acceptance Criteria:**
-- [ ] All 3 endpoints match OpenAPI spec
-- [ ] Create validates required fields (name, email, password)
-- [ ] Integration tests
-- [ ] Typecheck passes
+- [x] All 3 endpoints match OpenAPI spec
+- [x] Create validates required fields (name, email, password)
+- [x] Integration tests
+- [x] Typecheck passes
 
 ---
 

@@ -61,3 +61,22 @@
 - Templates endpoint registered before /:id to avoid route matching conflict
 - Patterns: same fastify-plugin pattern as route routes, serialize helpers for Date→ISO
 ---
+## Iteration 9 - TASK-009: Create driver service
+- Created DriverEntity and CreateDriverData types in domain/drivers/driver.entity.ts
+- Created DriverService with listByProvider, create, delete methods
+- Added assignedScheduleCount to OpenAPI Driver schema (was missing from spec, required by PRD)
+- listByProvider uses Prisma _count for driverSchedules to get assigned schedule count
+- create hashes password with bcryptjs (12 rounds), sets role=DRIVER, links providerId
+- create checks email uniqueness (409 AUTH_EMAIL_TAKEN)
+- delete unassigns driver from all schedules first (updateMany driverId=null), then deletes user
+- delete also checks role=DRIVER (prevents deleting non-driver users)
+- 10 unit tests: list pagination/empty/page2, create happy/phone-null/conflict, delete happy/not-found/ownership/wrong-role
+- Patterns: drivers are User records with role=DRIVER, not a separate model. Use prisma.user with where: { role: 'DRIVER' }
+---
+## Iteration 10 - TASK-010: Create driver API routes
+- Created 3 endpoints: GET /api/v1/drivers (list), POST /api/v1/drivers (create), DELETE /api/v1/drivers/:id
+- Created Zod schemas in schemas.ts matching OpenAPI spec: driverSchema, createDriverRequestSchema with password regex validation
+- All schemas use .strict() and .describe() on every field
+- 19 integration tests: CRUD happy paths, pagination, validation (missing fields, weak password, short password, unknown fields), auth (401/403), ownership (404), conflict (409)
+- Patterns: same fastify-plugin pattern as bus routes, serializeDriver for Date→ISO
+---
