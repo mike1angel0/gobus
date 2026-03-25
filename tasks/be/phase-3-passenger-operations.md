@@ -96,11 +96,11 @@
 **Description:** Create `src/application/services/admin.service.ts`. Methods: `listAllBuses(pagination)` — returns all buses across all providers with seat details. `toggleSeat(seatId, enabled: boolean)` — enables/disables seat.
 
 **Acceptance Criteria:**
-- [ ] `listAllBuses` returns all buses with provider info and seats
-- [ ] `toggleSeat` updates isEnabled flag
-- [ ] Unit tests
-- [ ] JSDoc
-- [ ] Typecheck passes
+- [x] `listAllBuses` returns all buses with provider info and seats
+- [x] `toggleSeat` updates isEnabled flag
+- [x] Unit tests
+- [x] JSDoc
+- [x] Typecheck passes
 
 ### TASK-012: Create admin API routes
 **Description:** Implement from spec: `GET /api/v1/admin/buses` (ADMIN role, paginated), `PATCH /api/v1/admin/seats/{id}` (ADMIN role).
