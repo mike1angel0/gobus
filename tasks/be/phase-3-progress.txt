@@ -36,3 +36,10 @@
 - 11 unit tests covering: upsert success, scheduleId inference, explicit scheduleId, bus not found 404, driver not assigned 403, null tripDate, assignment query filters, getByBusId found/null, getActiveByProvider with results/empty
 - Learnings: BusTracking has @unique on busId — use prisma.busTracking.upsert for create-or-update; tracking 403 is correct per spec (not 404 like ownership checks) because it's about role-based assignment, not resource enumeration
 ---
+## Iteration 6 - TASK-006: Create tracking API routes
+- Implemented GET /api/v1/tracking/:busId (authenticated, returns 200 or 404) and POST /api/v1/tracking (DRIVER role only, validates assignment via service)
+- Created Zod schemas (busIdParamSchema, trackingUpdateSchema, busTrackingSchema) with .describe() matching OpenAPI spec field-by-field
+- serializeTrackingData converts Date fields (tripDate, updatedAt) to ISO strings; tripDate serializes to null when not set
+- 13 integration tests covering: GET success, GET 404 no data, GET null fields, GET 401, POST success, POST with optional fields, POST 403 non-driver, POST 403 not assigned, POST 404 bus not found, POST 400 missing fields, POST 400 out of range, POST 400 unknown fields, POST 401
+- Learnings: Integration tests use vitest.integration.config.ts; role check in route handler (not service) since service validates assignment but not role; strict() on request schema rejects unknown fields per coding standards
+---

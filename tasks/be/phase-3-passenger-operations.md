@@ -58,29 +58,11 @@
 
 ---
 
-## Real-Time Tracking
+## Completed Tasks
 
-### TASK-005: Create tracking service
-**Description:** Create `src/application/services/tracking.service.ts`. Methods: `getByBusId(busId)` — returns current tracking data. `updatePosition(driverId, data: { busId, lat, lng, speed?, heading?, scheduleId, currentStopIndex, tripDate })` — validates driver is assigned to the schedule, upserts tracking record. `getActiveByProvider(providerId)` — returns all active tracking for provider's buses.
+**TASK-005: Create tracking service** - Implemented TrackingService with updatePosition (driver assignment validation, upsert), getByBusId, getActiveByProvider. 11 unit tests.
 
-**Acceptance Criteria:**
-- [x] `updatePosition` validates driver assignment (driver must be assigned to the schedule)
-- [x] `updatePosition` upserts (creates or updates) the BusTracking record
-- [x] `getByBusId` returns null if no tracking data (not error)
-- [x] `getActiveByProvider` returns only isActive=true records
-- [x] Unit tests
-- [x] JSDoc on all public methods
-- [x] Typecheck passes
-
-### TASK-006: Create tracking API routes
-**Description:** Implement from spec: `GET /api/v1/tracking/{busId}` (authenticated), `POST /api/v1/tracking` (DRIVER role, validates assignment).
-
-**Acceptance Criteria:**
-- [ ] GET returns tracking data or 404 if no active tracking
-- [ ] POST validates driver assignment (403 if not assigned)
-- [ ] POST response matches spec
-- [ ] Integration tests
-- [ ] Typecheck passes
+**TASK-006: Create tracking API routes** - Implemented GET /api/v1/tracking/:busId and POST /api/v1/tracking with DRIVER role enforcement, Zod validation, 13 integration tests.
 
 ---
 
