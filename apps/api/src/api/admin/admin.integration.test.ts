@@ -10,6 +10,7 @@ const mockBusCount = vi.fn();
 const mockSeatFindUnique = vi.fn();
 const mockSeatUpdate = vi.fn();
 const mockUserFindUnique = vi.fn();
+const mockRefreshTokenUpdateMany = vi.fn();
 
 const mockPrisma = {
   bus: {
@@ -22,6 +23,9 @@ const mockPrisma = {
   },
   user: {
     findUnique: mockUserFindUnique,
+  },
+  refreshToken: {
+    updateMany: mockRefreshTokenUpdateMany,
   },
 };
 
@@ -326,6 +330,96 @@ describe('PATCH /api/v1/admin/seats/:id', () => {
     const res = await supertest(app.server)
       .patch('/api/v1/admin/seats/seat-1')
       .send({ isEnabled: false });
+
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('DELETE /api/v1/admin/users/:id/sessions', () => {
+  it('revokes all sessions and returns 204', async () => {
+    // The first call is the auth plugin lookup, the second is the revokeAllSessions lookup
+    mockUserFindUnique
+      .mockResolvedValueOnce({
+        id: ADMIN_ID,
+        email: 'admin@test.com',
+        name: 'Admin',
+        role: 'ADMIN',
+        providerId: null,
+        phone: null,
+        status: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .mockResolvedValueOnce({
+        id: 'target-user',
+        email: 'target@test.com',
+        name: 'Target',
+        role: 'PASSENGER',
+        providerId: null,
+        phone: null,
+        status: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    mockRefreshTokenUpdateMany.mockResolvedValue({ count: 2 });
+
+    const res = await supertest(app.server)
+      .delete('/api/v1/admin/users/target-user/sessions')
+      .set('Authorization', ADMIN_AUTH);
+
+    expect(res.status).toBe(204);
+    expect(mockRefreshTokenUpdateMany).toHaveBeenCalledWith({
+      where: { userId: 'target-user', revokedAt: null },
+      data: { revokedAt: expect.any(Date) },
+    });
+  });
+
+  it('returns 404 when user does not exist', async () => {
+    mockUserFindUnique
+      .mockResolvedValueOnce({
+        id: ADMIN_ID,
+        email: 'admin@test.com',
+        name: 'Admin',
+        role: 'ADMIN',
+        providerId: null,
+        phone: null,
+        status: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .mockResolvedValueOnce(null);
+
+    const res = await supertest(app.server)
+      .delete('/api/v1/admin/users/nonexistent/sessions')
+      .set('Authorization', ADMIN_AUTH);
+
+    expect(res.status).toBe(404);
+    expect(res.body.status).toBe(404);
+    expect(res.body.code).toBe('RESOURCE_NOT_FOUND');
+  });
+
+  it('returns 403 for PASSENGER role', async () => {
+    mockUserFindUnique.mockResolvedValue({
+      id: PASSENGER_ID,
+      email: 'passenger@test.com',
+      name: 'Passenger',
+      role: 'PASSENGER',
+      providerId: null,
+      phone: null,
+      status: 'ACTIVE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const res = await supertest(app.server)
+      .delete('/api/v1/admin/users/target-user/sessions')
+      .set('Authorization', PASSENGER_AUTH);
+
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 401 without auth header', async () => {
+    const res = await supertest(app.server).delete('/api/v1/admin/users/target-user/sessions');
 
     expect(res.status).toBe(401);
   });

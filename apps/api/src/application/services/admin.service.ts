@@ -61,6 +61,27 @@ export class AdminService {
   }
 
   /**
+   * Revoke all active refresh tokens for a user, forcing logout of all sessions.
+   * Return the number of revoked tokens. Throw RESOURCE_NOT_FOUND if user does not exist.
+   */
+  async revokeAllSessions(userId: string): Promise<number> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'User not found');
+    }
+
+    const result = await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+
+    logger.info('All sessions revoked for user', { userId, revokedCount: result.count });
+
+    return result.count;
+  }
+
+  /**
    * Toggle the enabled status of a seat.
    * Return the updated seat entity.
    * Throw RESOURCE_NOT_FOUND if the seat does not exist.

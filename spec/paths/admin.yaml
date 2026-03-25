@@ -37,6 +37,39 @@ buses:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
 
+userSessions:
+  delete:
+    operationId: adminForceLogout
+    summary: Force logout a user (admin)
+    description: Revoke all refresh tokens for a user, forcing them to log out of all sessions. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '204':
+        description: All sessions revoked successfully
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: User not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
 seatById:
   patch:
     operationId: adminToggleSeat

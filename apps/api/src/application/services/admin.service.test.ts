@@ -49,6 +49,8 @@ describe('AdminService', () => {
   let mockPrisma: {
     bus: { findMany: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn> };
     seat: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+    user: { findUnique: ReturnType<typeof vi.fn> };
+    refreshToken: { updateMany: ReturnType<typeof vi.fn> };
   };
 
   beforeEach(() => {
@@ -60,6 +62,12 @@ describe('AdminService', () => {
       seat: {
         findUnique: vi.fn(),
         update: vi.fn(),
+      },
+      user: {
+        findUnique: vi.fn(),
+      },
+      refreshToken: {
+        updateMany: vi.fn(),
       },
     };
     service = new AdminService(mockPrisma as never);
@@ -207,6 +215,50 @@ describe('AdminService', () => {
       await expect(service.toggleSeat('nonexistent', true)).rejects.toThrow();
 
       expect(mockPrisma.seat.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('revokeAllSessions', () => {
+    const USER_ID = 'user-1';
+
+    it('revokes all active refresh tokens for an existing user', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({ id: USER_ID, email: 'test@example.com' });
+      mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 3 });
+
+      const result = await service.revokeAllSessions(USER_ID);
+
+      expect(result).toBe(3);
+      expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { userId: USER_ID, revokedAt: null },
+        data: { revokedAt: expect.any(Date) },
+      });
+    });
+
+    it('returns 0 when user has no active sessions', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({ id: USER_ID, email: 'test@example.com' });
+      mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 0 });
+
+      const result = await service.revokeAllSessions(USER_ID);
+
+      expect(result).toBe(0);
+    });
+
+    it('throws RESOURCE_NOT_FOUND when user does not exist', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.revokeAllSessions('nonexistent')).rejects.toThrow(AppError);
+      await expect(service.revokeAllSessions('nonexistent')).rejects.toMatchObject({
+        statusCode: 404,
+        code: ErrorCodes.RESOURCE_NOT_FOUND,
+      });
+    });
+
+    it('does not revoke tokens when user is not found', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.revokeAllSessions('nonexistent')).rejects.toThrow();
+
+      expect(mockPrisma.refreshToken.updateMany).not.toHaveBeenCalled();
     });
   });
 });

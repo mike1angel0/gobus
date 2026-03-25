@@ -43,8 +43,8 @@ function serializeSeat(seat: SeatEntity): Record<string, unknown> {
 }
 
 /**
- * Register admin endpoints: GET /api/v1/admin/buses and PATCH /api/v1/admin/seats/:id.
- * Both endpoints require ADMIN role.
+ * Register admin endpoints: buses list, seat toggle, and force-logout.
+ * All endpoints require ADMIN role.
  */
 async function adminRoutes(app: FastifyInstance): Promise<void> {
   const adminService = new AdminService(getPrisma());
@@ -74,6 +74,18 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
       const seat = await adminService.toggleSeat(id, isEnabled);
 
       return { data: serializeSeat(seat) };
+    },
+  );
+
+  // DELETE /api/v1/admin/users/:id/sessions — force logout user by revoking all refresh tokens
+  app.delete(
+    '/api/v1/admin/users/:id/sessions',
+    { preHandler: [app.authenticate, requireAdmin] },
+    async (request, reply) => {
+      const { id } = idParamSchema.parse(request.params);
+      await adminService.revokeAllSessions(id);
+
+      return reply.status(204).send();
     },
   );
 }

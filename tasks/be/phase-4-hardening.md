@@ -81,13 +81,13 @@
 **Description:** Create `src/jobs/token-cleanup.ts` with a function (invokable via npm script or cron) that: deletes expired refresh tokens, deletes expired/used password reset tokens, unlocks accounts past their lockout period (reset failedLoginAttempts, clear lockedUntil). Add `npm run jobs:cleanup-tokens` script. Add admin endpoint `DELETE /api/v1/admin/users/{id}/sessions` to revoke all refresh tokens for a user (force logout).
 
 **Acceptance Criteria:**
-- [ ] Cleanup deletes expired refresh tokens (older than 7d)
-- [ ] Cleanup deletes used/expired password reset tokens (older than 24h)
-- [ ] Cleanup unlocks accounts past lockedUntil
-- [ ] `npm run jobs:cleanup-tokens` runs successfully
-- [ ] Admin can force-logout a user by revoking all their refresh tokens
-- [ ] Unit tests for cleanup logic
-- [ ] Typecheck passes
+- [x] Cleanup deletes expired refresh tokens (older than 7d)
+- [x] Cleanup deletes used/expired password reset tokens (older than 24h)
+- [x] Cleanup unlocks accounts past lockedUntil
+- [x] `npm run jobs:cleanup-tokens` runs successfully
+- [x] Admin can force-logout a user by revoking all their refresh tokens
+- [x] Unit tests for cleanup logic
+- [x] Typecheck passes
 
 ### TASK-008: Admin user management endpoints
 **Description:** Add admin endpoints to OpenAPI spec and implement: `GET /api/v1/admin/users` (list all users, paginated, filterable by role/status), `PATCH /api/v1/admin/users/{id}/status` (suspend/unsuspend/unlock user), `GET /api/v1/admin/audit-logs` (view audit logs, paginated, filterable by userId/action/dateRange). All require ADMIN role.
