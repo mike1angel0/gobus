@@ -49,3 +49,8 @@
 - Verified: spec:lint passes (0 errors, 3 acceptable warnings), spec:bundle produces spec/dist/openapi.json
 - Learnings: Check existing setup before implementing — previous tasks had already set up the tooling incrementally. The 3 warnings (license-strict, localhost server, forgot-password missing 4XX) are all acceptable by design.
 ---
+
+## Iteration 8 - TASK-008: Set up Fastify 5 with TypeScript strict
+- Installed Fastify 5, TypeScript 5, tsx, tsc-alias. Created tsconfig with strict + path aliases, buildApp() factory in app.ts, graceful shutdown in server.ts
+- Learnings: Fastify 5 works with Node16 module resolution. Dev scripts (dev, build, start, typecheck) were already in package.json from TASK-001, just needed dependencies and source files.
+---

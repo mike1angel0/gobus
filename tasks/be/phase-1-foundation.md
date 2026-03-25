@@ -51,17 +51,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 ## Backend Scaffold
 
-### TASK-008: Set up Fastify 5 with TypeScript strict
-**Description:** In `apps/api/`, install Fastify 5, TypeScript 5.5+, `tsx` for dev, `tsc` + `tsc-alias` for build. Configure `tsconfig.json` with strict mode, path aliases (`@/` → `src/`). Create `src/app.ts` (Fastify app factory with plugin registration), `src/server.ts` (entry point with graceful shutdown). Add npm scripts: `dev`, `build`, `start`, `typecheck`.
-
-**Acceptance Criteria:**
-- [ ] `apps/api/tsconfig.json` with strict: true, paths configured
-- [ ] `src/app.ts` exports `buildApp()` factory function
-- [ ] `src/server.ts` starts server with graceful shutdown (SIGINT/SIGTERM)
-- [ ] `npm run dev` starts with tsx watch
-- [ ] `npm run build` compiles with tsc + tsc-alias
-- [ ] `npm run typecheck` passes with zero errors
-- [ ] JSDoc on exported functions
+**TASK-008: Set up Fastify 5 with TypeScript strict** - Installed Fastify 5, TypeScript 5 strict, tsx, tsc-alias. Created buildApp() factory, graceful shutdown server, path aliases (@/ → src/). All scripts work: dev, build, start, typecheck.
 
 ### TASK-009: Install and configure core dependencies
 **Description:** Install: `@fastify/cors`, `@fastify/helmet`, `@fastify/rate-limit`, `@fastify/swagger`, `@fastify/swagger-ui`, `zod`, `bcryptjs`, `jsonwebtoken`, `date-fns`. Dev deps: `vitest`, `supertest`, `@types/*`, `eslint`, `prettier`, `eslint-plugin-jsdoc`, `@vitest/coverage-v8`. Configure ESLint with TypeScript + complexity rules (max-lines: 500, max-lines-per-function: 250, complexity: 15, max-depth: 4, jsdoc/require-jsdoc on exports). Configure Prettier (semi, singleQuote, printWidth: 100).
