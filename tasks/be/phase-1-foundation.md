@@ -43,55 +43,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-005: Design OpenAPI spec — Tracking, Delays, Driver, Admin** - Added BusTracking, TrackingUpdate, Delay, DelayReason, CreateDelayRequest, UpdateDelayRequest, DriverTrip, DriverTripDetail, AdminToggleSeatRequest schemas and 9 paths (tracking GET/POST, driver trips GET list/detail, delays GET/POST/PUT, admin buses GET, admin seats PATCH). Total: 40 endpoints. Spec validates with zero errors.
 
-### TASK-006: Split OpenAPI spec into multi-file structure
-**Description:** The single `spec/openapi.yaml` is ~4000 lines. Split it into a multi-file structure using `$ref` references:
-```
-spec/
-├── openapi.yaml              # Root file — info, servers, security, path refs only
-├── paths/
-│   ├── auth.yaml             # /api/v1/auth/* paths
-│   ├── providers.yaml        # /api/v1/providers/* paths
-│   ├── routes.yaml           # /api/v1/routes/* paths
-│   ├── buses.yaml            # /api/v1/buses/* paths
-│   ├── drivers.yaml          # /api/v1/drivers/* paths
-│   ├── schedules.yaml        # /api/v1/schedules/* paths
-│   ├── search.yaml           # /api/v1/search, /api/v1/trips/* paths
-│   ├── bookings.yaml         # /api/v1/bookings/* paths
-│   ├── tracking.yaml         # /api/v1/tracking/* paths
-│   ├── delays.yaml           # /api/v1/delays/* paths
-│   ├── driver-trips.yaml     # /api/v1/driver/trips/* paths
-│   └── admin.yaml            # /api/v1/admin/* paths
-├── components/
-│   ├── schemas/
-│   │   ├── auth.yaml         # User, LoginRequest, RegisterRequest, TokenPair, etc.
-│   │   ├── provider.yaml     # Provider schema
-│   │   ├── transport.yaml    # Route, Stop, Bus, Seat, SeatType, etc.
-│   │   ├── schedule.yaml     # Schedule, StopTime, ScheduleStatus, etc.
-│   │   ├── booking.yaml      # Booking, BookingStatus, CreateBookingRequest, etc.
-│   │   ├── tracking.yaml     # BusTracking, TrackingUpdate
-│   │   ├── delay.yaml        # Delay, DelayReason, CreateDelayRequest
-│   │   ├── search.yaml       # SearchResult, TripDetail, SeatAvailability
-│   │   ├── admin.yaml        # Admin-specific schemas
-│   │   └── common.yaml       # ErrorResponse, PaginationMeta, ApiResponse wrappers
-│   ├── parameters/
-│   │   └── common.yaml       # Reusable query params (page, pageSize, id path param)
-│   ├── responses/
-│   │   └── errors.yaml       # Reusable error responses (400, 401, 403, 404, 409, 423, 429)
-│   └── securitySchemes.yaml  # Bearer JWT definition
-└── .redocly.yaml             # Linter config
-```
-The root `openapi.yaml` should contain only info, servers, security, and `$ref` pointers to path files. Each path file contains the operations for that domain. Each schema file contains the schemas for that domain. Reusable error responses and parameters are shared. After splitting, the spec must still validate with `npx @redocly/cli lint spec/openapi.yaml`.
-
-**Acceptance Criteria:**
-- [ ] Root `openapi.yaml` is under 100 lines (only refs)
-- [ ] 12 path files in `spec/paths/` (one per domain)
-- [ ] 10 schema files in `spec/components/schemas/` (one per domain + common)
-- [ ] Reusable error responses in `spec/components/responses/errors.yaml`
-- [ ] Reusable parameters in `spec/components/parameters/common.yaml`
-- [ ] Security scheme in `spec/components/securitySchemes.yaml`
-- [ ] All `$ref` pointers resolve correctly
-- [ ] `npx @redocly/cli lint spec/openapi.yaml` passes with zero errors
-- [ ] No content lost — bundled output identical to original single file
+**TASK-006: Split OpenAPI spec into multi-file structure** - Split 3884-line monolithic spec into 12 path files, 10 schema files, reusable parameters/responses/securitySchemes. Root openapi.yaml is 94 lines (refs only). All 29 paths and 80 schemas preserved. Spec lints with zero errors.
 
 ### TASK-007: Add spec validation tooling and npm scripts
 **Description:** Install `@redocly/cli` as root devDep. Add root npm scripts: `spec:lint` (validates split spec), `spec:preview` (serves Redoc preview), `spec:bundle` (bundles split files into single `spec/dist/openapi.json` for consumers — FE type generation, Swagger UI). Create `spec/.redocly.yaml` config with rules (no-unused-components, no-empty-servers, etc.). Add `spec/dist/` to `.gitignore`. Verify the complete spec passes linting.
