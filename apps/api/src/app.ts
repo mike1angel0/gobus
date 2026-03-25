@@ -1,11 +1,29 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import type { OpenAPIV3 } from 'openapi-types';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 
 import errorHandler from '@/api/plugins/error-handler.js';
+import healthRoutes from '@/api/health/routes.js';
+
+/**
+ * Load the bundled OpenAPI spec from spec/dist/openapi.json.
+ *
+ * Resolves the path relative to the project root (two levels up from src/).
+ */
+function loadOpenApiSpec(): OpenAPIV3.Document {
+  const specPath = resolve(__dirname, '..', '..', '..', 'spec', 'dist', 'openapi.json');
+  const raw = readFileSync(specPath, 'utf-8');
+  return JSON.parse(raw) as OpenAPIV3.Document;
+}
 
 /**
  * Build and configure the Fastify application instance.
  *
- * Registers core plugins and returns a ready-to-use app.
+ * Registers core plugins (error handler, swagger, health routes)
+ * and returns a ready-to-use app.
  * Use this factory in both production server and tests.
  */
 export async function buildApp(options: FastifyServerOptions = {}): Promise<FastifyInstance> {
@@ -17,6 +35,21 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   });
 
   await app.register(errorHandler);
+
+  // Swagger / OpenAPI docs
+  await app.register(swagger, {
+    mode: 'static',
+    specification: {
+      document: loadOpenApiSpec(),
+    },
+  });
+
+  await app.register(swaggerUi, {
+    routePrefix: '/docs',
+  });
+
+  // Routes
+  await app.register(healthRoutes);
 
   return app;
 }

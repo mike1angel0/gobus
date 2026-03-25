@@ -61,14 +61,7 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 
 **TASK-012: Create error handling infrastructure** - Created ErrorCodes const object (10 codes), AppError class with statusCode/code/detail/errors[], and error-handler Fastify plugin producing RFC 9457 Problem Details responses. Handles AppError, ZodError, Fastify validation errors, and unknown errors (safe 500). 53 unit tests passing.
 
-### TASK-013: Create health check and Swagger setup
-**Description:** Register `@fastify/swagger` + `@fastify/swagger-ui` in `app.ts`. Import the bundled OpenAPI spec and serve it. Create `src/api/health/routes.ts` with `GET /health` (not in spec — internal). Swagger UI at `/docs`, JSON at `/docs/json`. Add `npm run api:validate` script that compares implemented routes against the spec.
-
-**Acceptance Criteria:**
-- [ ] Swagger UI at `/docs` serves the OpenAPI spec
-- [ ] `GET /health` returns `{ status: 'ok', timestamp, uptime }`
-- [ ] Integration test for health endpoint with Supertest
-- [ ] Typecheck passes
+**TASK-013: Create health check and Swagger setup** - Registered @fastify/swagger (static mode with bundled spec) and @fastify/swagger-ui at /docs. Created GET /health endpoint returning {status, timestamp, uptime}. 4 integration tests passing (health + swagger UI + JSON spec).
 
 ---
 

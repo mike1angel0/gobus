@@ -72,3 +72,20 @@
 - 39 total unit tests passing (7 env, 10 pagination, 15 schemas, 7 test helpers)
 - Learnings: Zod 4 is at root "zod" import (not "zod/v4"). Module-level parseEnv() breaks tests — use lazy getEnv() instead. vi.stubEnv(key, undefined) doesn't delete env vars; use `delete process.env.KEY`. Add `unstubEnvs: true` to vitest config for auto-cleanup between tests.
 ---
+
+## Iteration 12 - TASK-012: Create error handling infrastructure
+- Created ErrorCodes const object (10 codes), AppError class, error-handler Fastify plugin with RFC 9457 Problem Details
+- Handles AppError, ZodError, Fastify validation errors, and unknown errors (safe 500 without leaking internals)
+- Installed fastify-plugin, registered error handler in app.ts
+- 53 total unit tests passing (14 new: 4 AppError, 3 ErrorCodes, 7 error-handler plugin)
+- Learnings: `as const` is compile-time only in TS — don't test runtime immutability of const objects. Fastify's error handler receives `unknown` error type in strict mode — need `FastifyError` cast for `.validation` access. `FastifySchemaValidationError` has specific typed properties (instancePath, params, message), don't use `Record<string, unknown>`.
+---
+
+## Iteration 13 - TASK-013: Create health check and Swagger setup
+- Registered @fastify/swagger (static mode) with bundled OpenAPI spec from spec/dist/openapi.json
+- Registered @fastify/swagger-ui at /docs prefix, JSON spec at /docs/json
+- Created GET /health endpoint via fastify-plugin in src/api/health/routes.ts
+- 4 integration tests: health status + content type, swagger UI + JSON spec
+- 53 unit + 4 integration tests passing
+- Learnings: @fastify/swagger StaticDocumentSpec expects `OpenAPIV3.Document` type (from openapi-types, a transitive dep). OpenAPI 3.1 spec can be cast to OpenAPIV3.Document safely. `__dirname` resolves to src/ dir at runtime, so spec path is 3 levels up. Spec must be pre-bundled via `npm run spec:bundle` before tests/runtime.
+---
