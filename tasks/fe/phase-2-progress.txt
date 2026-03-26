@@ -58,3 +58,25 @@
 - 27 component tests all passing, typecheck clean, lint clean (0 new warnings)
 - Learnings: Radix Tooltip needs TooltipProvider wrapper. Empty grid cells with aria-hidden="true" are not queryable via getByRole in RTL. Seat state derivation order matters: BLOCKED type check must come before isBooked check.
 ---
+
+## Iteration 7 - TASK-007: Create DelayBadge component
+- Extracted inline DelayBadge from trip-card.tsx into shared component at `src/components/shared/delay-badge.tsx`
+- Created `src/lib/delay.ts` for `getDelaySeverity` utility (separated from component to satisfy react-refresh/only-export-components lint rule)
+- CVA-based variants: severity (on-time/minor/major) and size (sm/md)
+- Updated trip-card.tsx to import shared DelayBadge — all 25 existing TripCard tests still pass
+- 20 component tests for DelayBadge covering severity levels, size variants, accessibility, and custom className
+- Learnings: react-refresh/only-export-components ESLint rule prevents exporting utility functions from component files. Move non-component exports to separate files under `src/lib/`.
+---
+
+## Iteration 8 - TASK-008: Create trip detail page
+- Created `src/pages/trip/[id].tsx` with full trip info display and booking form
+- Trip info: provider name, route name, departure/arrival times, duration, base price, ordered stop list with cumulative prices
+- Booking form: boarding/alighting stop dropdowns (boarding excludes last stop, alighting only shows stops after boarding), seat map, segment price computation, confirm button
+- Segment price = alightingStop.priceFromStart - boardingStop.priceFromStart, multiplied by seat count
+- Submit calls `useCreateBooking`, redirects to /my-trips on success; 409 conflict handled by the hook
+- Shows cancelled badge and hides booking form for CANCELLED trips
+- Skeleton loading state, error state with retry button
+- Updated router to use TripDetailPage instead of PlaceholderPage
+- 27 component tests covering loading, error, trip info display, booking form, booking flow, API calls, accessibility
+- Learnings: Pages using `useParams` need `Routes`/`Route` wrappers in tests (not just MemoryRouter) for params to be extracted. When asserting text that appears in multiple places (e.g., price in card and seat tooltip), use `within()` scoped to specific regions or `getAllByText`.
+---

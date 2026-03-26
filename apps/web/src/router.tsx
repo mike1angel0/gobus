@@ -14,6 +14,7 @@ const ForgotPasswordPage = lazy(() => import('@/pages/auth/forgot-password'));
 const ResetPasswordPage = lazy(() => import('@/pages/auth/reset-password'));
 const ChangePasswordPage = lazy(() => import('@/pages/auth/change-password'));
 const SearchPage = lazy(() => import('@/pages/search'));
+const TripDetailPage = lazy(() => import('@/pages/trip/[id]'));
 const PlaceholderPage = lazy(() => import('@/pages/placeholder'));
 
 /* ---------- Router ---------- */
@@ -38,7 +39,7 @@ export const router = createBrowserRouter([
           /* ---- Public routes ---- */
           { path: '/', element: <HomePage /> },
           { path: '/search', element: <SearchPage /> },
-          { path: '/trip/:id', element: <PlaceholderPage /> },
+          { path: '/trip/:id', element: <TripDetailPage /> },
 
           /* ---- Auth routes (public) ---- */
           { path: '/auth/login', element: <LoginPage /> },

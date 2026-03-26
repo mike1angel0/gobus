@@ -30,19 +30,7 @@
 
 ### ~~TASK-007: Create DelayBadge component~~ ✅
 
-### TASK-008: Create trip detail page
-**Description:** Create `src/pages/trip/[id].tsx`. Uses `useTripDetails` hook. Displays: provider info, route name, departure/arrival times, stop list with times and segment prices, delay badge, live map (if tracking active), seat map for selection. Booking form: select boarding/alighting stops from dropdowns (filtered by route order), select seats from seat map, shows computed price (segment-based), submit button. On submit: calls `useCreateBooking`, redirects to /my-trips on success.
-
-**Acceptance Criteria:**
-- [ ] Full trip info displayed matching API response
-- [ ] Seat map shows availability for selected tripDate
-- [ ] Boarding/alighting stop dropdowns (boarding must be before alighting)
-- [ ] Price computed from segment pricing on stop selection
-- [ ] Submit creates booking via API
-- [ ] 409 conflict shows "Seats already taken" error with option to refresh
-- [ ] Loading/error states
-- [ ] Component test for booking flow
-- [ ] Typecheck passes
+### ~~TASK-008: Create trip detail page~~ ✅
 
 ---
 
