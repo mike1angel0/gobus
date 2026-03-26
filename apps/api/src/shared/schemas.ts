@@ -12,6 +12,21 @@ export function strictParse<T extends z.ZodType>(schema: T, data: unknown): z.in
 }
 
 /**
+ * Create a Zod string schema that only allows HTTPS URLs.
+ * Rejects javascript:, data:, http:, and other unsafe URL schemes to prevent XSS.
+ */
+export function httpsUrlSchema(maxLength = 2048) {
+  return z
+    .string()
+    .trim()
+    .max(maxLength)
+    .url()
+    .refine((val) => val.startsWith('https://'), {
+      message: 'URL must use HTTPS scheme',
+    });
+}
+
+/**
  * Zod schema for pagination query parameters.
  * Matches OpenAPI PageParam (default 1) and PageSizeParam (default 20, max 100).
  */

@@ -274,14 +274,14 @@
 **Description:** Even though Prisma prevents SQL injection and React auto-escapes JSX, add defense-in-depth: (1) Create a Fastify plugin `sanitize-input.ts` that strips HTML tags from all string inputs using a lightweight sanitizer (e.g., `xss` or `sanitize-html` library — allowlist approach, strip everything by default). (2) Add Content-Security-Policy header that blocks inline scripts. (3) Validate all URL fields (avatarUrl, provider logo) against an allowlist of URL schemes (only https:). (4) Ensure no endpoint returns user-controlled data in HTTP headers (header injection). (5) Add `X-Content-Type-Options: nosniff` to prevent MIME sniffing.
 
 **Acceptance Criteria:**
-- [ ] Input sanitizer strips HTML tags from all string fields
-- [ ] CSP header blocks inline scripts: `default-src 'self'; script-src 'self'`
-- [ ] URL fields validated (https: only, no javascript: or data: schemes)
-- [ ] No user input reflected in response headers
-- [ ] `X-Content-Type-Options: nosniff` on all responses
-- [ ] Integration test: HTML in name field → stripped in response
-- [ ] Integration test: javascript: URL in avatarUrl → rejected
-- [ ] Typecheck passes
+- [x] Input sanitizer strips HTML tags from all string fields
+- [x] CSP header blocks inline scripts: `default-src 'self'; script-src 'self'`
+- [x] URL fields validated (https: only, no javascript: or data: schemes)
+- [x] No user input reflected in response headers
+- [x] `X-Content-Type-Options: nosniff` on all responses
+- [x] Integration test: HTML in name field → stripped in response
+- [x] Integration test: javascript: URL in avatarUrl → rejected
+- [x] Typecheck passes
 
 ### TASK-022: JWT hardening and token security
 **Description:** Harden JWT configuration: (1) Validate `iss` (issuer) and `aud` (audience) claims on every token verification. (2) Explicitly reject `alg: none` tokens. (3) Use RS256 (asymmetric) or ensure HS256 secret is ≥256 bits. (4) Set access token expiry to 15min (already done). (5) Add `jti` (JWT ID) claim for token tracking. (6) Validate token hasn't been revoked (check RefreshToken table). (7) Add `nbf` (not before) claim. (8) Ensure JWT_SECRET and JWT_REFRESH_SECRET are different values. (9) Add env validation that secrets are ≥32 characters.

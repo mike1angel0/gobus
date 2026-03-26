@@ -14,6 +14,7 @@ import rateLimitPlugin from '@/api/plugins/rate-limit.js';
 import authPlugin from '@/api/plugins/auth.js';
 import auditPlugin from '@/api/plugins/audit.js';
 import metricsPlugin from '@/api/plugins/metrics.js';
+import sanitizeInputPlugin from '@/api/plugins/sanitize-input.js';
 import { getRootLogger } from '@/infrastructure/logger/logger.js';
 import healthRoutes from '@/api/health/routes.js';
 import authRoutes from '@/api/auth/routes.js';
@@ -123,6 +124,9 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   }
 
   await app.register(errorHandler);
+
+  // Input sanitization — strip HTML tags from all string inputs (XSS prevention)
+  await app.register(sanitizeInputPlugin);
 
   // Request logging (method, url, status, timing)
   await app.register(requestLoggerPlugin);

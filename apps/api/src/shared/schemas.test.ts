@@ -3,6 +3,7 @@ import { z, ZodError } from 'zod';
 
 import {
   dataResponse,
+  httpsUrlSchema,
   idParamSchema,
   paginatedResponse,
   paginationQuerySchema,
@@ -95,6 +96,41 @@ describe('paginatedResponse', () => {
         meta: { total: 101, page: 1, pageSize: 101, totalPages: 1 },
       }),
     ).toThrow();
+  });
+});
+
+describe('httpsUrlSchema', () => {
+  const schema = httpsUrlSchema();
+
+  it('accepts valid HTTPS URLs', () => {
+    expect(schema.parse('https://example.com/avatar.png')).toBe('https://example.com/avatar.png');
+  });
+
+  it('rejects javascript: URLs', () => {
+    expect(() => schema.parse('javascript:alert(1)')).toThrow();
+  });
+
+  it('rejects data: URLs', () => {
+    expect(() => schema.parse('data:text/html,<script>alert(1)</script>')).toThrow();
+  });
+
+  it('rejects http: URLs (non-HTTPS)', () => {
+    expect(() => schema.parse('http://example.com/avatar.png')).toThrow();
+  });
+
+  it('rejects ftp: URLs', () => {
+    expect(() => schema.parse('ftp://example.com/file.txt')).toThrow();
+  });
+
+  it('trims whitespace before validation', () => {
+    expect(schema.parse('  https://example.com/avatar.png  ')).toBe(
+      'https://example.com/avatar.png',
+    );
+  });
+
+  it('respects custom maxLength', () => {
+    const shortSchema = httpsUrlSchema(30);
+    expect(() => shortSchema.parse('https://example.com/very-long-path-that-exceeds')).toThrow();
   });
 });
 

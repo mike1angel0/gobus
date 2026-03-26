@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { dataResponse } from '@/shared/schemas.js';
+import { dataResponse, httpsUrlSchema } from '@/shared/schemas.js';
 
 /**
  * Password validation pattern: at least one uppercase, one lowercase, and one digit.
@@ -166,7 +166,7 @@ export const updateProfileBodySchema = z
   .object({
     name: z.string().trim().min(1).max(100).describe("User's full name").optional(),
     phone: z.string().trim().max(20).describe('Phone number').optional(),
-    avatarUrl: z.string().trim().url().max(2048).describe("URL to user's avatar image").optional(),
+    avatarUrl: httpsUrlSchema(2048).describe("URL to user's avatar image").optional(),
     preferences: userPreferencesSchema
       .describe('User notification and display preferences')
       .optional(),

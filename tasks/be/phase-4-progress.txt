@@ -142,5 +142,26 @@
 - Learnings: The Edit tool requires a full file Read (not limit=5) before editing. For bulk replacements across many files, sed via Bash is more efficient.
 ---
 
+## Iteration 20 - TASK-020: OpenAPI spec — Add comprehensive limits and constraints
+- Audited all 12 spec schema files, 12 path files, and 12 Zod schema files field-by-field
+- All constraints were already in place from prior iterations (TASK-004 input sanitization, TASK-019 mass assignment prevention)
+- Verified: every string has maxLength, every number has min/max, every array has minItems/maxItems, all enums exhaustive, passwords have minLength+pattern, emails have format+maxLength, coordinates bounded, prices bounded
+- All Zod schemas match OpenAPI spec constraints exactly
+- spec:lint passes (only pre-existing warnings), typecheck clean, all 419 tests pass
+- Learnings: When prior tasks already hardened the spec incrementally, the "comprehensive audit" task becomes a verification pass rather than new work. Field-by-field comparison across spec + Zod is the right approach.
+---
+
+## Iteration 21 - TASK-021: XSS and injection prevention
+- Created `sanitize-input.ts` Fastify plugin using `striptags` library — strips HTML tags from all string fields in request body and query via preValidation hook
+- Created `httpsUrlSchema()` helper in shared/schemas.ts — Zod schema that rejects non-HTTPS URLs (blocks javascript:, data:, http:, ftp: schemes)
+- Applied httpsUrlSchema to avatarUrl in updateProfileBodySchema (the only URL input field)
+- CSP header already blocks inline scripts (script-src 'self' from TASK-002 Helmet config)
+- X-Content-Type-Options: nosniff already set by Helmet defaults
+- No user input reflected in response headers (verified via audit and integration test)
+- 9 unit tests for stripHtmlFromStrings, 7 unit tests for httpsUrlSchema, 9 integration tests for XSS prevention
+- All 435 unit + 430 integration tests pass, typecheck + lint clean
+- Learnings: striptags v3 is a CommonJS module that works with ESM import; supertest rejects CRLF in header values (can't test header injection from client side — Node.js HTTP layer itself prevents it)
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.
