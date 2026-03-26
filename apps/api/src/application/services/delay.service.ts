@@ -3,6 +3,7 @@ import type { DelayData } from '@/domain/delays/delay.entity.js';
 import type { PaginationMeta } from '@/shared/types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { verifyOwnership } from '@/domain/errors/ownership.js';
 import { buildPaginationMeta, parsePagination } from '@/shared/pagination.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
 
@@ -194,14 +195,8 @@ export class DelayService {
       include: { schedule: { include: { route: { select: { providerId: true } } } } },
     });
 
-    if (!delay) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Delay not found');
-    }
-
-    // Ownership check: provider must own the schedule
-    if (delay.schedule.route.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Delay not found');
-    }
+    // Ownership check: provider must own the schedule (also handles null delay)
+    verifyOwnership(delay, delay?.schedule?.route?.providerId, providerId, 'Delay');
 
     const record = await this.prisma.delay.update({
       where: { id },

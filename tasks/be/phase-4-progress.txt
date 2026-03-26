@@ -112,5 +112,23 @@
 - Learnings: Provider.contactEmail is nullable and not unique — can't use Prisma upsert on it. Use findFirst+create pattern instead. Bus.licensePlate is @unique so upsert works directly.
 ---
 
+## Iteration 17 - TASK-017: Add API spec conformance validation
+- Created `src/test/openapi-validator.ts` utility: loads bundled OpenAPI JSON, recursively dereferences $ref, compiles Ajv validators per endpoint/method/status, caches compiled validators
+- Created `src/api/spec-conformance.integration.test.ts` with 66 tests: 40 error response (401) validations for all protected endpoints + 26 success response validations covering all unique response schemas
+- Added `npm run api:validate` in apps/api (vitest runner) and root (bundles spec first, then runs)
+- Installed ajv + ajv-formats as devDependencies
+- Learnings: `import.meta.url` fails tsc with CommonJS output — use `process.cwd()` instead. Driver trips detail uses `date` query param (not `tripDate`). Admin suspend needs 3 chained mockUserFindUnique (auth + service findUnique + revokeAllSessions findUnique). User `preferences: null` fails spec validation since spec expects object type — mock with `{}`.
+---
+
+## Iteration 18 - TASK-018: OWASP API — Ownership enforcement audit (BOLA/IDOR prevention)
+- Created shared `verifyOwnership<T>()` assertion function in `src/domain/errors/ownership.ts` — acts as TypeScript assertion to narrow type after check
+- Refactored 6 services (route, bus, booking, schedule, delay) to use shared helper instead of inline if/throw patterns
+- Wrote 17 integration tests in `src/api/ownership.integration.test.ts` covering: Provider A vs Provider B cross-tenant access on routes/buses/schedules/delays/drivers, Passenger A vs Passenger B cross-user booking access, 404 (not 403) on all ownership failures, admin seat toggle role enforcement
+- All ownership checks were already in place — this task formalized the pattern with a shared helper and dedicated tests
+- 6 unit tests for verifyOwnership helper
+- All 420 unit + 412 integration tests pass, typecheck + lint clean
+- Learnings: Use `asserts resource is T` return type on ownership helper so TypeScript narrows automatically after the call — avoids needing non-null assertions everywhere. Schedule create request body requires `tripDate` in datetime format (not date-only).
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.

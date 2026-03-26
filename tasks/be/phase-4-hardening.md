@@ -219,19 +219,19 @@
 **Description:** Audit ALL mutation endpoints for ownership enforcement. Every PROVIDER endpoint must verify `resource.providerId === request.user.providerId`. Every PASSENGER endpoint must verify `resource.userId === request.user.id`. Every DRIVER endpoint must verify schedule assignment. Create a shared middleware helper `verifyOwnership(resourceProviderId, requestProviderId)` that throws 404 (not 403, to prevent resource enumeration). Write integration tests that prove cross-tenant access is blocked.
 
 **Acceptance Criteria:**
-- [ ] Route DELETE/PUT: verifies `route.providerId === session.providerId`
-- [ ] Bus DELETE/PUT: verifies `bus.providerId === session.providerId`
-- [ ] Schedule CREATE: verifies referenced route AND bus belong to provider
-- [ ] Schedule PUT/DELETE: verifies `schedule` ownership through route → provider chain
-- [ ] Booking GET/DELETE: verifies `booking.userId === session.userId`
-- [ ] Delay PUT: verifies delay's schedule belongs to provider
-- [ ] Tracking POST (PROVIDER path): verifies `bus.providerId === session.providerId`
-- [ ] Driver DELETE: verifies `driver.providerId === session.providerId`
-- [ ] Admin seat toggle: requires ADMIN role (not just any provider)
-- [ ] All ownership failures return 404 (not 403 — prevent resource enumeration)
-- [ ] Integration tests: Provider A cannot access Provider B's resources
-- [ ] Integration tests: Passenger A cannot see/cancel Passenger B's bookings
-- [ ] Typecheck passes
+- [x] Route DELETE/PUT: verifies `route.providerId === session.providerId`
+- [x] Bus DELETE/PUT: verifies `bus.providerId === session.providerId`
+- [x] Schedule CREATE: verifies referenced route AND bus belong to provider
+- [x] Schedule PUT/DELETE: verifies `schedule` ownership through route → provider chain
+- [x] Booking GET/DELETE: verifies `booking.userId === session.userId`
+- [x] Delay PUT: verifies delay's schedule belongs to provider
+- [x] Tracking POST (PROVIDER path): verifies `bus.providerId === session.providerId`
+- [x] Driver DELETE: verifies `driver.providerId === session.providerId`
+- [x] Admin seat toggle: requires ADMIN role (not just any provider)
+- [x] All ownership failures return 404 (not 403 — prevent resource enumeration)
+- [x] Integration tests: Provider A cannot access Provider B's resources
+- [x] Integration tests: Passenger A cannot see/cancel Passenger B's bookings
+- [x] Typecheck passes
 
 ### TASK-019: OWASP API — Mass assignment and over-posting prevention
 **Description:** Audit ALL request body parsing. Every endpoint must use Zod `.strict()` mode to reject unknown fields. Specifically prevent: role escalation at registration (only PASSENGER and PROVIDER allowed, not ADMIN/DRIVER), price manipulation on bookings (server must compute totalPrice, never trust client), driverId injection on schedules (validate driver belongs to same provider). Create a shared Zod helper `strictParse(schema, body)` that rejects unknown properties and returns 400 with field-level errors.

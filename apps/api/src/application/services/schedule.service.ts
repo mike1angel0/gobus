@@ -19,6 +19,7 @@ import type {
 import type { PaginationMeta } from '@/shared/types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { verifyOwnership } from '@/domain/errors/ownership.js';
 import { buildPaginationMeta, parsePagination } from '@/shared/pagination.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
 
@@ -129,9 +130,7 @@ export class ScheduleService {
       },
     });
 
-    if (!schedule || schedule.route.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Schedule not found');
-    }
+    verifyOwnership(schedule, schedule?.route?.providerId, providerId, 'Schedule');
 
     return this.toScheduleWithDetails(schedule);
   }
@@ -203,9 +202,7 @@ export class ScheduleService {
       include: { route: { select: { providerId: true } } },
     });
 
-    if (!existing || existing.route.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Schedule not found');
-    }
+    verifyOwnership(existing, existing?.route?.providerId, providerId, 'Schedule');
 
     if (data.driverId !== undefined && data.driverId !== null) {
       await this.validateDriverOwnership(data.driverId, providerId);
@@ -244,9 +241,7 @@ export class ScheduleService {
       include: { route: { select: { providerId: true } } },
     });
 
-    if (!existing || existing.route.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Schedule not found');
-    }
+    verifyOwnership(existing, existing?.route?.providerId, providerId, 'Schedule');
 
     await this.prisma.schedule.update({
       where: { id },
@@ -266,9 +261,7 @@ export class ScheduleService {
       select: { providerId: true },
     });
 
-    if (!route || route.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Route not found');
-    }
+    verifyOwnership(route, route?.providerId, providerId, 'Route');
   }
 
   /**
@@ -281,9 +274,7 @@ export class ScheduleService {
       select: { providerId: true },
     });
 
-    if (!bus || bus.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Bus not found');
-    }
+    verifyOwnership(bus, bus?.providerId, providerId, 'Bus');
   }
 
   /**

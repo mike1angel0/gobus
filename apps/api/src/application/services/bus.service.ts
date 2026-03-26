@@ -11,6 +11,7 @@ import type { PaginationMeta } from '@/shared/types.js';
 import { BUS_TEMPLATES, findTemplateById } from '@/domain/buses/bus-templates.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { verifyOwnership } from '@/domain/errors/ownership.js';
 import { buildPaginationMeta, parsePagination } from '@/shared/pagination.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
 
@@ -87,9 +88,7 @@ export class BusService {
       include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
     });
 
-    if (!bus || bus.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Bus not found');
-    }
+    verifyOwnership(bus, bus?.providerId, providerId, 'Bus');
 
     return this.toBusWithSeats(bus);
   }
@@ -151,9 +150,7 @@ export class BusService {
       select: { providerId: true },
     });
 
-    if (!bus || bus.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Bus not found');
-    }
+    verifyOwnership(bus, bus?.providerId, providerId, 'Bus');
 
     if (data.licensePlate) {
       const conflict = await this.prisma.bus.findUnique({
@@ -194,9 +191,7 @@ export class BusService {
       select: { providerId: true },
     });
 
-    if (!bus || bus.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Bus not found');
-    }
+    verifyOwnership(bus, bus?.providerId, providerId, 'Bus');
 
     const activeScheduleCount = await this.prisma.schedule.count({
       where: { busId: id, status: 'ACTIVE' },

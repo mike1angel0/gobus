@@ -8,6 +8,7 @@ import type {
 import type { PaginationMeta } from '@/shared/types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { verifyOwnership } from '@/domain/errors/ownership.js';
 import { buildPaginationMeta, parsePagination } from '@/shared/pagination.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
 
@@ -75,9 +76,7 @@ export class RouteService {
       include: { stops: { orderBy: { orderIndex: 'asc' } } },
     });
 
-    if (!route || route.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Route not found');
-    }
+    verifyOwnership(route, route?.providerId, providerId, 'Route');
 
     return this.toRouteWithStops(route);
   }
@@ -124,9 +123,7 @@ export class RouteService {
       select: { providerId: true },
     });
 
-    if (!route || route.providerId !== providerId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Route not found');
-    }
+    verifyOwnership(route, route?.providerId, providerId, 'Route');
 
     const activeScheduleCount = await this.prisma.schedule.count({
       where: { routeId: id, status: 'ACTIVE' },

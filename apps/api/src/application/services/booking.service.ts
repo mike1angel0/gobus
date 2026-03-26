@@ -2,6 +2,7 @@ import type { PrismaClient, BookingStatus } from '@/generated/prisma/client.js';
 import type { PaginationMeta } from '@/shared/types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { verifyOwnership } from '@/domain/errors/ownership.js';
 import { buildPaginationMeta, parsePagination } from '@/shared/pagination.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
 import { computeSegmentPrice } from './search.service.js';
@@ -362,9 +363,7 @@ export class BookingService {
       include: BOOKING_WITH_DETAILS_INCLUDE,
     });
 
-    if (!booking || booking.userId !== userId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Booking not found');
-    }
+    verifyOwnership(booking, booking?.userId, userId, 'Booking');
 
     return toBookingWithDetails(booking);
   }
@@ -380,9 +379,7 @@ export class BookingService {
       select: { id: true, userId: true, status: true },
     });
 
-    if (!booking || booking.userId !== userId) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Booking not found');
-    }
+    verifyOwnership(booking, booking?.userId, userId, 'Booking');
 
     if (booking.status !== 'CONFIRMED') {
       throw new AppError(
