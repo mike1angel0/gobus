@@ -50,17 +50,7 @@
 
 ### TASK-009: Translate common namespace ✅
 
-### TASK-010: Translate nav namespace
-**Description:** Extract all navigation labels into `nav.json`. This includes navbar links, mobile menu, user menu items, and the skip-to-content link.
-
-**Acceptance Criteria:**
-- [ ] `nav.json` keys include: `links.home`, `links.search`, `links.myTrips`, `links.dashboard`, `links.routes`, `links.fleet`, `links.schedules`, `links.drivers`, `links.tracking`, `links.trips`, `links.history`, `links.users`, `links.auditLogs`, `links.profile`
-- [ ] User menu: `menu.logout`, `menu.profile`, `menu.changePassword`
-- [ ] Accessibility: `a11y.skipToContent`, `a11y.openMenu`, `a11y.closeMenu`, `a11y.mainNavigation`
-- [ ] `navbar-links.ts` updated to use translation keys instead of hardcoded strings
-- [ ] `navbar.tsx`, `navbar-mobile.tsx`, `app-layout.tsx` updated to use `useTranslation('nav')`
-- [ ] Both `ro/nav.json` and `en/nav.json` complete
-- [ ] Typecheck passes, lint clean
+### TASK-010: Translate nav namespace ✅
 
 ### TASK-011: Translate auth namespace
 **Description:** Extract all authentication-related strings into `auth.json`. Covers login, register, forgot password, reset password, change password pages and their forms.

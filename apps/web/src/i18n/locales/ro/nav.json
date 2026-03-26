@@ -17,6 +17,9 @@
   },
   "menu": {
     "logout": "Deconectare",
+    "login": "Autentificare",
+    "register": "Înregistrare",
+    "signOut": "Deconectare",
     "profile": "Profil",
     "changePassword": "Schimbă parola"
   },
@@ -24,6 +27,7 @@
     "skipToContent": "Sari la conținut",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",
-    "mainNavigation": "Navigare principală"
+    "mainNavigation": "Navigare principală",
+    "mobileNavigation": "Navigare mobilă"
   }
 }

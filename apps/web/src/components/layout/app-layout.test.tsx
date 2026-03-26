@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import { AppLayout } from './app-layout';
 import { renderWithProviders } from '@/test/helpers';
 import { checkA11y } from '@/test/a11y';
@@ -28,6 +29,10 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('AppLayout', () => {
+  beforeEach(() => {
+    void i18n.changeLanguage('en');
+  });
+
   it('renders Navbar, main content area, and Toaster', () => {
     renderWithProviders(<AppLayout />, { withAuth: true });
 

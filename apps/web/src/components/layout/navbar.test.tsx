@@ -2,6 +2,8 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n/config';
 import { Navbar } from './navbar';
 
 // Mock useAuth
@@ -46,9 +48,11 @@ function createUser(role: string, name = 'Test User') {
 
 function renderNavbar(initialEntries = ['/']) {
   return render(
-    <MemoryRouter initialEntries={initialEntries}>
-      <Navbar />
-    </MemoryRouter>,
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter initialEntries={initialEntries}>
+        <Navbar />
+      </MemoryRouter>
+    </I18nextProvider>,
   );
 }
 
@@ -57,6 +61,7 @@ describe('Navbar', () => {
     vi.clearAllMocks();
     mockUser = null;
     mockIsAuthenticated = false;
+    void i18n.changeLanguage('en');
   });
 
   describe('unauthenticated', () => {
@@ -83,7 +88,7 @@ describe('Navbar', () => {
 
     it('does not show user name or sign out', () => {
       renderNavbar();
-      expect(screen.queryByLabelText('Sign out')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Log out')).not.toBeInTheDocument();
     });
   });
 
@@ -118,13 +123,13 @@ describe('Navbar', () => {
     it('shows user name and sign out button', () => {
       renderNavbar();
       expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.getByLabelText('Sign out')).toBeInTheDocument();
+      expect(screen.getByLabelText('Log out')).toBeInTheDocument();
     });
 
     it('calls logout on sign out click', async () => {
       const user = userEvent.setup();
       renderNavbar();
-      await user.click(screen.getByLabelText('Sign out'));
+      await user.click(screen.getByLabelText('Log out'));
       expect(mockLogout).toHaveBeenCalledOnce();
     });
   });
@@ -222,10 +227,7 @@ describe('Navbar', () => {
       const nav = screen.getByRole('navigation', { name: 'Main navigation' });
       expect(within(nav).getByText('Dashboard').closest('a')).toHaveAttribute('href', '/admin');
       expect(within(nav).getByText('Users').closest('a')).toHaveAttribute('href', '/admin/users');
-      expect(within(nav).getByText('Fleet').closest('a')).toHaveAttribute(
-        'href',
-        '/admin/fleet',
-      );
+      expect(within(nav).getByText('Fleet').closest('a')).toHaveAttribute('href', '/admin/fleet');
       expect(within(nav).getByText('Audit Logs').closest('a')).toHaveAttribute(
         'href',
         '/admin/audit-logs',
@@ -291,7 +293,7 @@ describe('Navbar', () => {
       mockUser = createUser('PASSENGER');
       mockIsAuthenticated = true;
       renderNavbar();
-      expect(screen.getByLabelText('Sign out')).toBeInTheDocument();
+      expect(screen.getByLabelText('Log out')).toBeInTheDocument();
     });
   });
 
@@ -392,6 +394,19 @@ describe('Navbar', () => {
       expect(screen.queryByRole('dialog', { name: 'Mobile navigation' })).not.toBeInTheDocument();
     });
   });
+
+  describe('i18n', () => {
+    it('renders navigation labels in Romanian when language is ro', () => {
+      void i18n.changeLanguage('ro');
+      mockUser = createUser('PASSENGER', 'Alice');
+      mockIsAuthenticated = true;
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Navigare principală' });
+      expect(within(nav).getByText('Acasă')).toBeInTheDocument();
+      expect(within(nav).getByText('Caută')).toBeInTheDocument();
+      expect(within(nav).getByText('Călătoriile mele')).toBeInTheDocument();
+    });
+  });
 });
 
 describe('getLinksForRole', () => {
@@ -402,7 +417,7 @@ describe('getLinksForRole', () => {
       const links = getLinksForRole(role);
       const profileLink = links.find((l) => l.href === '/profile');
       expect(profileLink).toBeTruthy();
-      expect(profileLink!.label).toBe('Profile');
+      expect(profileLink!.labelKey).toBe('links.profile');
     }
   });
 

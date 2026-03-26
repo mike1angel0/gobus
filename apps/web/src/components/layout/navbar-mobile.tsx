@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LanguageSwitcher } from './language-switcher';
@@ -25,6 +26,7 @@ interface MobileMenuProps {
 /**
  * Mobile slide-in navigation menu with focus management.
  * Traps focus within the menu when open and returns focus to the trigger on close.
+ * All labels are translated via the `nav` i18n namespace.
  */
 export function MobileMenu({
   isOpen,
@@ -34,6 +36,7 @@ export function MobileMenu({
   userName,
   onSignOut,
 }: MobileMenuProps) {
+  const { t } = useTranslation('nav');
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const location = useLocation();
 
@@ -71,7 +74,7 @@ export function MobileMenu({
       {/* Menu panel */}
       <nav
         role="dialog"
-        aria-label="Mobile navigation"
+        aria-label={t('a11y.mobileNavigation')}
         aria-modal="true"
         className="fixed inset-y-0 right-0 z-50 w-72 bg-background border-l border-border p-6 shadow-lg"
       >
@@ -86,7 +89,7 @@ export function MobileMenu({
             variant="ghost"
             size="icon"
             onClick={onClose}
-            aria-label="Close menu"
+            aria-label={t('a11y.closeMenu')}
           >
             <X className="h-5 w-5" />
           </Button>
@@ -105,7 +108,7 @@ export function MobileMenu({
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
                 )}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             </li>
           ))}
@@ -122,18 +125,18 @@ export function MobileMenu({
                 onClose();
               }}
             >
-              Sign out
+              {t('menu.signOut')}
             </Button>
           ) : (
             <div className="space-y-2">
               <Button asChild variant="default" className="w-full">
                 <Link to="/auth/login" onClick={onClose}>
-                  Log in
+                  {t('menu.login')}
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
                 <Link to="/auth/register" onClick={onClose}>
-                  Register
+                  {t('menu.register')}
                 </Link>
               </Button>
             </div>

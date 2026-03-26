@@ -17,6 +17,9 @@
   },
   "menu": {
     "logout": "Log out",
+    "login": "Log in",
+    "register": "Register",
+    "signOut": "Sign out",
     "profile": "Profile",
     "changePassword": "Change password"
   },
@@ -24,6 +27,7 @@
     "skipToContent": "Skip to content",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "mainNavigation": "Main navigation"
+    "mainNavigation": "Main navigation",
+    "mobileNavigation": "Mobile navigation"
   }
 }

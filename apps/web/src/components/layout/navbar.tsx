@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, LogOut } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,9 +16,11 @@ import { MobileMenu } from './navbar-mobile';
  * - Mobile: hamburger button that opens a slide-in menu.
  * - Shows Login/Register links when unauthenticated.
  * - Shows role-appropriate navigation links when authenticated.
+ * - All labels are translated via the `nav` i18n namespace.
  */
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useTranslation('nav');
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -44,7 +47,10 @@ export function Navbar() {
         </Link>
 
         {/* Desktop nav */}
-        <nav aria-label="Main navigation" className="hidden md:flex md:items-center md:gap-1">
+        <nav
+          aria-label={t('a11y.mainNavigation')}
+          className="hidden md:flex md:items-center md:gap-1"
+        >
           {links.map((link) => (
             <Link
               key={link.href}
@@ -56,7 +62,7 @@ export function Navbar() {
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
               )}
             >
-              {link.label}
+              {t(link.labelKey)}
             </Link>
           ))}
         </nav>
@@ -67,17 +73,22 @@ export function Navbar() {
           {isAuthenticated && user ? (
             <>
               <span className="text-sm text-muted-foreground">{user.name}</span>
-              <Button variant="ghost" size="sm" onClick={handleSignOut} aria-label="Sign out">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                aria-label={t('menu.logout')}
+              >
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
-                <Link to="/auth/login">Log in</Link>
+                <Link to="/auth/login">{t('menu.login')}</Link>
               </Button>
               <Button asChild size="sm">
-                <Link to="/auth/register">Register</Link>
+                <Link to="/auth/register">{t('menu.register')}</Link>
               </Button>
             </>
           )}
@@ -89,7 +100,7 @@ export function Navbar() {
           size="icon"
           className="md:hidden"
           onClick={toggleMobile}
-          aria-label="Open menu"
+          aria-label={t('a11y.openMenu')}
           aria-expanded={mobileOpen}
         >
           <Menu className="h-5 w-5" />
