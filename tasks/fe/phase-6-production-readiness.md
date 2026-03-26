@@ -72,15 +72,8 @@
 
 ## Performance
 
-### TASK-017: Add bundle size measurement
-**Description:** No bundle size analysis is configured. Changes could accidentally bloat the bundle without anyone noticing.
-
-**Acceptance Criteria:**
-- [ ] `rollup-plugin-visualizer` (or `vite-plugin-visualizer`) added as devDependency
-- [ ] `npm run build:analyze` script that generates bundle treemap in `dist/stats.html`
-- [ ] Document current bundle size baseline in this task once measured
-- [ ] `dist/stats.html` added to `.gitignore`
-- [ ] Typecheck passes
+### TASK-017: Add bundle size measurement ✅
+**Bundle baseline:** Total JS: 1.3MB (gzip ~300KB). Largest chunks: index 411KB (127KB gz), live-map 156KB (46KB gz), types 56KB (13KB gz).
 
 ### TASK-018: Optimize hero image
 **Description:** `src/assets/hero.png` is a PNG that may be large. If used on the home page, it should be optimized.
