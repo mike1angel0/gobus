@@ -390,3 +390,53 @@
 - [x] Coverage report generated and reviewed
 - [x] Security audit report clean
 - [x] Backend is production-ready and pentest-hardened
+
+---
+
+### Quality Assurance (Auto-Generated)
+
+**Generated**: 2026-03-26 | **Batch**: 1/3 | **Coverage**: 99.44% (target: 90%)
+
+#### QA Summary
+
+| Category | Issues | Stories |
+|----------|--------|---------|
+| API contract compliance | 0 | 0 |
+| Security | 0 | 0 |
+| Type safety | 0 | 0 |
+| Coverage gaps | 2 | 2 |
+| Architecture | 0 | 0 |
+| Complexity | 1 | 1 |
+| JSDoc | 0 | 0 |
+| Spec parity | 0 | 0 |
+
+**Total QA stories: 3**
+
+---
+
+#### US-QA-001 | Refactor auth.service.ts: split into smaller modules
+**Priority**: Low | **Category**: Complexity
+
+`src/application/services/auth.service.ts` is 593 lines (threshold: 500). Extract cohesive concerns into helper modules.
+
+**ACs:**
+- [ ] Split auth.service.ts into ≤500 lines by extracting password/token logic into separate helpers
+- [ ] All existing tests still pass with no regressions
+
+#### US-QA-002 | Improve branch coverage in metrics plugin
+**Priority**: Low | **Category**: Coverage
+
+`src/api/plugins/metrics.ts` has 81.25% branch coverage (lines 97, 110-113 uncovered). These are the periodic summary logging branches.
+
+**ACs:**
+- [ ] Add unit tests covering the periodic stats logging branches in metrics.ts
+- [ ] Branch coverage for metrics.ts reaches ≥90%
+
+#### US-QA-003 | Improve branch coverage in error-handler plugin
+**Priority**: Low | **Category**: Coverage
+
+`src/api/plugins/error-handler.ts` has 78.78% branch coverage (lines 100-101, 154-160 uncovered). These are edge-case error handling branches.
+
+**ACs:**
+- [ ] Add tests covering uncovered branches in error-handler.ts (Prisma error masking, unknown error types)
+- [ ] Branch coverage for error-handler.ts reaches ≥90%
