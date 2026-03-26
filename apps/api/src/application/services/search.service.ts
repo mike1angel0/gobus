@@ -67,26 +67,66 @@ export class SearchService {
 
   /**
    * Search for available trips matching origin and destination stops on a given date.
+   * Use database-level filtering and pagination to avoid loading all schedules into memory.
    * Find schedules with stop times matching the origin and destination (in correct order),
-   * compute segment pricing, and return available seat counts. Include active delays.
+   * compute segment pricing, and return available seat counts.
    */
   async searchTrips(query: SearchTripsQuery): Promise<PaginatedSearchResults> {
     const { origin, destination, date, page, pageSize } = query;
     const { skip, take } = parsePagination(page, pageSize);
 
     const tripDate = new Date(date);
+    const originPattern = `%${origin}%`;
+    const destPattern = `%${destination}%`;
 
-    // Find schedules that have stop times matching both origin and destination
-    // Origin stop must come before destination stop (by orderIndex)
+    // Count matching schedules at DB level (no heavy includes)
+    const countResult = await this.prisma.$queryRaw<[{ count: bigint }]>`
+      SELECT COUNT(DISTINCT s."id") as count
+      FROM "Schedule" s
+      JOIN "StopTime" st1 ON st1."scheduleId" = s."id"
+      JOIN "StopTime" st2 ON st2."scheduleId" = s."id"
+      WHERE s."status" = 'ACTIVE'
+        AND st1."stopName" ILIKE ${originPattern}
+        AND st2."stopName" ILIKE ${destPattern}
+        AND st1."orderIndex" < st2."orderIndex"
+    `;
+
+    const total = Number(countResult[0].count);
+
+    if (total === 0) {
+      logger.debug('Trip search completed — no matches', { origin, destination, date });
+      return {
+        data: [],
+        meta: buildPaginationMeta({ total: 0, page, pageSize }),
+      };
+    }
+
+    // Get paginated schedule IDs from DB
+    const idRows = await this.prisma.$queryRaw<{ id: string }[]>`
+      SELECT DISTINCT s."id"
+      FROM "Schedule" s
+      JOIN "StopTime" st1 ON st1."scheduleId" = s."id"
+      JOIN "StopTime" st2 ON st2."scheduleId" = s."id"
+      WHERE s."status" = 'ACTIVE'
+        AND st1."stopName" ILIKE ${originPattern}
+        AND st2."stopName" ILIKE ${destPattern}
+        AND st1."orderIndex" < st2."orderIndex"
+      ORDER BY s."id"
+      LIMIT ${take} OFFSET ${skip}
+    `;
+
+    if (idRows.length === 0) {
+      return {
+        data: [],
+        meta: buildPaginationMeta({ total, page, pageSize }),
+      };
+    }
+
+    const scheduleIds = idRows.map((r) => r.id);
+
+    // Fetch full data only for paginated subset
     const schedules = await this.prisma.schedule.findMany({
-      where: {
-        status: 'ACTIVE',
-        stopTimes: {
-          some: {
-            stopName: { contains: origin, mode: 'insensitive' },
-          },
-        },
-      },
+      where: { id: { in: scheduleIds } },
       include: {
         stopTimes: { orderBy: { orderIndex: 'asc' } },
         route: { include: { provider: { select: { name: true } } } },
@@ -102,7 +142,7 @@ export class SearchService {
       },
     });
 
-    // Filter and build results: both stops must exist and be in correct order
+    // Build results — origin/dest ordering already verified by DB query
     const results: SearchResult[] = [];
 
     for (const schedule of schedules) {
@@ -136,14 +176,10 @@ export class SearchService {
       });
     }
 
-    // Apply pagination to in-memory results
-    const total = results.length;
-    const paginatedResults = results.slice(skip, skip + take);
-
     logger.debug('Trip search completed', { origin, destination, date, totalResults: total });
 
     return {
-      data: paginatedResults,
+      data: results,
       meta: buildPaginationMeta({ total, page, pageSize }),
     };
   }

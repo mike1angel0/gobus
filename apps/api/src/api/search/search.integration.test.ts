@@ -7,8 +7,10 @@ import { createTestApp } from '@/test/helpers.js';
 // --- Mock setup ---
 const mockScheduleFindMany = vi.fn();
 const mockScheduleFindUnique = vi.fn();
+const mockQueryRaw = vi.fn();
 
 const mockPrisma = {
+  $queryRaw: mockQueryRaw,
   schedule: {
     findMany: mockScheduleFindMany,
     findUnique: mockScheduleFindUnique,
@@ -182,6 +184,8 @@ describe('Search Routes', () => {
   // --- GET /api/v1/search ---
   describe('GET /api/v1/search', () => {
     it('returns 200 with search results and pagination', async () => {
+      mockQueryRaw.mockResolvedValueOnce([{ count: BigInt(1) }]);
+      mockQueryRaw.mockResolvedValueOnce([{ id: 'sched-1' }]);
       mockScheduleFindMany.mockResolvedValueOnce([makeScheduleForSearch()]);
 
       const response = await supertest(app.server)
@@ -209,7 +213,7 @@ describe('Search Routes', () => {
     });
 
     it('returns empty results when no schedules match', async () => {
-      mockScheduleFindMany.mockResolvedValueOnce([]);
+      mockQueryRaw.mockResolvedValueOnce([{ count: BigInt(0) }]);
 
       const response = await supertest(app.server)
         .get('/api/v1/search')
@@ -223,8 +227,8 @@ describe('Search Routes', () => {
     });
 
     it('filters out schedules where destination comes before origin', async () => {
-      // Return a schedule but query with reversed stops
-      mockScheduleFindMany.mockResolvedValueOnce([makeScheduleForSearch()]);
+      // DB raw query returns 0 — reversed stops don't match the SQL join
+      mockQueryRaw.mockResolvedValueOnce([{ count: BigInt(0) }]);
 
       const response = await supertest(app.server)
         .get('/api/v1/search')
@@ -235,7 +239,7 @@ describe('Search Routes', () => {
     });
 
     it('does not require authentication (public endpoint)', async () => {
-      mockScheduleFindMany.mockResolvedValueOnce([]);
+      mockQueryRaw.mockResolvedValueOnce([{ count: BigInt(0) }]);
 
       const response = await supertest(app.server)
         .get('/api/v1/search')
@@ -282,13 +286,13 @@ describe('Search Routes', () => {
     });
 
     it('supports pagination query params', async () => {
-      // Create 3 schedules with different IDs
-      const schedules = [
+      // DB reports 3 total, page 1 returns 2 IDs
+      mockQueryRaw.mockResolvedValueOnce([{ count: BigInt(3) }]);
+      mockQueryRaw.mockResolvedValueOnce([{ id: 'sched-1' }, { id: 'sched-2' }]);
+      mockScheduleFindMany.mockResolvedValueOnce([
         makeScheduleForSearch({ id: 'sched-1' }),
         makeScheduleForSearch({ id: 'sched-2' }),
-        makeScheduleForSearch({ id: 'sched-3' }),
-      ];
-      mockScheduleFindMany.mockResolvedValueOnce(schedules);
+      ]);
 
       const response = await supertest(app.server)
         .get('/api/v1/search')
@@ -304,6 +308,31 @@ describe('Search Routes', () => {
       expect(response.body.data).toHaveLength(2);
       expect(response.body.meta.total).toBe(3);
       expect(response.body.meta.page).toBe(1);
+      expect(response.body.meta.pageSize).toBe(2);
+      expect(response.body.meta.totalPages).toBe(2);
+    });
+
+    it('returns correct meta for page 2 of paginated results', async () => {
+      // DB reports 3 total, page 2 with pageSize 2 returns 1 ID
+      mockQueryRaw.mockResolvedValueOnce([{ count: BigInt(3) }]);
+      mockQueryRaw.mockResolvedValueOnce([{ id: 'sched-3' }]);
+      mockScheduleFindMany.mockResolvedValueOnce([makeScheduleForSearch({ id: 'sched-3' })]);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/search')
+        .query({
+          origin: 'Bucharest',
+          destination: 'Cluj',
+          date: '2026-03-25',
+          page: 2,
+          pageSize: 2,
+        })
+        .expect(200);
+
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].scheduleId).toBe('sched-3');
+      expect(response.body.meta.total).toBe(3);
+      expect(response.body.meta.page).toBe(2);
       expect(response.body.meta.pageSize).toBe(2);
       expect(response.body.meta.totalPages).toBe(2);
     });

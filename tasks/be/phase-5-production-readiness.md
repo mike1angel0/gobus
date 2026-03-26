@@ -12,20 +12,11 @@
 
 **TASK-002: Configure database connection pooling** — Added `max`, `min`, `idleTimeoutMillis` pool options to PrismaPg adapter. Pool max configurable via `DATABASE_POOL_MAX` env var (default: 10), idle timeout 30s. 5 unit tests.
 
+**TASK-003: Fix search service in-memory pagination** — Replaced in-memory pagination with DB-level filtering using raw SQL self-join on StopTime (origin/destination ordering), separate count query without includes, and LIMIT/OFFSET pagination. Only fetches full data for the paginated subset. 10 unit tests, 2 new integration tests.
+
 ---
 
 ## Database & Performance
-
-### TASK-003: Fix search service in-memory pagination
-**Description:** `src/application/services/search.service.ts` lines 81-141 fetches ALL matching schedules with nested includes (stopTimes, route.provider, bus.seats, bookingSeats, delays), then paginates in JavaScript. On large datasets this will OOM the server.
-
-**Acceptance Criteria:**
-- [ ] Search query uses database-level `skip`/`take` for pagination
-- [ ] Total count query runs separately (without includes) for `meta.total`
-- [ ] Filtering (origin/destination stop matching) pushed to database `where` clause where possible
-- [ ] Integration test: search with pagination returns correct `meta` values
-- [ ] Performance: search with 1000+ schedules does not load all into memory
-- [ ] Typecheck passes
 
 ### TASK-004: Fix provider analytics sequential queries
 **Description:** `src/application/services/provider.service.ts` lines 90-187 makes 4-5 sequential database queries without a transaction, risking inconsistent snapshots. Also has N+1 on schedule→route mapping at line 160.

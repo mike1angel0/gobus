@@ -15,6 +15,7 @@ vi.mock('@/infrastructure/logger/logger.js', () => ({
 
 function createMockPrisma() {
   return {
+    $queryRaw: vi.fn(),
     schedule: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
@@ -140,8 +141,17 @@ describe('SearchService', () => {
   });
 
   describe('searchTrips', () => {
+    /** Mock the raw count query and ID query for a given set of schedule IDs. */
+    function mockRawQueries(ids: string[]): void {
+      // First $queryRaw call: count
+      vi.mocked(prisma.$queryRaw).mockResolvedValueOnce([{ count: BigInt(ids.length) }]);
+      // Second $queryRaw call: paginated IDs
+      vi.mocked(prisma.$queryRaw).mockResolvedValueOnce(ids.map((id) => ({ id })));
+    }
+
     it('should return matching trips with correct segment pricing', async () => {
       const schedule = makeScheduleWithRelations();
+      mockRawQueries([SCHEDULE_ID]);
       vi.mocked(prisma.schedule.findMany).mockResolvedValue([schedule]);
 
       const result = await service.searchTrips({
@@ -165,10 +175,9 @@ describe('SearchService', () => {
     });
 
     it('should exclude trips where origin comes after destination', async () => {
-      const schedule = makeScheduleWithRelations();
-      vi.mocked(prisma.schedule.findMany).mockResolvedValue([schedule]);
+      // DB returns 0 count — reversed stops don't match the SQL join condition
+      vi.mocked(prisma.$queryRaw).mockResolvedValueOnce([{ count: BigInt(0) }]);
 
-      // Search with reversed stops (Cluj -> Bucharest)
       const result = await service.searchTrips({
         origin: 'Cluj',
         destination: 'Bucharest',
@@ -184,6 +193,7 @@ describe('SearchService', () => {
       const schedule = makeScheduleWithRelations({
         bookingSeats: [{ seatLabel: '1A' }],
       });
+      mockRawQueries([SCHEDULE_ID]);
       vi.mocked(prisma.schedule.findMany).mockResolvedValue([schedule]);
 
       const result = await service.searchTrips({
@@ -199,7 +209,7 @@ describe('SearchService', () => {
     });
 
     it('should return empty results when no schedules match', async () => {
-      vi.mocked(prisma.schedule.findMany).mockResolvedValue([]);
+      vi.mocked(prisma.$queryRaw).mockResolvedValueOnce([{ count: BigInt(0) }]);
 
       const result = await service.searchTrips({
         origin: 'Nonexistent',
@@ -213,9 +223,17 @@ describe('SearchService', () => {
       expect(result.meta.total).toBe(0);
     });
 
-    it('should exclude trips where destination stop is not found', async () => {
+    it('should exclude trips where destination stop is not found in findMany results', async () => {
+      // DB raw query finds a match, but findMany results don't have destination stop
+      // (edge case: data inconsistency between raw and ORM queries)
       const schedule = makeScheduleWithRelations();
-      vi.mocked(prisma.schedule.findMany).mockResolvedValue([schedule]);
+      mockRawQueries([SCHEDULE_ID]);
+      // Remove the destination stop from stopTimes to simulate mismatch
+      const noDestSchedule = {
+        ...schedule,
+        stopTimes: schedule.stopTimes.filter((st) => st.stopName !== 'Cluj-Napoca'),
+      };
+      vi.mocked(prisma.schedule.findMany).mockResolvedValue([noDestSchedule]);
 
       const result = await service.searchTrips({
         origin: 'Bucharest',
@@ -228,11 +246,13 @@ describe('SearchService', () => {
       expect(result.data).toHaveLength(0);
     });
 
-    it('should paginate results correctly', async () => {
-      const schedules = Array.from({ length: 3 }, (_, i) =>
-        makeScheduleWithRelations({ id: `schedule-${i + 1}` }),
-      );
-      vi.mocked(prisma.schedule.findMany).mockResolvedValue(schedules);
+    it('should paginate results via DB-level skip/take', async () => {
+      // Total of 3, page 2 with pageSize 2 → DB returns 1 ID
+      vi.mocked(prisma.$queryRaw).mockResolvedValueOnce([{ count: BigInt(3) }]);
+      vi.mocked(prisma.$queryRaw).mockResolvedValueOnce([{ id: 'schedule-3' }]);
+      vi.mocked(prisma.schedule.findMany).mockResolvedValue([
+        makeScheduleWithRelations({ id: 'schedule-3' }),
+      ]);
 
       const result = await service.searchTrips({
         origin: 'Bucharest',
@@ -252,6 +272,7 @@ describe('SearchService', () => {
 
     it('should match stops case-insensitively', async () => {
       const schedule = makeScheduleWithRelations();
+      mockRawQueries([SCHEDULE_ID]);
       vi.mocked(prisma.schedule.findMany).mockResolvedValue([schedule]);
 
       const result = await service.searchTrips({
@@ -267,6 +288,7 @@ describe('SearchService', () => {
 
     it('should compute segment pricing for intermediate stops', async () => {
       const schedule = makeScheduleWithRelations();
+      mockRawQueries([SCHEDULE_ID]);
       vi.mocked(prisma.schedule.findMany).mockResolvedValue([schedule]);
 
       const result = await service.searchTrips({
@@ -279,6 +301,24 @@ describe('SearchService', () => {
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0].price).toBe(30); // 30 - 0 = 30
+    });
+
+    it('should use separate count query without includes for total', async () => {
+      mockRawQueries([SCHEDULE_ID]);
+      vi.mocked(prisma.schedule.findMany).mockResolvedValue([makeScheduleWithRelations()]);
+
+      await service.searchTrips({
+        origin: 'Bucharest',
+        destination: 'Cluj',
+        date: TRIP_DATE,
+        page: 1,
+        pageSize: 20,
+      });
+
+      // $queryRaw called twice: once for count, once for IDs
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
+      // findMany called once for full data of paginated subset
+      expect(prisma.schedule.findMany).toHaveBeenCalledTimes(1);
     });
   });
 

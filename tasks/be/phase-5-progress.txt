@@ -4,3 +4,16 @@
 - Signal handlers use `void shutdown()` pattern for proper async handling
 - Learnings: server.ts is excluded from coverage in vitest config; use `vi.resetModules()` + `vi.doMock()` for testing side-effect modules; intercept `process.on` to capture signal handlers without actually registering them
 ---
+
+## Iteration 2 - TASK-002: Configure database connection pooling
+- Added `max`, `min`, `idleTimeoutMillis` pool options to PrismaPg adapter in client.ts
+- Added `DATABASE_POOL_MAX` env var (coerced number, default 10) to env schema
+- Documented in .env.example
+- Learnings: @prisma/adapter-pg v7.5 PrismaPg constructor accepts pg.PoolConfig as first arg (connectionString + pool options together); `onPoolError`/`onConnectionError` callbacks advertised in docs don't exist in this version's types — removed to keep typecheck clean; mock PrismaClient `$disconnect` with `vi.fn<() => Promise<void>>()` pattern for proper typing
+---
+
+## Iteration 3 - TASK-003: Fix search service in-memory pagination
+- Replaced in-memory filtering + pagination with DB-level approach: raw SQL self-join on StopTime for origin/dest ordering check, separate count query without includes, LIMIT/OFFSET for pagination
+- Only fetches full schedule data (with includes) for the paginated subset of IDs
+- Learnings: Prisma `$queryRaw` with tagged template literals auto-parameterizes values (safe from SQL injection); BigInt returned by COUNT needs `Number()` conversion; mock `$queryRaw` as `vi.fn()` — Prisma calls it with a Sql object from the tagged template; integration tests use separate vitest config (`vitest.integration.config.ts`)
+---
