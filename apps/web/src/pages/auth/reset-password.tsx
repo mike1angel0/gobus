@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { isApiError } from '@/api/errors';
 import { Button } from '@/components/ui/button';
@@ -12,25 +13,27 @@ import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/
 import { cn } from '@/lib/utils';
 import { usePageTitle } from '@/hooks/use-page-title';
 import { getPasswordStrength } from '@/pages/auth/register-schema';
+import type { PasswordStrength } from '@/pages/auth/register-schema';
 import {
-  resetPasswordSchema,
+  createResetPasswordSchema,
   type ResetPasswordFormValues,
 } from '@/pages/auth/reset-password-schema';
 import { TokenErrorView } from '@/pages/auth/reset-password-error';
 
-/** Strength bar colors and labels for password feedback. */
-const STRENGTH_CONFIG = {
-  weak: { color: 'bg-red-500', label: 'Weak', width: 'w-1/3', value: 33 },
-  fair: { color: 'bg-yellow-500', label: 'Fair', width: 'w-2/3', value: 66 },
-  strong: { color: 'bg-green-500', label: 'Strong', width: 'w-full', value: 100 },
-} as const;
+/** Style map for the password strength indicator bar. */
+const STRENGTH_STYLES: Record<PasswordStrength, { color: string; width: string; value: number }> = {
+  weak: { color: 'bg-red-500', width: 'w-1/3', value: 33 },
+  fair: { color: 'bg-yellow-500', width: 'w-2/3', value: 66 },
+  strong: { color: 'bg-green-500', width: 'w-full', value: 100 },
+};
 
 /** Token error codes returned by the API. */
 const TOKEN_ERROR_CODES = new Set(['TOKEN_EXPIRED', 'TOKEN_INVALID', 'INVALID_TOKEN']);
 
 /** Reset password page — sets a new password using a token from email. */
 export default function ResetPasswordPage() {
-  usePageTitle('Reset Password');
+  const { t } = useTranslation('auth');
+  usePageTitle(t('resetPassword.pageTitle'));
   const { resetPassword } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -38,6 +41,8 @@ export default function ResetPasswordPage() {
 
   const [rootError, setRootError] = useState<string | null>(null);
   const [tokenExpired, setTokenExpired] = useState(false);
+
+  const schema = useMemo(() => createResetPasswordSchema(t), [t]);
 
   const {
     register,
@@ -47,13 +52,13 @@ export default function ResetPasswordPage() {
     reset: resetForm,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolver(schema),
     defaultValues: { newPassword: '', confirmPassword: '' },
   });
 
   const passwordValue = watch('newPassword');
   const strength = getPasswordStrength(passwordValue);
-  const cfg = STRENGTH_CONFIG[strength];
+  const cfg = STRENGTH_STYLES[strength];
 
   // Clear sensitive password data on unmount
   useEffect(() => {
@@ -74,7 +79,7 @@ export default function ResetPasswordPage() {
       navigate('/auth/login', { replace: true });
     } catch (error: unknown) {
       if (!isApiError(error)) {
-        setRootError('An unexpected error occurred. Please try again.');
+        setRootError(t('resetPassword.errors.unexpected'));
         return;
       }
       if (error.code && TOKEN_ERROR_CODES.has(error.code)) {
@@ -97,8 +102,10 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="glass-card w-full max-w-md">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">Reset password</h1>
-          <CardDescription>Enter your new password below</CardDescription>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">
+            {t('resetPassword.title')}
+          </h1>
+          <CardDescription>{t('resetPassword.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -111,11 +118,11 @@ export default function ResetPasswordPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New password</Label>
+              <Label htmlFor="newPassword">{t('resetPassword.newPassword')}</Label>
               <Input
                 id="newPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('resetPassword.passwordPlaceholder')}
                 autoComplete="new-password"
                 aria-invalid={!!errors.newPassword}
                 aria-describedby={errors.newPassword ? 'newPassword-error' : 'password-strength'}
@@ -130,13 +137,15 @@ export default function ResetPasswordPage() {
                     aria-valuenow={cfg.value}
                     aria-valuemin={0}
                     aria-valuemax={100}
-                    aria-label="Password strength"
+                    aria-label={t('passwordStrength.ariaLabel')}
                   >
                     <div
                       className={cn('h-full rounded-full transition-all', cfg.color, cfg.width)}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Strength: {cfg.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('passwordStrength.strengthLabel')} {t(`passwordStrength.${strength}`)}
+                  </p>
                 </div>
               )}
               {errors.newPassword && (
@@ -146,11 +155,11 @@ export default function ResetPasswordPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
+              <Label htmlFor="confirmPassword">{t('resetPassword.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('resetPassword.passwordPlaceholder')}
                 autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
                 aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
@@ -167,16 +176,16 @@ export default function ResetPasswordPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="animate-spin" aria-hidden="true" />
-                  <span>Resetting…</span>
+                  <span>{t('resetPassword.submitting')}</span>
                 </>
               ) : (
-                'Reset password'
+                t('resetPassword.submit')
               )}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
-              Remember your password?{' '}
+              {t('resetPassword.rememberPassword')}{' '}
               <Link to="/auth/login" className="text-primary hover:underline">
-                Sign in
+                {t('resetPassword.signIn')}
               </Link>
             </p>
           </form>

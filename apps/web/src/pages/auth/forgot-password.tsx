@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,23 +12,26 @@ import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/
 import { usePageTitle } from '@/hooks/use-page-title';
 import { cn } from '@/lib/utils';
 import {
-  forgotPasswordSchema,
+  createForgotPasswordSchema,
   type ForgotPasswordFormValues,
 } from '@/pages/auth/forgot-password-schema';
 
 /** Forgot password page — sends a password reset email. */
 export default function ForgotPasswordPage() {
-  usePageTitle('Forgot Password');
+  const { t } = useTranslation('auth');
+  usePageTitle(t('forgotPassword.pageTitle'));
   const { forgotPassword } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [rootError, setRootError] = useState<string | null>(null);
+
+  const schema = useMemo(() => createForgotPasswordSchema(t), [t]);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ForgotPasswordFormValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(schema),
     defaultValues: { email: '' },
   });
 
@@ -39,7 +43,7 @@ export default function ForgotPasswordPage() {
     } catch {
       // Always show success to prevent email enumeration.
       // Only show error for network/unexpected failures.
-      setRootError('Something went wrong. Please try again later.');
+      setRootError(t('forgotPassword.errors.unexpected'));
     }
   }
 
@@ -49,13 +53,12 @@ export default function ForgotPasswordPage() {
         <Card className="glass-card w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-500" aria-hidden="true" />
-            <h1 className="mb-2 text-2xl font-semibold">Check your email</h1>
+            <h1 className="mb-2 text-2xl font-semibold">{t('forgotPassword.success.title')}</h1>
             <p className="mb-6 text-sm text-muted-foreground">
-              If an account exists with that email, we&apos;ve sent a password reset link. Please
-              check your inbox and spam folder.
+              {t('forgotPassword.success.message')}
             </p>
             <Link to="/auth/login" className="text-sm text-primary hover:underline">
-              Back to sign in
+              {t('forgotPassword.success.backToSignIn')}
             </Link>
           </CardContent>
         </Card>
@@ -67,8 +70,10 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="glass-card w-full max-w-md">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">Forgot password</h1>
-          <CardDescription>Enter your email and we&apos;ll send you a reset link</CardDescription>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">
+            {t('forgotPassword.title')}
+          </h1>
+          <CardDescription>{t('forgotPassword.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -81,11 +86,11 @@ export default function ForgotPasswordPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('forgotPassword.email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('forgotPassword.emailPlaceholder')}
                 autoComplete="email"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
@@ -102,16 +107,16 @@ export default function ForgotPasswordPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="animate-spin" aria-hidden="true" />
-                  <span>Sending…</span>
+                  <span>{t('forgotPassword.submitting')}</span>
                 </>
               ) : (
-                'Send reset link'
+                t('forgotPassword.submit')
               )}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
-              Remember your password?{' '}
+              {t('forgotPassword.rememberPassword')}{' '}
               <Link to="/auth/login" className="text-primary hover:underline">
-                Sign in
+                {t('forgotPassword.signIn')}
               </Link>
             </p>
           </form>

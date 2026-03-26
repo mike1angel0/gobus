@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n/config';
 import ChangePasswordPage from '@/pages/auth/change-password';
 import { changePasswordSchema } from '@/pages/auth/change-password-schema';
 import { ApiError } from '@/api/errors';
@@ -30,9 +32,11 @@ vi.mock('@/hooks/use-toast', () => ({
 
 function renderPage() {
   return render(
-    <MemoryRouter initialEntries={['/auth/change-password']}>
-      <ChangePasswordPage />
-    </MemoryRouter>,
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter initialEntries={['/auth/change-password']}>
+        <ChangePasswordPage />
+      </MemoryRouter>
+    </I18nextProvider>,
   );
 }
 
@@ -49,6 +53,7 @@ async function fillAndSubmit(
 describe('ChangePasswordPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    i18n.changeLanguage('en');
   });
 
   describe('rendering', () => {

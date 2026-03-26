@@ -52,16 +52,7 @@
 
 ### TASK-010: Translate nav namespace ✅
 
-### TASK-011: Translate auth namespace
-**Description:** Extract all authentication-related strings into `auth.json`. Covers login, register, forgot password, reset password, change password pages and their forms.
-
-**Acceptance Criteria:**
-- [ ] `auth.json` keys cover: form labels, placeholders, validation messages, page titles, submit buttons, links ("Don't have an account?", "Forgot password?"), success/error messages, role selection labels
-- [ ] Password strength indicator labels translated
-- [ ] Account status messages: locked, suspended
-- [ ] All auth pages (`login.tsx`, `register.tsx`, `forgot-password.tsx`, `reset-password.tsx`, `change-password.tsx`) updated to use `useTranslation('auth')`
-- [ ] Both `ro/auth.json` and `en/auth.json` complete
-- [ ] Typecheck passes, lint clean
+### TASK-011: Translate auth namespace ✅
 
 ### TASK-012: Translate search and booking namespaces
 **Description:** Extract strings for the public search experience and booking flow.

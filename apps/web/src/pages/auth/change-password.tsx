@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { isApiError } from '@/api/errors';
 import { toast } from '@/hooks/use-toast';
@@ -12,17 +13,18 @@ import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/
 import { cn } from '@/lib/utils';
 import { usePageTitle } from '@/hooks/use-page-title';
 import { getPasswordStrength } from '@/pages/auth/register-schema';
+import type { PasswordStrength } from '@/pages/auth/register-schema';
 import {
-  changePasswordSchema,
+  createChangePasswordSchema,
   type ChangePasswordFormValues,
 } from '@/pages/auth/change-password-schema';
 
-/** Strength bar colors and labels for password feedback. */
-const STRENGTH_CONFIG = {
-  weak: { color: 'bg-red-500', label: 'Weak', width: 'w-1/3', value: 33 },
-  fair: { color: 'bg-yellow-500', label: 'Fair', width: 'w-2/3', value: 66 },
-  strong: { color: 'bg-green-500', label: 'Strong', width: 'w-full', value: 100 },
-} as const;
+/** Style map for the password strength indicator bar. */
+const STRENGTH_STYLES: Record<PasswordStrength, { color: string; width: string; value: number }> = {
+  weak: { color: 'bg-red-500', width: 'w-1/3', value: 33 },
+  fair: { color: 'bg-yellow-500', width: 'w-2/3', value: 66 },
+  strong: { color: 'bg-green-500', width: 'w-full', value: 100 },
+};
 
 /** Error codes indicating wrong current password. */
 const WRONG_PASSWORD_CODES = new Set(['INVALID_CREDENTIALS', 'INCORRECT_PASSWORD']);
@@ -36,16 +38,15 @@ const WRONG_PASSWORD_CODES = new Set(['INVALID_CREDENTIALS', 'INCORRECT_PASSWORD
  * - Confirm password with match validation
  * - API error mapping for wrong current password
  * - Success toast notification
- *
- * @example
- * ```tsx
- * <ChangePasswordPage />
- * ```
+ * - i18n: all strings translated via react-i18next
  */
 export default function ChangePasswordPage() {
-  usePageTitle('Change Password');
+  const { t } = useTranslation('auth');
+  usePageTitle(t('changePassword.pageTitle'));
   const { changePassword } = useAuth();
   const [rootError, setRootError] = useState<string | null>(null);
+
+  const schema = useMemo(() => createChangePasswordSchema(t), [t]);
 
   const {
     register,
@@ -55,13 +56,13 @@ export default function ChangePasswordPage() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(schema),
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
 
   const passwordValue = watch('newPassword');
   const strength = getPasswordStrength(passwordValue);
-  const cfg = STRENGTH_CONFIG[strength];
+  const cfg = STRENGTH_STYLES[strength];
 
   // Clear sensitive password data on unmount
   useEffect(() => {
@@ -78,16 +79,16 @@ export default function ChangePasswordPage() {
       await changePassword(data.currentPassword, data.newPassword);
       reset();
       toast({
-        title: 'Password changed',
-        description: 'Your password has been updated successfully.',
+        title: t('changePassword.success.title'),
+        description: t('changePassword.success.description'),
       });
     } catch (error: unknown) {
       if (!isApiError(error)) {
-        setRootError('An unexpected error occurred. Please try again.');
+        setRootError(t('changePassword.errors.unexpected'));
         return;
       }
       if (error.status === 401 || (error.code && WRONG_PASSWORD_CODES.has(error.code))) {
-        setError('currentPassword', { message: 'Current password is incorrect' });
+        setError('currentPassword', { message: t('changePassword.errors.incorrectPassword') });
         return;
       }
       for (const fieldError of error.fieldErrors) {
@@ -106,8 +107,10 @@ export default function ChangePasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="glass-card w-full max-w-md">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">Change password</h1>
-          <CardDescription>Update your account password</CardDescription>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">
+            {t('changePassword.title')}
+          </h1>
+          <CardDescription>{t('changePassword.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -120,11 +123,11 @@ export default function ChangePasswordPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current password</Label>
+              <Label htmlFor="currentPassword">{t('changePassword.currentPassword')}</Label>
               <Input
                 id="currentPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('changePassword.passwordPlaceholder')}
                 autoComplete="current-password"
                 aria-invalid={!!errors.currentPassword}
                 aria-describedby={errors.currentPassword ? 'currentPassword-error' : undefined}
@@ -138,11 +141,11 @@ export default function ChangePasswordPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New password</Label>
+              <Label htmlFor="newPassword">{t('changePassword.newPassword')}</Label>
               <Input
                 id="newPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('changePassword.passwordPlaceholder')}
                 autoComplete="new-password"
                 aria-invalid={!!errors.newPassword}
                 aria-describedby={errors.newPassword ? 'newPassword-error' : 'password-strength'}
@@ -157,13 +160,15 @@ export default function ChangePasswordPage() {
                     aria-valuenow={cfg.value}
                     aria-valuemin={0}
                     aria-valuemax={100}
-                    aria-label="Password strength"
+                    aria-label={t('passwordStrength.ariaLabel')}
                   >
                     <div
                       className={cn('h-full rounded-full transition-all', cfg.color, cfg.width)}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Strength: {cfg.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('passwordStrength.strengthLabel')} {t(`passwordStrength.${strength}`)}
+                  </p>
                 </div>
               )}
               {errors.newPassword && (
@@ -173,11 +178,11 @@ export default function ChangePasswordPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm new password</Label>
+              <Label htmlFor="confirmPassword">{t('changePassword.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('changePassword.passwordPlaceholder')}
                 autoComplete="new-password"
                 aria-invalid={!!errors.confirmPassword}
                 aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
@@ -194,10 +199,10 @@ export default function ChangePasswordPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="animate-spin" aria-hidden="true" />
-                  <span>Changing…</span>
+                  <span>{t('changePassword.submitting')}</span>
                 </>
               ) : (
-                'Change password'
+                t('changePassword.submit')
               )}
             </Button>
           </form>

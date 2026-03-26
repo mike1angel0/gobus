@@ -45,3 +45,52 @@
 - All 1269 tests pass, typecheck clean, lint clean
 - Learnings: Tests must run from `apps/web/` directory for path alias resolution; vitest needs to be run with correct cwd
 ---
+
+## Iteration 7 - TASK-007: Set up react-i18next with per-domain translation files
+- Installed react-i18next, i18next, i18next-browser-languagedetector
+- Created `src/i18n/config.ts` with i18next initialization: fallbackLng 'ro', supportedLngs ['ro', 'en'], 9 namespaces, localStorage detection with key `i18n_lang`
+- Created 18 translation JSON files (9 namespaces × 2 languages) under `src/i18n/locales/{ro,en}/`
+- Wrapped app with `I18nextProvider` in `root-layout.tsx`, also added to test helpers
+- Wrote 7 unit tests covering default language, namespace loading, language switching, fallback, and detection config
+- All 1276 tests pass, typecheck clean, lint clean, build succeeds
+- Learnings: i18next with `supportedLngs` auto-resolves unsupported language requests to fallbackLng (language prop becomes 'ro' not 'fr'); used bundled resources approach (not http-backend) since translation files are small and Vite tree-shakes unused code
+---
+
+## Iteration 8 - TASK-008: Create language switcher component
+- Created `language-switcher.tsx` — a toggle button showing current language with flag emoji (🇷🇴 RO / 🇬🇧 EN)
+- Calls `i18n.changeLanguage()` on click, toggles between ro and en
+- Language persists via i18next's localStorage detector (key: `i18n_lang`)
+- Integrated into `navbar.tsx` (desktop right section) and `navbar-mobile.tsx` (mobile menu footer)
+- Wrote 6 component tests: render, accessible label, switch to EN, toggle back to RO, persistence across re-renders, aria-label update
+- All 1282 tests pass, typecheck clean, lint clean
+- Learnings: jsdom in vitest doesn't expose `localStorage.getItem` as a standard function — test persistence via i18n state rather than direct localStorage access
+---
+
+## Iteration 9 - TASK-009: Translate common namespace
+- Both `ro/common.json` and `en/common.json` already had all required keys from TASK-007 setup
+- Updated `PageError` component (`error-state.tsx`) to use `useTranslation('common')` for default title (`errors.somethingWentWrong`), default message (`errors.generic`), and retry button (`buttons.retry`)
+- Changed EN `buttons.retry` from "Retry" to "Try again" to match existing codebase convention (30+ tests reference this label)
+- `empty-state.tsx` and `loading-skeleton.tsx` receive all text via props — callers will pass translated strings in domain-specific tasks (TASK-010 to TASK-014)
+- All 1282 tests pass, typecheck clean, lint clean
+- Learnings: When translating a widely-used component, check if the translation value matches existing hardcoded text in tests across the codebase; changing the translation to match is simpler than updating dozens of tests
+---
+
+## Iteration 10 - TASK-010: Translate nav namespace
+- Renamed `NavLink.label` to `NavLink.labelKey` with i18n translation keys (e.g. `links.home`)
+- Updated `navbar.tsx`, `navbar-mobile.tsx`, `app-layout.tsx` to use `useTranslation('nav')` for all user-facing strings
+- Added `menu.login`, `menu.register`, `menu.signOut`, `a11y.mobileNavigation` keys to both ro/en nav.json
+- Updated navbar tests to wrap with `I18nextProvider` and set language to `'en'` in `beforeEach`
+- Added i18n-specific test: verifies Romanian labels render when language is `'ro'`
+- All 1283 tests pass, typecheck clean, lint clean (only pre-existing warning)
+- Learnings: When converting hardcoded strings to i18n, set language to 'en' in test `beforeEach` so existing English text assertions don't break; aria-label changes need careful test updates
+---
+
+## Iteration 11 - TASK-011: Translate auth namespace
+- Updated both `en/auth.json` and `ro/auth.json` with complete keys: login, register, forgotPassword, resetPassword, changePassword sections with page titles, form labels, placeholders, submit/loading buttons, links, error messages, success messages
+- Added `passwordStrength` section (label, strengthLabel, ariaLabel, weak/fair/strong) and `validation` section (17 keys covering all Zod schema messages)
+- Created i18n-aware schema factory functions: `createLoginSchema(t)`, `createRegisterSchema(t)`, `createForgotPasswordSchema(t)`, `createResetPasswordSchema(t)`, `createChangePasswordSchema(t)` — kept static schemas as fallback for tests
+- Updated all 6 auth pages and 2 sub-components (`register-fields.tsx`, `reset-password-error.tsx`) to use `useTranslation('auth')` with `useMemo` for schema creation
+- Updated all 5 auth test files: added `I18nextProvider` wrapper and `i18n.changeLanguage('en')` in `beforeEach`
+- All 1283 tests pass, typecheck clean, lint clean (only pre-existing warning)
+- Learnings: Zod + i18n requires factory pattern (`createSchema(t)`) with `useMemo` keyed on `t`; keep static schemas for unit tests that validate schema logic without rendering; all test render functions need `I18nextProvider` wrapping
+---

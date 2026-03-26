@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n/config';
 import LoginPage from '@/pages/auth/login';
 import { getRedirectForRole, loginSchema } from '@/pages/auth/login-schema';
 import { ApiError } from '@/api/errors';
@@ -38,9 +40,11 @@ vi.mock('react-router-dom', async () => {
 
 function renderLoginPage() {
   return render(
-    <MemoryRouter initialEntries={['/auth/login']}>
-      <LoginPage />
-    </MemoryRouter>,
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter initialEntries={['/auth/login']}>
+        <LoginPage />
+      </MemoryRouter>
+    </I18nextProvider>,
   );
 }
 
@@ -49,6 +53,7 @@ describe('LoginPage', () => {
     vi.clearAllMocks();
     mockUser = null;
     mockIsAuthenticated = false;
+    i18n.changeLanguage('en');
   });
 
   describe('rendering', () => {

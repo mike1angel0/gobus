@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { isApiError } from '@/api/errors';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { loginSchema, getRedirectForRole, type LoginFormValues } from '@/pages/auth/login-schema';
+import { createLoginSchema, getRedirectForRole, type LoginFormValues } from '@/pages/auth/login-schema';
 import { usePageTitle } from '@/hooks/use-page-title';
 
 /**
@@ -22,12 +23,16 @@ import { usePageTitle } from '@/hooks/use-page-title';
  * - Loading state on submit button
  * - Role-based redirect on success
  * - Accessible: labels, aria attributes, keyboard navigable
+ * - i18n: all strings translated via react-i18next
  */
 export default function LoginPage() {
-  usePageTitle('Sign In');
+  const { t } = useTranslation('auth');
+  usePageTitle(t('login.pageTitle'));
   const { login, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [rootError, setRootError] = useState<string | null>(null);
+
+  const schema = useMemo(() => createLoginSchema(t), [t]);
 
   const {
     register,
@@ -36,7 +41,7 @@ export default function LoginPage() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
   });
 
@@ -73,17 +78,15 @@ export default function LoginPage() {
 
         // Handle specific error codes
         if (error.code === 'INVALID_CREDENTIALS') {
-          setRootError('Invalid email or password. Please try again.');
+          setRootError(t('login.errors.invalidCredentials'));
           return;
         }
         if (error.code === 'ACCOUNT_SUSPENDED') {
-          setRootError('Your account has been suspended. Please contact support.');
+          setRootError(t('login.errors.accountSuspended'));
           return;
         }
         if (error.code === 'ACCOUNT_LOCKED') {
-          setRootError(
-            'Your account has been locked due to too many failed attempts. Please try again later.',
-          );
+          setRootError(t('login.errors.accountLocked'));
           return;
         }
 
@@ -94,7 +97,7 @@ export default function LoginPage() {
         return;
       }
 
-      setRootError('An unexpected error occurred. Please try again.');
+      setRootError(t('login.errors.unexpected'));
     }
   }
 
@@ -102,8 +105,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="glass-card w-full max-w-md">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">Sign in</h1>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">{t('login.title')}</h1>
+          <CardDescription>{t('login.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -117,11 +120,11 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('login.email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('login.emailPlaceholder')}
                 autoComplete="email"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
@@ -136,11 +139,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('login.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('login.passwordPlaceholder')}
                 autoComplete="current-password"
                 aria-invalid={!!errors.password}
                 aria-describedby={errors.password ? 'password-error' : undefined}
@@ -159,7 +162,7 @@ export default function LoginPage() {
                 to="/auth/forgot-password"
                 className="text-sm text-muted-foreground hover:text-primary"
               >
-                Forgot password?
+                {t('login.forgotPassword')}
               </Link>
             </div>
 
@@ -167,17 +170,17 @@ export default function LoginPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="animate-spin" aria-hidden="true" />
-                  <span>Signing in…</span>
+                  <span>{t('login.submitting')}</span>
                 </>
               ) : (
-                'Sign in'
+                t('login.submit')
               )}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{' '}
+              {t('login.noAccount')}{' '}
               <Link to="/auth/register" className="text-primary hover:underline">
-                Sign up
+                {t('login.signUp')}
               </Link>
             </p>
           </form>

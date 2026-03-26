@@ -1,8 +1,29 @@
 import { z } from 'zod';
+import type { TFunction } from 'i18next';
 import type { User } from '@/contexts/auth-types';
 
 /**
- * Zod schema for login form validation.
+ * Creates a Zod schema for login form validation with translated messages.
+ * Mirrors OpenAPI spec constraints: email format, password min 1 / max 128 chars.
+ *
+ * @param t - i18next translation function scoped to the 'auth' namespace.
+ */
+export function createLoginSchema(t: TFunction) {
+  return z.object({
+    email: z
+      .string()
+      .min(1, t('validation.emailRequired'))
+      .email(t('validation.emailInvalid'))
+      .max(255, t('validation.emailMaxLength')),
+    password: z
+      .string()
+      .min(1, t('validation.passwordRequired'))
+      .max(128, t('validation.passwordMaxLength')),
+  });
+}
+
+/**
+ * Zod schema for login form validation (static, English-only fallback).
  * Mirrors OpenAPI spec constraints: email format, password min 1 / max 128 chars.
  */
 export const loginSchema = z.object({

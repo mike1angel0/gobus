@@ -1,7 +1,36 @@
 import { z } from 'zod';
+import type { TFunction } from 'i18next';
 
 /**
- * Zod schema for the change password form.
+ * Creates a Zod schema for the change password form with translated messages.
+ *
+ * @param t - i18next translation function scoped to the 'auth' namespace.
+ */
+export function createChangePasswordSchema(t: TFunction) {
+  return z
+    .object({
+      currentPassword: z
+        .string()
+        .min(1, t('validation.currentPasswordRequired'))
+        .max(128, t('validation.passwordMaxLength')),
+      newPassword: z
+        .string()
+        .min(8, t('validation.passwordMinLength'))
+        .max(128, t('validation.passwordMaxLength'))
+        .regex(
+          /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+/,
+          t('validation.passwordCombined'),
+        ),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('validation.passwordMismatch'),
+      path: ['confirmPassword'],
+    });
+}
+
+/**
+ * Zod schema for the change password form (static, English-only fallback).
  *
  * Validates:
  * - currentPassword: required, max 128 chars (matching OpenAPI spec)

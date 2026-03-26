@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { TFunction } from 'i18next';
 
 /**
  * Password strength levels for the visual indicator.
@@ -28,15 +29,64 @@ export function getPasswordStrength(password: string): PasswordStrength {
 }
 
 /**
- * Zod schema for the registration form.
+ * Creates a Zod schema for the registration form with translated messages.
  * Mirrors OpenAPI spec constraints for POST /api/v1/auth/register.
  *
- * - email: format email, maxLength 255
- * - name: minLength 1, maxLength 100
- * - password: minLength 8, maxLength 128, pattern uppercase+lowercase+digit
- * - role: PASSENGER | PROVIDER
- * - phone: optional, maxLength 20
- * - providerName: required when role is PROVIDER, minLength 1, maxLength 200
+ * @param t - i18next translation function scoped to the 'auth' namespace.
+ */
+export function createRegisterSchema(t: TFunction) {
+  return z
+    .object({
+      email: z
+        .string()
+        .min(1, t('validation.emailRequired'))
+        .email(t('validation.emailInvalid'))
+        .max(255, t('validation.emailMaxLength')),
+      name: z
+        .string()
+        .min(1, t('validation.nameRequired'))
+        .max(100, t('validation.nameMaxLength')),
+      password: z
+        .string()
+        .min(8, t('validation.passwordMinLength'))
+        .max(128, t('validation.passwordMaxLength'))
+        .regex(/[A-Z]/, t('validation.passwordUppercase'))
+        .regex(/[a-z]/, t('validation.passwordLowercase'))
+        .regex(/\d/, t('validation.passwordDigit')),
+      confirmPassword: z.string().min(1, t('validation.confirmPasswordRequired')),
+      role: z.enum(['PASSENGER', 'PROVIDER']),
+      phone: z
+        .string()
+        .max(20, t('validation.phoneMaxLength'))
+        .optional()
+        .or(z.literal('')),
+      providerName: z
+        .string()
+        .max(200, t('validation.providerNameMaxLength'))
+        .optional()
+        .or(z.literal('')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('validation.passwordMismatch'),
+      path: ['confirmPassword'],
+    })
+    .refine(
+      (data) => {
+        if (data.role === 'PROVIDER') {
+          return !!data.providerName && data.providerName.trim().length > 0;
+        }
+        return true;
+      },
+      {
+        message: t('validation.providerNameRequired'),
+        path: ['providerName'],
+      },
+    );
+}
+
+/**
+ * Zod schema for the registration form (static, English-only fallback).
+ * Mirrors OpenAPI spec constraints for POST /api/v1/auth/register.
  */
 export const registerSchema = z
   .object({

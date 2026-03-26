@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { isApiError } from '@/api/errors';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/
 import { getRedirectForRole } from '@/pages/auth/login-schema';
 import { usePageTitle } from '@/hooks/use-page-title';
 import {
-  registerSchema,
+  createRegisterSchema,
   getPasswordStrength,
   type RegisterFormValues,
 } from '@/pages/auth/register-schema';
@@ -41,12 +42,16 @@ function buildRegisterPayload(data: RegisterFormValues) {
  * - API error mapping to form fields (RFC 9457)
  * - Auto-login after successful registration
  * - Accessible: labels, ARIA attributes, keyboard navigable
+ * - i18n: all strings translated via react-i18next
  */
 export default function RegisterPage() {
-  usePageTitle('Sign Up');
+  const { t } = useTranslation('auth');
+  usePageTitle(t('register.pageTitle'));
   const { register: authRegister, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [rootError, setRootError] = useState<string | null>(null);
+
+  const schema = useMemo(() => createRegisterSchema(t), [t]);
 
   const {
     register,
@@ -56,7 +61,7 @@ export default function RegisterPage() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       email: '',
       name: '',
@@ -94,7 +99,7 @@ export default function RegisterPage() {
       await authRegister(buildRegisterPayload(data));
     } catch (error: unknown) {
       if (!isApiError(error)) {
-        setRootError('An unexpected error occurred. Please try again.');
+        setRootError(t('register.errors.unexpected'));
         return;
       }
 
@@ -106,7 +111,7 @@ export default function RegisterPage() {
       }
 
       if (error.code === 'EMAIL_ALREADY_EXISTS') {
-        setError('email', { message: 'An account with this email already exists' });
+        setError('email', { message: t('register.errors.emailExists') });
       } else if (error.fieldErrors.length === 0 && !error.code) {
         setRootError(error.detail ?? error.title);
       }
@@ -117,8 +122,10 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-8">
       <Card className="glass-card w-full max-w-md">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">Create account</h1>
-          <CardDescription>Sign up to start booking or managing routes</CardDescription>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">
+            {t('register.title')}
+          </h1>
+          <CardDescription>{t('register.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
@@ -144,17 +151,17 @@ export default function RegisterPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="animate-spin" aria-hidden="true" />
-                  <span>Creating account…</span>
+                  <span>{t('register.submitting')}</span>
                 </>
               ) : (
-                'Create account'
+                t('register.submit')
               )}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
+              {t('register.hasAccount')}{' '}
               <Link to="/auth/login" className="text-primary hover:underline">
-                Sign in
+                {t('register.signIn')}
               </Link>
             </p>
           </form>

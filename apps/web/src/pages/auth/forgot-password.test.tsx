@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n/config';
 import ForgotPasswordPage from '@/pages/auth/forgot-password';
 import { forgotPasswordSchema } from '@/pages/auth/forgot-password-schema';
 
@@ -24,15 +26,18 @@ vi.mock('@/hooks/useAuth', () => ({
 
 function renderPage() {
   return render(
-    <MemoryRouter initialEntries={['/auth/forgot-password']}>
-      <ForgotPasswordPage />
-    </MemoryRouter>,
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter initialEntries={['/auth/forgot-password']}>
+        <ForgotPasswordPage />
+      </MemoryRouter>
+    </I18nextProvider>,
   );
 }
 
 describe('ForgotPasswordPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    i18n.changeLanguage('en');
   });
 
   describe('rendering', () => {
