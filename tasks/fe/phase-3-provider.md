@@ -20,13 +20,13 @@
 All use typed API client, proper cache invalidation, toast notifications on mutations.
 
 **Acceptance Criteria:**
-- [ ] All hooks use OpenAPI-generated types
-- [ ] Mutations invalidate relevant queries
-- [ ] Tracking hook uses polling (refetchInterval: 5000)
-- [ ] Error handling with toast notifications
-- [ ] Unit tests for mutation cache invalidation logic
-- [ ] JSDoc on all hooks
-- [ ] Typecheck passes
+- [x] All hooks use OpenAPI-generated types
+- [x] Mutations invalidate relevant queries
+- [x] Tracking hook uses polling (refetchInterval: 5000)
+- [x] Error handling with toast notifications
+- [x] Unit tests for mutation cache invalidation logic
+- [x] JSDoc on all hooks
+- [x] Typecheck passes
 
 ---
 
