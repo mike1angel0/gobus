@@ -66,17 +66,7 @@
 
 ## Developer Experience
 
-### TASK-016: Create frontend .env.example
-**Description:** No `.env.example` exists in `apps/web/`. Developers and deployments have no documentation of required environment variables.
-
-**Acceptance Criteria:**
-- [ ] `apps/web/.env.example` created with:
-  ```
-  # API base URL (include /api/v1 path)
-  VITE_API_URL=http://localhost:3000/api/v1
-  ```
-- [ ] Comments explain each variable
-- [ ] `.gitignore` already excludes `.env` and `.env.local` (verify)
+### TASK-016: Create frontend .env.example ✅
 
 ---
 
