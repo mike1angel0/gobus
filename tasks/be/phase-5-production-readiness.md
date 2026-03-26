@@ -52,21 +52,7 @@
 
 ## Missing Integration Tests
 
-### TASK-015: Add integration tests for untested route files
-**Description:** 9 of 13 route files lack integration tests: drivers, driver-trips, bookings, admin, schedules, search, tracking, delays, buses. Only auth, health, providers, and spec-conformance have integration tests.
-
-**Acceptance Criteria:**
-- [ ] `buses.integration.test.ts` — CRUD operations, ownership verification, seat layout validation
-- [ ] `schedules.integration.test.ts` — CRUD, status transitions, stop time ordering
-- [ ] `search.integration.test.ts` — search with filters, trip details, pagination
-- [ ] `bookings.integration.test.ts` — create, cancel, double-booking prevention, seat validation
-- [ ] `drivers.integration.test.ts` — CRUD, provider-scoped access
-- [ ] `driver-trips.integration.test.ts` — list by date, start/end trip
-- [ ] `tracking.integration.test.ts` — position updates, bus tracking queries
-- [ ] `delays.integration.test.ts` — create delay, list by schedule
-- [ ] `admin.integration.test.ts` — user management, audit logs, fleet management
-- [ ] All tests pass
-- [ ] Coverage ≥ 85%
+**TASK-015: Add integration tests for untested route files** — All 9 integration test files (buses, schedules, search, bookings, drivers, driver-trips, tracking, delays, admin) verified with 215+ tests. Fixed pre-existing test failures in spec-conformance, cache-control, and admin tests (missing $queryRaw mock, deletedAt field from soft-delete). All 968 tests pass, coverage 96.88%.
 
 ---
 

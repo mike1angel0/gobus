@@ -45,6 +45,7 @@ const mockPrisma = {
   refreshToken: { deleteMany: mockRefreshTokenDeleteMany },
   auditLog: { create: mockAuditLogCreate },
   $queryRawUnsafe: vi.fn().mockResolvedValue([{ '?column?': 1 }]),
+  $queryRaw: vi.fn().mockResolvedValue([]),
 };
 
 vi.mock('@/infrastructure/prisma/client.js', () => ({
@@ -125,7 +126,7 @@ describe('Cache-Control Headers Integration', () => {
 
   describe('public endpoints with cachePublic', () => {
     it('GET /api/v1/search returns Cache-Control: public, max-age=30', async () => {
-      mockScheduleFindMany.mockResolvedValueOnce([]);
+      mockPrisma.$queryRaw.mockResolvedValueOnce([{ count: 0n }]);
 
       const response = await supertest(app.server)
         .get('/api/v1/search')

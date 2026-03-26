@@ -118,6 +118,7 @@ const mockPrisma = {
   },
   $transaction: mockTransaction,
   $queryRawUnsafe: mockQueryRawUnsafe,
+  $queryRaw: vi.fn(),
 };
 
 vi.mock('@/infrastructure/prisma/client.js', () => ({
@@ -881,6 +882,9 @@ describe('API Spec Conformance', () => {
   // -----------------------------------------------------------------------
   describe('Public endpoint success responses', () => {
     it('GET /search → 200 conforms to spec', async () => {
+      mockPrisma.$queryRaw
+        .mockResolvedValueOnce([{ count: 1n }])
+        .mockResolvedValueOnce([{ id: 'sched-1' }]);
       mockScheduleFindMany.mockResolvedValueOnce([makeSearchSchedule()]);
 
       const res = await supertest(app.server)

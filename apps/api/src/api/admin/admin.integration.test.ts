@@ -362,6 +362,7 @@ function makeUserRecord(overrides: Record<string, unknown> = {}) {
     status: 'ACTIVE',
     failedLoginAttempts: 0,
     lockedUntil: null,
+    deletedAt: null,
     createdAt: new Date('2026-01-15T10:00:00.000Z'),
     updatedAt: new Date('2026-01-15T10:00:00.000Z'),
     ...overrides,
@@ -406,6 +407,7 @@ describe('GET /api/v1/admin/users', () => {
       status: 'ACTIVE',
       failedLoginAttempts: 0,
       lockedUntil: null,
+      deletedAt: null,
       createdAt: '2026-01-15T10:00:00.000Z',
       updatedAt: '2026-01-15T10:00:00.000Z',
     });
@@ -426,7 +428,7 @@ describe('GET /api/v1/admin/users', () => {
       .set('Authorization', ADMIN_AUTH);
 
     expect(mockUserFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { role: 'ADMIN' } }),
+      expect.objectContaining({ where: { deletedAt: null, role: 'ADMIN' } }),
     );
   });
 
@@ -439,7 +441,7 @@ describe('GET /api/v1/admin/users', () => {
       .set('Authorization', ADMIN_AUTH);
 
     expect(mockUserFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { status: 'SUSPENDED' } }),
+      expect.objectContaining({ where: { deletedAt: null, status: 'SUSPENDED' } }),
     );
   });
 
