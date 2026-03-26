@@ -79,16 +79,16 @@ All use typed API client, proper cache invalidation, toast notifications on muta
 **Description:** Create `src/pages/provider/schedules.tsx`. List with filter bar (by route, bus, status, date range). Schedule cards showing: route name, bus info, departure/arrival times, driver assignment, days of week, booking count. Create form: select route, bus, driver (optional), departure/arrival times, days of week multi-select or specific date, base price. Edit: assign/unassign driver, change status. Cancel with confirmation.
 
 **Acceptance Criteria:**
-- [ ] Schedule list with filter bar
-- [ ] Filters: route dropdown, bus dropdown, status toggle, date range
-- [ ] Schedule cards with all info
-- [ ] Create form with proper validation
-- [ ] Route/bus/driver dropdowns populated from provider's data
-- [ ] Days of week selector (multi-toggle: Mon-Sun)
-- [ ] Driver assignment/unassignment
-- [ ] Cancel schedule with confirmation
-- [ ] Component test
-- [ ] Typecheck passes
+- [x] Schedule list with filter bar
+- [x] Filters: route dropdown, bus dropdown, status toggle, date range
+- [x] Schedule cards with all info
+- [x] Create form with proper validation
+- [x] Route/bus/driver dropdowns populated from provider's data
+- [x] Days of week selector (multi-toggle: Mon-Sun)
+- [x] Driver assignment/unassignment
+- [x] Cancel schedule with confirmation
+- [x] Component test
+- [x] Typecheck passes
 
 ---
 

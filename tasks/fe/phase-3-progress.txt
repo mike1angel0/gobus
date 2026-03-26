@@ -40,3 +40,31 @@
 - Edit mode with seat map editor deferred to TASK-005 (separate acceptance criterion)
 - Learnings: Extract dialog/form components into separate files proactively to stay under max-lines (500) and complexity (15) limits
 ---
+
+## Iteration 5 - TASK-005: Create seat map editor component
+- Created src/components/fleet/seat-map-editor.tsx with two interaction modes: click-to-cycle and brush toolbar for direct type selection
+- Created src/components/fleet/edit-bus-dialog.tsx wrapping the editor in a dialog with bus detail loading
+- Added edit button (pencil icon) to each bus card in fleet.tsx
+- Brush toolbar uses radiogroup pattern for accessibility with Cycle/Standard/Premium/Accessible/Blocked options
+- Visual distinction: type-specific colors, icons (star for premium, wheelchair for accessible, X for blocked)
+- Seat count summary updates in real-time as user edits
+- Save button disabled until changes are detected (deep comparison of seat types)
+- 26 component tests covering rendering, click cycling, brush mode, keyboard navigation, save/cancel, accessibility
+- Documented spec gap: PUT /api/v1/buses/{id} doesn't accept seats field — save shows toast notification until spec is updated
+- Learnings: Tests must run from apps/web/ directory; the editor component doesn't need the booking SeatMap's complexity (no occupied/selected states) — kept it focused on type editing only
+---
+
+## Iteration 6 - TASK-006: Create schedule management page
+- Created src/pages/provider/schedules.tsx with filter bar, schedule cards, driver assign dialog, cancel with confirmation
+- Extracted src/components/schedules/create-schedule-dialog.tsx with route/bus/driver dropdowns, departure/arrival times, days of week toggle, base price, auto-calculated stop times from route
+- Extracted src/components/schedules/schedule-filter-bar.tsx for route, bus, status dropdowns and date range inputs
+- Filter bar passes filters to useSchedules hook with query params matching OpenAPI spec
+- Schedule cards show route name, bus plate, times, price, days of week, driver status, status badge
+- Create form validates: required fields, arrival > departure, price 0-100000, route with min 2 stops
+- Stop times auto-calculated by evenly distributing travel time across route stops
+- Driver assign dialog supports assign, change, and unassign (null) via useUpdateSchedule
+- Cancel with confirmation dialog using useCancelSchedule
+- Updated router.tsx to replace PlaceholderPage with ProviderSchedulesPage at /provider/schedules
+- 27 tests covering loading, error, empty, loaded states, filter bar, cancel flow, driver assignment, create dialog, accessibility
+- Learnings: ESLint complexity max 15 is strict — extract custom hooks for data fetching (useSchedulesPageData, useCreateScheduleData), separate validation/error-handling into standalone functions, and extract ScheduleListContent to eliminate conditional render branches from the page component
+---
