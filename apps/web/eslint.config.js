@@ -75,6 +75,12 @@ export default defineConfig([
     },
   },
   {
+    files: ['src/router.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     files: ['vite.config.ts', '*.config.{ts,js}'],
     rules: {
       'jsdoc/require-jsdoc': 'off',

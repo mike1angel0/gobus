@@ -44,25 +44,7 @@
 
 ## App Shell & Navigation
 
-### TASK-013: Create React Router setup with auth guards
-**Description:** Create `src/router.tsx` with React Router v6. Define all routes:
-- Public: `/`, `/search`, `/trip/:id`, `/auth/login`, `/auth/register`, `/auth/forgot-password`, `/auth/reset-password`
-- Authenticated: `/auth/change-password`
-- Passenger (auth): `/my-trips`
-- Provider (auth+role): `/provider/*` (dashboard, routes, fleet, schedules, drivers, tracking)
-- Driver (auth+role): `/driver/*` (trips, trip/:id, delay)
-- Admin (auth+role): `/admin/*` (fleet)
-
-Create `src/components/guards/auth-guard.tsx` (redirects to login if unauthenticated) and `src/components/guards/role-guard.tsx` (redirects to / if wrong role). Use React Router's `<Outlet>` pattern for nested layouts.
-
-**Acceptance Criteria:**
-- [ ] All routes defined with lazy loading (React.lazy + Suspense)
-- [ ] AuthGuard redirects unauthenticated users to /auth/login
-- [ ] RoleGuard checks user role, redirects on mismatch
-- [ ] Guards run before page render (no flash of protected content)
-- [ ] Public routes accessible without auth
-- [ ] Component tests for guards
-- [ ] Typecheck passes
+### ~~TASK-013: Create React Router setup with auth guards~~ ✅
 
 ### TASK-014: Create Navbar component
 **Description:** Create `src/components/layout/navbar.tsx`. Responsive with mobile hamburger menu. Role-based navigation links: PASSENGER (Home, Search, My Trips), PROVIDER (Dashboard, Routes, Fleet, Schedules, Drivers, Tracking), DRIVER (Trips, History), ADMIN (Fleet). Shows user name + sign out. Logo with link to home.
