@@ -36,18 +36,7 @@
 
 ## Live Map
 
-### TASK-009: Create LiveMap component
-**Description:** Create `src/components/maps/live-map.tsx`. Uses `react-leaflet` with dark CartoDB tiles. Shows: route polyline between stops, stop markers with labels, bus position marker (if tracking active). Auto-fits bounds. Updates bus position without full re-render (via useRef for map instance). Configurable center/zoom fallback.
-
-**Acceptance Criteria:**
-- [ ] Dark tile theme
-- [ ] Route polyline rendered from stop coordinates
-- [ ] Stop markers with popup labels
-- [ ] Bus marker updates position smoothly
-- [ ] Auto-fit bounds to show all markers
-- [ ] No full re-render on position update
-- [ ] Component test (renders without error)
-- [ ] Typecheck passes
+### ~~TASK-009: Create LiveMap component~~ ✅
 
 ---
 

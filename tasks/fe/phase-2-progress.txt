@@ -80,3 +80,12 @@
 - 27 component tests covering loading, error, trip info display, booking form, booking flow, API calls, accessibility
 - Learnings: Pages using `useParams` need `Routes`/`Route` wrappers in tests (not just MemoryRouter) for params to be extracted. When asserting text that appears in multiple places (e.g., price in card and seat tooltip), use `within()` scoped to specific regions or `getAllByText`.
 ---
+
+## Iteration 9 - TASK-009: Create LiveMap component
+- Created `src/components/maps/live-map.tsx` with react-leaflet, dark CartoDB tiles, route polyline, stop markers with popups, and bus position marker
+- Installed react-leaflet, leaflet, and @types/leaflet
+- BusMarker uses useRef to update position/icon without full re-render
+- AutoFitBounds inner component uses useMap() hook for fitBounds/setView
+- 17 component tests all passing (mocking react-leaflet and leaflet), typecheck clean, lint clean
+- Learnings: react-leaflet components need to be mocked for jsdom tests since MapContainer requires real DOM canvas. Mock useMap() to verify fitBounds/setView calls. Inner components (AutoFitBounds, BusMarker) using useMap() must be children of MapContainer.
+---
