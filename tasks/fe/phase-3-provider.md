@@ -92,18 +92,9 @@ All use typed API client, proper cache invalidation, toast notifications on muta
 
 ---
 
-## Driver Management
+## Completed Tasks
 
-### TASK-007: Create driver management page
-**Description:** Create `src/pages/provider/drivers.tsx`. List with driver cards: name, email, phone, assigned schedule count. Create driver form: name, email, password, phone. Delete with confirmation (warns about schedule unassignment).
-
-**Acceptance Criteria:**
-- [ ] Driver list with cards showing assigned schedules
-- [ ] Create dialog with form + validation
-- [ ] Email uniqueness error handled (409 → field error)
-- [ ] Delete with confirmation + warning about schedule impact
-- [ ] Component test
-- [ ] Typecheck passes
+- **TASK-007**: Driver management page — driver list with cards (name, email, phone, assigned schedules), create dialog with validation, 409 email conflict handling, delete with schedule impact warning, 28 component tests
 
 ---
 
