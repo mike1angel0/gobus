@@ -23,4 +23,5 @@ IdParam:
   description: Resource identifier (cuid)
   schema:
     type: string
+    minLength: 1
     maxLength: 30

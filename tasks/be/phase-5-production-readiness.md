@@ -28,16 +28,7 @@
 
 **TASK-008: Document rate limiting in OpenAPI spec** — Added `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After` headers to `TooManyRequests` response component. Added `'429': $ref` to all 50 operations across 12 path files.
 
-### TASK-009: Add missing validation constraints to OpenAPI spec
-**Description:** Several schema fields lack `minLength` constraints. ID parameters lack `pattern` for CUID format validation. Some 4xx error codes are missing from specific endpoints (POST /schedules missing 409 for overlap, POST /routes missing 400 for invalid stop order).
-
-**Acceptance Criteria:**
-- [ ] All required string fields have `minLength: 1`
-- [ ] ID parameters have `pattern` for CUID format (or at least `minLength: 1, maxLength: 30`)
-- [ ] `POST /schedules` documents `409` for schedule overlap/bus unavailability
-- [ ] `POST /routes` documents `400` for invalid stop ordering
-- [ ] `npm run spec:lint` passes
-- [ ] Typecheck passes
+**TASK-009: Add missing validation constraints to OpenAPI spec** — Added `minLength: 1` to all required string fields in request schemas (auth emails, schedule IDs, driver email). Added `minLength: 1` to IdParam and inline path/query ID parameters. Documented 409 on POST /schedules for overlap/bus unavailability. Updated POST /routes 400 description to mention invalid stop ordering.
 
 ---
 

@@ -56,7 +56,7 @@ list:
             schema:
               $ref: '../components/schemas/transport.yaml#/RouteWithStopsDataResponse'
       '400':
-        description: Validation error
+        description: Validation error (invalid stop ordering, duplicate stop names, fewer than 2 stops)
         content:
           application/json:
             schema:

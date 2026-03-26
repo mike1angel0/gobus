@@ -110,6 +110,12 @@ list:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '409':
+        description: Schedule overlap (bus already assigned to another schedule at the same time) or bus unavailability conflict
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
       '429':
         $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':

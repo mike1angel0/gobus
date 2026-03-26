@@ -529,6 +529,7 @@ CreateDriverRequest:
     email:
       type: string
       format: email
+      minLength: 1
       maxLength: 255
       description: Driver's email address (must be unique)
     password:

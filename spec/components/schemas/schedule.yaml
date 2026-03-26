@@ -293,14 +293,17 @@ CreateScheduleRequest:
   properties:
     routeId:
       type: string
+      minLength: 1
       maxLength: 30
       description: Route to schedule
     busId:
       type: string
+      minLength: 1
       maxLength: 30
       description: Bus to assign
     driverId:
       type: string
+      minLength: 1
       maxLength: 30
       description: Driver to assign (optional)
     departureTime:

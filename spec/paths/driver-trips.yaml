@@ -58,6 +58,7 @@ passengers:
         description: Schedule identifier
         schema:
           type: string
+          minLength: 1
           maxLength: 30
       - name: date
         in: query
@@ -113,6 +114,7 @@ detail:
         description: Schedule identifier
         schema:
           type: string
+          minLength: 1
           maxLength: 30
       - name: date
         in: query

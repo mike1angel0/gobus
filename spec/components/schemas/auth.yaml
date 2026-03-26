@@ -27,6 +27,7 @@ RegisterRequest:
     email:
       type: string
       format: email
+      minLength: 1
       maxLength: 255
       description: User's email address (must be unique)
     password:
@@ -68,6 +69,7 @@ LoginRequest:
     email:
       type: string
       format: email
+      minLength: 1
       maxLength: 255
       description: Registered email address
     password:
@@ -109,6 +111,7 @@ ForgotPasswordRequest:
     email:
       type: string
       format: email
+      minLength: 1
       maxLength: 255
       description: Email address associated with the account
 
