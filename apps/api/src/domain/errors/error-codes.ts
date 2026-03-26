@@ -29,6 +29,8 @@ export const ErrorCodes = {
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   /** Too many requests — rate limit exceeded. */
   RATE_LIMITED: 'RATE_LIMITED',
+  /** Resource exhaustion limit reached (e.g., max active bookings). */
+  RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
 } as const;
 
 /** Union type of all valid error code strings. */

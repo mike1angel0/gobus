@@ -16,10 +16,11 @@ describe('ErrorCodes', () => {
     expect(ErrorCodes.AUTH_INVALID_RESET_TOKEN).toBe('AUTH_INVALID_RESET_TOKEN');
     expect(ErrorCodes.INTERNAL_ERROR).toBe('INTERNAL_ERROR');
     expect(ErrorCodes.RATE_LIMITED).toBe('RATE_LIMITED');
+    expect(ErrorCodes.RESOURCE_EXHAUSTED).toBe('RESOURCE_EXHAUSTED');
   });
 
-  it('has exactly 13 error codes', () => {
-    expect(Object.keys(ErrorCodes)).toHaveLength(13);
+  it('has exactly 14 error codes', () => {
+    expect(Object.keys(ErrorCodes)).toHaveLength(14);
   });
 
   it('all values are unique strings', () => {

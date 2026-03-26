@@ -208,6 +208,7 @@ describe('BookingService', () => {
 
   describe('create', () => {
     it('should create a booking with correct total price', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(0);
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
       vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([]);
@@ -244,7 +245,46 @@ describe('BookingService', () => {
       expect(createCall.data.alightingStop).toBe('Cluj-Napoca');
     });
 
+    it('should throw 429 when user has 5 active bookings', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(5);
+
+      try {
+        await service.create(USER_ID, {
+          scheduleId: SCHEDULE_ID,
+          seatLabels: ['1A'],
+          boardingStop: 'Bucharest',
+          alightingStop: 'Cluj-Napoca',
+          tripDate: TRIP_DATE,
+        });
+        expect.fail('Should have thrown');
+      } catch (err) {
+        const e = err as AppError;
+        expect(e.statusCode).toBe(429);
+        expect(e.code).toBe(ErrorCodes.RESOURCE_EXHAUSTED);
+        expect(e.detail).toBe('Maximum 5 active bookings allowed per user');
+      }
+    });
+
+    it('should allow booking when user has 4 active bookings', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(4);
+      const schedule = makeScheduleWithRelations();
+      vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
+      vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([]);
+      vi.mocked(prisma._tx.booking.create).mockResolvedValue(makeBookingRecord());
+
+      const result = await service.create(USER_ID, {
+        scheduleId: SCHEDULE_ID,
+        seatLabels: ['1A'],
+        boardingStop: 'Bucharest',
+        alightingStop: 'Cluj-Napoca',
+        tripDate: TRIP_DATE,
+      });
+
+      expect(result.id).toBe('booking-1');
+    });
+
     it('should throw 404 when schedule not found', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(0);
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(null);
 
       await expect(
@@ -273,6 +313,7 @@ describe('BookingService', () => {
     });
 
     it('should throw 409 SEAT_CONFLICT when seats are already booked', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(0);
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
       vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([{ seatLabel: '1A' }]);
@@ -295,6 +336,7 @@ describe('BookingService', () => {
     });
 
     it('should throw 400 for invalid seat label', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(0);
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
 
@@ -315,6 +357,7 @@ describe('BookingService', () => {
     });
 
     it('should throw 400 for invalid stop order', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(0);
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
 
@@ -334,6 +377,7 @@ describe('BookingService', () => {
     });
 
     it('should compute correct price for intermediate segment', async () => {
+      vi.mocked(prisma.booking.count).mockResolvedValue(0);
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
       vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([]);

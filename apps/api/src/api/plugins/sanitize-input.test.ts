@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { stripHtmlFromStrings } from './sanitize-input.js';
+import { stripHtmlFromStrings, exceedsJsonDepth } from './sanitize-input.js';
 
 describe('stripHtmlFromStrings', () => {
   it('strips HTML tags from a simple string', () => {
@@ -47,5 +47,44 @@ describe('stripHtmlFromStrings', () => {
 
   it('preserves strings without HTML', () => {
     expect(stripHtmlFromStrings('plain text')).toBe('plain text');
+  });
+});
+
+describe('exceedsJsonDepth', () => {
+  it('returns false for flat object within depth limit', () => {
+    expect(exceedsJsonDepth({ a: 1, b: 'hello' }, 5)).toBe(false);
+  });
+
+  it('returns false for primitives', () => {
+    expect(exceedsJsonDepth('string', 5)).toBe(false);
+    expect(exceedsJsonDepth(42, 5)).toBe(false);
+    expect(exceedsJsonDepth(null, 5)).toBe(false);
+    expect(exceedsJsonDepth(undefined, 5)).toBe(false);
+  });
+
+  it('returns false for object at exactly the depth limit', () => {
+    // 5 levels: {a: {b: {c: {d: {e: "val"}}}}}
+    const data = { a: { b: { c: { d: { e: 'val' } } } } };
+    expect(exceedsJsonDepth(data, 5)).toBe(false);
+  });
+
+  it('returns true for object exceeding depth limit', () => {
+    // 6 levels: {a: {b: {c: {d: {e: {f: "val"}}}}}}
+    const data = { a: { b: { c: { d: { e: { f: 'val' } } } } } };
+    expect(exceedsJsonDepth(data, 5)).toBe(true);
+  });
+
+  it('returns true for deeply nested arrays', () => {
+    const data = { a: [{ b: [{ c: [{ d: [{ e: [{ f: 'deep' }] }] }] }] }] };
+    expect(exceedsJsonDepth(data, 5)).toBe(true);
+  });
+
+  it('returns false for flat arrays', () => {
+    expect(exceedsJsonDepth([1, 2, 3], 5)).toBe(false);
+  });
+
+  it('handles depth limit of 0 (only primitives allowed)', () => {
+    expect(exceedsJsonDepth('ok', 0)).toBe(false);
+    expect(exceedsJsonDepth({ a: 1 }, 0)).toBe(true);
   });
 });

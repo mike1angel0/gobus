@@ -24,6 +24,7 @@ const mockTransaction = vi.fn();
 const mockBookingFindUnique = vi.fn();
 const mockBookingCreate = vi.fn();
 const mockBookingUpdate = vi.fn();
+const mockBookingCount = vi.fn();
 const mockBookingSeatFindMany = vi.fn();
 const mockBookingSeatCreateMany = vi.fn();
 const mockBookingSeatDeleteMany = vi.fn();
@@ -54,6 +55,7 @@ const mockPrisma = {
     findUnique: mockBookingFindUnique,
     create: mockBookingCreate,
     update: mockBookingUpdate,
+    count: mockBookingCount,
   },
   bookingSeat: {
     findMany: mockBookingSeatFindMany,
@@ -420,6 +422,7 @@ describe('Audit Logging Hooks', () => {
 
     it('logs BOOKING_CREATED on successful booking', async () => {
       mockUserFindUnique.mockResolvedValueOnce({ id: 'user-1', status: 'ACTIVE' });
+      mockBookingCount.mockResolvedValueOnce(0);
 
       const createdBooking = makeBookingRecord();
 

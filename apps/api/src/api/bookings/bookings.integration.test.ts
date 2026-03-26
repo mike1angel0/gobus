@@ -202,6 +202,7 @@ describe('Booking Routes', () => {
   // --- POST /api/v1/bookings ---
   describe('POST /api/v1/bookings', () => {
     it('returns 201 with booking details on successful creation', async () => {
+      mockBookingCount.mockResolvedValueOnce(0);
       const createdBooking = makeBookingRecord();
 
       mockTransaction.mockImplementationOnce(
@@ -244,6 +245,7 @@ describe('Booking Routes', () => {
     });
 
     it('returns 409 when seats are already booked (SEAT_CONFLICT)', async () => {
+      mockBookingCount.mockResolvedValueOnce(0);
       mockTransaction.mockImplementationOnce(
         async (callback: (tx: unknown) => Promise<unknown>) => {
           const txClient = {
@@ -274,6 +276,7 @@ describe('Booking Routes', () => {
     });
 
     it('returns 404 when schedule does not exist', async () => {
+      mockBookingCount.mockResolvedValueOnce(0);
       mockTransaction.mockImplementationOnce(
         async (callback: (tx: unknown) => Promise<unknown>) => {
           const txClient = {
@@ -313,6 +316,7 @@ describe('Booking Routes', () => {
     });
 
     it('returns 400 when boardingStop comes after alightingStop', async () => {
+      mockBookingCount.mockResolvedValueOnce(0);
       mockTransaction.mockImplementationOnce(
         async (callback: (tx: unknown) => Promise<unknown>) => {
           const txClient = {

@@ -70,4 +70,12 @@ describe('parsePagination', () => {
   it('handles max pageSize 100', () => {
     expect(parsePagination(1, 100)).toEqual({ skip: 0, take: 100 });
   });
+
+  it('clamps pageSize above 100 to 100', () => {
+    expect(parsePagination(1, 10000)).toEqual({ skip: 0, take: 100 });
+  });
+
+  it('clamps pageSize 500 to 100', () => {
+    expect(parsePagination(2, 500)).toEqual({ skip: 100, take: 100 });
+  });
 });

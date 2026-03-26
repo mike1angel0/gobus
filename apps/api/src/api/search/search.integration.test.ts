@@ -229,7 +229,7 @@ describe('Search Routes', () => {
 
       const response = await supertest(app.server)
         .get('/api/v1/search')
-        .query({ origin: 'A', destination: 'B', date: '2026-03-25' })
+        .query({ origin: 'AB', destination: 'CD', date: '2026-03-25' })
         .expect(200);
 
       expect(response.body.data).toHaveLength(0);

@@ -10,15 +10,15 @@ export const searchQuerySchema = z
     origin: z
       .string()
       .trim()
-      .min(1)
+      .min(2)
       .max(200)
-      .describe('Origin stop name (case-insensitive partial match)'),
+      .describe('Origin stop name (minimum 2 characters, case-insensitive partial match)'),
     destination: z
       .string()
       .trim()
-      .min(1)
+      .min(2)
       .max(200)
-      .describe('Destination stop name (case-insensitive partial match)'),
+      .describe('Destination stop name (minimum 2 characters, case-insensitive partial match)'),
     date: z.string().date().max(10).describe('Trip date (ISO 8601 date format, e.g. 2026-03-25)'),
     page: z.coerce.number().int().min(1).max(10000).default(1).describe('Page number (1-based)'),
     pageSize: z.coerce

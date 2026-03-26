@@ -9,6 +9,9 @@ import { computeSegmentPrice } from './search.service.js';
 
 const logger = createLogger('BookingService');
 
+/** Maximum number of active (CONFIRMED) bookings a single user can hold. */
+const MAX_ACTIVE_BOOKINGS_PER_USER = 5;
+
 /** Input for creating a new booking. */
 export interface CreateBookingInput {
   /** Schedule to book seats on. */
@@ -243,6 +246,18 @@ export class BookingService {
   async create(userId: string, input: CreateBookingInput): Promise<BookingWithDetails> {
     const { scheduleId, seatLabels, boardingStop, alightingStop, tripDate } = input;
     const tripDateObj = new Date(tripDate);
+
+    // Enforce max 5 active bookings per user (DoS prevention)
+    const activeCount = await this.prisma.booking.count({
+      where: { userId, status: 'CONFIRMED' },
+    });
+    if (activeCount >= MAX_ACTIVE_BOOKINGS_PER_USER) {
+      throw new AppError(
+        429,
+        ErrorCodes.RESOURCE_EXHAUSTED,
+        `Maximum ${MAX_ACTIVE_BOOKINGS_PER_USER} active bookings allowed per user`,
+      );
+    }
 
     const booking = await this.prisma.$transaction(
       async (tx) => {

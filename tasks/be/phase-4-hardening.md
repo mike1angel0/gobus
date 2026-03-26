@@ -310,17 +310,17 @@
 **Description:** Prevent denial-of-service vectors: (1) Global request body size: 1MB (`fastify.bodyLimit`). (2) JSON depth limit: reject deeply nested payloads (max 5 levels via custom parser or Fastify's `bodyLimit`). (3) Prisma query timeouts: add `PrismaClient` with `timeout: 10000` for all queries. (4) Array field limits enforced in Zod (seats: max 200, stops: max 50, seatLabels: max 10). (5) Search endpoint: limit results to 50, add minimum query length for text search. (6) Pagination: enforce max pageSize=100 server-side (even if client sends pageSize=10000). (7) Slow request detection: log warning for requests >5s. (8) Concurrent booking limit: max 5 active bookings per user.
 
 **Acceptance Criteria:**
-- [ ] `fastify.bodyLimit = 1_048_576` (1MB)
-- [ ] JSON nesting depth limited (reject >5 levels)
-- [ ] Prisma client timeout configured (10s)
-- [ ] All array fields have maxItems in Zod
-- [ ] Search results limited to 50 per page
-- [ ] Pagination enforces max pageSize=100 server-side
-- [ ] Slow request warning logged (>5s)
-- [ ] Max 5 active bookings per user enforced
-- [ ] Integration test: oversized payload → 413
-- [ ] Integration test: pageSize=10000 → clamped to 100
-- [ ] Typecheck passes
+- [x] `fastify.bodyLimit = 1_048_576` (1MB)
+- [x] JSON nesting depth limited (reject >5 levels)
+- [x] Prisma client timeout configured (10s)
+- [x] All array fields have maxItems in Zod
+- [x] Search results limited to 50 per page
+- [x] Pagination enforces max pageSize=100 server-side
+- [x] Slow request warning logged (>5s)
+- [x] Max 5 active bookings per user enforced
+- [x] Integration test: oversized payload → 413
+- [x] Integration test: pageSize=10000 → clamped to 100
+- [x] Typecheck passes
 
 ### TASK-025: Security headers and CORS hardening
 **Description:** Ensure all security headers are production-grade: (1) HSTS with 1y max-age, includeSubDomains, preload. (2) CSP: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`. (3) X-Frame-Options: DENY. (4) X-Content-Type-Options: nosniff. (5) Referrer-Policy: strict-origin-when-cross-origin. (6) Permissions-Policy: `camera=(), microphone=(), geolocation=(self)`. (7) Remove `X-Powered-By` header. (8) CORS: strict origin whitelist from env, no wildcard with credentials, expose only necessary headers. Verify with curl that no sensitive headers leak.

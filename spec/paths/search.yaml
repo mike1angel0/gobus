@@ -10,18 +10,18 @@ search:
       - name: origin
         in: query
         required: true
-        description: Origin stop name (case-insensitive partial match)
+        description: Origin stop name (minimum 2 characters, case-insensitive partial match)
         schema:
           type: string
-          minLength: 1
+          minLength: 2
           maxLength: 200
       - name: destination
         in: query
         required: true
-        description: Destination stop name (case-insensitive partial match)
+        description: Destination stop name (minimum 2 characters, case-insensitive partial match)
         schema:
           type: string
-          minLength: 1
+          minLength: 2
           maxLength: 200
       - name: date
         in: query
