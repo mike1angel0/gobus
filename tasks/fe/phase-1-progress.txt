@@ -26,3 +26,25 @@
 - All quality gates pass: lint, format:check, typecheck
 - Learnings: shadcn/ui generated components trigger JSDoc/react-refresh/unused-vars warnings — exclude them via file-specific config overrides rather than disabling rules globally.
 ---
+
+## Iteration 4 - TASK-004: Set up Vitest + React Testing Library
+- Installed vitest, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event, jsdom, @vitest/coverage-v8
+- Created vitest.config.ts with jsdom environment, @/ path alias, v8 coverage with 90% thresholds
+- Created src/test/setup.ts importing jest-dom/vitest matchers
+- Created src/test/helpers.tsx with renderWithProviders() wrapping QueryClientProvider + MemoryRouter
+- Added test, test:watch, test:coverage scripts
+- Excluded shadcn-generated files (use-toast.ts, utils.ts, components/ui/) from coverage to avoid false negatives
+- Added vitest/globals types to tsconfig.app.json for global describe/it/expect
+- Smoke test for App component passes, coverage at 100% for non-excluded source
+- Learnings: shadcn's use-toast.ts is ~180 lines of generated code that tanks coverage if included. Exclude it alongside components/ui/ in vitest coverage config.
+---
+
+## Iteration 5 - TASK-005: Set up OpenAPI type generation
+- Installed openapi-typescript v7.13 as devDep
+- Created `npm run api:sync` script that generates types from `../../spec/dist/openapi.json` to `src/api/generated/types.ts`
+- Created `src/api/generated/.gitkeep` for directory persistence
+- Generated 4241 lines of types covering all 30+ API paths and 47 operations
+- Created `apps/web/CLAUDE.md` documenting API-first workflow and type generation pipeline
+- Added `coverage` to ESLint globalIgnores (was causing spurious warnings)
+- Learnings: openapi-typescript v7 generates clean types including paths, operations, and components interfaces. The bundled spec at `spec/dist/openapi.json` must exist before running api:sync — run `npm run spec:bundle` from root first.
+---

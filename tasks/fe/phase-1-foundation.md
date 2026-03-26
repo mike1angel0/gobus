@@ -20,15 +20,7 @@
 
 ## API Client (Generated from OpenAPI Spec)
 
-### TASK-005: Set up OpenAPI type generation
-**Description:** Install `openapi-typescript` as devDep. Create `npm run api:sync` script that: reads `../../spec/dist/openapi.json` (the bundled spec), generates TypeScript types into `src/api/generated/types.ts`. Create `src/api/generated/.gitkeep`. Document the workflow: spec changes → `npm run spec:bundle` (root) → `npm run api:sync` (web) → types regenerated.
-
-**Acceptance Criteria:**
-- [ ] `openapi-typescript` installed
-- [ ] `npm run api:sync` generates types from OpenAPI spec
-- [ ] Generated types include all request/response schemas
-- [ ] Generated types include all path definitions
-- [ ] Workflow documented in apps/web CLAUDE.md
+### ~~TASK-005: Set up OpenAPI type generation~~ ✅
 
 ### TASK-006: Create typed API client
 **Description:** Install `openapi-fetch`. Create `src/api/client.ts` with typed API client: configures base URL from env (VITE_API_URL), attaches Bearer token from auth context, handles RFC 9457 error responses, auto-redirects to login on 401. Create `src/api/errors.ts` with `ApiError` class and error handling utilities. Create `src/api/hooks.ts` with `useApiClient()` hook that returns configured client.
