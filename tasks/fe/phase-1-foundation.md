@@ -34,20 +34,7 @@
 
 ### ~~TASK-009: Create login page~~ ✅
 
-### TASK-010: Create register page
-**Description:** Create `src/pages/auth/register.tsx`. Role toggle (PASSENGER / PROVIDER). Shared fields: name, email, password, phone. Provider-specific: providerName. Zod validation including password strength (min 8, uppercase+lowercase+digit). Password strength indicator. React Hook Form. Auto-login after registration.
-
-**Acceptance Criteria:**
-- [ ] Role toggle between PASSENGER and PROVIDER
-- [ ] Conditional provider fields shown when PROVIDER selected
-- [ ] Password strength validation: min 8 chars, uppercase, lowercase, digit
-- [ ] Visual password strength indicator (weak/fair/strong)
-- [ ] Zod validation with meaningful error messages
-- [ ] API errors mapped to fields (e.g., email taken → email field error)
-- [ ] Auto-login after successful registration
-- [ ] Accessible
-- [ ] Component test
-- [ ] Typecheck passes
+### ~~TASK-010: Create register page~~ ✅
 
 ### TASK-011: Create forgot password and reset password pages
 **Description:** Create `src/pages/auth/forgot-password.tsx` — email input form, calls `forgotPassword()`, shows success message ("If an account exists, we've sent a reset link") regardless of whether email exists (prevents enumeration). Create `src/pages/auth/reset-password.tsx` — reads token from URL query param, new password + confirm password form with strength validation, calls `resetPassword()`, redirects to login on success.

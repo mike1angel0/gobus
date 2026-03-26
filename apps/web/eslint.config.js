@@ -61,6 +61,7 @@ export default defineConfig([
     files: ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}'],
     rules: {
       'jsdoc/require-jsdoc': 'off',
+      'max-lines': 'off',
       'max-lines-per-function': 'off',
     },
   },
