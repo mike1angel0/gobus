@@ -411,6 +411,124 @@ describe('BusService', () => {
 
       expect(result.id).toBe(BUS_ID);
     });
+
+    it('should replace seat layout in a transaction when seats are provided', async () => {
+      (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        providerId: PROVIDER_ID,
+      });
+
+      const newSeats = [
+        makeSeat({ id: 'new-seat-1', row: 1, column: 1, label: '1A' }),
+        makeSeat({ id: 'new-seat-2', row: 1, column: 2, label: '1B' }),
+      ];
+      const updatedBus = { ...makeBus({ rows: 1, columns: 2, capacity: 2 }), seats: newSeats };
+
+      const mockTxDeleteMany = vi.fn().mockResolvedValue({ count: 4 });
+      const mockTxUpdate = vi.fn().mockResolvedValue(updatedBus);
+      (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+        (fn: (tx: unknown) => Promise<unknown>) =>
+          fn({ seat: { deleteMany: mockTxDeleteMany }, bus: { update: mockTxUpdate } }),
+      );
+
+      const result = await service.update(BUS_ID, PROVIDER_ID, {
+        model: 'Updated Model',
+        rows: 1,
+        columns: 2,
+        capacity: 2,
+        seats: [
+          { row: 1, column: 1, label: '1A', type: 'STANDARD', price: 10 },
+          { row: 1, column: 2, label: '1B', type: 'STANDARD', price: 10 },
+        ],
+      });
+
+      expect(result.id).toBe(BUS_ID);
+      expect(result.seats).toHaveLength(2);
+      expect(result.seats[0]).toEqual({
+        id: 'new-seat-1',
+        row: 1,
+        column: 1,
+        label: '1A',
+        type: 'STANDARD',
+        price: 0,
+        isEnabled: true,
+      });
+      expect(mockTxDeleteMany).toHaveBeenCalledWith({ where: { busId: BUS_ID } });
+      expect(mockTxUpdate).toHaveBeenCalledWith({
+        where: { id: BUS_ID },
+        data: {
+          model: 'Updated Model',
+          rows: 1,
+          columns: 2,
+          capacity: 2,
+          seats: {
+            create: [
+              { row: 1, column: 1, label: '1A', type: 'STANDARD', price: 10, isEnabled: true },
+              { row: 1, column: 2, label: '1B', type: 'STANDARD', price: 10, isEnabled: true },
+            ],
+          },
+        },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+      });
+      // Verify direct prisma.bus.update was NOT called (transaction path used instead)
+      expect(prisma.bus.update).not.toHaveBeenCalled();
+    });
+
+    it('should default seat price to 0 and disable BLOCKED seats when updating with seats', async () => {
+      (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        providerId: PROVIDER_ID,
+      });
+
+      const newSeats = [
+        makeSeat({ id: 'seat-a', row: 1, column: 1, label: '1A', type: 'STANDARD', price: 5 }),
+        makeSeat({
+          id: 'seat-b',
+          row: 1,
+          column: 2,
+          label: '1B',
+          type: 'BLOCKED',
+          price: 0,
+          isEnabled: false,
+        }),
+      ];
+      const updatedBus = { ...makeBus(), seats: newSeats };
+
+      const mockTxDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
+      const mockTxUpdate = vi.fn().mockResolvedValue(updatedBus);
+      (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+        (fn: (tx: unknown) => Promise<unknown>) =>
+          fn({ seat: { deleteMany: mockTxDeleteMany }, bus: { update: mockTxUpdate } }),
+      );
+
+      const result = await service.update(BUS_ID, PROVIDER_ID, {
+        seats: [
+          { row: 1, column: 1, label: '1A', type: 'STANDARD' },
+          { row: 1, column: 2, label: '1B', type: 'BLOCKED' },
+        ],
+      });
+
+      expect(result.seats).toHaveLength(2);
+      expect(result.seats[1]).toEqual({
+        id: 'seat-b',
+        row: 1,
+        column: 2,
+        label: '1B',
+        type: 'BLOCKED',
+        price: 0,
+        isEnabled: false,
+      });
+      expect(mockTxUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            seats: {
+              create: [
+                { row: 1, column: 1, label: '1A', type: 'STANDARD', price: 0, isEnabled: true },
+                { row: 1, column: 2, label: '1B', type: 'BLOCKED', price: 0, isEnabled: false },
+              ],
+            },
+          }),
+        }),
+      );
+    });
   });
 
   // ─── delete ────────────────────────────────────────────────────
