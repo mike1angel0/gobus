@@ -194,3 +194,134 @@ Address existing failures that block clean quality gates.
   - Branch coverage 82.89% → 90.12% ✓
   - Function coverage 89.55% → 96.15% ✓
   - Statement coverage 89.88% → 95.38% ✓
+
+---
+
+## QA Batch 1 — Automated Quality Analysis
+
+**Generated**: 2026-03-26
+**Overall coverage**: Stmts 95.38% | Branches 90.12% | Funcs 96.15% | Lines 96.36% (all PASS 90%)
+**Type safety**: Zero `any` — PASS | **JSDoc**: All exports documented — PASS | **Lint**: Zero errors — PASS
+
+### Accessibility Stories
+
+#### US-QA-001: Fix a11y: driver/trips.tsx — inline span status badges
+
+- AC1: Replace inline `<span>` status badges (lines 80-84) with the shared `<Badge>` component using correct variant mapping
+- AC2: Verify screen readers announce badge text with appropriate role
+
+#### US-QA-002: Fix a11y: driver/trip-detail.tsx — inline span status badges
+
+- AC1: Replace inline `<span>` status badges (lines 228-234) with the shared `<Badge>` component
+- AC2: Existing tests still pass after refactor
+
+#### US-QA-003: Fix a11y: provider/schedules.tsx — inline span status badges
+
+- AC1: Replace inline `<span>` status badges (lines 74-90) with the shared `<Badge>` component
+- AC2: Existing tests still pass after refactor
+
+#### US-QA-004: Fix a11y: passenger-list.tsx — CardTitle should be semantic heading
+
+- AC1: Wrap "Passengers" `<CardTitle>` content in an `<h2>` or `<h3>` element (line 187)
+- AC2: Heading level fits page hierarchy (e.g., `<h3>` if page title is `<h1>`)
+
+#### US-QA-005: Fix a11y: provider/routes.tsx — move button aria-labels may be empty
+
+- AC1: Guard move-up / move-down button aria-labels (lines 174, 185) to fall back to `Stop ${index + 1}` when `stop.name` is empty
+- AC2: Add unit test verifying fallback aria-label renders when stop name is blank
+
+### Coverage Stories (files with branch or func coverage < 90%)
+
+#### US-QA-006: Improve coverage — pages/admin/users.tsx
+
+Branches 83.92%, Funcs 87.09%. Uncovered lines: 237, 263, 279, 313-326, 367.
+
+- AC1: Add tests for suspend/unsuspend/unlock error paths and edge cases (confirmation cancel, API failure)
+- AC2: Branch coverage ≥ 90%, function coverage ≥ 90%
+
+#### US-QA-007: Improve coverage — pages/driver/trip-detail.tsx
+
+Branches 79.31%, Funcs 88.57%. Uncovered lines: 100-102, 281-284, 320-321, 408-424.
+
+- AC1: Add tests for geolocation permission denied, GPS posting error, and trip-not-found paths
+- AC2: Branch coverage ≥ 90%
+
+#### US-QA-008: Improve coverage — pages/provider/schedules.tsx
+
+Branches 78.57%. Uncovered lines: 265, 517.
+
+- AC1: Add tests for driver assignment error path and schedule creation edge cases
+- AC2: Branch coverage ≥ 90%
+
+#### US-QA-009: Improve coverage — pages/my-trips.tsx
+
+Funcs 76.92%. Uncovered lines: 228, 238.
+
+- AC1: Add tests for cancel-trip callback and empty upcoming/past trip toggle
+- AC2: Function coverage ≥ 90%
+
+#### US-QA-010: Improve coverage — pages/profile.tsx
+
+Branches 83.33%. Uncovered line: 51.
+
+- AC1: Add test for profile update error mapping branch
+- AC2: Branch coverage ≥ 90%
+
+#### US-QA-011: Improve coverage — contexts/auth-context.tsx
+
+Branches 80.43%. Uncovered lines: 108-109.
+
+- AC1: Add tests for token refresh failure and concurrent auth state transitions
+- AC2: Branch coverage ≥ 90%
+
+#### US-QA-012: Improve coverage — pages/provider/dashboard.tsx
+
+Branches 80.76%, Funcs 94.11%. Uncovered line: 401.
+
+- AC1: Add test for analytics empty-state and error retry branch
+- AC2: Branch coverage ≥ 90%
+
+#### US-QA-013: Improve coverage — pages/provider/fleet.tsx
+
+Stmts 88.23%, Funcs 77.77%. Uncovered lines: 65, 209.
+
+- AC1: Add tests for bus deletion error path and edit dialog cancel
+- AC2: Statement coverage ≥ 90%, function coverage ≥ 90%
+
+#### US-QA-014: Improve coverage — pages/provider/routes.tsx
+
+Branches 87.5%. Uncovered lines: 305-306, 315-316.
+
+- AC1: Add tests for stop reorder edge cases and route creation validation errors
+- AC2: Branch coverage ≥ 90%
+
+#### US-QA-015: Improve coverage — pages/trip/[id].tsx
+
+Branches 81.13%. Uncovered line: 46.
+
+- AC1: Add test for trip-not-found / invalid ID branch
+- AC2: Branch coverage ≥ 90%
+
+#### US-QA-016: Improve coverage — pages/provider/tracking.tsx
+
+Branches 87.5%. Uncovered lines: 54, 69, 181.
+
+- AC1: Add tests for empty schedule list and bus selection edge cases
+- AC2: Branch coverage ≥ 90%
+
+### Complexity Stories
+
+#### US-QA-017: Refactor pages/driver/trip-detail.tsx (619 lines)
+
+- AC1: Extract `useGeolocation` and `useGpsPosting` hooks to `hooks/use-geolocation.ts` — file drops below 500 lines
+- AC2: All existing tests pass without modification
+
+#### US-QA-018: Refactor pages/admin/users.tsx (545 lines)
+
+- AC1: Extract `UserConfirmDialog` and `UserActions` sub-components to `components/admin/` — file drops below 500 lines
+- AC2: All existing tests pass without modification
+
+#### US-QA-019: Refactor pages/provider/schedules.tsx (522 lines)
+
+- AC1: Extract `DriverAssignDialog` to `components/schedules/driver-assign-dialog.tsx` — file drops below 500 lines
+- AC2: All existing tests pass without modification
