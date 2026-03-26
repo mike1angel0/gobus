@@ -419,3 +419,60 @@
 **US-QA-001: Refactor auth.service.ts** — Extracted auth helpers to reduce auth.service.ts from 593 to 490 lines.
 **US-QA-002: Metrics plugin coverage** — Added slow request + production periodic summary tests, metrics.ts at 100% branch coverage.
 **US-QA-003: Error-handler plugin coverage** — Added isPrismaError edge case + validation mapping tests, error-handler.ts at 90.9% branch coverage.
+
+---
+
+### Quality Assurance Batch 2 (Auto-Generated)
+
+**Generated**: 2026-03-26 | **Batch**: 2/3 | **Coverage**: 94.73% stmts / 90.29% branches (target: 90%)
+
+#### QA Summary
+
+| Category | Issues | Stories |
+|----------|--------|---------|
+| API contract compliance | 0 | 0 |
+| Security | 0 | 0 |
+| Type safety | 0 | 0 |
+| Coverage gaps | 6 | 6 |
+| Architecture | 0 | 0 |
+| Lint | 2 | 2 |
+| JSDoc | 0 | 0 |
+| Spec parity | 0 | 0 |
+
+**Total QA stories: 8**
+
+#### Coverage Gap Stories
+
+**US-QA-004**: Add unit tests for ProviderService.getAnalytics
+- AC1: Test getAnalytics with routes, bookings, schedules — verify totalBookings, totalRevenue, averageOccupancy, revenueByRoute computed correctly
+- AC2: Test getAnalytics with zero routes (empty provider) — verify returns zeroed analytics object
+
+**US-QA-005**: Add unit tests for DriverTripService.getPassengers
+- AC1: Test getPassengers happy path — verify returns passenger list with bookingId, passengerName, boardingStop, alightingStop, seatLabels, status
+- AC2: Test getPassengers with wrong driverId — verify throws 404 (ownership enforcement)
+
+**US-QA-006**: Add integration tests for GET /api/v1/tracking (fleet listing)
+- AC1: Test PROVIDER can list active fleet tracking positions
+- AC2: Test non-PROVIDER role gets 403
+
+**US-QA-007**: Add integration tests for POST /api/v1/tracking (driver GPS update)
+- AC1: Test DRIVER can post GPS update
+- AC2: Test non-DRIVER role gets 403
+
+**US-QA-008**: Add integration tests for GET /api/v1/driver/trips/:scheduleId/passengers
+- AC1: Test DRIVER can retrieve passenger list for assigned schedule
+- AC2: Test non-DRIVER role gets 403
+
+**US-QA-009**: Add integration tests for GET /api/v1/provider/analytics
+- AC1: Test PROVIDER gets analytics with correct computed values
+- AC2: Test non-PROVIDER role gets 403
+
+#### Lint Stories
+
+**US-QA-010**: Fix unused import DriverTripPassenger in driver-trips/routes.ts
+- AC1: Remove unused `DriverTripPassenger` import from `apps/api/src/api/driver-trips/routes.ts` line 8
+- AC2: `npm run lint` passes with zero errors
+
+**US-QA-011**: Fix unused variable routeMap in provider.service.ts
+- AC1: Remove or use the unused `routeMap` variable in `apps/api/src/application/services/provider.service.ts` line 148
+- AC2: `npm run lint` passes with zero errors
