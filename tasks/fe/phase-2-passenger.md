@@ -42,20 +42,7 @@
 
 ## Booking Management
 
-### TASK-010: Create my-trips page
-**Description:** Create `src/pages/my-trips.tsx`. Uses `useBookings` hook (paginated). Tab split: Upcoming (CONFIRMED, future tripDate) and Past (COMPLETED or past tripDate). Each booking shows: route name, date, times, seats, price, status badge, delay info. Expandable detail: stop list, live tracking map (if active). Cancel button on upcoming bookings (with confirmation dialog).
-
-**Acceptance Criteria:**
-- [ ] Upcoming/Past tab split
-- [ ] Booking cards with all info
-- [ ] Expandable detail section
-- [ ] Live map for active trips with tracking
-- [ ] Cancel button with confirmation dialog
-- [ ] Cancel calls API and invalidates queries
-- [ ] Pagination (load more or page numbers)
-- [ ] Loading skeleton, empty state ("No trips yet"), error state
-- [ ] Component test
-- [ ] Typecheck passes
+### ~~TASK-010: Create my-trips page~~ ✅
 
 ---
 

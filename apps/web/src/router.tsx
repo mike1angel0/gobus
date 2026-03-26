@@ -15,6 +15,7 @@ const ResetPasswordPage = lazy(() => import('@/pages/auth/reset-password'));
 const ChangePasswordPage = lazy(() => import('@/pages/auth/change-password'));
 const SearchPage = lazy(() => import('@/pages/search'));
 const TripDetailPage = lazy(() => import('@/pages/trip/[id]'));
+const MyTripsPage = lazy(() => import('@/pages/my-trips'));
 const PlaceholderPage = lazy(() => import('@/pages/placeholder'));
 
 /* ---------- Router ---------- */
@@ -52,7 +53,7 @@ export const router = createBrowserRouter([
             element: <AuthGuard />,
             children: [
               { path: '/auth/change-password', element: <ChangePasswordPage /> },
-              { path: '/my-trips', element: <PlaceholderPage /> },
+              { path: '/my-trips', element: <MyTripsPage /> },
 
               /* ---- Provider routes ---- */
               {
