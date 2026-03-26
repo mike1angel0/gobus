@@ -4,7 +4,6 @@ import {
   Plus,
   Trash2,
   MapPin,
-  AlertCircle,
   ArrowUp,
   ArrowDown,
   X,
@@ -14,7 +13,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import {
   Dialog,
   DialogContent,
@@ -53,68 +54,6 @@ interface StopFormEntry {
 /** Creates an empty stop entry with a unique key. */
 function createEmptyStop(key: number): StopFormEntry {
   return { key, name: '', lat: '', lng: '' };
-}
-
-/* ---------- Loading Skeleton ---------- */
-
-/** Skeleton placeholder for the route list while loading. */
-function RouteListSkeleton() {
-  return (
-    <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      aria-busy="true"
-      aria-label="Loading routes"
-    >
-      {Array.from({ length: 6 }, (_, i) => (
-        <Card key={i}>
-          <CardContent className="p-6">
-            <Skeleton className="mb-3 h-6 w-32" />
-            <Skeleton className="mb-2 h-4 w-24" />
-            <Skeleton className="h-4 w-20" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-/* ---------- Error State ---------- */
-
-/** Props for {@link RoutesError}. */
-interface RoutesErrorProps {
-  /** Callback to retry loading. */
-  onRetry: () => void;
-}
-
-/** Error state shown when route list fails to load. */
-function RoutesError({ onRetry }: RoutesErrorProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load routes</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your routes. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
-/* ---------- Empty State ---------- */
-
-/** Empty state shown when no routes exist. */
-function RoutesEmpty() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <RouteIcon className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No routes yet</h2>
-      <p className="max-w-md text-muted-foreground">
-        Create your first route to start scheduling trips.
-      </p>
-    </div>
-  );
 }
 
 /* ---------- Route Card ---------- */
@@ -547,9 +486,21 @@ export default function ProviderRoutesPage() {
         <h2 id="routes-heading" className="sr-only">
           Routes
         </h2>
-        {isLoading && <RouteListSkeleton />}
-        {isError && <RoutesError onRetry={() => routesQuery.refetch()} />}
-        {!isLoading && !isError && routes.length === 0 && <RoutesEmpty />}
+        {isLoading && <CardGridSkeleton label="Loading routes" />}
+        {isError && (
+          <PageError
+            title="Failed to load routes"
+            message="We couldn't load your routes. Please try again."
+            onRetry={() => routesQuery.refetch()}
+          />
+        )}
+        {!isLoading && !isError && routes.length === 0 && (
+          <EmptyState
+            icon={RouteIcon}
+            title="No routes yet"
+            message="Create your first route to start scheduling trips."
+          />
+        )}
         {!isLoading && !isError && routes.length > 0 && (
           <RouteListSection
             routes={routes}

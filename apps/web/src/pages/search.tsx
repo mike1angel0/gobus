@@ -1,113 +1,15 @@
 import { useSearchParams } from 'react-router-dom';
-import { AlertCircle, SearchX } from 'lucide-react';
+import { SearchX } from 'lucide-react';
 import { SearchForm } from '@/components/search/search-form';
 import { TripCard } from '@/components/search/trip-card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { CardListSkeleton } from '@/components/shared/loading-skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import { useSearchTrips } from '@/hooks/use-search';
 import type { components } from '@/api/generated/types';
 
 type SearchResult = components['schemas']['SearchResult'];
 
-/**
- * Renders a single skeleton card mimicking the TripCard layout during loading.
- */
-function TripCardSkeleton() {
-  return (
-    <Card className="p-4">
-      <div className="flex items-start justify-between gap-2">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-6 w-20" />
-      </div>
-      <div className="mt-3 flex items-center gap-3">
-        <div className="space-y-1 text-center">
-          <Skeleton className="h-6 w-14" />
-          <Skeleton className="h-3 w-16" />
-        </div>
-        <div className="flex flex-1 flex-col items-center gap-1">
-          <Skeleton className="h-3 w-12" />
-          <Skeleton className="h-px w-full" />
-          <Skeleton className="h-3 w-24" />
-        </div>
-        <div className="space-y-1 text-center">
-          <Skeleton className="h-6 w-14" />
-          <Skeleton className="h-3 w-16" />
-        </div>
-      </div>
-      <div className="mt-3">
-        <Skeleton className="h-4 w-28" />
-      </div>
-    </Card>
-  );
-}
-
-/**
- * Skeleton list shown while search results are loading.
- */
-function ResultsSkeleton() {
-  return (
-    <div className="space-y-4" aria-busy="true" aria-label="Loading search results">
-      {Array.from({ length: 3 }, (_, i) => (
-        <TripCardSkeleton key={i} />
-      ))}
-    </div>
-  );
-}
-
-/**
- * Empty state shown when search returns no results.
- */
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <SearchX className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No trips found</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t find any trips matching your search. Try different cities or another date.
-      </p>
-    </div>
-  );
-}
-
-/** Props for the {@link ErrorState} component. */
-interface ErrorStateProps {
-  /** Callback invoked when the user clicks the retry button. */
-  onRetry: () => void;
-}
-
-/**
- * Error state shown when the search request fails.
- */
-function ErrorState({ onRetry }: ErrorStateProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Something went wrong</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load search results. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
-/**
- * Prompt shown when no search params are provided.
- */
-function NoParamsState() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <SearchX className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Search for trips</h2>
-      <p className="max-w-md text-muted-foreground">
-        Enter your origin, destination, and travel date above to find available trips.
-      </p>
-    </div>
-  );
-}
 
 /** Props for the {@link ResultsList} component. */
 interface ResultsListProps {
@@ -150,19 +52,37 @@ interface SearchContentProps {
  */
 function SearchContent({ hasParams, isLoading, isError, results, onRetry }: SearchContentProps) {
   if (!hasParams) {
-    return <NoParamsState />;
+    return (
+      <EmptyState
+        icon={SearchX}
+        title="Search for trips"
+        message="Enter your origin, destination, and travel date above to find available trips."
+      />
+    );
   }
 
   if (isLoading) {
-    return <ResultsSkeleton />;
+    return <CardListSkeleton label="Loading search results" />;
   }
 
   if (isError) {
-    return <ErrorState onRetry={onRetry} />;
+    return (
+      <PageError
+        title="Something went wrong"
+        message="We couldn't load search results. Please try again."
+        onRetry={onRetry}
+      />
+    );
   }
 
   if (results.length === 0) {
-    return <EmptyState />;
+    return (
+      <EmptyState
+        icon={SearchX}
+        title="No trips found"
+        message="We couldn't find any trips matching your search. Try different cities or another date."
+      />
+    );
   }
 
   return <ResultsList results={results} />;

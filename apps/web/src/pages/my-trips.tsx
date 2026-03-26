@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
-import { Luggage, AlertCircle } from 'lucide-react';
+import { Luggage } from 'lucide-react';
 
-import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { CardListSkeleton } from '@/components/shared/loading-skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import { BookingCard } from '@/components/booking/booking-card';
 import { useBookings } from '@/hooks/use-bookings';
 import type { components } from '@/api/generated/types';
@@ -49,73 +50,6 @@ function splitBookings(bookings: Booking[]): { upcoming: Booking[]; past: Bookin
   return { upcoming, past };
 }
 
-/** Renders skeleton cards during loading. */
-function BookingSkeleton() {
-  return (
-    <Card className="p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="space-y-2">
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-4 w-32" />
-        </div>
-        <Skeleton className="h-6 w-20" />
-      </div>
-      <div className="mt-3 flex gap-4">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-28" />
-      </div>
-    </Card>
-  );
-}
-
-/** Skeleton list shown during loading. */
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-4" aria-busy="true" aria-label="Loading bookings">
-      {Array.from({ length: 3 }, (_, i) => (
-        <BookingSkeleton key={i} />
-      ))}
-    </div>
-  );
-}
-
-/** Empty state when no bookings exist. */
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <Luggage className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No trips yet</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        You haven&apos;t booked any trips. Search for a trip to get started!
-      </p>
-      <Button variant="outline" asChild>
-        <a href="/search">Search trips</a>
-      </Button>
-    </div>
-  );
-}
-
-/** Props for the {@link ErrorState} component. */
-interface ErrorStateProps {
-  /** Callback invoked when the user clicks retry. */
-  onRetry: () => void;
-}
-
-/** Error state shown when fetching bookings fails. */
-function ErrorState({ onRetry }: ErrorStateProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Something went wrong</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your bookings. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
 
 /** Props for the tab button. */
 interface TabButtonProps {
@@ -210,15 +144,28 @@ function MyTripsContent({
   onLoadMore,
 }: MyTripsContentProps) {
   if (isLoading && upcoming.length === 0 && past.length === 0) {
-    return <LoadingSkeleton />;
+    return <CardListSkeleton label="Loading bookings" />;
   }
 
   if (isError && upcoming.length === 0 && past.length === 0) {
-    return <ErrorState onRetry={onRetry} />;
+    return (
+      <PageError
+        title="Something went wrong"
+        message="We couldn't load your bookings. Please try again."
+        onRetry={onRetry}
+      />
+    );
   }
 
   if (upcoming.length === 0 && past.length === 0) {
-    return <EmptyState />;
+    return (
+      <EmptyState
+        icon={Luggage}
+        title="No trips yet"
+        message="You haven't booked any trips. Search for a trip to get started!"
+        action={{ label: 'Search trips', href: '/search' }}
+      />
+    );
   }
 
   const bookings = activeTab === 'upcoming' ? upcoming : past;

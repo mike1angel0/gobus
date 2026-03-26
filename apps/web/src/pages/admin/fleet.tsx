@@ -1,9 +1,11 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Bus as BusIcon, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bus as BusIcon, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import { useAdminBuses, useToggleSeat } from '@/hooks/use-admin';
 import { useBusDetail } from '@/hooks/use-buses';
 import { SeatGridPreview } from '@/components/fleet/create-bus-dialog';
@@ -39,44 +41,6 @@ function AdminFleetSkeleton() {
   );
 }
 
-/* ---------- Error State ---------- */
-
-/** Props for {@link AdminFleetError}. */
-interface AdminFleetErrorProps {
-  /** Callback to retry loading. */
-  onRetry: () => void;
-}
-
-/** Error state shown when admin bus list fails to load. */
-function AdminFleetError({ onRetry }: AdminFleetErrorProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load fleet</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load the buses. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
-/* ---------- Empty State ---------- */
-
-/** Empty state shown when no buses exist across any provider. */
-function AdminFleetEmpty() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <BusIcon className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No buses found</h2>
-      <p className="max-w-md text-muted-foreground">
-        No buses have been registered by any provider yet.
-      </p>
-    </div>
-  );
-}
 
 /* ---------- Seat Toggle Grid ---------- */
 
@@ -423,8 +387,24 @@ function FleetContent({
   onToggleBus,
 }: FleetContentProps) {
   if (isLoading) return <AdminFleetSkeleton />;
-  if (isError) return <AdminFleetError onRetry={onRetry} />;
-  if (buses.length === 0) return <AdminFleetEmpty />;
+  if (isError) {
+    return (
+      <PageError
+        title="Failed to load fleet"
+        message="We couldn't load the buses. Please try again."
+        onRetry={onRetry}
+      />
+    );
+  }
+  if (buses.length === 0) {
+    return (
+      <EmptyState
+        icon={BusIcon}
+        title="No buses found"
+        message="No buses have been registered by any provider yet."
+      />
+    );
+  }
   return (
     <GroupedBusList buses={buses} expandedBuses={expandedBuses} onToggleBus={onToggleBus} />
   );

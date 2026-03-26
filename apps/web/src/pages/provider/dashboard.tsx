@@ -1,19 +1,11 @@
 import { Link } from 'react-router-dom';
-import {
-  Route,
-  Bus,
-  Users,
-  Calendar,
-  Plus,
-  AlertCircle,
-  Clock,
-  ArrowRight,
-} from 'lucide-react';
+import { Route, Bus, Users, Calendar, Plus, Clock, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { PageError } from '@/components/shared/error-state';
 import { useRoutes } from '@/hooks/use-routes';
 import { useBuses } from '@/hooks/use-buses';
 import { useDrivers } from '@/hooks/use-drivers';
@@ -85,21 +77,15 @@ function ScheduleItem({ schedule }: ScheduleItemProps) {
         <Clock className="h-5 w-5 text-primary" aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium">
-          {format(departure, 'MMM d, yyyy')}
-        </p>
+        <p className="truncate font-medium">{format(departure, 'MMM d, yyyy')}</p>
         <p className="text-sm text-muted-foreground">
           {format(departure, 'HH:mm')} &mdash; {format(arrival, 'HH:mm')}
         </p>
       </div>
       <div className="text-right">
-        <p className="font-semibold">
-          ${schedule.basePrice.toFixed(2)}
-        </p>
+        <p className="font-semibold">${schedule.basePrice.toFixed(2)}</p>
         <p className="text-xs text-muted-foreground">
-          {schedule.tripDate
-            ? format(new Date(schedule.tripDate), 'MMM d')
-            : 'Recurring'}
+          {schedule.tripDate ? format(new Date(schedule.tripDate), 'MMM d') : 'Recurring'}
         </p>
       </div>
     </li>
@@ -148,28 +134,6 @@ function SchedulesSkeleton() {
           </li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-/** Props for the {@link DashboardError} component. */
-interface DashboardErrorProps {
-  /** Callback invoked when the user clicks retry. */
-  onRetry: () => void;
-}
-
-/** Error state shown when fetching dashboard data fails. */
-function DashboardError({ onRetry }: DashboardErrorProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Something went wrong</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your dashboard data. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
     </div>
   );
 }
@@ -337,10 +301,34 @@ function useDashboardData(): DashboardData {
   const queries = [routesQuery, busesQuery, driversQuery, schedulesQuery];
 
   const stats: StatConfig[] = [
-    { icon: <Route className="h-6 w-6 text-primary" aria-hidden="true" />, label: 'Routes', value: routesQuery.data?.meta?.total, isLoading: routesQuery.isLoading, href: '/provider/routes' },
-    { icon: <Bus className="h-6 w-6 text-primary" aria-hidden="true" />, label: 'Buses', value: busesQuery.data?.meta?.total, isLoading: busesQuery.isLoading, href: '/provider/fleet' },
-    { icon: <Users className="h-6 w-6 text-primary" aria-hidden="true" />, label: 'Drivers', value: driversQuery.data?.meta?.total, isLoading: driversQuery.isLoading, href: '/provider/drivers' },
-    { icon: <Calendar className="h-6 w-6 text-primary" aria-hidden="true" />, label: 'Active schedules', value: schedulesQuery.data?.meta?.total, isLoading: schedulesQuery.isLoading, href: '/provider/schedules' },
+    {
+      icon: <Route className="h-6 w-6 text-primary" aria-hidden="true" />,
+      label: 'Routes',
+      value: routesQuery.data?.meta?.total,
+      isLoading: routesQuery.isLoading,
+      href: '/provider/routes',
+    },
+    {
+      icon: <Bus className="h-6 w-6 text-primary" aria-hidden="true" />,
+      label: 'Buses',
+      value: busesQuery.data?.meta?.total,
+      isLoading: busesQuery.isLoading,
+      href: '/provider/fleet',
+    },
+    {
+      icon: <Users className="h-6 w-6 text-primary" aria-hidden="true" />,
+      label: 'Drivers',
+      value: driversQuery.data?.meta?.total,
+      isLoading: driversQuery.isLoading,
+      href: '/provider/drivers',
+    },
+    {
+      icon: <Calendar className="h-6 w-6 text-primary" aria-hidden="true" />,
+      label: 'Active schedules',
+      value: schedulesQuery.data?.meta?.total,
+      isLoading: schedulesQuery.isLoading,
+      href: '/provider/schedules',
+    },
   ];
 
   return {
@@ -348,7 +336,8 @@ function useDashboardData(): DashboardData {
     upcomingSchedules: schedulesQuery.data?.data ?? [],
     showStatsSkeleton: routesQuery.isLoading && !routesQuery.data,
     schedulesLoading: schedulesQuery.isLoading,
-    isFullError: queries.some((q) => q.isError) && !routesQuery.data && !busesQuery.data && !driversQuery.data,
+    isFullError:
+      queries.some((q) => q.isError) && !routesQuery.data && !busesQuery.data && !driversQuery.data,
     retry: () => retryFailed(queries),
   };
 }
@@ -376,7 +365,11 @@ export default function ProviderDashboardPage() {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-8">
         <h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
-        <DashboardError onRetry={dashboard.retry} />
+        <PageError
+          title="Something went wrong"
+          message="We couldn't load your dashboard data. Please try again."
+          onRetry={dashboard.retry}
+        />
       </div>
     );
   }

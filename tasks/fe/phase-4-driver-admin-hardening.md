@@ -37,16 +37,8 @@
 ### TASK-007: Create error boundary components ✅
 - [x] ErrorBoundary class component catches render errors with fallback UI and retry, ErrorFallback generic error display, NotFound 404 page, error boundary in AppLayout wrapping Outlet, 404 catch-all route, 17 tests, typecheck passes
 
-### TASK-008: Add loading states and empty states consistency
-**Description:** Audit all pages for consistent UX patterns: loading (skeleton screens, not spinners), empty state (illustration + message + action CTA), error state (message + retry). Create reusable components: `src/components/shared/loading-skeleton.tsx`, `src/components/shared/empty-state.tsx`, `src/components/shared/error-state.tsx`.
-
-**Acceptance Criteria:**
-- [ ] Reusable skeleton, empty state, error state components
-- [ ] All pages use consistent loading patterns (skeletons)
-- [ ] All pages have empty states with actionable CTAs
-- [ ] All pages have error states with retry
-- [ ] JSDoc on components
-- [ ] Typecheck passes
+### TASK-008: Add loading states and empty states consistency ✅
+- [x] Reusable PageError, EmptyState, CardGridSkeleton, CardListSkeleton components with JSDoc, 22 tests for shared components, all 10 pages updated to use shared components (-363 lines deduplicated), 1076 tests pass, typecheck passes
 
 ---
 

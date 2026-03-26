@@ -1,11 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
 import { format, addDays, subDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Clock, Bus, AlertCircle, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, Bus, Calendar } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CardListSkeleton } from '@/components/shared/loading-skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import { useDriverTrips } from '@/hooks/use-driver-trips';
 import type { components } from '@/api/generated/types';
 
@@ -42,69 +44,6 @@ const STATUS_LABELS: Record<ReturnType<typeof deriveTripStatus>, string> = {
   cancelled: 'Cancelled',
 };
 
-/* ---------- Loading Skeleton ---------- */
-
-/** Skeleton placeholder for the trips list while loading. */
-function TripsListSkeleton() {
-  return (
-    <div className="space-y-4" aria-busy="true" aria-label="Loading trips">
-      {Array.from({ length: 3 }, (_, i) => (
-        <Card key={i}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-5 w-20" />
-            </div>
-            <div className="mt-3 space-y-2">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-4 w-28" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-/* ---------- Error State ---------- */
-
-/** Props for {@link TripsError}. */
-interface TripsErrorProps {
-  /** Callback to retry loading. */
-  onRetry: () => void;
-}
-
-/** Error state shown when trip list fails to load. */
-function TripsError({ onRetry }: TripsErrorProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load trips</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your trips. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
-/* ---------- Empty State ---------- */
-
-/** Empty state shown when no trips are assigned for the selected date. */
-function TripsEmpty() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <Calendar className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No trips assigned for this date</h2>
-      <p className="max-w-md text-muted-foreground">
-        You don&apos;t have any scheduled trips for this day. Use the navigation arrows to check
-        other dates.
-      </p>
-    </div>
-  );
-}
 
 /* ---------- Trip Card ---------- */
 
@@ -183,9 +122,25 @@ interface TripListContentProps {
 
 /** Renders the appropriate content based on query state. */
 function TripListContent({ isLoading, isError, trips, onRetry, onSelect }: TripListContentProps) {
-  if (isLoading) return <TripsListSkeleton />;
-  if (isError) return <TripsError onRetry={onRetry} />;
-  if (trips.length === 0) return <TripsEmpty />;
+  if (isLoading) return <CardListSkeleton label="Loading trips" />;
+  if (isError) {
+    return (
+      <PageError
+        title="Failed to load trips"
+        message="We couldn't load your trips. Please try again."
+        onRetry={onRetry}
+      />
+    );
+  }
+  if (trips.length === 0) {
+    return (
+      <EmptyState
+        icon={Calendar}
+        title="No trips assigned for this date"
+        message="You don't have any scheduled trips for this day. Use the navigation arrows to check other dates."
+      />
+    );
+  }
 
   return (
     <div className="space-y-4" aria-label="Trips list">

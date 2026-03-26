@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import {
-  Calendar,
-  Plus,
-  AlertCircle,
-  UserPlus,
-  UserMinus,
-  XCircle,
-} from 'lucide-react';
+import { Calendar, Plus, UserPlus, UserMinus, XCircle } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import {
   Dialog,
   DialogContent,
@@ -40,68 +35,6 @@ const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 const SELECT_CLASS =
   'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
-/* ---------- Loading Skeleton ---------- */
-
-/** Skeleton placeholder for the schedule list while loading. */
-function ScheduleListSkeleton() {
-  return (
-    <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      aria-busy="true"
-      aria-label="Loading schedules"
-    >
-      {Array.from({ length: 6 }, (_, i) => (
-        <Card key={i}>
-          <CardContent className="p-6">
-            <Skeleton className="mb-3 h-6 w-36" />
-            <Skeleton className="mb-2 h-4 w-28" />
-            <Skeleton className="mb-2 h-4 w-24" />
-            <Skeleton className="h-4 w-20" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-/* ---------- Error State ---------- */
-
-/** Props for {@link SchedulesError}. */
-interface SchedulesErrorProps {
-  /** Callback to retry loading. */
-  onRetry: () => void;
-}
-
-/** Error state shown when schedule list fails to load. */
-function SchedulesError({ onRetry }: SchedulesErrorProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load schedules</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your schedules. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
-/* ---------- Empty State ---------- */
-
-/** Empty state shown when no schedules exist. */
-function SchedulesEmpty() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <Calendar className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No schedules yet</h2>
-      <p className="max-w-md text-muted-foreground">
-        Create your first schedule to start offering trips.
-      </p>
-    </div>
-  );
-}
 
 /* ---------- Schedule Card ---------- */
 
@@ -159,11 +92,30 @@ function ScheduleCard({
         </div>
 
         <dl className="space-y-1 text-sm text-muted-foreground">
-          <div className="flex justify-between"><dt>Bus</dt><dd>{busPlate || schedule.busId}</dd></div>
-          <div className="flex justify-between"><dt>Times</dt><dd>{depTime} → {arrTime}</dd></div>
-          <div className="flex justify-between"><dt>Trip date</dt><dd>{tripDateStr}</dd></div>
-          <div className="flex justify-between"><dt>Price</dt><dd>${schedule.basePrice.toFixed(2)}</dd></div>
-          {daysStr && <div className="flex justify-between"><dt>Days</dt><dd>{daysStr}</dd></div>}
+          <div className="flex justify-between">
+            <dt>Bus</dt>
+            <dd>{busPlate || schedule.busId}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt>Times</dt>
+            <dd>
+              {depTime} → {arrTime}
+            </dd>
+          </div>
+          <div className="flex justify-between">
+            <dt>Trip date</dt>
+            <dd>{tripDateStr}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt>Price</dt>
+            <dd>${schedule.basePrice.toFixed(2)}</dd>
+          </div>
+          {daysStr && (
+            <div className="flex justify-between">
+              <dt>Days</dt>
+              <dd>{daysStr}</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt>Driver</dt>
             <dd>{schedule.driverId ? 'Assigned' : 'Unassigned'}</dd>
@@ -225,9 +177,15 @@ function ScheduleCardActions({
         }
       >
         {schedule.driverId ? (
-          <><UserMinus className="mr-1 h-3 w-3" aria-hidden="true" />Unassign</>
+          <>
+            <UserMinus className="mr-1 h-3 w-3" aria-hidden="true" />
+            Unassign
+          </>
         ) : (
-          <><UserPlus className="mr-1 h-3 w-3" aria-hidden="true" />Assign</>
+          <>
+            <UserPlus className="mr-1 h-3 w-3" aria-hidden="true" />
+            Assign
+          </>
         )}
       </Button>
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -256,7 +214,10 @@ function ScheduleCardActions({
             <Button
               variant="destructive"
               disabled={isCancelling}
-              onClick={() => { onCancel(schedule.id); setConfirmOpen(false); }}
+              onClick={() => {
+                onCancel(schedule.id);
+                setConfirmOpen(false);
+              }}
             >
               {isCancelling ? 'Cancelling…' : 'Cancel schedule'}
             </Button>
@@ -282,7 +243,12 @@ interface DriverAssignDialogProps {
 }
 
 /** Dialog to assign or unassign a driver to a schedule. */
-function DriverAssignDialog({ scheduleId, currentDriverId, drivers, onClose }: DriverAssignDialogProps) {
+function DriverAssignDialog({
+  scheduleId,
+  currentDriverId,
+  drivers,
+  onClose,
+}: DriverAssignDialogProps) {
   const [selectedDriverId, setSelectedDriverId] = useState(currentDriverId ?? '');
   const updateSchedule = useUpdateSchedule();
 
@@ -294,7 +260,12 @@ function DriverAssignDialog({ scheduleId, currentDriverId, drivers, onClose }: D
   }
 
   return (
-    <Dialog open onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
+    <Dialog
+      open
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{currentDriverId ? 'Change driver' : 'Assign driver'}</DialogTitle>
@@ -314,12 +285,16 @@ function DriverAssignDialog({ scheduleId, currentDriverId, drivers, onClose }: D
           >
             <option value="">No driver (unassign)</option>
             {drivers.map((d) => (
-              <option key={d.id} value={d.id}>{d.name}</option>
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
             ))}
           </select>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={updateSchedule.isPending}>
             {updateSchedule.isPending ? 'Saving…' : 'Save'}
           </Button>
@@ -385,9 +360,25 @@ function ScheduleListContent({
   onCancel,
   isCancelling,
 }: ScheduleListContentProps) {
-  if (isLoading) return <ScheduleListSkeleton />;
-  if (isError) return <SchedulesError onRetry={onRetry} />;
-  if (schedules.length === 0) return <SchedulesEmpty />;
+  if (isLoading) return <CardGridSkeleton label="Loading schedules" />;
+  if (isError) {
+    return (
+      <PageError
+        title="Failed to load schedules"
+        message="We couldn't load your schedules. Please try again."
+        onRetry={onRetry}
+      />
+    );
+  }
+  if (schedules.length === 0) {
+    return (
+      <EmptyState
+        icon={Calendar}
+        title="No schedules yet"
+        message="Create your first schedule to start offering trips."
+      />
+    );
+  }
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Schedules list">
@@ -488,9 +479,13 @@ export default function ProviderSchedulesPage() {
       </div>
 
       <ScheduleFilterBar
-        routeId={filters.routeId} busId={filters.busId} status={filters.status}
-        fromDate={filters.fromDate} toDate={filters.toDate}
-        routes={routes} buses={buses}
+        routeId={filters.routeId}
+        busId={filters.busId}
+        status={filters.status}
+        fromDate={filters.fromDate}
+        toDate={filters.toDate}
+        routes={routes}
+        buses={buses}
         onRouteChange={(v) => updateFilter('routeId', v)}
         onBusChange={(v) => updateFilter('busId', v)}
         onStatusChange={(v) => updateFilter('status', v)}
@@ -499,7 +494,9 @@ export default function ProviderSchedulesPage() {
       />
 
       <section aria-labelledby="schedules-heading">
-        <h2 id="schedules-heading" className="sr-only">Schedules</h2>
+        <h2 id="schedules-heading" className="sr-only">
+          Schedules
+        </h2>
         <ScheduleListContent
           isLoading={isLoading}
           isError={isError}

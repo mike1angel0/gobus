@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Bus as BusIcon, Plus, Trash2, AlertCircle, Pencil } from 'lucide-react';
+import { Bus as BusIcon, Plus, Trash2, Pencil } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import {
   Dialog,
   DialogContent,
@@ -20,69 +22,6 @@ import { EditBusDialog } from '@/components/fleet/edit-bus-dialog';
 import type { components } from '@/api/generated/types';
 
 type Bus = components['schemas']['Bus'];
-
-/* ---------- Loading Skeleton ---------- */
-
-/** Skeleton placeholder for the bus list while loading. */
-function FleetListSkeleton() {
-  return (
-    <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      aria-busy="true"
-      aria-label="Loading fleet"
-    >
-      {Array.from({ length: 6 }, (_, i) => (
-        <Card key={i}>
-          <CardContent className="p-6">
-            <Skeleton className="mb-3 h-6 w-28" />
-            <Skeleton className="mb-2 h-4 w-36" />
-            <Skeleton className="mb-2 h-4 w-24" />
-            <Skeleton className="h-12 w-20" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-/* ---------- Error State ---------- */
-
-/** Props for {@link FleetError}. */
-interface FleetErrorProps {
-  /** Callback to retry loading. */
-  onRetry: () => void;
-}
-
-/** Error state shown when bus list fails to load. */
-function FleetError({ onRetry }: FleetErrorProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load fleet</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your buses. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
-/* ---------- Empty State ---------- */
-
-/** Empty state shown when no buses exist. */
-function FleetEmpty() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <BusIcon className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No buses yet</h2>
-      <p className="max-w-md text-muted-foreground">
-        Add your first bus to start creating schedules.
-      </p>
-    </div>
-  );
-}
 
 /* ---------- Bus Card ---------- */
 
@@ -183,7 +122,13 @@ function BusListSection({ buses, onDelete, isDeleting, onEdit }: BusListSectionP
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Fleet list">
       {buses.map((bus) => (
-        <BusCard key={bus.id} bus={bus} onDelete={onDelete} isDeleting={isDeleting} onEdit={onEdit} />
+        <BusCard
+          key={bus.id}
+          bus={bus}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+          onEdit={onEdit}
+        />
       ))}
     </div>
   );
@@ -236,9 +181,21 @@ export default function ProviderFleetPage() {
         <h2 id="fleet-heading" className="sr-only">
           Fleet
         </h2>
-        {isLoading && <FleetListSkeleton />}
-        {isError && <FleetError onRetry={() => busesQuery.refetch()} />}
-        {!isLoading && !isError && buses.length === 0 && <FleetEmpty />}
+        {isLoading && <CardGridSkeleton label="Loading fleet" />}
+        {isError && (
+          <PageError
+            title="Failed to load fleet"
+            message="We couldn't load your buses. Please try again."
+            onRetry={() => busesQuery.refetch()}
+          />
+        )}
+        {!isLoading && !isError && buses.length === 0 && (
+          <EmptyState
+            icon={BusIcon}
+            title="No buses yet"
+            message="Add your first bus to start creating schedules."
+          />
+        )}
         {!isLoading && !isError && buses.length > 0 && (
           <BusListSection
             buses={buses}
@@ -249,9 +206,7 @@ export default function ProviderFleetPage() {
         )}
       </section>
 
-      {editingBusId && (
-        <EditBusDialog busId={editingBusId} onClose={() => setEditingBusId(null)} />
-      )}
+      {editingBusId && <EditBusDialog busId={editingBusId} onClose={() => setEditingBusId(null)} />}
     </div>
   );
 }

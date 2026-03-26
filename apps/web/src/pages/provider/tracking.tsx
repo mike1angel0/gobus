@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { AlertCircle, AlertTriangle, Radio } from 'lucide-react';
+import { AlertTriangle, Radio } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageError } from '@/components/shared/error-state';
 import { LiveMap } from '@/components/maps/live-map';
 import type { BusPosition, MapStop } from '@/components/maps/live-map';
 import { TrackingBusSidebar } from '@/components/tracking/tracking-bus-sidebar';
@@ -117,30 +118,16 @@ function TrackingMapSection({ busPositions, selectedBusId }: TrackingMapSectionP
   );
 }
 
-/* ---------- Error State ---------- */
-
-/** Error state shown when tracking data fails to load. */
-function TrackingError({ onRetry }: { onRetry: () => void }) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load tracking data</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your fleet tracking data. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
 /* ---------- Loading Skeleton ---------- */
 
 /** Skeleton placeholder for the tracking page while loading. */
 function TrackingLoadingSkeleton() {
   return (
-    <div className="flex h-full flex-col lg:flex-row" aria-busy="true" aria-label="Loading tracking">
+    <div
+      className="flex h-full flex-col lg:flex-row"
+      aria-busy="true"
+      aria-label="Loading tracking"
+    >
       <div className="h-64 w-full lg:h-full lg:flex-1">
         <Skeleton className="h-full w-full" />
       </div>
@@ -261,7 +248,13 @@ export default function ProviderTrackingPage() {
   }
 
   if (data.isError) {
-    return <TrackingError onRetry={data.refetch} />;
+    return (
+      <PageError
+        title="Failed to load tracking data"
+        message="We couldn't load your fleet tracking data. Please try again."
+        onRetry={data.refetch}
+      />
+    );
   }
 
   return <TrackingContent data={data} />;

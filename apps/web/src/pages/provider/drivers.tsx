@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Users, Plus, Trash2, AlertCircle, Mail, Phone, Calendar } from 'lucide-react';
+import { Users, Plus, Trash2, Mail, Phone, Calendar } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
+import { PageError } from '@/components/shared/error-state';
+import { EmptyState } from '@/components/shared/empty-state';
 import {
   Dialog,
   DialogContent,
@@ -19,69 +21,6 @@ import { useDrivers, useDeleteDriver } from '@/hooks/use-drivers';
 import type { components } from '@/api/generated/types';
 
 type Driver = components['schemas']['Driver'];
-
-/* ---------- Loading Skeleton ---------- */
-
-/** Skeleton placeholder for the driver list while loading. */
-function DriverListSkeleton() {
-  return (
-    <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      aria-busy="true"
-      aria-label="Loading drivers"
-    >
-      {Array.from({ length: 6 }, (_, i) => (
-        <Card key={i}>
-          <CardContent className="p-6">
-            <Skeleton className="mb-3 h-6 w-32" />
-            <Skeleton className="mb-2 h-4 w-48" />
-            <Skeleton className="mb-2 h-4 w-36" />
-            <Skeleton className="h-4 w-28" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-/* ---------- Error State ---------- */
-
-/** Props for {@link DriversError}. */
-interface DriversErrorProps {
-  /** Callback to retry loading. */
-  onRetry: () => void;
-}
-
-/** Error state shown when driver list fails to load. */
-function DriversError({ onRetry }: DriversErrorProps) {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="alert">
-      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load drivers</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load your drivers. Please try again.
-      </p>
-      <Button onClick={onRetry} variant="outline">
-        Try again
-      </Button>
-    </div>
-  );
-}
-
-/* ---------- Empty State ---------- */
-
-/** Empty state shown when no drivers exist. */
-function DriversEmpty() {
-  return (
-    <div className="flex flex-col items-center py-16 text-center" role="status">
-      <Users className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">No drivers yet</h2>
-      <p className="max-w-md text-muted-foreground">
-        Create your first driver account to assign them to schedules.
-      </p>
-    </div>
-  );
-}
 
 /* ---------- Driver Card ---------- */
 
@@ -142,8 +81,8 @@ function DriverCard({ driver, onDelete, isDeleting }: DriverCardProps) {
                   <>
                     {' '}
                     This driver is assigned to {driver.assignedScheduleCount}{' '}
-                    {driver.assignedScheduleCount === 1 ? 'schedule' : 'schedules'}.
-                    They will be unassigned.
+                    {driver.assignedScheduleCount === 1 ? 'schedule' : 'schedules'}. They will be
+                    unassigned.
                   </>
                 )}
               </DialogDescription>
@@ -187,12 +126,7 @@ function DriverListSection({ drivers, onDelete, isDeleting }: DriverListSectionP
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Drivers list">
       {drivers.map((driver) => (
-        <DriverCard
-          key={driver.id}
-          driver={driver}
-          onDelete={onDelete}
-          isDeleting={isDeleting}
-        />
+        <DriverCard key={driver.id} driver={driver} onDelete={onDelete} isDeleting={isDeleting} />
       ))}
     </div>
   );
@@ -245,9 +179,21 @@ export default function ProviderDriversPage() {
         <h2 id="drivers-heading" className="sr-only">
           Drivers
         </h2>
-        {isLoading && <DriverListSkeleton />}
-        {isError && <DriversError onRetry={() => driversQuery.refetch()} />}
-        {!isLoading && !isError && drivers.length === 0 && <DriversEmpty />}
+        {isLoading && <CardGridSkeleton label="Loading drivers" />}
+        {isError && (
+          <PageError
+            title="Failed to load drivers"
+            message="We couldn't load your drivers. Please try again."
+            onRetry={() => driversQuery.refetch()}
+          />
+        )}
+        {!isLoading && !isError && drivers.length === 0 && (
+          <EmptyState
+            icon={Users}
+            title="No drivers yet"
+            message="Create your first driver account to assign them to schedules."
+          />
+        )}
         {!isLoading && !isError && drivers.length > 0 && (
           <DriverListSection
             drivers={drivers}
