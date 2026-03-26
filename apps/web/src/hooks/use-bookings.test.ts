@@ -324,6 +324,39 @@ describe('useCreateBooking', () => {
       }),
     );
   });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Unprocessable Entity',
+      status: 422,
+    });
+    mockPost.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useCreateBooking(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        scheduleId: 'sched_1',
+        seatLabels: ['1A'],
+        boardingStop: 'Berlin',
+        alightingStop: 'Prague',
+        tripDate: '2026-04-01',
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Booking failed',
+        description: 'Unprocessable Entity',
+        variant: 'destructive',
+      }),
+    );
+  });
 });
 
 describe('useCancelBooking', () => {
@@ -397,6 +430,33 @@ describe('useCancelBooking', () => {
       expect.objectContaining({
         title: 'Cancellation failed',
         description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    });
+    mockDelete.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useCancelBooking(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('bk_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Cancellation failed',
+        description: 'Internal Server Error',
         variant: 'destructive',
       }),
     );

@@ -70,8 +70,22 @@ const mockScheduleDetailResponse = {
     status: 'ACTIVE',
     tripDate: '2026-04-01T00:00:00Z',
     stopTimes: [],
-    route: { id: 'route_1', name: 'Berlin - Prague', providerId: 'prov_1', createdAt: '2026-03-25T10:00:00Z' },
-    bus: { id: 'bus_1', licensePlate: 'AB-123', model: 'Mercedes', capacity: 50, rows: 13, columns: 4, providerId: 'prov_1', createdAt: '2026-03-25T10:00:00Z' },
+    route: {
+      id: 'route_1',
+      name: 'Berlin - Prague',
+      providerId: 'prov_1',
+      createdAt: '2026-03-25T10:00:00Z',
+    },
+    bus: {
+      id: 'bus_1',
+      licensePlate: 'AB-123',
+      model: 'Mercedes',
+      capacity: 50,
+      rows: 13,
+      columns: 4,
+      providerId: 'prov_1',
+      createdAt: '2026-03-25T10:00:00Z',
+    },
     driver: { id: 'driver_1', name: 'John Doe' },
     createdAt: '2026-03-25T10:00:00Z',
   },
@@ -173,8 +187,20 @@ describe('useCreateSchedule', () => {
         basePrice: 25.0,
         tripDate: '2026-04-01T00:00:00Z',
         stopTimes: [
-          { stopName: 'Berlin', arrivalTime: '2026-04-01T08:00:00Z', departureTime: '2026-04-01T08:00:00Z', orderIndex: 0, priceFromStart: 0 },
-          { stopName: 'Prague', arrivalTime: '2026-04-01T12:00:00Z', departureTime: '2026-04-01T12:00:00Z', orderIndex: 1, priceFromStart: 25 },
+          {
+            stopName: 'Berlin',
+            arrivalTime: '2026-04-01T08:00:00Z',
+            departureTime: '2026-04-01T08:00:00Z',
+            orderIndex: 0,
+            priceFromStart: 0,
+          },
+          {
+            stopName: 'Prague',
+            arrivalTime: '2026-04-01T12:00:00Z',
+            departureTime: '2026-04-01T12:00:00Z',
+            orderIndex: 1,
+            priceFromStart: 25,
+          },
         ],
       });
     });
@@ -183,7 +209,7 @@ describe('useCreateSchedule', () => {
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Schedule created' }));
   });
 
-  it('shows error toast on failure', async () => {
+  it('shows error toast with detail on API error', async () => {
     const badRequest = new ApiError({
       type: 'about:blank',
       title: 'Bad Request',
@@ -218,6 +244,71 @@ describe('useCreateSchedule', () => {
       }),
     );
   });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Unprocessable Entity',
+      status: 422,
+    });
+    mockPost.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useCreateSchedule(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        routeId: 'r1',
+        busId: 'b1',
+        departureTime: '2026-04-01T08:00:00Z',
+        arrivalTime: '2026-04-01T12:00:00Z',
+        basePrice: 10,
+        tripDate: '2026-04-01T00:00:00Z',
+        stopTimes: [],
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to create schedule',
+        description: 'Unprocessable Entity',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows fallback message for non-API errors', async () => {
+    mockPost.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useCreateSchedule(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        routeId: 'r1',
+        busId: 'b1',
+        departureTime: '2026-04-01T08:00:00Z',
+        arrivalTime: '2026-04-01T12:00:00Z',
+        basePrice: 10,
+        tripDate: '2026-04-01T00:00:00Z',
+        stopTimes: [],
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to create schedule',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
 });
 
 describe('useUpdateSchedule', () => {
@@ -246,7 +337,7 @@ describe('useUpdateSchedule', () => {
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Schedule updated' }));
   });
 
-  it('shows error toast on update failure', async () => {
+  it('shows error toast on update failure with non-API error', async () => {
     mockPut.mockRejectedValueOnce(new Error('Network failure'));
 
     const { result } = renderHook(() => useUpdateSchedule(), {
@@ -263,6 +354,61 @@ describe('useUpdateSchedule', () => {
       expect.objectContaining({
         title: 'Failed to update schedule',
         description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows API error detail on update failure', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Bad Request',
+      status: 400,
+      detail: 'Invalid driver assignment',
+    });
+    mockPut.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useUpdateSchedule(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({ id: 'sched_1', body: { driverId: 'invalid' } });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to update schedule',
+        description: 'Invalid driver assignment',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    });
+    mockPut.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useUpdateSchedule(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({ id: 'sched_1', body: { driverId: 'driver_2' } });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to update schedule',
+        description: 'Internal Server Error',
         variant: 'destructive',
       }),
     );
@@ -296,7 +442,7 @@ describe('useCancelSchedule', () => {
     );
   });
 
-  it('shows error toast on cancellation failure', async () => {
+  it('shows error toast on cancellation failure with API error', async () => {
     const notFound = new ApiError({
       type: 'about:blank',
       title: 'Not Found',
@@ -319,6 +465,55 @@ describe('useCancelSchedule', () => {
       expect.objectContaining({
         title: 'Failed to cancel schedule',
         description: 'Schedule not found',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows fallback message on cancellation failure with non-API error', async () => {
+    mockDelete.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useCancelSchedule(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('sched_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to cancel schedule',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    });
+    mockDelete.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useCancelSchedule(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('sched_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to cancel schedule',
+        description: 'Internal Server Error',
         variant: 'destructive',
       }),
     );

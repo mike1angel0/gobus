@@ -60,10 +60,7 @@ function errorState() {
 }
 
 /** Creates a mock schedule. */
-function createMockSchedule(
-  id: string,
-  overrides: Record<string, unknown> = {},
-) {
+function createMockSchedule(id: string, overrides: Record<string, unknown> = {}) {
   return {
     id,
     routeId: 'route_1',
@@ -119,15 +116,9 @@ function createMockDriver(id: string, name: string) {
 function setupDefaults() {
   mockCancelSchedule.mockReturnValue(idleMutation());
   mockUpdateSchedule.mockReturnValue(idleMutation());
-  mockRoutes.mockReturnValue(
-    loadedState([createMockRoute('route_1', 'Bucharest — Cluj')]),
-  );
-  mockBuses.mockReturnValue(
-    loadedState([createMockBus('bus_1', 'AB-12-XYZ')]),
-  );
-  mockDrivers.mockReturnValue(
-    loadedState([createMockDriver('driver_1', 'John Doe')]),
-  );
+  mockRoutes.mockReturnValue(loadedState([createMockRoute('route_1', 'Bucharest — Cluj')]));
+  mockBuses.mockReturnValue(loadedState([createMockBus('bus_1', 'AB-12-XYZ')]));
+  mockDrivers.mockReturnValue(loadedState([createMockDriver('driver_1', 'John Doe')]));
   mockRouteDetail.mockReturnValue({
     data: undefined,
     isLoading: false,
@@ -155,10 +146,7 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      expect(screen.getByLabelText('Loading schedules')).toHaveAttribute(
-        'aria-busy',
-        'true',
-      );
+      expect(screen.getByLabelText('Loading schedules')).toHaveAttribute('aria-busy', 'true');
     });
   });
 
@@ -219,9 +207,7 @@ describe('ProviderSchedulesPage', () => {
     });
 
     it('displays schedule times and price', () => {
-      mockSchedules.mockReturnValue(
-        loadedState([createMockSchedule('sched_1')]),
-      );
+      mockSchedules.mockReturnValue(loadedState([createMockSchedule('sched_1')]));
 
       renderWithProviders(<ProviderSchedulesPage />);
 
@@ -305,8 +291,53 @@ describe('ProviderSchedulesPage', () => {
 
       // useSchedules should have been called with the status filter
       const lastCall = mockSchedules.mock.calls[mockSchedules.mock.calls.length - 1];
+      expect(lastCall[0]).toEqual(expect.objectContaining({ status: 'ACTIVE' }));
+    });
+
+    it('passes route and bus filter values to useSchedules hook', async () => {
+      const user = userEvent.setup();
+      mockSchedules.mockReturnValue(loadedState([]));
+
+      renderWithProviders(<ProviderSchedulesPage />);
+
+      await user.selectOptions(screen.getByLabelText('Route'), 'route_1');
+      await user.selectOptions(screen.getByLabelText('Bus'), 'bus_1');
+
+      const lastCall = mockSchedules.mock.calls[mockSchedules.mock.calls.length - 1];
       expect(lastCall[0]).toEqual(
-        expect.objectContaining({ status: 'ACTIVE' }),
+        expect.objectContaining({ routeId: 'route_1', busId: 'bus_1' }),
+      );
+    });
+
+    it('passes date range filters to useSchedules hook', async () => {
+      const user = userEvent.setup();
+      mockSchedules.mockReturnValue(loadedState([]));
+
+      renderWithProviders(<ProviderSchedulesPage />);
+
+      await user.type(screen.getByLabelText('From'), '2026-04-01');
+      await user.type(screen.getByLabelText('To'), '2026-04-30');
+
+      const lastCall = mockSchedules.mock.calls[mockSchedules.mock.calls.length - 1];
+      expect(lastCall[0]).toEqual(
+        expect.objectContaining({ fromDate: '2026-04-01', toDate: '2026-04-30' }),
+      );
+    });
+
+    it('converts empty filter strings to undefined in hook params', () => {
+      mockSchedules.mockReturnValue(loadedState([]));
+
+      renderWithProviders(<ProviderSchedulesPage />);
+
+      const firstCall = mockSchedules.mock.calls[0];
+      expect(firstCall[0]).toEqual(
+        expect.objectContaining({
+          routeId: undefined,
+          busId: undefined,
+          status: undefined,
+          fromDate: undefined,
+          toDate: undefined,
+        }),
       );
     });
   });
@@ -314,9 +345,7 @@ describe('ProviderSchedulesPage', () => {
   describe('cancel schedule', () => {
     it('opens confirmation dialog when cancel button is clicked', async () => {
       const user = userEvent.setup();
-      mockSchedules.mockReturnValue(
-        loadedState([createMockSchedule('sched_1')]),
-      );
+      mockSchedules.mockReturnValue(loadedState([createMockSchedule('sched_1')]));
 
       renderWithProviders(<ProviderSchedulesPage />);
 
@@ -326,9 +355,7 @@ describe('ProviderSchedulesPage', () => {
         }),
       );
 
-      expect(
-        screen.getByRole('heading', { name: 'Cancel schedule' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Cancel schedule' })).toBeInTheDocument();
       expect(
         screen.getByText(/are you sure you want to cancel this schedule/i),
       ).toBeInTheDocument();
@@ -338,9 +365,7 @@ describe('ProviderSchedulesPage', () => {
       const user = userEvent.setup();
       const mutate = vi.fn();
       mockCancelSchedule.mockReturnValue({ mutate, isPending: false });
-      mockSchedules.mockReturnValue(
-        loadedState([createMockSchedule('sched_1')]),
-      );
+      mockSchedules.mockReturnValue(loadedState([createMockSchedule('sched_1')]));
 
       renderWithProviders(<ProviderSchedulesPage />);
 
@@ -349,18 +374,14 @@ describe('ProviderSchedulesPage', () => {
           name: /cancel schedule bucharest/i,
         }),
       );
-      await user.click(
-        screen.getByRole('button', { name: 'Cancel schedule' }),
-      );
+      await user.click(screen.getByRole('button', { name: 'Cancel schedule' }));
 
       expect(mutate).toHaveBeenCalledWith('sched_1');
     });
 
     it('hides cancel button for cancelled schedules', () => {
       mockSchedules.mockReturnValue(
-        loadedState([
-          createMockSchedule('sched_1', { status: 'CANCELLED' }),
-        ]),
+        loadedState([createMockSchedule('sched_1', { status: 'CANCELLED' })]),
       );
 
       renderWithProviders(<ProviderSchedulesPage />);
@@ -381,23 +402,17 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      expect(
-        screen.getByRole('button', { name: /assign driver/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /assign driver/i })).toBeInTheDocument();
     });
 
     it('shows unassign button for schedules with driver', () => {
       mockSchedules.mockReturnValue(
-        loadedState([
-          createMockSchedule('sched_1', { driverId: 'driver_1' }),
-        ]),
+        loadedState([createMockSchedule('sched_1', { driverId: 'driver_1' })]),
       );
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      expect(
-        screen.getByRole('button', { name: /unassign driver/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /unassign driver/i })).toBeInTheDocument();
     });
 
     it('opens driver assignment dialog on assign click', async () => {
@@ -408,9 +423,7 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      await user.click(
-        screen.getByRole('button', { name: /assign driver/i }),
-      );
+      await user.click(screen.getByRole('button', { name: /assign driver/i }));
 
       expect(screen.getByText('Assign driver')).toBeInTheDocument();
       expect(screen.getByLabelText('Driver')).toBeInTheDocument();
@@ -426,9 +439,7 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      await user.click(
-        screen.getByRole('button', { name: /assign driver/i }),
-      );
+      await user.click(screen.getByRole('button', { name: /assign driver/i }));
 
       await user.selectOptions(screen.getByLabelText('Driver'), 'driver_1');
       await user.click(screen.getByRole('button', { name: 'Save' }));
@@ -446,9 +457,7 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      expect(
-        screen.getByRole('button', { name: /create schedule/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /create schedule/i })).toBeInTheDocument();
     });
 
     it('opens create dialog on button click', async () => {
@@ -457,13 +466,9 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      await user.click(
-        screen.getByRole('button', { name: /create schedule/i }),
-      );
+      await user.click(screen.getByRole('button', { name: /create schedule/i }));
 
-      expect(
-        screen.getByRole('heading', { name: 'Create schedule' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Create schedule' })).toBeInTheDocument();
     });
   });
 
@@ -473,9 +478,7 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      expect(
-        screen.getByRole('heading', { level: 1, name: 'Schedules' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1, name: 'Schedules' })).toBeInTheDocument();
     });
 
     it('has search landmark for filter bar', () => {
@@ -487,9 +490,7 @@ describe('ProviderSchedulesPage', () => {
     });
 
     it('has aria-label on schedule list grid', () => {
-      mockSchedules.mockReturnValue(
-        loadedState([createMockSchedule('sched_1')]),
-      );
+      mockSchedules.mockReturnValue(loadedState([createMockSchedule('sched_1')]));
 
       renderWithProviders(<ProviderSchedulesPage />);
 
@@ -497,9 +498,7 @@ describe('ProviderSchedulesPage', () => {
     });
 
     it('cancel button has descriptive aria-label', () => {
-      mockSchedules.mockReturnValue(
-        loadedState([createMockSchedule('sched_1')]),
-      );
+      mockSchedules.mockReturnValue(loadedState([createMockSchedule('sched_1')]));
 
       renderWithProviders(<ProviderSchedulesPage />);
 

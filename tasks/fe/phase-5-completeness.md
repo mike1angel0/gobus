@@ -164,21 +164,21 @@ Wire up all new pages in the router and navbar.
 
 Run all quality gates and fix any issues introduced by Phase 5.
 
-- [ ] `npm run typecheck` — zero errors
-- [ ] `npm run lint` — zero errors (warnings acceptable for known react-hooks/incompatible-library)
-- [ ] `npm run format:check` — passes (run `format:fix` if needed)
-- [ ] `npm run test` — all tests pass
-- [ ] `npm run test:coverage` — meets 90% threshold (statements, branches, functions, lines)
-- [ ] `npm run build` — production build succeeds
-- [ ] `npm run api:check` — all frontend API calls reference valid spec endpoints, coverage improved
-- [ ] Zero `any` types in new code
-- [ ] Zero `console.log` in new code
-- [ ] Zero raw `fetch()` calls — all API calls through typed client
-- [ ] JSDoc on all new exports
-- [ ] All new pages have loading skeletons, error states with retry, empty states
-- [ ] All new forms use Zod schemas matching OpenAPI spec constraints
-- [ ] WCAG 2.1 AA: semantic HTML, aria-labels on interactive elements, keyboard navigable
-- [ ] Verify endpoint coverage: `api:check` should report ≥95% spec endpoint coverage (up from ~87%)
+- [x] `npm run typecheck` — zero errors
+- [x] `npm run lint` — zero errors (warnings acceptable for known react-hooks/incompatible-library)
+- [x] `npm run format:check` — passes (run `format:fix` if needed)
+- [x] `npm run test` — all tests pass (1266 tests, 73 files)
+- [x] `npm run test:coverage` — meets 90% threshold (stmts 95.38%, branches 90.12%, funcs 96.15%, lines 96.36%)
+- [x] `npm run build` — production build succeeds
+- [x] `npm run api:check` — all frontend API calls reference valid spec endpoints, 96.1% coverage
+- [x] Zero `any` types in new code
+- [x] Zero `console.log` in new code
+- [x] Zero raw `fetch()` calls — all API calls through typed client
+- [x] JSDoc on all new exports
+- [x] All new pages have loading skeletons, error states with retry, empty states
+- [x] All new forms use Zod schemas matching OpenAPI spec constraints
+- [x] WCAG 2.1 AA: semantic HTML, aria-labels on interactive elements, keyboard navigable
+- [x] Verify endpoint coverage: `api:check` should report ≥95% spec endpoint coverage (up from ~87%)
 
 ---
 
@@ -188,9 +188,9 @@ Run all quality gates and fix any issues introduced by Phase 5.
 
 Address existing failures that block clean quality gates.
 
-- [ ] Fix `apps/web/src/components/fleet/seat-map-editor.test.tsx` — remove unused `beforeEach` import and `SeatType` type (already fixed, verify committed)
-- [ ] Run `npm run format:fix` in apps/web to fix 28 files with formatting issues
-- [ ] Fix frontend coverage to meet 90% threshold:
-  - Branch coverage 82.89% → needs improvement in provider/routes.tsx, provider/schedules.tsx, driver/trip-detail.tsx, auth-context.tsx (see Phase 4 QA items US-QA-002 through US-QA-007)
-  - Function coverage 89.55% → add tests for uncovered functions in fleet.tsx, trip-detail.tsx
-  - Statement coverage 89.88% → follows from branch/function fixes
+- [x] Fix `apps/web/src/components/fleet/seat-map-editor.test.tsx` — remove unused `beforeEach` import and `SeatType` type (already fixed, verify committed)
+- [x] Run `npm run format:fix` in apps/web to fix 28 files with formatting issues
+- [x] Fix frontend coverage to meet 90% threshold:
+  - Branch coverage 82.89% → 90.12% ✓
+  - Function coverage 89.55% → 96.15% ✓
+  - Statement coverage 89.88% → 95.38% ✓

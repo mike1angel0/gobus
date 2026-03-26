@@ -201,6 +201,36 @@ describe('useCreateRoute', () => {
     );
   });
 
+  it('shows error title when detail is missing', async () => {
+    const badRequest = new ApiError({
+      type: 'about:blank',
+      title: 'Bad Request',
+      status: 400,
+    });
+    mockPost.mockRejectedValueOnce(badRequest);
+
+    const { result } = renderHook(() => useCreateRoute(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        name: 'Test',
+        stops: [{ name: 'Berlin', lat: 52.52, lng: 13.405, orderIndex: 0 }],
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to create route',
+        description: 'Bad Request',
+        variant: 'destructive',
+      }),
+    );
+  });
+
   it('shows fallback message for unknown errors', async () => {
     mockPost.mockRejectedValueOnce(new Error('Network failure'));
 
@@ -255,7 +285,7 @@ describe('useDeleteRoute', () => {
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Route deleted' }));
   });
 
-  it('shows error toast on deletion failure', async () => {
+  it('shows error toast on deletion failure with API error', async () => {
     const notFound = new ApiError({
       type: 'about:blank',
       title: 'Not Found',
@@ -278,6 +308,55 @@ describe('useDeleteRoute', () => {
       expect.objectContaining({
         title: 'Failed to delete route',
         description: 'Route not found',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows error title when detail is missing on delete failure', async () => {
+    const forbidden = new ApiError({
+      type: 'about:blank',
+      title: 'Forbidden',
+      status: 403,
+    });
+    mockDelete.mockRejectedValueOnce(forbidden);
+
+    const { result } = renderHook(() => useDeleteRoute(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('route_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to delete route',
+        description: 'Forbidden',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows fallback message on deletion failure with non-API error', async () => {
+    mockDelete.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useDeleteRoute(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('route_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to delete route',
+        description: 'An unexpected error occurred.',
         variant: 'destructive',
       }),
     );

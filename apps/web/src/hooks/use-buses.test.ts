@@ -72,9 +72,7 @@ const mockBusDetailResponse = {
 };
 
 const mockTemplatesResponse = {
-  data: [
-    { id: 'tmpl_1', name: 'Standard 50-seat', rows: 13, columns: 4, capacity: 50, seats: [] },
-  ],
+  data: [{ id: 'tmpl_1', name: 'Standard 50-seat', rows: 13, columns: 4, capacity: 50, seats: [] }],
 };
 
 describe('useBuses', () => {
@@ -236,6 +234,69 @@ describe('useCreateBus', () => {
       }),
     );
   });
+
+  it('shows fallback message for non-API errors', async () => {
+    mockPost.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useCreateBus(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        licensePlate: 'AB-123',
+        model: 'Mercedes',
+        capacity: 50,
+        rows: 13,
+        columns: 4,
+        seats: [],
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to create bus',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Unprocessable Entity',
+      status: 422,
+    });
+    mockPost.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useCreateBus(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        licensePlate: 'AB-123',
+        model: 'Mercedes',
+        capacity: 50,
+        rows: 13,
+        columns: 4,
+        seats: [],
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to create bus',
+        description: 'Unprocessable Entity',
+        variant: 'destructive',
+      }),
+    );
+  });
 });
 
 describe('useUpdateBus', () => {
@@ -264,7 +325,7 @@ describe('useUpdateBus', () => {
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Bus updated' }));
   });
 
-  it('shows error toast on update failure', async () => {
+  it('shows error toast on update failure with non-API error', async () => {
     mockPut.mockRejectedValueOnce(new Error('Network failure'));
 
     const { result } = renderHook(() => useUpdateBus(), {
@@ -281,6 +342,61 @@ describe('useUpdateBus', () => {
       expect.objectContaining({
         title: 'Failed to update bus',
         description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows API error detail on update failure', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Bad Request',
+      status: 400,
+      detail: 'Invalid model name',
+    });
+    mockPut.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useUpdateBus(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({ id: 'bus_1', body: { model: '' } });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to update bus',
+        description: 'Invalid model name',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    });
+    mockPut.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useUpdateBus(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({ id: 'bus_1', body: { model: 'Volvo' } });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to update bus',
+        description: 'Internal Server Error',
         variant: 'destructive',
       }),
     );
@@ -310,6 +426,83 @@ describe('useDeleteBus', () => {
       params: { path: { id: 'bus_1' } },
     });
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Bus deleted' }));
+  });
+
+  it('shows API error detail on deletion failure', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Conflict',
+      status: 409,
+      detail: 'Bus is assigned to active schedules',
+    });
+    mockDelete.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useDeleteBus(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('bus_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to delete bus',
+        description: 'Bus is assigned to active schedules',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows fallback message on deletion failure with non-API error', async () => {
+    mockDelete.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useDeleteBus(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('bus_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to delete bus',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    });
+    mockDelete.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useDeleteBus(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('bus_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to delete bus',
+        description: 'Internal Server Error',
+        variant: 'destructive',
+      }),
+    );
   });
 });
 

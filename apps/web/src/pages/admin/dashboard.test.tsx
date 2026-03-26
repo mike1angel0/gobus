@@ -111,10 +111,7 @@ describe('AdminDashboardPage', () => {
         'aria-busy',
         'true',
       );
-      expect(screen.getByLabelText('Loading recent activity')).toHaveAttribute(
-        'aria-busy',
-        'true',
-      );
+      expect(screen.getByLabelText('Loading recent activity')).toHaveAttribute('aria-busy', 'true');
     });
   });
 
@@ -288,9 +285,7 @@ describe('AdminDashboardPage', () => {
       expect(
         screen.getByRole('heading', { level: 2, name: 'Recent activity' }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole('heading', { level: 2, name: 'Quick actions' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Quick actions' })).toBeInTheDocument();
     });
 
     it('icons have aria-hidden attribute', () => {
@@ -312,6 +307,48 @@ describe('AdminDashboardPage', () => {
       expect(document.getElementById('stats-heading')).toBeInTheDocument();
       expect(document.getElementById('activity-heading')).toBeInTheDocument();
       expect(document.getElementById('actions-heading')).toBeInTheDocument();
+    });
+  });
+
+  describe('partial states', () => {
+    it('shows individual stat card skeletons when some queries still loading', () => {
+      // Users loaded (both general and provider calls), buses loading
+      mockAdminUsers.mockReturnValue(
+        loadedState([], { total: 10, page: 1, pageSize: 1, totalPages: 1 }),
+      );
+      mockAdminBuses.mockReturnValue(loadingState());
+      mockAuditLogs.mockReturnValue(
+        loadedState([], { total: 0, page: 1, pageSize: 5, totalPages: 1 }),
+      );
+
+      renderWithProviders(<AdminDashboardPage />);
+
+      // Loaded stats should show values (users and providers both get 10 from same mock)
+      expect(screen.getAllByText('10')).toHaveLength(2);
+      // Stats skeleton should not show because usersQuery has data
+      expect(screen.queryByLabelText('Loading dashboard statistics')).not.toBeInTheDocument();
+    });
+
+    it('renders "Unknown user" when audit entry has no userId', () => {
+      const entries = [{ action: 'system.cleanup', createdAt: '2026-03-20T10:00:00Z' }];
+      setupLoadedDashboard(42, 5, 18, entries);
+
+      renderWithProviders(<AdminDashboardPage />);
+
+      expect(screen.getByText('Unknown user')).toBeInTheDocument();
+      expect(screen.getByText('system.cleanup')).toBeInTheDocument();
+    });
+
+    it('does not show full error when some queries have data', () => {
+      mockAdminUsers.mockReturnValue(errorState());
+      mockAdminBuses.mockReturnValue(
+        loadedState([], { total: 10, page: 1, pageSize: 1, totalPages: 1 }),
+      );
+      mockAuditLogs.mockReturnValue(errorState());
+
+      renderWithProviders(<AdminDashboardPage />);
+
+      expect(screen.queryByText('Failed to load dashboard')).not.toBeInTheDocument();
     });
   });
 

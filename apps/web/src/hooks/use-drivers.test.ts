@@ -212,6 +212,37 @@ describe('useCreateDriver', () => {
       }),
     );
   });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Unprocessable Entity',
+      status: 422,
+    });
+    mockPost.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useCreateDriver(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        name: 'John',
+        email: 'john@example.com',
+        password: 'SecurePass1',
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to create driver',
+        description: 'Unprocessable Entity',
+        variant: 'destructive',
+      }),
+    );
+  });
 });
 
 describe('useDeleteDriver', () => {
@@ -262,6 +293,55 @@ describe('useDeleteDriver', () => {
       expect.objectContaining({
         title: 'Failed to delete driver',
         description: 'Driver not found',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    });
+    mockDelete.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useDeleteDriver(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('driver_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to delete driver',
+        description: 'Internal Server Error',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows fallback message for non-API errors', async () => {
+    mockDelete.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useDeleteDriver(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate('driver_1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to delete driver',
+        description: 'An unexpected error occurred.',
         variant: 'destructive',
       }),
     );

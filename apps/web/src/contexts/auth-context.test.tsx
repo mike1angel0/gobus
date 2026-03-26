@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { AuthProvider } from '@/contexts/auth-context';
 import type { User } from '@/contexts/auth-types';
 import { useAuth } from '@/hooks/useAuth';
-import { apiClient, setAccessToken } from '@/api/client';
+import { apiClient, setAccessToken, setOnUnauthorized, setOnForbiddenOrLocked } from '@/api/client';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -37,6 +37,7 @@ vi.mock('@/api/client', () => ({
   apiClient: {
     POST: vi.fn(),
     GET: vi.fn(),
+    PATCH: vi.fn(),
   },
   setAccessToken: vi.fn(),
   getAccessToken: vi.fn(() => null),
@@ -46,7 +47,10 @@ vi.mock('@/api/client', () => ({
 
 const mockPost = vi.mocked(apiClient.POST);
 const mockGet = vi.mocked(apiClient.GET);
+const mockPatch = vi.mocked((apiClient as unknown as { PATCH: typeof apiClient.POST }).PATCH);
 const mockSetAccessToken = vi.mocked(setAccessToken);
+const mockSetOnUnauthorized = vi.mocked(setOnUnauthorized);
+const mockSetOnForbiddenOrLocked = vi.mocked(setOnForbiddenOrLocked);
 
 /** A test user matching the API User schema. */
 const testUser: User = {
@@ -490,6 +494,28 @@ describe('AuthProvider', () => {
       });
     });
 
+    it('immediately refreshes when token expires within margin', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+      await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+      // Login with a token that expires in 30 seconds (within 60s REFRESH_MARGIN_MS)
+      // This means delay = 30s - 60s = -30s <= 0, triggering immediate refresh
+      mockPost
+        .mockResolvedValueOnce(createAuthResponse(testUser, 30) as never) // login
+        .mockResolvedValueOnce(createRefreshResponse(900) as never); // immediate refresh
+
+      await act(async () => {
+        await result.current.login('test@example.com', 'password123');
+      });
+
+      // The immediate refresh should have been triggered without a timer
+      await waitFor(() => {
+        expect(mockPost).toHaveBeenCalledWith('/api/v1/auth/refresh', {
+          body: { refreshToken: 'refresh-token-123' },
+        });
+      });
+    });
+
     it('clears auth when refresh fails during auto-refresh', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
       await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
@@ -511,6 +537,119 @@ describe('AuthProvider', () => {
         expect(result.current.status).toBe('unauthenticated');
       });
     });
+  });
+});
+
+describe('updateProfile', () => {
+  it('updates user state on successful profile update', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+    // Login first
+    mockPost.mockResolvedValueOnce(createAuthResponse() as never);
+    await act(async () => {
+      await result.current.login('test@example.com', 'password123');
+    });
+
+    const updatedUser = { ...testUser, name: 'Updated Name' };
+    mockPatch.mockResolvedValueOnce({ data: { data: updatedUser } } as never);
+
+    await act(async () => {
+      const returned = await result.current.updateProfile({ name: 'Updated Name' });
+      expect(returned).toEqual(updatedUser);
+    });
+
+    expect(result.current.user?.name).toBe('Updated Name');
+  });
+
+  it('throws when profile update returns no data', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+    mockPost.mockResolvedValueOnce(createAuthResponse() as never);
+    await act(async () => {
+      await result.current.login('test@example.com', 'password123');
+    });
+
+    mockPatch.mockResolvedValueOnce({ data: undefined } as never);
+
+    await expect(
+      act(async () => {
+        await result.current.updateProfile({ name: 'New Name' });
+      }),
+    ).rejects.toThrow('Profile update failed: no data returned');
+  });
+});
+
+describe('unauthorized handler', () => {
+  it('registers a 401 handler via setOnUnauthorized', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+    expect(mockSetOnUnauthorized).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it('triggers refresh when 401 handler is called', async () => {
+    // Login first to have a refresh token
+    const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+    mockPost.mockResolvedValueOnce(createAuthResponse() as never);
+    await act(async () => {
+      await result.current.login('test@example.com', 'password123');
+    });
+
+    // Get the 401 handler that was registered
+    const unauthorizedHandler = mockSetOnUnauthorized.mock.calls.at(-1)?.[0];
+    expect(unauthorizedHandler).toBeInstanceOf(Function);
+
+    // Mock the refresh call
+    mockPost.mockResolvedValueOnce(createRefreshResponse() as never);
+
+    // Trigger the 401 handler
+    act(() => {
+      (unauthorizedHandler as () => void)();
+    });
+
+    // Verify refresh was attempted
+    await waitFor(() => {
+      expect(mockPost).toHaveBeenCalledWith('/api/v1/auth/refresh', expect.any(Object));
+    });
+  });
+});
+
+describe('forbidden/locked handler', () => {
+  it('registers a 403/423 handler via setOnForbiddenOrLocked', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+    expect(mockSetOnForbiddenOrLocked).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it('clears auth when 403/423 handler is triggered', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+    // Login first
+    mockPost.mockResolvedValueOnce(createAuthResponse() as never);
+    await act(async () => {
+      await result.current.login('test@example.com', 'password123');
+    });
+    expect(result.current.isAuthenticated).toBe(true);
+
+    // Get the 403/423 handler
+    const forbiddenHandler = mockSetOnForbiddenOrLocked.mock.calls.at(-1)?.[0];
+    expect(forbiddenHandler).toBeInstanceOf(Function);
+
+    // Trigger the handler
+    act(() => {
+      (forbiddenHandler as () => void)();
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe('unauthenticated');
+    });
+    expect(result.current.user).toBeNull();
   });
 });
 

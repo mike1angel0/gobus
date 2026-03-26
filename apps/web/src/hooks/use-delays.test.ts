@@ -89,20 +89,18 @@ describe('useDelays', () => {
   });
 
   it('does not fetch when scheduleId is empty', () => {
-    const { result } = renderHook(
-      () => useDelays({ scheduleId: '', tripDate: '2026-04-01' }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = renderHook(() => useDelays({ scheduleId: '', tripDate: '2026-04-01' }), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current.fetchStatus).toBe('idle');
     expect(mockGet).not.toHaveBeenCalled();
   });
 
   it('does not fetch when tripDate is empty', () => {
-    const { result } = renderHook(
-      () => useDelays({ scheduleId: 'sched_1', tripDate: '' }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = renderHook(() => useDelays({ scheduleId: 'sched_1', tripDate: '' }), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current.fetchStatus).toBe('idle');
     expect(mockGet).not.toHaveBeenCalled();
@@ -218,6 +216,38 @@ describe('useCreateDelay', () => {
       }),
     );
   });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Unprocessable Entity',
+      status: 422,
+    });
+    mockPost.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useCreateDelay(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        scheduleId: 'sched_1',
+        offsetMinutes: 15,
+        reason: 'TRAFFIC',
+        tripDate: '2026-04-01',
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to report delay',
+        description: 'Unprocessable Entity',
+        variant: 'destructive',
+      }),
+    );
+  });
 });
 
 describe('useUpdateDelay', () => {
@@ -227,7 +257,9 @@ describe('useUpdateDelay', () => {
   });
 
   it('updates a delay and shows success toast', async () => {
-    mockPut.mockResolvedValueOnce({ data: { ...mockDelayResponse, data: { ...mockDelayResponse.data, active: false } } });
+    mockPut.mockResolvedValueOnce({
+      data: { ...mockDelayResponse, data: { ...mockDelayResponse.data, active: false } },
+    });
 
     const { result } = renderHook(() => useUpdateDelay(), {
       wrapper: createWrapper(),
@@ -246,7 +278,7 @@ describe('useUpdateDelay', () => {
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Delay updated' }));
   });
 
-  it('shows error toast on update failure', async () => {
+  it('shows error toast on update failure with API error', async () => {
     const badRequest = new ApiError({
       type: 'about:blank',
       title: 'Bad Request',
@@ -269,6 +301,55 @@ describe('useUpdateDelay', () => {
       expect.objectContaining({
         title: 'Failed to update delay',
         description: 'Invalid offset minutes',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('shows fallback message on update failure with non-API error', async () => {
+    mockPut.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useUpdateDelay(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({ id: 'delay_1', body: { offsetMinutes: 10 } });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to update delay',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      }),
+    );
+  });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiError = new ApiError({
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    });
+    mockPut.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useUpdateDelay(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({ id: 'delay_1', body: { offsetMinutes: 10 } });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Failed to update delay',
+        description: 'Internal Server Error',
         variant: 'destructive',
       }),
     );
