@@ -38,18 +38,7 @@
 
 ### ~~TASK-011: Create forgot password and reset password pages~~ ✅
 
-### TASK-012: Create change password page
-**Description:** Create `src/pages/auth/change-password.tsx` (authenticated). Form: current password, new password, confirm new password. Calls `changePassword()`. Shows success toast and stays on page. Wrong current password shows field-level error.
-
-**Acceptance Criteria:**
-- [ ] Requires authentication
-- [ ] Current password field
-- [ ] New password + confirm with strength validation
-- [ ] API error for wrong current password mapped to field
-- [ ] Success toast
-- [ ] Accessible
-- [ ] Component test
-- [ ] Typecheck passes
+### ~~TASK-012: Create change password page~~ ✅
 
 ---
 
