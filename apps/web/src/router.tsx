@@ -16,7 +16,6 @@ const ChangePasswordPage = lazy(() => import('@/pages/auth/change-password'));
 const SearchPage = lazy(() => import('@/pages/search'));
 const TripDetailPage = lazy(() => import('@/pages/trip/[id]'));
 const MyTripsPage = lazy(() => import('@/pages/my-trips'));
-const PlaceholderPage = lazy(() => import('@/pages/placeholder'));
 const ProviderDashboardPage = lazy(() => import('@/pages/provider/dashboard'));
 const ProviderRoutesPage = lazy(() => import('@/pages/provider/routes'));
 const ProviderFleetPage = lazy(() => import('@/pages/provider/fleet'));
@@ -27,6 +26,7 @@ const ProviderProfilePage = lazy(() => import('@/pages/provider/profile'));
 const DriverTripsPage = lazy(() => import('@/pages/driver/trips'));
 const DriverTripDetailPage = lazy(() => import('@/pages/driver/trip-detail'));
 const DriverDelayPage = lazy(() => import('@/pages/driver/delay'));
+const AdminDashboardPage = lazy(() => import('@/pages/admin/dashboard'));
 const AdminFleetPage = lazy(() => import('@/pages/admin/fleet'));
 const ProfilePage = lazy(() => import('@/pages/profile'));
 const NotFoundPage = lazy(() => import('@/components/error/not-found'));
@@ -100,7 +100,7 @@ export const router = createBrowserRouter([
                 path: '/admin',
                 element: <RoleGuard allowedRoles={['ADMIN']} />,
                 children: [
-                  { index: true, element: <PlaceholderPage /> },
+                  { index: true, element: <AdminDashboardPage /> },
                   { path: 'fleet', element: <AdminFleetPage /> },
                 ],
               },

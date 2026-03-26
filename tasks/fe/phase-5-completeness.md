@@ -88,13 +88,13 @@ Create all remaining admin hooks needed for the admin panel.
 
 Replace the placeholder admin index page with a real dashboard.
 
-- [ ] Create `pages/admin/dashboard.tsx` replacing PlaceholderPage at `/admin` index route
-- [ ] Show summary cards: total users (by role), total providers, total buses, total active schedules
-- [ ] Quick action links to Users, Fleet, Audit Logs sub-pages
-- [ ] Loading skeleton, error state with retry
-- [ ] Update router.tsx to use AdminDashboardPage instead of PlaceholderPage
-- [ ] Component tests: render dashboard, stat cards, navigation links, loading/error states
-- [ ] Typecheck passes, lint clean
+- [x] Create `pages/admin/dashboard.tsx` replacing PlaceholderPage at `/admin` index route
+- [x] Show summary cards: total users (by role), total providers, total buses, total active schedules
+- [x] Quick action links to Users, Fleet, Audit Logs sub-pages
+- [x] Loading skeleton, error state with retry
+- [x] Update router.tsx to use AdminDashboardPage instead of PlaceholderPage
+- [x] Component tests: render dashboard, stat cards, navigation links, loading/error states
+- [x] Typecheck passes, lint clean
 
 ### TASK-007: Create admin user management page
 
