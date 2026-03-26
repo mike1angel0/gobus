@@ -54,14 +54,7 @@
 
 ## Quality & Documentation
 
-### TASK-016: Create CLAUDE.md for frontend
-**Description:** Create `apps/web/CLAUDE.md` documenting: tech stack, quick start, project structure, API-first workflow (types generated from spec), patterns (React Query, forms, components), conventions (naming, a11y, JSDoc, zero any), quality gates.
-
-**Acceptance Criteria:**
-- [ ] All sections documented
-- [ ] API-first workflow explained (spec → api:sync → typed client)
-- [ ] Pattern examples for hooks, forms, components
-- [ ] Quality gate commands listed
+### ~~TASK-016: Create CLAUDE.md for frontend~~ ✅
 
 ### TASK-017: Run Phase 1 quality gates
 **Description:** Run and fix all checks.
