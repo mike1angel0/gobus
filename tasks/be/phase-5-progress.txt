@@ -109,3 +109,14 @@
 - Fixed Prettier formatting in 17 files (only whitespace changes, no logic changes)
 - Learnings: `npm run spec:lint` and `npm run spec:bundle` must be run from monorepo root, not apps/api; integration test `GET /auth/me` had a transient 405 failure that resolved on re-run (test ordering flakiness); coverage config (`vitest.coverage.config.ts`) combines unit + integration tests — running `vitest run --coverage` alone uses only unit test config and reports lower numbers
 ---
+
+## Iteration 17 - Fix Validation Rejection Items
+- Fixed `createScheduleRequestSchema.driverId` — added `.min(1)` matching OpenAPI `minLength: 1`
+- Added `maximum` to OpenAPI+Zod: `RevenueByRoute.revenue` (100M), `ProviderAnalytics.totalBookings` (INT_MAX), `ProviderAnalytics.totalRevenue` (100M)
+- Added `minLength: 1` to OpenAPI+Zod: `UserPreferences.language`, `DriverTripPassenger.seatLabels` items
+- Added `.max(30)` to Zod datetime fields: `providerSchema.createdAt/updatedAt`, `userSchema.createdAt/updatedAt`
+- Search `pageSize` already aligned (both spec and Zod use max 50)
+- All 968 tests pass, 66 spec conformance tests pass, lint clean, typecheck clean
+- Learnings: Always verify Zod-to-spec parity for optional string fields (min constraint often missed); response schema numeric fields need explicit upper bounds even if theoretically unbounded
+---
+

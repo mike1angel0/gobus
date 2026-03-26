@@ -108,7 +108,7 @@ export const createScheduleRequestSchema = z
   .object({
     routeId: z.string().min(1).max(30).describe('Route to schedule'),
     busId: z.string().min(1).max(30).describe('Bus to assign'),
-    driverId: z.string().max(30).optional().describe('Driver to assign (optional)'),
+    driverId: z.string().min(1).max(30).optional().describe('Driver to assign (optional)'),
     departureTime: z
       .string()
       .datetime()

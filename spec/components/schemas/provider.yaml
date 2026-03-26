@@ -76,6 +76,7 @@ RevenueByRoute:
       type: number
       format: double
       minimum: 0
+      maximum: 100000000
       description: Total revenue for this route
 
 ProviderAnalytics:
@@ -90,11 +91,13 @@ ProviderAnalytics:
     totalBookings:
       type: integer
       minimum: 0
+      maximum: 2147483647
       description: Total number of confirmed bookings
     totalRevenue:
       type: number
       format: double
       minimum: 0
+      maximum: 100000000
       description: Total revenue from confirmed bookings
     averageOccupancy:
       type: number

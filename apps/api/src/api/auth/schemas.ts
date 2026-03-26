@@ -26,6 +26,7 @@ export const userPreferencesSchema = z
     language: z
       .string()
       .trim()
+      .min(1)
       .max(10)
       .describe('Preferred language code (e.g., en, ro)')
       .optional(),
@@ -56,8 +57,8 @@ export const userSchema = z.object({
   status: z
     .enum(['ACTIVE', 'SUSPENDED', 'LOCKED'])
     .describe('Account status affecting login ability'),
-  createdAt: z.string().datetime().describe('Account creation timestamp'),
-  updatedAt: z.string().datetime().describe('Last update timestamp'),
+  createdAt: z.string().datetime().max(30).describe('Account creation timestamp'),
+  updatedAt: z.string().datetime().max(30).describe('Last update timestamp'),
 });
 
 /** Zod schema for the LoginResponse matching OpenAPI LoginResponse. */

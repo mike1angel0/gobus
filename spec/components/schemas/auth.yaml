@@ -184,6 +184,7 @@ UserPreferences:
   properties:
     language:
       type: string
+      minLength: 1
       maxLength: 10
       description: Preferred language code (e.g., en, ro)
     notifications:

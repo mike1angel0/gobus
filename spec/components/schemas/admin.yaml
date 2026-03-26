@@ -345,6 +345,7 @@ DriverTripPassenger:
       description: Booked seat labels
       items:
         type: string
+        minLength: 1
         maxLength: 10
     status:
       type: string
