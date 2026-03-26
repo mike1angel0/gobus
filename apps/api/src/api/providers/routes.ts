@@ -3,6 +3,8 @@ import fp from 'fastify-plugin';
 
 import { ProviderService } from '@/application/services/provider.service.js';
 import type { ProviderEntity } from '@/domain/providers/provider.entity.js';
+import { AppError } from '@/domain/errors/app-error.js';
+import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { privateNoCache } from '@/api/plugins/cache-control.js';
@@ -42,7 +44,12 @@ async function providerRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/provider/analytics',
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
-      const analytics = await providerService.getAnalytics(request.user.providerId!);
+      const providerId = request.user.providerId;
+      if (!providerId) {
+        throw new AppError(403, ErrorCodes.FORBIDDEN, 'No provider associated with this user');
+      }
+
+      const analytics = await providerService.getAnalytics(providerId);
 
       return { data: analytics };
     },

@@ -10,6 +10,12 @@ const JWT_SECRET = process.env.JWT_SECRET ?? 'test-jwt-secret-do-not-use-in-prod
 const mockUserFindUnique = vi.fn();
 const mockProviderFindUnique = vi.fn();
 
+const mockRouteFindMany = vi.fn();
+const mockBookingAggregate = vi.fn();
+const mockScheduleFindMany = vi.fn();
+const mockBookingGroupBy = vi.fn();
+const mockTransaction = vi.fn();
+
 const mockPrisma = {
   user: {
     findUnique: mockUserFindUnique,
@@ -17,6 +23,7 @@ const mockPrisma = {
   provider: {
     findUnique: mockProviderFindUnique,
   },
+  $transaction: mockTransaction,
 };
 
 vi.mock('@/infrastructure/prisma/client.js', () => ({
@@ -157,6 +164,95 @@ describe('Provider Routes', () => {
 
       expect(response.body.status).toBe(403);
       expect(response.body.code).toBe('FORBIDDEN');
+    });
+  });
+
+  // --- GET /api/v1/provider/analytics ---
+  describe('GET /api/v1/provider/analytics', () => {
+    it('returns 200 with analytics data for authenticated provider', async () => {
+      // Auth plugin: check user status
+      mockUserFindUnique.mockResolvedValueOnce({ id: 'user-1', status: 'ACTIVE' });
+
+      const tx = {
+        route: { findMany: mockRouteFindMany },
+        booking: { aggregate: mockBookingAggregate, groupBy: mockBookingGroupBy },
+        schedule: { findMany: mockScheduleFindMany },
+      };
+      mockTransaction.mockImplementation((fn: (t: unknown) => unknown) => fn(tx));
+      mockRouteFindMany.mockResolvedValueOnce([{ id: 'route-1', name: 'Route A' }]);
+      mockBookingAggregate.mockResolvedValueOnce({
+        _count: { id: 5 },
+        _sum: { totalPrice: 250.5 },
+      });
+      mockScheduleFindMany.mockResolvedValueOnce([
+        { id: 'sched-1', routeId: 'route-1', bus: { capacity: 50 } },
+      ]);
+      // revenueBySchedule groupBy
+      mockBookingGroupBy.mockResolvedValueOnce([
+        { scheduleId: 'sched-1', _sum: { totalPrice: 250.5 } },
+      ]);
+      // occupancy groupBy
+      mockBookingGroupBy.mockResolvedValueOnce([{ scheduleId: 'sched-1', _count: { id: 5 } }]);
+
+      const authHeader = createAuthHeader('user-1', 'PROVIDER', {
+        email: 'provider@test.com',
+        providerId: 'prov-1',
+      });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/provider/analytics')
+        .set('Authorization', authHeader)
+        .expect(200);
+
+      expect(response.body.data.totalBookings).toBe(5);
+      expect(response.body.data.totalRevenue).toBe(250.5);
+      expect(response.body.data.averageOccupancy).toBe(0.1);
+      expect(response.body.data.revenueByRoute).toEqual([
+        { routeId: 'route-1', routeName: 'Route A', revenue: 250.5 },
+      ]);
+    });
+
+    it('returns 403 when PROVIDER user has no providerId', async () => {
+      // Auth plugin: check user status
+      mockUserFindUnique.mockResolvedValueOnce({ id: 'user-5', status: 'ACTIVE' });
+
+      const authHeader = createAuthHeader('user-5', 'PROVIDER', {
+        email: 'provider-no-id@test.com',
+      });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/provider/analytics')
+        .set('Authorization', authHeader)
+        .expect(403);
+
+      expect(response.body.status).toBe(403);
+      expect(response.body.code).toBe('FORBIDDEN');
+      expect(response.body.detail).toBe('No provider associated with this user');
+    });
+
+    it('returns 403 for non-provider role (PASSENGER)', async () => {
+      // Auth plugin: check user status
+      mockUserFindUnique.mockResolvedValueOnce({ id: 'user-6', status: 'ACTIVE' });
+
+      const authHeader = createAuthHeader('user-6', 'PASSENGER', {
+        email: 'passenger@test.com',
+      });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/provider/analytics')
+        .set('Authorization', authHeader)
+        .expect(403);
+
+      expect(response.body.status).toBe(403);
+      expect(response.body.code).toBe('FORBIDDEN');
+    });
+
+    it('returns 401 without authentication', async () => {
+      const response = await supertest(app.server)
+        .get('/api/v1/provider/analytics')
+        .expect(401);
+
+      expect(response.body.status).toBe(401);
     });
   });
 });
