@@ -20,38 +20,13 @@
 
 ### ~~TASK-004: Create TripCard component~~ ✅
 
-### TASK-005: Create search results page
-**Description:** Create `src/pages/search.tsx`. Reads query params (origin, destination, date). Uses `useSearchTrips` hook. Shows: search form (compact, pre-filled), results list with TripCard components, empty state ("No trips found"), loading skeleton, error state with retry.
-
-**Acceptance Criteria:**
-- [ ] Reads query params and fetches results
-- [ ] Loading: skeleton cards (not spinner)
-- [ ] Empty state: illustration + message + modify search CTA
-- [ ] Error state: message + retry button
-- [ ] Results list with TripCard for each result
-- [ ] Auto-refetch on query param changes
-- [ ] Component test (loading, empty, error, results states)
-- [ ] Typecheck passes
+### ~~TASK-005: Create search results page~~ ✅
 
 ---
 
 ## Trip Detail & Seat Selection
 
-### TASK-006: Create SeatMap component
-**Description:** Create `src/components/booking/seat-map.tsx`. Interactive grid layout based on bus rows/columns. Seat states: available (clickable), selected (highlighted), occupied (greyed, not clickable), blocked (X mark), disabled (⊘ mark), premium (gold border). Aisle gap between columns (configurable, default after col 2 for 4-column buses). Click to select/deselect. Legend showing all seat types. Shows seat label, type, and price on hover/focus (tooltip or aria-label).
-
-**Acceptance Criteria:**
-- [ ] Grid renders correctly for any rows/columns configuration
-- [ ] All seat states rendered with distinct visual styles
-- [ ] Click toggles selection (available seats only)
-- [ ] Occupied/blocked/disabled seats not selectable
-- [ ] Selected seats tracked and reported to parent via callback
-- [ ] Aisle gap rendering
-- [ ] Legend component showing all types
-- [ ] Tooltip with seat label + type + price
-- [ ] Accessible: keyboard navigable (arrow keys), aria-label per seat, role="grid"
-- [ ] Component test for all states
-- [ ] Typecheck passes
+### ~~TASK-006: Create SeatMap component~~ ✅
 
 ### TASK-007: Create DelayBadge component
 **Description:** Create `src/components/shared/delay-badge.tsx`. Color-coded: on-time (green "On Time"), minor ≤15min (yellow "Delayed Xmin"), major >15min (red "Delayed Xmin"). Shows reason if provided. Size variants (sm/md).

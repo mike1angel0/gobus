@@ -39,3 +39,22 @@
 - 25 component tests all passing, typecheck clean, lint clean (0 errors)
 - Learnings: Boundary conditions in getSeatLevel matter for tests — 10/50 = 0.2 is exactly at the boundary, use values clearly within range for test assertions. Tests must run from apps/web directory, not monorepo root, for path aliases to resolve.
 ---
+
+## Iteration 5 - TASK-005: Create search results page
+- Created `src/pages/search.tsx` with SearchForm (full mode), skeleton loading, empty state, error state with retry, and results list
+- Created `src/components/ui/skeleton.tsx` (shadcn-style Skeleton component)
+- Updated `src/router.tsx` to use SearchPage instead of PlaceholderPage for `/search`
+- Refactored SearchPage to extract SearchContent component (reduced cyclomatic complexity from 22 to within limits)
+- 15 component tests all passing, typecheck clean, lint clean (0 new warnings)
+- Learnings: Extracting conditional rendering branches into a single state-machine component (SearchContent with early returns) effectively reduces cyclomatic complexity while keeping the code readable
+---
+
+## Iteration 6 - TASK-006: Create SeatMap component
+- Created `src/components/booking/seat-map.tsx` with interactive grid layout, all seat states, keyboard navigation, tooltips, and legend
+- Created `src/components/ui/tooltip.tsx` (shadcn Tooltip using @radix-ui/react-tooltip)
+- Seat states derived from API data: available, selected, occupied, blocked (✕), disabled (⊘), premium (gold ring)
+- Grid supports any rows/columns configuration with configurable aisle gap
+- Keyboard navigation with arrow keys, Enter/Space to select, proper focus management via data-row/data-col attributes
+- 27 component tests all passing, typecheck clean, lint clean (0 new warnings)
+- Learnings: Radix Tooltip needs TooltipProvider wrapper. Empty grid cells with aria-hidden="true" are not queryable via getByRole in RTL. Seat state derivation order matters: BLOCKED type check must come before isBooked check.
+---
