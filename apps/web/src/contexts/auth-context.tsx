@@ -11,6 +11,7 @@ import {
   storeRefreshToken,
   type AuthContextValue,
   type AuthStatus,
+  type ProfileUpdate,
   type RegisterData,
   type User,
 } from '@/contexts/auth-types';
@@ -194,6 +195,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
   }, []);
 
+  /** Update the current user's profile via PATCH /api/v1/auth/me. */
+  const updateProfile = useCallback(
+    async (profileData: ProfileUpdate): Promise<User> => {
+      const { data } = await apiClient.PATCH('/api/v1/auth/me', {
+        body: profileData,
+      });
+
+      if (!data) {
+        throw new Error('Profile update failed: no data returned');
+      }
+
+      setUser(data.data);
+      return data.data;
+    },
+    [],
+  );
+
   // Register 401 handler: attempt refresh, if that fails, clear auth
   useEffect(() => {
     setOnUnauthorized(() => {
@@ -294,8 +312,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       changePassword,
       forgotPassword,
       resetPassword,
+      updateProfile,
     }),
-    [user, status, login, register, logout, changePassword, forgotPassword, resetPassword],
+    [
+      user,
+      status,
+      login,
+      register,
+      logout,
+      changePassword,
+      forgotPassword,
+      resetPassword,
+      updateProfile,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

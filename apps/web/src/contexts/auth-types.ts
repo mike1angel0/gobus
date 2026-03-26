@@ -10,6 +10,9 @@ export type RegisterData = components['schemas']['RegisterRequest'];
 /** Possible auth states: loading, authenticated, or unauthenticated. */
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
+/** Profile update payload matching the OpenAPI `UserUpdate` schema. */
+export type ProfileUpdate = components['schemas']['UserUpdate'];
+
 /** Auth context value exposed to consumers via {@link useAuth}. */
 export interface AuthContextValue {
   /** Current authenticated user, or `null` if not logged in. */
@@ -32,6 +35,8 @@ export interface AuthContextValue {
   forgotPassword: (email: string) => Promise<void>;
   /** Reset password using a token from email. */
   resetPassword: (token: string, newPassword: string) => Promise<void>;
+  /** Update the current user's profile (name, phone, avatarUrl). */
+  updateProfile: (data: ProfileUpdate) => Promise<User>;
 }
 
 /**

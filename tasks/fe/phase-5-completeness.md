@@ -12,15 +12,15 @@
 
 Implement a `/profile` page accessible to all authenticated users for viewing and editing their profile.
 
-- [ ] Create `pages/profile.tsx` with read-only display of current user info (name, email, phone, role, avatar, member since)
-- [ ] Add edit mode with React Hook Form + Zod schema matching `UserUpdate` spec (name: max 100, phone: max 20, avatarUrl: uri max 2048)
-- [ ] Call `PATCH /api/v1/auth/me` on submit, update auth context user state on success
-- [ ] Show toast on success/failure, map field errors from RFC 9457 to form fields
-- [ ] Loading skeleton, error state with retry
-- [ ] Add "Profile" link to navbar for all authenticated users (all roles)
-- [ ] Add `/profile` route in router.tsx inside AuthGuard
-- [ ] Component tests: render profile, edit mode toggle, form validation, successful update, API error handling, field error mapping
-- [ ] Typecheck passes, lint clean
+- [x] Create `pages/profile.tsx` with read-only display of current user info (name, email, phone, role, avatar, member since)
+- [x] Add edit mode with React Hook Form + Zod schema matching `UserUpdate` spec (name: max 100, phone: max 20, avatarUrl: uri max 2048)
+- [x] Call `PATCH /api/v1/auth/me` on submit, update auth context user state on success
+- [x] Show toast on success/failure, map field errors from RFC 9457 to form fields
+- [x] Loading skeleton, error state with retry
+- [x] Add "Profile" link to navbar for all authenticated users (all roles)
+- [x] Add `/profile` route in router.tsx inside AuthGuard
+- [x] Component tests: render profile, edit mode toggle, form validation, successful update, API error handling, field error mapping
+- [x] Typecheck passes, lint clean
 
 ---
 

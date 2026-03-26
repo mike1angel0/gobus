@@ -21,6 +21,7 @@ const baseAuth: AuthContextValue = {
   changePassword: vi.fn(),
   forgotPassword: vi.fn(),
   resetPassword: vi.fn(),
+  updateProfile: vi.fn(),
 };
 
 function renderWithAuth(authValue: Partial<AuthContextValue>, initialEntry = '/protected') {

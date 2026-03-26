@@ -1,0 +1,10 @@
+## Iteration 1 - TASK-001: Create user profile page
+- Implemented profile page with read-only and edit modes
+- Added `updateProfile` to AuthContext (PATCH /api/v1/auth/me) to update user state on profile save
+- Created Zod schema matching OpenAPI UserUpdate constraints (name: max 100, phone: max 20, avatarUrl: uri max 2048)
+- Refactored into 3 components (ProfilePage, ProfileEditForm, ProfileReadView) to stay under complexity limit
+- Updated getLinksForRole to support empty roles array (visible to all authenticated users)
+- Added /profile route in AuthGuard and Profile link in navbar
+- 18 component tests covering render, edit toggle, validation, API errors, field error mapping
+- Learnings: ESLint complexity rule triggers at 25, extracting sub-components is the fix. AuthContextValue changes require updating all test files that mock it.
+---

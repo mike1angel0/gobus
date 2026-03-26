@@ -27,6 +27,7 @@ const DriverTripsPage = lazy(() => import('@/pages/driver/trips'));
 const DriverTripDetailPage = lazy(() => import('@/pages/driver/trip-detail'));
 const DriverDelayPage = lazy(() => import('@/pages/driver/delay'));
 const AdminFleetPage = lazy(() => import('@/pages/admin/fleet'));
+const ProfilePage = lazy(() => import('@/pages/profile'));
 const NotFoundPage = lazy(() => import('@/components/error/not-found'));
 
 /* ---------- Router ---------- */
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
             element: <AuthGuard />,
             children: [
               { path: '/auth/change-password', element: <ChangePasswordPage /> },
+              { path: '/profile', element: <ProfilePage /> },
               { path: '/my-trips', element: <MyTripsPage /> },
 
               /* ---- Provider routes ---- */

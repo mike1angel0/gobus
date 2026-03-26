@@ -26,6 +26,7 @@ export const AUTH_NAV_LINKS: NavLink[] = [
   { label: 'Trips', href: '/driver', roles: ['DRIVER'] },
   { label: 'History', href: '/driver/trip', roles: ['DRIVER'] },
   { label: 'Fleet', href: '/admin/fleet', roles: ['ADMIN'] },
+  { label: 'Profile', href: '/profile', roles: [] },
 ];
 
 /** Public links shown to unauthenticated users. */
@@ -41,5 +42,7 @@ export const PUBLIC_NAV_LINKS: NavLink[] = [
  * @returns Navigation links visible to the given role.
  */
 export function getLinksForRole(role: Role): NavLink[] {
-  return AUTH_NAV_LINKS.filter((link) => link.roles.includes(role));
+  return AUTH_NAV_LINKS.filter(
+    (link) => link.roles.length === 0 || link.roles.includes(role),
+  );
 }
