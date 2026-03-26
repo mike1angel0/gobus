@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import compress from '@fastify/compress';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import swagger from '@fastify/swagger';
@@ -97,8 +98,16 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
     exposedHeaders: ['X-Request-Id'],
   });
 
-  // Security headers (disabled in test to avoid noise in integration tests)
+  // Response compression (disabled in test to avoid interference with integration tests)
   const isTest = process.env.NODE_ENV === 'test';
+  if (!isTest) {
+    await app.register(compress, {
+      threshold: 1024, // Only compress responses > 1KB
+      encodings: ['br', 'gzip', 'deflate'], // Prefer Brotli, then gzip
+    });
+  }
+
+  // Security headers (disabled in test to avoid noise in integration tests)
   if (!isTest) {
     await app.register(helmet, {
       contentSecurityPolicy: {

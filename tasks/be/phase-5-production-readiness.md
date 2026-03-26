@@ -36,15 +36,7 @@
 
 **TASK-010: Remove hardcoded secrets from docker-compose.yml** — Replaced hardcoded POSTGRES_PASSWORD, JWT_SECRET, JWT_REFRESH_SECRET with `${VAR?error}` syntax requiring explicit env vars. DATABASE_URL now references POSTGRES_PASSWORD variable. Created root `.env.example` documenting all required and optional docker-compose variables.
 
-### TASK-011: Add response compression
-**Description:** No `@fastify/compress` plugin registered. JSON API responses are sent uncompressed, wasting bandwidth.
-
-**Acceptance Criteria:**
-- [ ] `@fastify/compress` installed and registered in `app.ts`
-- [ ] Gzip compression enabled for responses > 1KB
-- [ ] Brotli preferred when client supports it
-- [ ] Disabled in test environment (like other middleware)
-- [ ] Typecheck passes
+**TASK-011: Add response compression** — Installed `@fastify/compress` and registered in `app.ts` with 1KB threshold, Brotli preferred, gzip fallback. Disabled in test environment. 2 unit tests.
 
 ### TASK-012: Add cache headers to remaining endpoints
 **Description:** Cache-Control headers are only set on search and tracking endpoints. All other authenticated CRUD endpoints (providers, buses, routes, schedules, drivers, bookings, delays, admin) lack cache directives.
