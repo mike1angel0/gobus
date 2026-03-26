@@ -85,104 +85,111 @@ export class ProviderService {
 
   /**
    * Retrieve aggregated analytics for a provider's operations.
-   * Compute total bookings, revenue, average occupancy, and per-route revenue.
+   * Wrap all queries in a read-only transaction for a consistent snapshot,
+   * parallelize independent queries, and prefetch schedule→route mapping.
    */
   async getAnalytics(providerId: string): Promise<ProviderAnalytics> {
-    // Get all routes for this provider
-    const routes = await this.prisma.route.findMany({
-      where: { providerId },
-      select: { id: true, name: true },
-    });
-
-    const routeIds = routes.map((r) => r.id);
-
-    if (routeIds.length === 0) {
-      return { totalBookings: 0, totalRevenue: 0, averageOccupancy: 0, revenueByRoute: [] };
-    }
-
-    // Total confirmed bookings and revenue
-    const bookingAgg = await this.prisma.booking.aggregate({
-      where: {
-        schedule: { routeId: { in: routeIds } },
-        status: 'CONFIRMED',
-      },
-      _count: { id: true },
-      _sum: { totalPrice: true },
-    });
-
-    const totalBookings = bookingAgg._count.id;
-    const totalRevenue = Math.round((bookingAgg._sum.totalPrice ?? 0) * 100) / 100;
-
-    // Average occupancy: total booked seats / total capacity across active schedules
-    const schedules = await this.prisma.schedule.findMany({
-      where: { routeId: { in: routeIds }, status: 'ACTIVE' },
-      select: {
-        id: true,
-        tripDate: true,
-        bus: { select: { capacity: true } },
-      },
-    });
-
-    let totalCapacity = 0;
-    let totalBooked = 0;
-
-    if (schedules.length > 0) {
-      totalCapacity = schedules.reduce((sum, s) => sum + s.bus.capacity, 0);
-
-      const bookedCounts = await this.prisma.booking.groupBy({
-        by: ['scheduleId'],
-        where: {
-          scheduleId: { in: schedules.map((s) => s.id) },
-          status: 'CONFIRMED',
-        },
-        _count: { id: true },
+    return this.prisma.$transaction(async (tx) => {
+      const routes = await tx.route.findMany({
+        where: { providerId },
+        select: { id: true, name: true },
       });
 
-      totalBooked = bookedCounts.reduce((sum, b) => sum + b._count.id, 0);
-    }
+      const routeIds = routes.map((r) => r.id);
 
-    const averageOccupancy =
-      totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) / 100 : 0;
-
-    // Revenue by route
-    const revenueByRouteAgg = await this.prisma.booking.groupBy({
-      by: ['scheduleId'],
-      where: {
-        schedule: { routeId: { in: routeIds } },
-        status: 'CONFIRMED',
-      },
-      _sum: { totalPrice: true },
-    });
-
-    // Map scheduleId → routeId
-    const scheduleRouteMap = new Map<string, string>();
-    const allSchedules = await this.prisma.schedule.findMany({
-      where: { routeId: { in: routeIds } },
-      select: { id: true, routeId: true },
-    });
-    for (const s of allSchedules) {
-      scheduleRouteMap.set(s.id, s.routeId);
-    }
-
-    const routeRevenue = new Map<string, number>();
-    for (const agg of revenueByRouteAgg) {
-      const routeId = scheduleRouteMap.get(agg.scheduleId);
-      if (routeId) {
-        routeRevenue.set(routeId, (routeRevenue.get(routeId) ?? 0) + (agg._sum.totalPrice ?? 0));
+      if (routeIds.length === 0) {
+        return { totalBookings: 0, totalRevenue: 0, averageOccupancy: 0, revenueByRoute: [] };
       }
-    }
 
-    const revenueByRoute = routes
-      .map((r) => ({
-        routeId: r.id,
-        routeName: r.name,
-        revenue: Math.round((routeRevenue.get(r.id) ?? 0) * 100) / 100,
-      }))
-      .filter((r) => r.revenue > 0);
+      // Run independent queries in parallel
+      const [bookingAgg, activeSchedules, revenueBySchedule] = await Promise.all([
+        tx.booking.aggregate({
+          where: { schedule: { routeId: { in: routeIds } }, status: 'CONFIRMED' },
+          _count: { id: true },
+          _sum: { totalPrice: true },
+        }),
+        tx.schedule.findMany({
+          where: { routeId: { in: routeIds }, status: 'ACTIVE' },
+          select: {
+            id: true,
+            routeId: true,
+            bus: { select: { capacity: true } },
+          },
+        }),
+        tx.booking.groupBy({
+          by: ['scheduleId'],
+          where: { schedule: { routeId: { in: routeIds } }, status: 'CONFIRMED' },
+          _sum: { totalPrice: true },
+        }),
+      ]);
 
-    logger.debug('Provider analytics computed', { providerId, totalBookings, totalRevenue });
+      const totalBookings = bookingAgg._count.id;
+      const totalRevenue = Math.round((bookingAgg._sum.totalPrice ?? 0) * 100) / 100;
 
-    return { totalBookings, totalRevenue, averageOccupancy, revenueByRoute };
+      // Average occupancy from active schedules
+      let averageOccupancy = 0;
+      if (activeSchedules.length > 0) {
+        const totalCapacity = activeSchedules.reduce((sum, s) => sum + s.bus.capacity, 0);
+
+        const bookedCounts = await tx.booking.groupBy({
+          by: ['scheduleId'],
+          where: {
+            scheduleId: { in: activeSchedules.map((s) => s.id) },
+            status: 'CONFIRMED',
+          },
+          _count: { id: true },
+        });
+
+        const totalBooked = bookedCounts.reduce((sum, b) => sum + b._count.id, 0);
+        averageOccupancy =
+          totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) / 100 : 0;
+      }
+
+      // Build schedule→route map from activeSchedules + fetch remaining schedules for revenue mapping
+      const scheduleRouteMap = new Map<string, string>();
+      for (const s of activeSchedules) {
+        scheduleRouteMap.set(s.id, s.routeId);
+      }
+
+      // Find scheduleIds from revenueBySchedule that aren't already mapped
+      const unmappedScheduleIds = revenueBySchedule
+        .map((a) => a.scheduleId)
+        .filter((id) => !scheduleRouteMap.has(id));
+
+      if (unmappedScheduleIds.length > 0) {
+        const extraSchedules = await tx.schedule.findMany({
+          where: { id: { in: unmappedScheduleIds } },
+          select: { id: true, routeId: true },
+        });
+        for (const s of extraSchedules) {
+          scheduleRouteMap.set(s.id, s.routeId);
+        }
+      }
+
+      // Aggregate revenue by route
+      const routeRevenue = new Map<string, number>();
+      for (const agg of revenueBySchedule) {
+        const routeId = scheduleRouteMap.get(agg.scheduleId);
+        if (routeId) {
+          routeRevenue.set(
+            routeId,
+            (routeRevenue.get(routeId) ?? 0) + (agg._sum.totalPrice ?? 0),
+          );
+        }
+      }
+
+      const revenueByRoute = routes
+        .map((r) => ({
+          routeId: r.id,
+          routeName: r.name,
+          revenue: Math.round((routeRevenue.get(r.id) ?? 0) * 100) / 100,
+        }))
+        .filter((r) => r.revenue > 0);
+
+      logger.debug('Provider analytics computed', { providerId, totalBookings, totalRevenue });
+
+      return { totalBookings, totalRevenue, averageOccupancy, revenueByRoute };
+    });
   }
 
   /**

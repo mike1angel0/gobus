@@ -17,3 +17,10 @@
 - Only fetches full schedule data (with includes) for the paginated subset of IDs
 - Learnings: Prisma `$queryRaw` with tagged template literals auto-parameterizes values (safe from SQL injection); BigInt returned by COUNT needs `Number()` conversion; mock `$queryRaw` as `vi.fn()` — Prisma calls it with a Sql object from the tagged template; integration tests use separate vitest config (`vitest.integration.config.ts`)
 ---
+
+## Iteration 4 - TASK-004: Fix provider analytics sequential queries
+- Wrapped all analytics queries in `$transaction` for consistent snapshot
+- Parallelized 3 independent queries (booking aggregate, active schedules, revenue groupBy) with `Promise.all`
+- Reused active schedule data for schedule→route mapping instead of fetching all schedules separately; only fetches unmapped schedules when revenue exists on non-active schedules
+- Learnings: Mock Prisma `$transaction` with `vi.fn((fn) => fn(tx))` pattern — pass the mock tx object into the callback; expose `_tx` on the mock prisma for test access; use `mockResolvedValueOnce` chaining for groupBy that's called multiple times with different args
+---

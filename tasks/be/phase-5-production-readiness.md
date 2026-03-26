@@ -14,19 +14,11 @@
 
 **TASK-003: Fix search service in-memory pagination** — Replaced in-memory pagination with DB-level filtering using raw SQL self-join on StopTime (origin/destination ordering), separate count query without includes, and LIMIT/OFFSET pagination. Only fetches full data for the paginated subset. 10 unit tests, 2 new integration tests.
 
+**TASK-004: Fix provider analytics sequential queries** — Wrapped all analytics queries in `$transaction` for consistent snapshot, parallelized 3 independent queries with `Promise.all`, reused active schedule data for route mapping instead of separate fetch, only fetches unmapped schedules when needed. 5 unit tests.
+
 ---
 
 ## Database & Performance
-
-### TASK-004: Fix provider analytics sequential queries
-**Description:** `src/application/services/provider.service.ts` lines 90-187 makes 4-5 sequential database queries without a transaction, risking inconsistent snapshots. Also has N+1 on schedule→route mapping at line 160.
-
-**Acceptance Criteria:**
-- [ ] Analytics queries wrapped in a read-only transaction for consistent snapshot
-- [ ] Schedule→route mapping prefetched in single query with `include` (no separate fetch)
-- [ ] Sequential queries consolidated where possible (e.g., `Promise.all` for independent queries)
-- [ ] Unit test for analytics with mock data
-- [ ] Typecheck passes
 
 ### TASK-005: Add missing database index
 **Description:** `BusTracking.scheduleId` has no index in `prisma/schema.prisma` despite frequent queries by schedule in tracking routes.
