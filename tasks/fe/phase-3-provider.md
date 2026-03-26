@@ -66,32 +66,10 @@ All use typed API client, proper cache invalidation, toast notifications on muta
 
 ---
 
-## Fleet Management
+## Completed Tasks
 
-### TASK-004: Create fleet management page
-**Description:** Create `src/pages/provider/fleet.tsx`. Bus list with cards showing: license plate, model, capacity, seat configuration visual. Create bus form: select template OR manual config (rows, columns, license plate, model). Edit bus form with seat map editor. Delete with confirmation.
-
-**Acceptance Criteria:**
-- [x] Bus list with visual cards
-- [x] Create dialog: template selector + manual override
-- [x] Bus templates shown as visual cards with seat grid preview
-- [ ] Edit mode shows full seat map editor (see TASK-005)
-- [x] Delete with confirmation (warn if schedules reference bus)
-- [x] Component test
-- [x] Typecheck passes
-
-### TASK-005: Create seat map editor component
-**Description:** Create `src/components/fleet/seat-map-editor.tsx`. Extends the SeatMap component with edit capabilities: click seat to cycle type (STANDARD → PREMIUM → DISABLED_ACCESSIBLE → BLOCKED → STANDARD), right-click or long-press for type menu. Shows seat count summary. Save button commits changes. Used in fleet page for bus creation and editing.
-
-**Acceptance Criteria:**
-- [ ] Click cycles seat type
-- [ ] Context menu or type selector for direct type selection
-- [ ] Visual distinction for each type (colors, icons)
-- [ ] Seat count summary (X standard, Y premium, Z accessible, W blocked)
-- [ ] Save triggers bus update mutation
-- [ ] Keyboard accessible (Enter to cycle, menu for type selection)
-- [ ] Component test
-- [ ] Typecheck passes
+- **TASK-004**: Fleet management page — bus list, create dialog (template + manual), edit with seat map editor, delete with confirmation
+- **TASK-005**: Seat map editor component — click to cycle types, brush toolbar for direct type selection, visual distinction, seat count summary, keyboard accessible
 
 ---
 

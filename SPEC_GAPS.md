@@ -11,3 +11,9 @@
 - **Found by**: FE Phase 3, TASK-002
 - **Suggested fix**: Add `GET /api/v1/provider/analytics` returning `{ totalBookings, totalRevenue, averageOccupancy, revenueByRoute: { routeId, routeName, revenue }[] }`.
 - **Blocking**: No — FE dashboard shows stat counts (routes, buses, drivers, active schedules) from existing list endpoints. Revenue chart and occupancy stats are deferred until analytics endpoint exists.
+
+## PUT /api/v1/buses/{id} (seat layout update)
+- **Issue**: The `UpdateBusRequest` schema only accepts `licensePlate`, `model`, and `capacity` fields. There is no way to update individual seat types (e.g., changing a seat from STANDARD to PREMIUM) on an existing bus. The seat map editor UI is built but cannot persist seat type changes.
+- **Found by**: FE Phase 3, TASK-005
+- **Suggested fix**: Either extend `UpdateBusRequest` to accept an optional `seats: CreateSeatInput[]` field, or add a dedicated `PUT /api/v1/buses/{id}/seats` endpoint that accepts a full seat layout replacement.
+- **Blocking**: No — FE seat map editor works with local state and shows a toast notification. When the spec is updated, the save handler in `EditBusDialog` can be wired to the API.

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bus as BusIcon, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { Bus as BusIcon, Plus, Trash2, AlertCircle, Pencil } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { useBuses, useDeleteBus } from '@/hooks/use-buses';
 import { CreateBusDialog, SeatGridPreview } from '@/components/fleet/create-bus-dialog';
+import { EditBusDialog } from '@/components/fleet/edit-bus-dialog';
 import type { components } from '@/api/generated/types';
 
 type Bus = components['schemas']['Bus'];
@@ -93,10 +94,12 @@ interface BusCardProps {
   onDelete: (id: string) => void;
   /** Whether a delete operation is in progress. */
   isDeleting: boolean;
+  /** Callback when edit is requested. */
+  onEdit: (id: string) => void;
 }
 
 /** Displays a single bus card with plate, model, capacity, and seat grid preview. */
-function BusCard({ bus, onDelete, isDeleting }: BusCardProps) {
+function BusCard({ bus, onDelete, isDeleting, onEdit }: BusCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
@@ -115,37 +118,47 @@ function BusCard({ bus, onDelete, isDeleting }: BusCardProps) {
             <SeatGridPreview rows={bus.rows} columns={bus.columns} seats={[]} />
           </div>
         </div>
-        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={`Delete bus ${bus.licensePlate}`}>
-              <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Delete bus</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete bus &quot;{bus.licensePlate}&quot;? Schedules
-                referencing this bus may be affected.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button
-                variant="destructive"
-                disabled={isDeleting}
-                onClick={() => {
-                  onDelete(bus.id);
-                  setConfirmOpen(false);
-                }}
-              >
-                {isDeleting ? 'Deleting…' : 'Delete'}
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Edit seat map for ${bus.licensePlate}`}
+            onClick={() => onEdit(bus.id)}
+          >
+            <Pencil className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          </Button>
+          <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={`Delete bus ${bus.licensePlate}`}>
+                <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete bus</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete bus &quot;{bus.licensePlate}&quot;? Schedules
+                  referencing this bus may be affected.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button
+                  variant="destructive"
+                  disabled={isDeleting}
+                  onClick={() => {
+                    onDelete(bus.id);
+                    setConfirmOpen(false);
+                  }}
+                >
+                  {isDeleting ? 'Deleting…' : 'Delete'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </CardContent>
     </Card>
   );
@@ -161,14 +174,16 @@ interface BusListSectionProps {
   onDelete: (id: string) => void;
   /** Whether a delete mutation is in progress. */
   isDeleting: boolean;
+  /** Callback to edit a bus. */
+  onEdit: (id: string) => void;
 }
 
 /** Renders the grid of bus cards. */
-function BusListSection({ buses, onDelete, isDeleting }: BusListSectionProps) {
+function BusListSection({ buses, onDelete, isDeleting, onEdit }: BusListSectionProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Fleet list">
       {buses.map((bus) => (
-        <BusCard key={bus.id} bus={bus} onDelete={onDelete} isDeleting={isDeleting} />
+        <BusCard key={bus.id} bus={bus} onDelete={onDelete} isDeleting={isDeleting} onEdit={onEdit} />
       ))}
     </div>
   );
@@ -192,6 +207,7 @@ function BusListSection({ buses, onDelete, isDeleting }: BusListSectionProps) {
 export default function ProviderFleetPage() {
   const busesQuery = useBuses({ page: 1, pageSize: 50 });
   const deleteBus = useDeleteBus();
+  const [editingBusId, setEditingBusId] = useState<string | null>(null);
 
   const buses = busesQuery.data?.data ?? [];
   const isLoading = busesQuery.isLoading;
@@ -224,9 +240,18 @@ export default function ProviderFleetPage() {
         {isError && <FleetError onRetry={() => busesQuery.refetch()} />}
         {!isLoading && !isError && buses.length === 0 && <FleetEmpty />}
         {!isLoading && !isError && buses.length > 0 && (
-          <BusListSection buses={buses} onDelete={handleDelete} isDeleting={deleteBus.isPending} />
+          <BusListSection
+            buses={buses}
+            onDelete={handleDelete}
+            isDeleting={deleteBus.isPending}
+            onEdit={setEditingBusId}
+          />
         )}
       </section>
+
+      {editingBusId && (
+        <EditBusDialog busId={editingBusId} onClose={() => setEditingBusId(null)} />
+      )}
     </div>
   );
 }
