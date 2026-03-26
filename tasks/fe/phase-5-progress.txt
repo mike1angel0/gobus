@@ -69,3 +69,20 @@
 - 29 component tests covering loading/error/empty states, filters, actions, confirmation dialogs, pagination, self-action prevention, accessibility
 - Learnings: When dialog content duplicates info from the parent page (e.g., user email), use `within(dialog)` in tests to scope queries and avoid "multiple elements found" errors. Run tests from `apps/web/` directory, not monorepo root.
 ---
+
+## Iteration 8 - TASK-008: Create admin audit log page
+- Created `pages/admin/audit-logs.tsx` with paginated audit log table, 4 filters (userId text, action dropdown, dateFrom/dateTo date pickers), and expandable row detail showing metadata JSON and userAgent
+- Decomposed into 6 sub-components (AuditLogFilterBar, AuditLogSkeleton, AuditLogRow, AuditLogPagination, AuditLogListContent, AdminAuditLogsPage) following the users.tsx pattern
+- Added "Audit Logs" nav link for ADMIN role in navbar-links.ts, route in router.tsx with lazy loading
+- 24 component tests covering loading/error/empty states, filters (action, userId, dateFrom, dateTo), expandable detail (expand/collapse/disabled when no detail), pagination, accessibility (headings, aria-labels, aria-expanded)
+- Learnings: Action values like "LOGIN" appear both in the action badge and in the dropdown options, causing "multiple elements found" errors in tests. Use `getAllByText().length` checks or more specific selectors for values that duplicate across filter options and data rows.
+---
+
+## Iteration 9 - TASK-009: Update navbar and router for all new pages
+- All navbar links and routes were already wired up incrementally during TASK-001 through TASK-008
+- Verified: navbar-links.ts has all required links (Provider Profile, Admin Dashboard/Users/Audit Logs, universal Profile)
+- Verified: router.tsx has all routes with lazy loading, AdminDashboardPage replaces PlaceholderPage
+- Verified: PlaceholderPage is not used as a route target (only exists in its own definition/test files)
+- Enhanced navbar tests from 32 to 38 tests: added per-role profile link verification, admin href assertions, cross-role isolation checks, getLinksForRole unit tests
+- Learnings: When tasks are completed incrementally across prior iterations, TASK-009 type "wiring" tasks become verification + test enhancement tasks. Always check what was already done before implementing.
+---

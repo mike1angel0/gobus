@@ -101,6 +101,13 @@ describe('Navbar', () => {
       expect(within(nav).getByText('My Trips')).toBeInTheDocument();
     });
 
+    it('shows universal profile link', () => {
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      expect(within(nav).getByText('Profile')).toBeInTheDocument();
+      expect(within(nav).getByText('Profile').closest('a')).toHaveAttribute('href', '/profile');
+    });
+
     it('does not show provider or driver links', () => {
       renderNavbar();
       const nav = screen.getByRole('navigation', { name: 'Main navigation' });
@@ -128,7 +135,7 @@ describe('Navbar', () => {
       mockIsAuthenticated = true;
     });
 
-    it('shows provider links', () => {
+    it('shows provider links including profile', () => {
       renderNavbar();
       const nav = screen.getByRole('navigation', { name: 'Main navigation' });
       expect(within(nav).getByText('Dashboard')).toBeInTheDocument();
@@ -137,6 +144,26 @@ describe('Navbar', () => {
       expect(within(nav).getByText('Schedules')).toBeInTheDocument();
       expect(within(nav).getByText('Drivers')).toBeInTheDocument();
       expect(within(nav).getByText('Tracking')).toBeInTheDocument();
+    });
+
+    it('shows provider profile link with correct href', () => {
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      const profileLinks = within(nav).getAllByText('Profile');
+      const providerProfileLink = profileLinks.find(
+        (el) => el.closest('a')?.getAttribute('href') === '/provider/profile',
+      );
+      expect(providerProfileLink).toBeTruthy();
+    });
+
+    it('shows universal profile link', () => {
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      const profileLinks = within(nav).getAllByText('Profile');
+      const universalProfileLink = profileLinks.find(
+        (el) => el.closest('a')?.getAttribute('href') === '/profile',
+      );
+      expect(universalProfileLink).toBeTruthy();
     });
 
     it('does not show passenger or driver links', () => {
@@ -160,6 +187,13 @@ describe('Navbar', () => {
       expect(within(nav).getByText('History')).toBeInTheDocument();
     });
 
+    it('shows universal profile link', () => {
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      expect(within(nav).getByText('Profile')).toBeInTheDocument();
+      expect(within(nav).getByText('Profile').closest('a')).toHaveAttribute('href', '/profile');
+    });
+
     it('does not show provider links', () => {
       renderNavbar();
       const nav = screen.getByRole('navigation', { name: 'Main navigation' });
@@ -174,10 +208,43 @@ describe('Navbar', () => {
       mockIsAuthenticated = true;
     });
 
-    it('shows admin links', () => {
+    it('shows all admin links', () => {
       renderNavbar();
       const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      expect(within(nav).getByText('Dashboard')).toBeInTheDocument();
+      expect(within(nav).getByText('Users')).toBeInTheDocument();
       expect(within(nav).getByText('Fleet')).toBeInTheDocument();
+      expect(within(nav).getByText('Audit Logs')).toBeInTheDocument();
+    });
+
+    it('shows admin links with correct hrefs', () => {
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      expect(within(nav).getByText('Dashboard').closest('a')).toHaveAttribute('href', '/admin');
+      expect(within(nav).getByText('Users').closest('a')).toHaveAttribute('href', '/admin/users');
+      expect(within(nav).getByText('Fleet').closest('a')).toHaveAttribute(
+        'href',
+        '/admin/fleet',
+      );
+      expect(within(nav).getByText('Audit Logs').closest('a')).toHaveAttribute(
+        'href',
+        '/admin/audit-logs',
+      );
+    });
+
+    it('shows universal profile link', () => {
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      expect(within(nav).getByText('Profile')).toBeInTheDocument();
+      expect(within(nav).getByText('Profile').closest('a')).toHaveAttribute('href', '/profile');
+    });
+
+    it('does not show passenger or provider-specific links', () => {
+      renderNavbar();
+      const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+      expect(within(nav).queryByText('My Trips')).not.toBeInTheDocument();
+      expect(within(nav).queryByText('Routes')).not.toBeInTheDocument();
+      expect(within(nav).queryByText('Schedules')).not.toBeInTheDocument();
     });
   });
 
@@ -328,9 +395,36 @@ describe('Navbar', () => {
 });
 
 describe('getLinksForRole', () => {
-  // Import directly to test the utility
-  it('is tested via navbar role rendering above', () => {
-    // The role-based link filtering is verified through the navbar component tests
-    expect(true).toBe(true);
+  it('returns universal links (empty roles) for all roles', async () => {
+    const { getLinksForRole } = await import('./navbar-links');
+    const roles = ['PASSENGER', 'PROVIDER', 'DRIVER', 'ADMIN'] as const;
+    for (const role of roles) {
+      const links = getLinksForRole(role);
+      const profileLink = links.find((l) => l.href === '/profile');
+      expect(profileLink).toBeTruthy();
+      expect(profileLink!.label).toBe('Profile');
+    }
+  });
+
+  it('returns admin-specific links only for ADMIN', async () => {
+    const { getLinksForRole } = await import('./navbar-links');
+    const adminLinks = getLinksForRole('ADMIN');
+    expect(adminLinks.some((l) => l.href === '/admin')).toBe(true);
+    expect(adminLinks.some((l) => l.href === '/admin/users')).toBe(true);
+    expect(adminLinks.some((l) => l.href === '/admin/audit-logs')).toBe(true);
+
+    const passengerLinks = getLinksForRole('PASSENGER');
+    expect(passengerLinks.some((l) => l.href === '/admin')).toBe(false);
+    expect(passengerLinks.some((l) => l.href === '/admin/users')).toBe(false);
+  });
+
+  it('returns provider-specific links only for PROVIDER', async () => {
+    const { getLinksForRole } = await import('./navbar-links');
+    const providerLinks = getLinksForRole('PROVIDER');
+    expect(providerLinks.some((l) => l.href === '/provider/profile')).toBe(true);
+    expect(providerLinks.some((l) => l.href === '/provider')).toBe(true);
+
+    const driverLinks = getLinksForRole('DRIVER');
+    expect(driverLinks.some((l) => l.href === '/provider/profile')).toBe(false);
   });
 });

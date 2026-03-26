@@ -139,22 +139,22 @@ Implement `/admin/audit-logs` page for viewing system audit trail.
 
 Wire up all new pages in the router and navbar.
 
-- [ ] Update `navbar-links.ts`:
+- [x] Update `navbar-links.ts`:
   - Add `{ label: 'Profile', href: '/provider/profile', roles: ['PROVIDER'] }` after Dashboard
   - Add `{ label: 'Dashboard', href: '/admin', roles: ['ADMIN'] }` before Fleet
   - Add `{ label: 'Users', href: '/admin/users', roles: ['ADMIN'] }` after Fleet
   - Add `{ label: 'Audit Logs', href: '/admin/audit-logs', roles: ['ADMIN'] }` after Users
   - Add universal Profile link for all authenticated users (consider user menu dropdown or separate link)
-- [ ] Update `router.tsx`:
+- [x] Update `router.tsx`:
   - Add `/profile` route inside AuthGuard (all roles)
   - Add `/provider/profile` route inside Provider RoleGuard
   - Replace admin index `PlaceholderPage` with `AdminDashboardPage`
   - Add `/admin/users` route inside Admin RoleGuard
   - Add `/admin/audit-logs` route inside Admin RoleGuard
-- [ ] Lazy-load all new pages with `React.lazy`
-- [ ] Verify no dead links remain (PlaceholderPage no longer used as a route target)
-- [ ] Component tests: verify navbar shows correct links per role, verify all routes render
-- [ ] Typecheck passes, lint clean
+- [x] Lazy-load all new pages with `React.lazy`
+- [x] Verify no dead links remain (PlaceholderPage no longer used as a route target)
+- [x] Component tests: verify navbar shows correct links per role, verify all routes render
+- [x] Typecheck passes, lint clean
 
 ---
 
