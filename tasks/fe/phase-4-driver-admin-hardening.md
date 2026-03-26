@@ -11,17 +11,8 @@
 ### TASK-001: Create driver hooks ✅
 - [x] Both hooks typed from OpenAPI spec, date-based query key for list, JSDoc, typecheck passes
 
-### TASK-002: Create driver trips list page
-**Description:** Create `src/pages/driver/trips.tsx`. Date selector (defaults to today, navigate between days). Shows assigned schedule cards: route name, departure/arrival times, bus info, passenger count, status (upcoming/in-progress/completed). Tap card navigates to trip detail.
-
-**Acceptance Criteria:**
-- [ ] Date navigation (prev/next day buttons)
-- [ ] Schedule cards with status indicators
-- [ ] Empty state: "No trips assigned for this date"
-- [ ] Loading skeleton
-- [ ] Responsive (mobile-first for driver use)
-- [ ] Component test
-- [ ] Typecheck passes
+### TASK-002: Create driver trips list page ✅
+- [x] Date navigation, schedule cards with status, empty/loading/error states, mobile-first, component test (18 tests), typecheck passes
 
 ### TASK-003: Create driver trip detail page
 **Description:** Create `src/pages/driver/trip/[id].tsx`. Displays: route info, live map with route + current position, stop progress tracker (list of stops with check marks for passed stops). Features: "Start Sharing Location" toggle (uses `navigator.geolocation.watchPosition`), posts GPS to `POST /api/v1/tracking` every 5 seconds. Stop progress: manual "Arrived at stop" button increments currentStopIndex. Passenger list (from bookings). "Report Delay" button navigates to delay form.
