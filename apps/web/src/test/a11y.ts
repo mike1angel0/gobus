@@ -1,5 +1,12 @@
 import { axe } from 'vitest-axe';
-import type { AxeResults } from 'vitest-axe';
+import type { AxeCore } from 'vitest-axe';
+
+declare module '@vitest/expect' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Assertion<T> {
+    toHaveNoViolations(): void;
+  }
+}
 
 /**
  * Runs axe-core accessibility audit on the provided container element.
@@ -14,7 +21,7 @@ import type { AxeResults } from 'vitest-axe';
  * await checkA11y(container);
  * ```
  */
-export async function checkA11y(container: Element): Promise<AxeResults> {
+export async function checkA11y(container: Element): Promise<AxeCore.AxeResults> {
   const results = await axe(container);
   expect(results).toHaveNoViolations();
   return results;

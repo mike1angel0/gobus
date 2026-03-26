@@ -118,6 +118,65 @@ describe('useUpdateTracking', () => {
       }),
     );
   });
+
+  it('falls back to title when API error has no detail', async () => {
+    const apiErr = new ApiError({
+      type: 'about:blank',
+      title: 'Server Error',
+      status: 500,
+    });
+    mockPost.mockRejectedValueOnce(apiErr);
+
+    const { result } = renderHook(() => useUpdateTracking(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        busId: 'bus_1',
+        lat: 0,
+        lng: 0,
+        speed: 0,
+        heading: 0,
+        currentStopIndex: 0,
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'Server Error',
+      }),
+    );
+  });
+
+  it('shows generic message for non-API errors', async () => {
+    mockPost.mockRejectedValueOnce(new Error('Network failure'));
+
+    const { result } = renderHook(() => useUpdateTracking(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      result.current.mutate({
+        busId: 'bus_1',
+        lat: 0,
+        lng: 0,
+        speed: 0,
+        heading: 0,
+        currentStopIndex: 0,
+      });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: 'An unexpected error occurred.',
+      }),
+    );
+  });
 });
 
 describe('useProviderTracking', () => {

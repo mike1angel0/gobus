@@ -128,6 +128,29 @@ describe('DriverTripsPage', () => {
       expect(screen.getByText('Cancelled')).toBeInTheDocument();
     });
 
+    it('renders in-progress badge for trips currently running', () => {
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+      const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000).toISOString();
+      const inProgress = createMockTrip('sched_1', {
+        departureTime: oneHourAgo,
+        arrivalTime: oneHourLater,
+      });
+      mockDriverTrips.mockReturnValue(loadedState([inProgress]));
+      renderWithProviders(<DriverTripsPage />);
+      expect(screen.getByText('In Progress')).toBeInTheDocument();
+    });
+
+    it('renders completed badge for past trips', () => {
+      const completed = createMockTrip('sched_1', {
+        departureTime: '2020-01-01T08:00:00Z',
+        arrivalTime: '2020-01-01T12:00:00Z',
+      });
+      mockDriverTrips.mockReturnValue(loadedState([completed]));
+      renderWithProviders(<DriverTripsPage />);
+      expect(screen.getByText('Completed')).toBeInTheDocument();
+    });
+
     it('navigates to trip detail on card click', async () => {
       const user = userEvent.setup();
       const trip = createMockTrip('sched_abc');
@@ -135,9 +158,7 @@ describe('DriverTripsPage', () => {
       renderWithProviders(<DriverTripsPage />);
 
       await user.click(screen.getByText('Bucharest - Cluj'));
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.stringContaining('/driver/trip/sched_abc'),
-      );
+      expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/driver/trip/sched_abc'));
     });
 
     it('navigates to trip detail on Enter key', async () => {
@@ -149,9 +170,7 @@ describe('DriverTripsPage', () => {
       const card = screen.getByRole('button', { name: /Trip Bucharest - Cluj/ });
       card.focus();
       await user.keyboard('{Enter}');
-      expect(mockNavigate).toHaveBeenCalledWith(
-        expect.stringContaining('/driver/trip/sched_abc'),
-      );
+      expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/driver/trip/sched_abc'));
     });
   });
 
@@ -237,9 +256,7 @@ describe('DriverTripsPage', () => {
     it('passes date parameter to useDriverTrips', () => {
       renderWithProviders(<DriverTripsPage />);
       const todayStr = new Date().toISOString().slice(0, 10);
-      expect(mockDriverTrips).toHaveBeenCalledWith(
-        expect.objectContaining({ date: todayStr }),
-      );
+      expect(mockDriverTrips).toHaveBeenCalledWith(expect.objectContaining({ date: todayStr }));
     });
   });
 });

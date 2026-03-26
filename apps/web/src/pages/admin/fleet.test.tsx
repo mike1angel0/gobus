@@ -61,12 +61,7 @@ function errorState() {
 }
 
 /** Creates a mock bus. */
-function createMockBus(
-  id: string,
-  licensePlate: string,
-  model: string,
-  providerId = 'prov_1',
-) {
+function createMockBus(id: string, licensePlate: string, model: string, providerId = 'prov_1') {
   return {
     id,
     licensePlate,
@@ -86,7 +81,7 @@ function createMockSeat(
   column: number,
   label: string,
   isEnabled = true,
-  type = 'STANDARD' as const,
+  type: string = 'STANDARD',
 ) {
   return { id, row, column, label, type, price: 0, isEnabled };
 }
@@ -453,7 +448,9 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      expect(screen.queryByRole('navigation', { name: 'Fleet pagination' })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('navigation', { name: 'Fleet pagination' }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -464,9 +461,7 @@ describe('AdminFleetPage', () => {
       renderWithProviders(<AdminFleetPage />);
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Fleet Management');
-      expect(
-        screen.getByRole('heading', { level: 2, name: 'Admin Fleet' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Admin Fleet' })).toBeInTheDocument();
     });
 
     it('uses landmark section with aria-labelledby', () => {

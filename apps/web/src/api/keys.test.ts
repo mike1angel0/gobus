@@ -148,10 +148,10 @@ describe('driverTripKeys', () => {
   });
 
   it('produces list key with filters', () => {
-    expect(driverTripKeys.lists({ status: 'active' })).toEqual([
+    expect(driverTripKeys.lists({ date: '2024-01-01' })).toEqual([
       'driver-trips',
       'list',
-      { status: 'active' },
+      { date: '2024-01-01' },
     ]);
   });
 

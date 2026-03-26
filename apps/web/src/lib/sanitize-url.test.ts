@@ -60,6 +60,16 @@ describe('sanitizeUrl', () => {
     });
   });
 
+  describe('handles non-parseable URLs with scheme-like patterns', () => {
+    it('allows safe relative URLs with a colon', () => {
+      expect(sanitizeUrl('foo:bar')).toBe('foo:bar');
+    });
+
+    it('allows relative paths with colon beyond position 10', () => {
+      expect(sanitizeUrl('some/long/path:value')).toBe('some/long/path:value');
+    });
+  });
+
   describe('handles edge cases', () => {
     it('returns empty string for empty input', () => {
       expect(sanitizeUrl('')).toBe('');

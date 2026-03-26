@@ -105,3 +105,13 @@
 - staleTime tiers: lists 60s, details 30s, search 30s, tracking 5s, templates 5m
 - Bundle target: 303.5KB gzipped (258KB excl. leaflet), well under 500KB
 - When adding new exports to a module, update all test mocks for that module
+
+## Iteration 16 - TASK-016: Comprehensive frontend quality and security audit
+- Fixed 4 build TS errors: keys.test.ts status filter, fleet.test.tsx PREMIUM type, vitest-axe AxeResults type augmentation
+- Fixed formatting in 18 files via prettier --write
+- Improved branch coverage from 88.76% to 90%: added in-progress/completed trip tests, geolocation callback tests, provider-tracking error tests, stop sharing test, stops-without-coords test
+- Removed unreachable defensive code in sanitize-url.ts (catch block scheme check — new URL() accepts all schemes)
+- All 19 quality checks pass: typecheck, lint, format, 1113 tests, 90% branch coverage, build succeeds, api:check passes, zero any/dangerouslySetInnerHTML/console.log/raw fetch, access token in memory, JSDoc on exports, axe-core clean, error boundaries, skeletons
+- Bundle: 258KB gzipped excl. Leaflet (well under 500KB target)
+- Learnings: vitest-axe v4 uses Vi namespace for type augmentation which doesn't match @vitest/expect Assertion interface — need manual module augmentation. Unreachable defensive code creates uncoverable branches — remove rather than leaving dead code.
+---

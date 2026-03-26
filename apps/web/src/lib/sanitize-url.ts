@@ -38,15 +38,9 @@ export function sanitizeUrl(url: string): string {
     }
     return trimmed;
   } catch {
-    // Not a valid absolute URL — treat as relative URL (safe)
-    // But still check for scheme-like patterns (e.g. "javascript:alert(1)" without valid URL parsing)
-    const colonIndex = trimmed.indexOf(':');
-    if (colonIndex > 0 && colonIndex < 10) {
-      const possibleScheme = trimmed.slice(0, colonIndex + 1).toLowerCase();
-      if (DANGEROUS_SCHEMES.has(possibleScheme)) {
-        return '';
-      }
-    }
+    // Not a valid absolute URL — relative URLs are safe (cannot execute scripts).
+    // Note: new URL() accepts all scheme:value forms (including javascript:, data:),
+    // so dangerous schemes are always caught in the try block above.
     return trimmed;
   }
 }

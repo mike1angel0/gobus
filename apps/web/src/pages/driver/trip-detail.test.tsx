@@ -39,7 +39,11 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('@/components/maps/live-map', () => ({
   LiveMap: ({ stops, busPosition }: { stops: unknown[]; busPosition: unknown }) => (
-    <div data-testid="live-map" data-stops={JSON.stringify(stops)} data-bus={JSON.stringify(busPosition)}>
+    <div
+      data-testid="live-map"
+      data-stops={JSON.stringify(stops)}
+      data-bus={JSON.stringify(busPosition)}
+    >
       Live Map Mock
     </div>
   ),
@@ -60,10 +64,38 @@ function createMockTripDetail(overrides: Record<string, unknown> = {}) {
     passengerCount: 25,
     totalSeats: 50,
     stops: [
-      { id: 'stop_1', stopName: 'Bucharest', arrivalTime: '2026-04-01T08:00:00Z', departureTime: '2026-04-01T08:05:00Z', orderIndex: 0, priceFromStart: 0 },
-      { id: 'stop_2', stopName: 'Pitesti', arrivalTime: '2026-04-01T09:30:00Z', departureTime: '2026-04-01T09:35:00Z', orderIndex: 1, priceFromStart: 15 },
-      { id: 'stop_3', stopName: 'Sibiu', arrivalTime: '2026-04-01T11:00:00Z', departureTime: '2026-04-01T11:05:00Z', orderIndex: 2, priceFromStart: 30 },
-      { id: 'stop_4', stopName: 'Cluj-Napoca', arrivalTime: '2026-04-01T12:00:00Z', departureTime: '2026-04-01T12:00:00Z', orderIndex: 3, priceFromStart: 45 },
+      {
+        id: 'stop_1',
+        stopName: 'Bucharest',
+        arrivalTime: '2026-04-01T08:00:00Z',
+        departureTime: '2026-04-01T08:05:00Z',
+        orderIndex: 0,
+        priceFromStart: 0,
+      },
+      {
+        id: 'stop_2',
+        stopName: 'Pitesti',
+        arrivalTime: '2026-04-01T09:30:00Z',
+        departureTime: '2026-04-01T09:35:00Z',
+        orderIndex: 1,
+        priceFromStart: 15,
+      },
+      {
+        id: 'stop_3',
+        stopName: 'Sibiu',
+        arrivalTime: '2026-04-01T11:00:00Z',
+        departureTime: '2026-04-01T11:05:00Z',
+        orderIndex: 2,
+        priceFromStart: 30,
+      },
+      {
+        id: 'stop_4',
+        stopName: 'Cluj-Napoca',
+        arrivalTime: '2026-04-01T12:00:00Z',
+        departureTime: '2026-04-01T12:00:00Z',
+        orderIndex: 3,
+        priceFromStart: 45,
+      },
     ],
     ...overrides,
   };
@@ -173,7 +205,9 @@ describe('DriverTripDetailPage', () => {
     });
 
     it('renders cancelled badge for cancelled trips', () => {
-      mockDriverTripDetail.mockReturnValue(loadedState(createMockTripDetail({ status: 'CANCELLED' })));
+      mockDriverTripDetail.mockReturnValue(
+        loadedState(createMockTripDetail({ status: 'CANCELLED' })),
+      );
       renderWithProviders(<DriverTripDetailPage />);
       expect(screen.getByText('CANCELLED')).toBeInTheDocument();
     });
@@ -201,7 +235,9 @@ describe('DriverTripDetailPage', () => {
 
     it('shows start sharing button when not sharing', () => {
       renderWithProviders(<DriverTripDetailPage />);
-      expect(screen.getByRole('button', { name: 'Start sharing location' })).toHaveTextContent('Start Sharing');
+      expect(screen.getByRole('button', { name: 'Start sharing location' })).toHaveTextContent(
+        'Start Sharing',
+      );
     });
 
     it('shows denied message when permission is denied', async () => {
@@ -222,6 +258,98 @@ describe('DriverTripDetailPage', () => {
 
       await user.click(screen.getByRole('button', { name: 'Start sharing location' }));
       expect(navigator.geolocation.watchPosition).toHaveBeenCalledTimes(1);
+    });
+
+    it('updates position when geolocation reports coordinates', async () => {
+      (navigator.geolocation.watchPosition as ReturnType<typeof vi.fn>).mockImplementation(
+        (success: PositionCallback) => {
+          success({
+            coords: {
+              latitude: 44.43,
+              longitude: 26.1,
+              heading: 90,
+              speed: 16.67,
+              accuracy: 10,
+              altitude: null,
+              altitudeAccuracy: null,
+            },
+            timestamp: Date.now(),
+          } as GeolocationPosition);
+          return 1;
+        },
+      );
+
+      const user = userEvent.setup();
+      renderWithProviders(<DriverTripDetailPage />);
+
+      await user.click(screen.getByRole('button', { name: 'Start sharing location' }));
+
+      // Map should now have bus position data
+      const mapEl = screen.getByTestId('live-map');
+      const bus = JSON.parse(mapEl.getAttribute('data-bus') ?? 'null') as Record<
+        string,
+        number
+      > | null;
+      expect(bus).not.toBeNull();
+      expect(bus?.lat).toBe(44.43);
+    });
+
+    it('handles geolocation permission denied error', async () => {
+      (navigator.geolocation.watchPosition as ReturnType<typeof vi.fn>).mockImplementation(
+        (_success: PositionCallback, error: PositionErrorCallback) => {
+          error({
+            code: 1, // PERMISSION_DENIED
+            message: 'User denied Geolocation',
+            PERMISSION_DENIED: 1,
+            POSITION_UNAVAILABLE: 2,
+            TIMEOUT: 3,
+          } as GeolocationPositionError);
+          return 1;
+        },
+      );
+
+      const user = userEvent.setup();
+      renderWithProviders(<DriverTripDetailPage />);
+
+      await user.click(screen.getByRole('button', { name: 'Start sharing location' }));
+
+      // Should show denied message after permission error
+      expect(
+        screen.getByText('Location permission denied. Enable in browser settings.'),
+      ).toBeInTheDocument();
+    });
+
+    it('handles geolocation position with null heading and speed', async () => {
+      (navigator.geolocation.watchPosition as ReturnType<typeof vi.fn>).mockImplementation(
+        (success: PositionCallback) => {
+          success({
+            coords: {
+              latitude: 44.43,
+              longitude: 26.1,
+              heading: null,
+              speed: null,
+              accuracy: 10,
+              altitude: null,
+              altitudeAccuracy: null,
+            },
+            timestamp: Date.now(),
+          } as GeolocationPosition);
+          return 1;
+        },
+      );
+
+      const user = userEvent.setup();
+      renderWithProviders(<DriverTripDetailPage />);
+
+      await user.click(screen.getByRole('button', { name: 'Start sharing location' }));
+
+      const mapEl = screen.getByTestId('live-map');
+      const bus = JSON.parse(mapEl.getAttribute('data-bus') ?? 'null') as Record<
+        string,
+        number
+      > | null;
+      expect(bus).not.toBeNull();
+      expect(bus?.heading).toBe(0);
     });
 
     it('shows toast when sharing starts', async () => {
@@ -286,9 +414,7 @@ describe('DriverTripDetailPage', () => {
       renderWithProviders(<DriverTripDetailPage />);
 
       await user.click(screen.getByRole('button', { name: /Arrived at Pitesti/ }));
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Stop updated' }),
-      );
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Stop updated' }));
     });
 
     it('shows "All stops completed" when at last stop', async () => {
@@ -322,7 +448,9 @@ describe('DriverTripDetailPage', () => {
       renderWithProviders(<DriverTripDetailPage />);
 
       await user.click(screen.getByRole('button', { name: 'Report a delay' }));
-      expect(mockNavigate).toHaveBeenCalledWith('/driver/delay?scheduleId=sched_abc&date=2026-04-01');
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/driver/delay?scheduleId=sched_abc&date=2026-04-01',
+      );
     });
   });
 
@@ -378,6 +506,63 @@ describe('DriverTripDetailPage', () => {
     it('stop progress list is labeled', () => {
       renderWithProviders(<DriverTripDetailPage />);
       expect(screen.getByLabelText('Stop progress')).toBeInTheDocument();
+    });
+  });
+
+  describe('stops without coordinates', () => {
+    it('filters out stops missing lat/lng from map data', () => {
+      const trip = createMockTripDetail({
+        stops: [
+          {
+            id: 'stop_1',
+            stopName: 'Bucharest',
+            arrivalTime: '2026-04-01T08:00:00Z',
+            departureTime: '2026-04-01T08:05:00Z',
+            orderIndex: 0,
+            priceFromStart: 0,
+            lat: 44.43,
+            lng: 26.1,
+          },
+          {
+            id: 'stop_2',
+            stopName: 'Pitesti',
+            arrivalTime: '2026-04-01T09:30:00Z',
+            departureTime: '2026-04-01T09:35:00Z',
+            orderIndex: 1,
+            priceFromStart: 15,
+            // no lat/lng — should be filtered from map
+          },
+        ],
+      });
+      mockDriverTripDetail.mockReturnValue(loadedState(trip));
+      renderWithProviders(<DriverTripDetailPage />);
+
+      const mapEl = screen.getByTestId('live-map');
+      const stops = JSON.parse(mapEl.getAttribute('data-stops') ?? '[]') as unknown[];
+      expect(stops).toHaveLength(1);
+    });
+  });
+
+  describe('stop sharing', () => {
+    it('shows toast when sharing is stopped', async () => {
+      const watchId = 42;
+      (navigator.geolocation.watchPosition as ReturnType<typeof vi.fn>).mockReturnValue(watchId);
+
+      const user = userEvent.setup();
+      renderWithProviders(<DriverTripDetailPage />);
+
+      // Start sharing
+      await user.click(screen.getByRole('button', { name: 'Start sharing location' }));
+      expect(mockToast).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Location sharing started' }),
+      );
+
+      // Stop sharing
+      await user.click(screen.getByRole('button', { name: 'Stop sharing location' }));
+      expect(mockToast).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Location sharing stopped' }),
+      );
+      expect(navigator.geolocation.clearWatch).toHaveBeenCalledWith(watchId);
     });
   });
 
