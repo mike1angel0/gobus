@@ -59,3 +59,72 @@
 ## Quality Gates
 
 **TASK-016: Phase 5 final quality gates** — All 11 quality gates pass: typecheck (0 errors), lint (0 errors), format:check (clean), unit tests (503 pass), integration tests (465 pass), coverage (96.88% stmts, 92.39% branches, 97.32% funcs, 97.08% lines), build (succeeds), spec:lint (valid), api:validate (66 spec conformance tests pass), security:audit (no leaks, 0 vulnerabilities), no regressions from Phase 4. Fixed Prettier formatting in 17 files.
+
+---
+
+### Quality Assurance (Auto-Generated)
+
+**Batch 1** — Generated 2026-03-26
+
+**Overall Coverage**: 96.88% statements | 92.39% branches | 97.32% functions | 97.08% lines (target: 90% — PASS)
+**Security Audit**: 0 vulnerabilities (PASS)
+**Lint**: 0 errors, 0 warnings (PASS)
+**Type Safety**: 0 `any` in production code (PASS)
+**Architecture**: 0 domain layer violations (PASS)
+**JSDoc**: All exported functions documented (PASS)
+**API Contract**: All responses match envelope format; all errors RFC 9457 compliant (PASS)
+**Zod `.strict()`**: All request body/query/param schemas use `.strict()` (PASS)
+
+#### API Contract Stories
+
+**US-QA-001** | Fix Zod schema: schedules `driverId` missing `minLength: 1` per OpenAPI spec
+- AC1: `createScheduleRequestSchema.driverId` has `.min(1)` matching OpenAPI `minLength: 1`
+- AC2: Integration test confirms empty string `""` for `driverId` returns 400
+
+**US-QA-002** | Fix Zod schema: search `pageSize` max 50 vs OpenAPI spec max 100
+- AC1: Either update Zod `searchQuerySchema.pageSize` to `.max(100)` matching spec, or add `maximum: 50` override in OpenAPI search query parameter
+- AC2: Integration test confirms the chosen limit is enforced
+
+**US-QA-003** | Fix Zod schema: provider/auth `createdAt`/`updatedAt` missing `.max(30)` per OpenAPI spec
+- AC1: `providerSchema` and auth `userSchema` datetime fields have `.max(30)` matching OpenAPI `maxLength: 30`
+- AC2: Pattern is consistent across all response schemas
+
+#### Coverage Gap Stories
+
+**US-QA-004** | Add tests for tracking fleet list route (lines 62-72 uncovered)
+- AC1: Integration test covers GET /api/v1/tracking happy path (PROVIDER role lists fleet)
+- AC2: Integration test covers 403 for non-PROVIDER and missing providerId
+
+**US-QA-005** | Add tests for driver-trips passengers route (lines 101-113 uncovered)
+- AC1: Integration test covers GET /api/v1/driver/trips/:scheduleId/passengers happy path
+- AC2: Integration test covers 403 for non-DRIVER role
+
+**US-QA-006** | Add tests for bus update with seat layout (bus.service.ts lines 174-196 uncovered)
+- AC1: Unit test covers `updateBus` with `seats` array triggering transaction branch
+- AC2: Unit test covers seat creation with `price` default and `BLOCKED` type disabling
+
+**US-QA-007** | Add tests for driver-trip.service getPassengers (lines 221-261 uncovered)
+- AC1: Unit test covers `getPassengers` happy path mapping bookings to DriverTripPassenger
+- AC2: Unit test covers schedule not found and driver mismatch (404)
+
+**US-QA-008** | Add tests for provider routes error branch (lines 45-47 uncovered)
+- AC1: Integration test covers GET /api/v1/providers/me when user has no providerId (403)
+- AC2: Integration test covers GET /api/v1/providers/analytics when user has no providerId (403)
+
+#### Complexity Stories
+
+**US-QA-009** | Refactor `authRoutes` in auth/routes.ts: extract individual route handlers (153 lines)
+- AC1: `authRoutes` function is under 100 lines with handlers extracted to named functions
+- AC2: All existing auth integration tests still pass
+
+**US-QA-010** | Refactor `buildApp` in app.ts: extract plugin registration (115 lines)
+- AC1: `buildApp` function is under 100 lines with plugin setup extracted
+- AC2: All existing tests still pass
+
+**US-QA-011** | Refactor `scheduleRoutes` in schedules/routes.ts: extract route handlers (113 lines)
+- AC1: `scheduleRoutes` function is under 100 lines
+- AC2: All existing schedule integration tests still pass
+
+**US-QA-012** | Refactor `adminRoutes` in admin/routes.ts: extract route handlers (102 lines)
+- AC1: `adminRoutes` function is under 100 lines
+- AC2: All existing admin integration tests still pass
