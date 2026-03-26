@@ -16,3 +16,27 @@
 - 15 tests covering loading, loaded, empty, error, retry, accessibility, responsive layout, and data fetching assertions
 - Learnings: ESLint complexity rule is strict (max 15) — proactively extract sub-components and custom hooks for pages with multiple queries
 ---
+
+## Iteration 3 - TASK-003: Create route management page
+- Created src/pages/provider/routes.tsx with route list cards, create dialog (name + stops builder), delete with confirmation
+- Stops builder supports add, remove, reorder (up/down arrows), with lat/lng coordinate inputs
+- Form validation matches OpenAPI spec: name 1-200 chars, stops min 2 max 100, lat -90..90, lng -180..180, orderIndex 0-based
+- Updated router.tsx to replace PlaceholderPage with ProviderRoutesPage at /provider/routes
+- 23 tests covering loading, loaded, empty, error, retry, create dialog flow, form validation, delete confirmation, accessibility, responsive layout
+- All icons aria-hidden, sections with aria-labelledby, delete buttons with descriptive aria-labels
+- Learnings: Tests must be run from apps/web/ directory (cd apps/web && npx vitest run), not monorepo root, for @ path aliases to resolve
+---
+
+## Iteration 4 - TASK-004: Create fleet management page
+- Created src/pages/provider/fleet.tsx with bus list cards showing license plate, model, capacity, seat grid preview
+- Extracted src/components/fleet/create-bus-dialog.tsx with template selector and manual config modes
+- SeatGridPreview component shows mini seat grid with type-based colors (standard/premium/accessible/blocked)
+- Create dialog supports: template selection with visual cards, manual row/column config with live preview
+- Delete with confirmation warns about schedule impact
+- Form validation matches OpenAPI spec: licensePlate 1-20, model 1-100, rows 1-100, columns 1-10
+- Handles 409 license plate conflict error with field-level message
+- Updated router.tsx to replace PlaceholderPage with ProviderFleetPage at /provider/fleet
+- 29 tests covering all states, create flows (template + manual), validation, delete, accessibility
+- Edit mode with seat map editor deferred to TASK-005 (separate acceptance criterion)
+- Learnings: Extract dialog/form components into separate files proactively to stay under max-lines (500) and complexity (15) limits
+---

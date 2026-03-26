@@ -72,13 +72,13 @@ All use typed API client, proper cache invalidation, toast notifications on muta
 **Description:** Create `src/pages/provider/fleet.tsx`. Bus list with cards showing: license plate, model, capacity, seat configuration visual. Create bus form: select template OR manual config (rows, columns, license plate, model). Edit bus form with seat map editor. Delete with confirmation.
 
 **Acceptance Criteria:**
-- [ ] Bus list with visual cards
-- [ ] Create dialog: template selector + manual override
-- [ ] Bus templates shown as visual cards with seat grid preview
+- [x] Bus list with visual cards
+- [x] Create dialog: template selector + manual override
+- [x] Bus templates shown as visual cards with seat grid preview
 - [ ] Edit mode shows full seat map editor (see TASK-005)
-- [ ] Delete with confirmation (warn if schedules reference bus)
-- [ ] Component test
-- [ ] Typecheck passes
+- [x] Delete with confirmation (warn if schedules reference bus)
+- [x] Component test
+- [x] Typecheck passes
 
 ### TASK-005: Create seat map editor component
 **Description:** Create `src/components/fleet/seat-map-editor.tsx`. Extends the SeatMap component with edit capabilities: click seat to cycle type (STANDARD → PREMIUM → DISABLED_ACCESSIBLE → BLOCKED → STANDARD), right-click or long-press for type menu. Shows seat count summary. Save button commits changes. Used in fleet page for bus creation and editing.
