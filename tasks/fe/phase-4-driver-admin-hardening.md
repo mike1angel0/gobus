@@ -79,3 +79,53 @@
 
 ### TASK-016: Comprehensive frontend quality and security audit ✅
 - [x] All 19 checks pass (typecheck, lint, format, test, coverage ≥90%, build, api:check, zero any/dangerouslySetInnerHTML/console.log/raw fetch, access token in memory, SRI N/A no CDN, JSDoc on exports, axe-core clean, error boundaries, skeletons), coverage reviewed (96.48% stmts, 90% branches, 97.5% funcs, 97.51% lines), bundle 258KB gzipped excl. Leaflet (< 500KB target), 1113 tests pass, typecheck passes
+
+---
+
+## QA Audit — Batch 1
+
+**Run date**: 2026-03-26
+**Coverage**: 96.48% stmts | 90% branches | 97.5% funcs | 97.51% lines (1119 tests)
+**Type safety**: Zero `: any` / `as any` in production code
+**Accessibility**: Zero WCAG 2.1 AA violations (axe-core clean, semantic HTML, aria-labels, skip-to-content)
+**Lint**: 0 errors, 1 warning (React Hook Form + React Compiler incompatibility — not actionable)
+**Typecheck**: Clean
+
+### Complexity
+
+#### US-QA-001: Refactor `pages/driver/trip-detail.tsx` (610 lines, limit 500)
+- **Priority**: P3 (Complexity)
+- **AC-1**: Extract `useGpsPosting` hook into a separate `hooks/use-gps-posting.ts` file
+- **AC-2**: File is under 500 lines after extraction
+
+### Coverage — Branch Gaps
+
+#### US-QA-002: Improve branch coverage for `pages/driver/trip-detail.tsx` (79.31% branches)
+- **Priority**: P3 (Coverage)
+- **AC-1**: Add tests covering uncovered branches at lines 219-220, 269-270, 319-320, 407-423 (GPS error paths, geolocation denial, stop completion edge cases)
+- **AC-2**: Branch coverage reaches ≥90%
+
+#### US-QA-003: Improve branch coverage for `contexts/auth-context.tsx` (75% branches)
+- **Priority**: P3 (Coverage)
+- **AC-1**: Add tests for uncovered branches at lines 108, 200-201, 210 (refresh token failure, concurrent refresh race, 403/423 middleware callback paths)
+- **AC-2**: Branch coverage reaches ≥90%
+
+#### US-QA-004: Improve branch coverage for `pages/provider/schedules.tsx` (78.57% branches)
+- **Priority**: P3 (Coverage)
+- **AC-1**: Add tests for uncovered branches at lines 265, 491-492 (filter edge cases, pagination boundary, empty schedule list with active filters)
+- **AC-2**: Branch coverage reaches ≥90%
+
+#### US-QA-005: Improve branch coverage for `pages/driver/trip-detail.tsx` function coverage (88.57%)
+- **Priority**: P3 (Coverage)
+- **AC-1**: Add tests for uncovered functions (GPS cleanup callback, watchPosition error handler, location sharing toggle off)
+- **AC-2**: Function coverage reaches ≥95%
+
+#### US-QA-006: Improve branch coverage for `pages/provider/routes.tsx` (86.11% branches)
+- **Priority**: P3 (Coverage)
+- **AC-1**: Add tests for uncovered branches at lines 205-206, 305-306, 315-316 (route creation validation errors, stops builder edge cases, delete confirmation)
+- **AC-2**: Branch coverage reaches ≥90%
+
+#### US-QA-007: Improve branch coverage for `pages/provider/fleet.tsx` (90% branches, 77.77% funcs)
+- **Priority**: P3 (Coverage)
+- **AC-1**: Add tests for uncovered functions at lines 65, 209 (bus template selection handler, pagination handler)
+- **AC-2**: Function coverage reaches ≥90%
