@@ -25,6 +25,7 @@ const ProviderDriversPage = lazy(() => import('@/pages/provider/drivers'));
 const ProviderTrackingPage = lazy(() => import('@/pages/provider/tracking'));
 const DriverTripsPage = lazy(() => import('@/pages/driver/trips'));
 const DriverTripDetailPage = lazy(() => import('@/pages/driver/trip-detail'));
+const DriverDelayPage = lazy(() => import('@/pages/driver/delay'));
 
 /* ---------- Router ---------- */
 
@@ -84,7 +85,7 @@ export const router = createBrowserRouter([
                 children: [
                   { index: true, element: <DriverTripsPage /> },
                   { path: 'trip/:id', element: <DriverTripDetailPage /> },
-                  { path: 'delay', element: <PlaceholderPage /> },
+                  { path: 'delay', element: <DriverDelayPage /> },
                 ],
               },
 
