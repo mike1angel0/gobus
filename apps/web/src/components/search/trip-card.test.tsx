@@ -19,9 +19,21 @@ const baseTripData: TripCardProps['trip'] = {
 };
 
 const stopsData: TripStop[] = [
-  { stopName: 'Vienna Central', arrivalTime: '2026-05-01T08:00:00Z', departureTime: '2026-05-01T08:00:00Z' },
-  { stopName: 'Bratislava', arrivalTime: '2026-05-01T09:00:00Z', departureTime: '2026-05-01T09:05:00Z' },
-  { stopName: 'Budapest Keleti', arrivalTime: '2026-05-01T10:30:00Z', departureTime: '2026-05-01T10:30:00Z' },
+  {
+    stopName: 'Vienna Central',
+    arrivalTime: '2026-05-01T08:00:00Z',
+    departureTime: '2026-05-01T08:00:00Z',
+  },
+  {
+    stopName: 'Bratislava',
+    arrivalTime: '2026-05-01T09:00:00Z',
+    departureTime: '2026-05-01T09:05:00Z',
+  },
+  {
+    stopName: 'Budapest Keleti',
+    arrivalTime: '2026-05-01T10:30:00Z',
+    departureTime: '2026-05-01T10:30:00Z',
+  },
 ];
 
 describe('TripCard', () => {
@@ -82,13 +94,17 @@ describe('TripCard', () => {
 
   // Seat availability color coding
   it('shows green color for high seat availability (>50%)', () => {
-    renderWithProviders(<TripCard trip={{ ...baseTripData, availableSeats: 30, totalSeats: 50 }} />);
+    renderWithProviders(
+      <TripCard trip={{ ...baseTripData, availableSeats: 30, totalSeats: 50 }} />,
+    );
     const seatsText = screen.getByText('30 seats available');
     expect(seatsText).toHaveClass('text-green-500');
   });
 
   it('shows yellow color for medium seat availability (20-50%)', () => {
-    renderWithProviders(<TripCard trip={{ ...baseTripData, availableSeats: 15, totalSeats: 50 }} />);
+    renderWithProviders(
+      <TripCard trip={{ ...baseTripData, availableSeats: 15, totalSeats: 50 }} />,
+    );
     const seatsText = screen.getByText('15 seats available');
     expect(seatsText).toHaveClass('text-yellow-500');
   });
@@ -189,20 +205,34 @@ describe('TripCard', () => {
   // Duration edge cases
   it('renders duration correctly for exact hours', () => {
     renderWithProviders(
-      <TripCard trip={{ ...baseTripData, departureTime: '2026-05-01T08:00:00Z', arrivalTime: '2026-05-01T10:00:00Z' }} />,
+      <TripCard
+        trip={{
+          ...baseTripData,
+          departureTime: '2026-05-01T08:00:00Z',
+          arrivalTime: '2026-05-01T10:00:00Z',
+        }}
+      />,
     );
     expect(screen.getByText('2h')).toBeInTheDocument();
   });
 
   it('renders duration correctly for minutes only', () => {
     renderWithProviders(
-      <TripCard trip={{ ...baseTripData, departureTime: '2026-05-01T08:00:00Z', arrivalTime: '2026-05-01T08:45:00Z' }} />,
+      <TripCard
+        trip={{
+          ...baseTripData,
+          departureTime: '2026-05-01T08:00:00Z',
+          arrivalTime: '2026-05-01T08:45:00Z',
+        }}
+      />,
     );
     expect(screen.getByText('45m')).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
-    const { container } = renderWithProviders(<TripCard trip={baseTripData} className="custom-class" />);
+    const { container } = renderWithProviders(
+      <TripCard trip={baseTripData} className="custom-class" />,
+    );
     expect(container.firstChild).toHaveClass('custom-class');
   });
 

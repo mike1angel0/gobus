@@ -247,10 +247,7 @@ describe('SeatMap', () => {
     it('each seat has aria-label with label, type, state, and price', () => {
       renderSeatMap();
       const seat = screen.getByRole('gridcell', { name: /Seat 1A/ });
-      expect(seat).toHaveAttribute(
-        'aria-label',
-        'Seat 1A, Standard, $10.00, Available',
-      );
+      expect(seat).toHaveAttribute('aria-label', 'Seat 1A, Standard, $10.00, Available');
     });
 
     it('seats have role=gridcell', () => {

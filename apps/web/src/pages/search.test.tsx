@@ -134,9 +134,7 @@ describe('SearchPage', () => {
         expect(screen.getByText('No trips found')).toBeInTheDocument();
       });
 
-      expect(
-        screen.getByText(/couldn't find any trips matching your search/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/couldn't find any trips matching your search/i)).toBeInTheDocument();
     });
   });
 

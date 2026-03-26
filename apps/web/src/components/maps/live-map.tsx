@@ -43,8 +43,7 @@ export interface LiveMapProps {
   className?: string;
 }
 
-const DARK_TILE_URL =
-  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const DARK_TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const DARK_TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
@@ -137,13 +136,7 @@ function BusMarker({ position }: { position: BusPosition }) {
  * />
  * ```
  */
-export function LiveMap({
-  stops,
-  busPosition,
-  center,
-  zoom,
-  className,
-}: LiveMapProps) {
+export function LiveMap({ stops, busPosition, center, zoom, className }: LiveMapProps) {
   const mapCenter = center ?? DEFAULT_CENTER;
   const mapZoom = zoom ?? DEFAULT_ZOOM;
   const stopIcon = createStopIcon();
@@ -172,7 +165,11 @@ export function LiveMap({
         )}
 
         {stops.map((stop) => (
-          <Marker key={`${stop.name}-${stop.lat}-${stop.lng}`} position={[stop.lat, stop.lng]} icon={stopIcon}>
+          <Marker
+            key={`${stop.name}-${stop.lat}-${stop.lng}`}
+            position={[stop.lat, stop.lng]}
+            icon={stopIcon}
+          >
             <Popup>{stop.name}</Popup>
           </Marker>
         ))}

@@ -165,7 +165,10 @@ interface BookingListProps {
 /** Renders a list of booking cards. */
 function BookingList({ bookings, variant }: BookingListProps) {
   return (
-    <ol className="space-y-4" aria-label={`${variant === 'upcoming' ? 'Upcoming' : 'Past'} bookings`}>
+    <ol
+      className="space-y-4"
+      aria-label={`${variant === 'upcoming' ? 'Upcoming' : 'Past'} bookings`}
+    >
       {bookings.map((booking) => (
         <li key={booking.id}>
           <BookingCard booking={booking} variant={variant} />

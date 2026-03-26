@@ -82,10 +82,9 @@ function BookingDetail({ bookingId, busId }: { bookingId: string; busId?: string
   if (!detail) return null;
 
   const schedule = detail.schedule;
-  const busPosition =
-    trackingData?.data?.isActive
-      ? { lat: trackingData.data.lat, lng: trackingData.data.lng, heading: trackingData.data.heading }
-      : undefined;
+  const busPosition = trackingData?.data?.isActive
+    ? { lat: trackingData.data.lat, lng: trackingData.data.lng, heading: trackingData.data.heading }
+    : undefined;
 
   // We don't have stop coordinates from the booking detail API (spec gap).
   // Show the map only when we have an active bus position.
@@ -97,7 +96,8 @@ function BookingDetail({ bookingId, busId }: { bookingId: string; busId?: string
         <div className="flex items-center gap-2 text-muted-foreground">
           <Bus className="h-4 w-4" aria-hidden="true" />
           <span>
-            {schedule.route.provider.name} &middot; {schedule.bus.model} ({schedule.bus.licensePlate})
+            {schedule.route.provider.name} &middot; {schedule.bus.model} (
+            {schedule.bus.licensePlate})
           </span>
         </div>
         <div className="flex items-center gap-2 text-muted-foreground">
@@ -161,11 +161,7 @@ function CancelDialog({ bookingId, orderId }: CancelDialogProps) {
           <DialogClose asChild>
             <Button variant="outline">Keep booking</Button>
           </DialogClose>
-          <Button
-            variant="destructive"
-            onClick={handleCancel}
-            disabled={cancelBooking.isPending}
-          >
+          <Button variant="destructive" onClick={handleCancel} disabled={cancelBooking.isPending}>
             {cancelBooking.isPending ? 'Cancelling...' : 'Yes, cancel'}
           </Button>
         </DialogFooter>

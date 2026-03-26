@@ -128,14 +128,17 @@ export function useCreateBooking() {
       if (isApiError(error) && error.status === 409) {
         toast({
           title: 'Seats already taken',
-          description: 'One or more selected seats were booked by another passenger. Please refresh and try again.',
+          description:
+            'One or more selected seats were booked by another passenger. Please refresh and try again.',
           variant: 'destructive',
         });
         return;
       }
       toast({
         title: 'Booking failed',
-        description: isApiError(error) ? error.detail ?? error.title : 'An unexpected error occurred.',
+        description: isApiError(error)
+          ? (error.detail ?? error.title)
+          : 'An unexpected error occurred.',
         variant: 'destructive',
       });
     },
@@ -176,7 +179,9 @@ export function useCancelBooking() {
     onError: (error: unknown) => {
       toast({
         title: 'Cancellation failed',
-        description: isApiError(error) ? error.detail ?? error.title : 'An unexpected error occurred.',
+        description: isApiError(error)
+          ? (error.detail ?? error.title)
+          : 'An unexpected error occurred.',
         variant: 'destructive',
       });
     },

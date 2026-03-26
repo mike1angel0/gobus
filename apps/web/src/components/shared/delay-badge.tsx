@@ -2,25 +2,22 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { getDelaySeverity } from '@/lib/delay';
 import { cn } from '@/lib/utils';
 
-const delayBadgeVariants = cva(
-  'inline-flex items-center rounded-full font-medium',
-  {
-    variants: {
-      severity: {
-        'on-time': 'bg-green-500/10 text-green-500',
-        minor: 'bg-yellow-500/10 text-yellow-500',
-        major: 'bg-red-500/10 text-red-500',
-      },
-      size: {
-        sm: 'px-2 py-0.5 text-xs',
-        md: 'px-2.5 py-1 text-sm',
-      },
+const delayBadgeVariants = cva('inline-flex items-center rounded-full font-medium', {
+  variants: {
+    severity: {
+      'on-time': 'bg-green-500/10 text-green-500',
+      minor: 'bg-yellow-500/10 text-yellow-500',
+      major: 'bg-red-500/10 text-red-500',
     },
-    defaultVariants: {
-      size: 'sm',
+    size: {
+      sm: 'px-2 py-0.5 text-xs',
+      md: 'px-2.5 py-1 text-sm',
     },
   },
-);
+  defaultVariants: {
+    size: 'sm',
+  },
+});
 
 /** Props for the {@link DelayBadge} component. */
 export interface DelayBadgeProps extends VariantProps<typeof delayBadgeVariants> {
@@ -57,10 +54,7 @@ export function DelayBadge({ delayMinutes, reason, size, className }: DelayBadge
       : `Delayed ${delayMinutes}min${reason ? ` — ${reason}` : ''}`;
 
   return (
-    <span
-      className={cn(delayBadgeVariants({ severity, size }), className)}
-      aria-label={label}
-    >
+    <span className={cn(delayBadgeVariants({ severity, size }), className)} aria-label={label}>
       {severity === 'on-time' ? 'On Time' : `+${delayMinutes}min`}
     </span>
   );

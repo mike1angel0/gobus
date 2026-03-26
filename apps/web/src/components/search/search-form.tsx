@@ -53,6 +53,134 @@ export interface SearchFormProps {
   className?: string;
 }
 
+/** Props for the city select field. */
+interface CitySelectProps {
+  /** Field id for the input element. */
+  id: string;
+  /** Label text. */
+  label: string;
+  /** Current value (for placeholder styling). */
+  value: string;
+  /** Whether to hide the label (sr-only). */
+  hideLabel: boolean;
+  /** Error message if validation failed. */
+  error?: string;
+  /** Whether the field is invalid. */
+  isInvalid: boolean;
+  /** Register props spread onto the select. */
+  registration: ReturnType<typeof useForm<SearchFormValues>>['register'] extends (
+    n: infer _N,
+  ) => infer R
+    ? R
+    : never;
+}
+
+/** City dropdown select field with icon, label, and error display. */
+function CitySelect({
+  id,
+  label,
+  value,
+  hideLabel,
+  error,
+  isInvalid,
+  registration,
+}: CitySelectProps) {
+  const errorId = `${id}-error`;
+  return (
+    <div className="relative">
+      <Label htmlFor={id} className={hideLabel ? 'sr-only' : 'mb-1.5 block text-sm font-medium'}>
+        {label}
+      </Label>
+      <div className="relative">
+        <MapPin
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <select
+          id={id}
+          {...registration}
+          className={cn(
+            'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-9 text-sm ring-offset-background',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            !value && 'text-muted-foreground',
+            isInvalid && 'border-destructive',
+          )}
+          aria-invalid={isInvalid ? 'true' : undefined}
+          aria-describedby={isInvalid ? errorId : undefined}
+        >
+          <option value="">Select {label.toLowerCase()}</option>
+          {CITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </div>
+      {error && (
+        <p id={errorId} className="mt-1 text-xs text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Props for the date input field. */
+interface DateFieldProps {
+  /** Whether to hide the label (sr-only). */
+  hideLabel: boolean;
+  /** Error message if validation failed. */
+  error?: string;
+  /** Whether the field is invalid. */
+  isInvalid: boolean;
+  /** Register props spread onto the input. */
+  registration: ReturnType<typeof useForm<SearchFormValues>>['register'] extends (
+    n: infer _N,
+  ) => infer R
+    ? R
+    : never;
+}
+
+/** Date input field with calendar icon, label, and error display. */
+function DateField({ hideLabel, error, isInvalid, registration }: DateFieldProps) {
+  return (
+    <div className="relative">
+      <Label
+        htmlFor="search-date"
+        className={hideLabel ? 'sr-only' : 'mb-1.5 block text-sm font-medium'}
+      >
+        Travel date
+      </Label>
+      <div className="relative">
+        <Calendar
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <input
+          id="search-date"
+          type="date"
+          min={today()}
+          {...registration}
+          className={cn(
+            'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-9 text-sm ring-offset-background',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            isInvalid && 'border-destructive',
+          )}
+          aria-invalid={isInvalid ? 'true' : undefined}
+          aria-describedby={isInvalid ? 'search-date-error' : undefined}
+        />
+      </div>
+      {error && (
+        <p id="search-date-error" className="mt-1 text-xs text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /**
  * Search form for finding bus trips between European cities.
  *
@@ -110,7 +238,10 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={cn(isCompact ? 'glass-card p-6' : 'rounded-lg border border-border bg-card p-6', className)}
+      className={cn(
+        isCompact ? 'glass-card p-6' : 'rounded-lg border border-border bg-card p-6',
+        className,
+      )}
       role="search"
       aria-label="Search trips"
       noValidate
@@ -118,46 +249,20 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
       <div
         className={cn(
           'grid gap-4',
-          isCompact ? 'sm:grid-cols-2 lg:grid-cols-4' : 'gap-y-5 sm:grid-cols-2 lg:grid-cols-[1fr_auto_1fr_1fr_auto]',
+          isCompact
+            ? 'sm:grid-cols-2 lg:grid-cols-4'
+            : 'gap-y-5 sm:grid-cols-2 lg:grid-cols-[1fr_auto_1fr_1fr_auto]',
         )}
       >
-        {/* Origin */}
-        <div className="relative">
-          <Label htmlFor="search-origin" className={isCompact ? 'sr-only' : 'mb-1.5 block text-sm font-medium'}>
-            Origin
-          </Label>
-          <div className="relative">
-            <MapPin
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <select
-              id="search-origin"
-              {...register('origin')}
-              className={cn(
-                'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-9 text-sm ring-offset-background',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-50',
-                !origin && 'text-muted-foreground',
-                errors.origin && 'border-destructive',
-              )}
-              aria-invalid={errors.origin ? 'true' : undefined}
-              aria-describedby={errors.origin ? 'search-origin-error' : undefined}
-            >
-              <option value="">Select origin</option>
-              {CITIES.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </div>
-          {errors.origin && (
-            <p id="search-origin-error" className="mt-1 text-xs text-destructive" role="alert">
-              {errors.origin.message}
-            </p>
-          )}
-        </div>
+        <CitySelect
+          id="search-origin"
+          label="Origin"
+          value={origin}
+          hideLabel={isCompact}
+          error={errors.origin?.message}
+          isInvalid={!!errors.origin}
+          registration={register('origin')}
+        />
 
         {/* Swap button (only in full mode, placed between origin and destination) */}
         {!isCompact && (
@@ -175,75 +280,22 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
           </div>
         )}
 
-        {/* Destination */}
-        <div className="relative">
-          <Label htmlFor="search-destination" className={isCompact ? 'sr-only' : 'mb-1.5 block text-sm font-medium'}>
-            Destination
-          </Label>
-          <div className="relative">
-            <MapPin
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <select
-              id="search-destination"
-              {...register('destination')}
-              className={cn(
-                'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-9 text-sm ring-offset-background',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-50',
-                !destination && 'text-muted-foreground',
-                errors.destination && 'border-destructive',
-              )}
-              aria-invalid={errors.destination ? 'true' : undefined}
-              aria-describedby={errors.destination ? 'search-destination-error' : undefined}
-            >
-              <option value="">Select destination</option>
-              {CITIES.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-          </div>
-          {errors.destination && (
-            <p id="search-destination-error" className="mt-1 text-xs text-destructive" role="alert">
-              {errors.destination.message}
-            </p>
-          )}
-        </div>
+        <CitySelect
+          id="search-destination"
+          label="Destination"
+          value={destination}
+          hideLabel={isCompact}
+          error={errors.destination?.message}
+          isInvalid={!!errors.destination}
+          registration={register('destination')}
+        />
 
-        {/* Date */}
-        <div className="relative">
-          <Label htmlFor="search-date" className={isCompact ? 'sr-only' : 'mb-1.5 block text-sm font-medium'}>
-            Travel date
-          </Label>
-          <div className="relative">
-            <Calendar
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <input
-              id="search-date"
-              type="date"
-              min={today()}
-              {...register('date')}
-              className={cn(
-                'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-9 text-sm ring-offset-background',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-50',
-                errors.date && 'border-destructive',
-              )}
-              aria-invalid={errors.date ? 'true' : undefined}
-              aria-describedby={errors.date ? 'search-date-error' : undefined}
-            />
-          </div>
-          {errors.date && (
-            <p id="search-date-error" className="mt-1 text-xs text-destructive" role="alert">
-              {errors.date.message}
-            </p>
-          )}
-        </div>
+        <DateField
+          hideLabel={isCompact}
+          error={errors.date?.message}
+          isInvalid={!!errors.date}
+          registration={register('date')}
+        />
 
         {/* Submit + Swap (compact) */}
         <div className={cn(!isCompact && 'flex items-end')}>

@@ -182,7 +182,10 @@ describe('MyTripsPage', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByRole('tab', { name: /upcoming/i })).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByRole('tab', { name: /upcoming/i })).toHaveAttribute(
+          'aria-selected',
+          'true',
+        );
       });
 
       expect(screen.getByRole('tab', { name: /past/i })).toHaveAttribute('aria-selected', 'false');
@@ -240,7 +243,9 @@ describe('MyTripsPage', () => {
 
     it('shows empty message for tab with no bookings', async () => {
       mockGet.mockResolvedValue(
-        mockBookingsResponse([createBooking({ status: 'COMPLETED', tripDate: '2024-01-01T08:00:00Z' })]),
+        mockBookingsResponse([
+          createBooking({ status: 'COMPLETED', tripDate: '2024-01-01T08:00:00Z' }),
+        ]),
       );
 
       renderWithProviders(<MyTripsPage />, {
@@ -415,10 +420,14 @@ describe('MyTripsPage', () => {
       await user.click(screen.getByRole('button', { name: 'Cancel booking' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Cancel booking', { selector: '[role="dialog"] *' })).toBeInTheDocument();
+        expect(
+          screen.getByText('Cancel booking', { selector: '[role="dialog"] *' }),
+        ).toBeInTheDocument();
       });
 
-      expect(screen.getByText(/Are you sure you want to cancel booking ORD-001/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to cancel booking ORD-001/),
+      ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Keep booking' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Yes, cancel' })).toBeInTheDocument();
     });
@@ -427,7 +436,9 @@ describe('MyTripsPage', () => {
       const user = userEvent.setup();
 
       mockGet.mockResolvedValue(mockBookingsResponse([createBooking()]));
-      mockDelete.mockResolvedValue({ data: { data: { ...mockBookingDetail, status: 'CANCELLED' } } });
+      mockDelete.mockResolvedValue({
+        data: { data: { ...mockBookingDetail, status: 'CANCELLED' } },
+      });
 
       renderWithProviders(<MyTripsPage />, {
         routerProps: { initialEntries: ['/my-trips'] },

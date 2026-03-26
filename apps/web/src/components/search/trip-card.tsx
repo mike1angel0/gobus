@@ -79,7 +79,6 @@ function getSeatLevel(available: number, total: number): 'high' | 'medium' | 'lo
   return 'low';
 }
 
-
 const SEAT_STYLES = {
   high: 'text-green-500',
   medium: 'text-yellow-500',
@@ -124,12 +123,7 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
             <span className="truncate text-sm text-muted-foreground">{trip.providerName}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {delay && (
-              <DelayBadge
-                delayMinutes={delay.delayMinutes}
-                reason={delay.reason}
-              />
-            )}
+            {delay && <DelayBadge delayMinutes={delay.delayMinutes} reason={delay.reason} />}
             <span className="text-lg font-bold">{trip.price.toFixed(2)} €</span>
           </div>
         </div>
@@ -182,11 +176,7 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
             />
           </Button>
           {expanded && (
-            <ol
-              id="trip-stops"
-              className="px-4 pb-3"
-              aria-label="Trip stops"
-            >
+            <ol id="trip-stops" className="px-4 pb-3" aria-label="Trip stops">
               {stops.map((stop) => (
                 <li
                   key={`${stop.stopName}-${stop.departureTime}`}

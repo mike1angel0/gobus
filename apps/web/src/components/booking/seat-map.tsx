@@ -1,11 +1,6 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { components } from '@/api/generated/types';
 
 type SeatAvailability = components['schemas']['SeatAvailability'];
@@ -216,12 +211,7 @@ export function SeatMap({
   return (
     <TooltipProvider delayDuration={300}>
       <div className="space-y-4">
-        <div
-          ref={gridRef}
-          role="grid"
-          aria-label="Seat map"
-          className="inline-block"
-        >
+        <div ref={gridRef} role="grid" aria-label="Seat map" className="inline-block">
           {rows.map((row) => (
             <div key={row} role="row" className="flex">
               {cols.map((col) => {
@@ -239,11 +229,7 @@ export function SeatMap({
                         onKeyDown={(e) => handleKeyDown(e, row, col)}
                       />
                     ) : (
-                      <div
-                        role="gridcell"
-                        className="m-1 h-10 w-10"
-                        aria-hidden="true"
-                      />
+                      <div role="gridcell" className="m-1 h-10 w-10" aria-hidden="true" />
                     )}
                   </div>
                 );

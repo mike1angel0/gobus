@@ -322,11 +322,7 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
 
         {/* Price Summary */}
         {totalPrice !== null && selectedSeatIds.length > 0 && (
-          <div
-            className="rounded-md bg-muted p-4"
-            aria-label="Price summary"
-            role="region"
-          >
+          <div className="rounded-md bg-muted p-4" aria-label="Price summary" role="region">
             <div className="flex items-center justify-between text-sm">
               <span>
                 {selectedSeatIds.length} {selectedSeatIds.length === 1 ? 'seat' : 'seats'} ×{' '}
@@ -403,9 +399,7 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
                 {formatDuration(trip.departureTime, trip.arrivalTime)}
               </div>
               <div className="h-px w-full bg-border" aria-hidden="true" />
-              <p className="text-xs text-muted-foreground">
-                {trip.tripDate}
-              </p>
+              <p className="text-xs text-muted-foreground">{trip.tripDate}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold">{formatTime(trip.arrivalTime)}</p>

@@ -153,7 +153,9 @@ describe('SearchForm', () => {
 
   it('pre-fills form from URL search params', () => {
     renderWithProviders(<SearchForm />, {
-      routerProps: { initialEntries: ['/search?origin=Vienna&destination=Budapest&date=2026-05-01'] },
+      routerProps: {
+        initialEntries: ['/search?origin=Vienna&destination=Budapest&date=2026-05-01'],
+      },
     });
 
     expect(screen.getByLabelText('Origin')).toHaveValue('Vienna');

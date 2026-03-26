@@ -70,7 +70,11 @@ const mockBookingDetailResponse = {
     schedule: {
       departureTime: '2026-04-01T08:00:00Z',
       arrivalTime: '2026-04-01T12:00:00Z',
-      route: { id: 'route_1', name: 'Berlin - Prague', provider: { id: 'prov_1', name: 'EuroBus' } },
+      route: {
+        id: 'route_1',
+        name: 'Berlin - Prague',
+        provider: { id: 'prov_1', name: 'EuroBus' },
+      },
       bus: { id: 'bus_1', licensePlate: 'AB-123', model: 'Mercedes Tourismo' },
     },
     createdAt: '2026-03-25T10:00:00Z',
@@ -223,9 +227,7 @@ describe('useCreateBooking', () => {
       },
     });
 
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Booking confirmed' }),
-    );
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Booking confirmed' }));
   });
 
   it('shows seat conflict message on 409 error', async () => {
@@ -347,9 +349,7 @@ describe('useCancelBooking', () => {
       params: { path: { id: 'bk_1' } },
     });
 
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Booking cancelled' }),
-    );
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Booking cancelled' }));
   });
 
   it('shows error toast on cancellation failure', async () => {

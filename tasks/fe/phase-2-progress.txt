@@ -89,3 +89,19 @@
 - 17 component tests all passing (mocking react-leaflet and leaflet), typecheck clean, lint clean
 - Learnings: react-leaflet components need to be mocked for jsdom tests since MapContainer requires real DOM canvas. Mock useMap() to verify fitBounds/setView calls. Inner components (AutoFitBounds, BusMarker) using useMap() must be children of MapContainer.
 ---
+
+## Iteration 10 - TASK-010: Create my-trips page
+- Created `src/pages/my-trips.tsx` with Upcoming/Past tab split, booking cards, expandable detail, cancel dialog, load more pagination, skeleton/empty/error states
+- Created `src/components/booking/booking-card.tsx` with expandable detail (fetches BookingWithDetails), live tracking map (fetches bus position), cancel confirmation dialog
+- Created `src/hooks/use-tracking.ts` with `useBusTracking` hook (5s staleTime, 10s refetch interval)
+- Updated router to use MyTripsPage instead of PlaceholderPage
+- 33 new tests (29 page tests + 4 tracking hook tests), 541 total passing
+- Documented spec gap: BookingWithDetails and StopTime missing lat/lng coordinates for stop markers on LiveMap
+- Learnings: `useMemo` dependency on `data?.data ?? []` creates new array each render — use `data?.data` directly as dependency instead. Test files with JSX must use `.tsx` extension (not `.ts`). Splitting bookings client-side (CONFIRMED+future = upcoming, rest = past) avoids needing multiple API calls with different status filters.
+---
+
+## Iteration 11 - TASK-011: Run Phase 2 quality gates
+- All quality gates passed: typecheck (0 errors), lint (0 errors, 4 informational warnings for react-hooks/incompatible-library), format:check (passes after formatting 17 files), tests (541 passing), coverage (95.85% stmts, 96.96% lines), build (succeeds), zero `any` in src/, JSDoc on all exports
+- Refactored SearchForm to extract CitySelect and DateField sub-components, reducing cyclomatic complexity from 28 to within limits
+- Learnings: React Hook Form `watch()` triggers react-hooks/incompatible-library warnings — these are informational (not errors) and can be safely ignored. Extracting form fields into internal sub-components is effective for reducing complexity in form components.
+---

@@ -1,6 +1,6 @@
 # Phase 2: Passenger Features — Search, Trip Details, Bookings
 
-**Status**: Pending
+**Status**: Complete
 **Dependencies**: FE Phase 1 (scaffold, API client, auth, shell), BE Phase 3 (search, booking, tracking endpoints)
 **Goal**: Implement all passenger-facing features: trip search, trip detail with interactive seat selection, booking creation, and booking management. All API calls use the typed client generated from the OpenAPI spec.
 
@@ -46,19 +46,6 @@
 
 ---
 
-## Quality Gates
+## Completed Tasks
 
-### TASK-011: Run Phase 2 quality gates
-**Description:** Run and fix all checks.
-
-**Acceptance Criteria:**
-- [ ] `npm run typecheck` — zero errors
-- [ ] `npm run lint` — zero errors
-- [ ] `npm run format:check` — passes
-- [ ] `npm run test` — all pass
-- [ ] `npm run test:coverage` ≥ 90%
-- [ ] `npm run build` — succeeds
-- [ ] Zero `any` in src/ (excluding test/)
-- [ ] JSDoc on all exported functions/components/hooks
-- [ ] All components accessible (WCAG 2.1 AA)
-- [ ] All API calls use typed client (no raw fetch)
+### ~~TASK-011: Run Phase 2 quality gates~~ ✅

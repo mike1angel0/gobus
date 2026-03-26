@@ -8,7 +8,11 @@ const mockSetView = vi.fn();
 
 vi.mock('react-leaflet', () => ({
   MapContainer: ({ children, ...props }: Record<string, unknown>) => (
-    <div data-testid="map-container" data-center={JSON.stringify(props.center)} data-zoom={props.zoom}>
+    <div
+      data-testid="map-container"
+      data-center={JSON.stringify(props.center)}
+      data-zoom={props.zoom}
+    >
       {children as React.ReactNode}
     </div>
   ),
@@ -21,9 +25,7 @@ vi.mock('react-leaflet', () => ({
       {children}
     </div>
   ),
-  Popup: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="popup">{children}</div>
-  ),
+  Popup: ({ children }: { children: React.ReactNode }) => <div data-testid="popup">{children}</div>,
   useMap: () => ({
     fitBounds: mockFitBounds,
     setView: mockSetView,
