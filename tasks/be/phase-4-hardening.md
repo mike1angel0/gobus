@@ -192,11 +192,11 @@
 **Description:** Add npm scripts: `db:migrate:deploy` (for production, uses `prisma migrate deploy`), `db:migrate:reset` (for dev, uses `prisma migrate reset --force`). Update seed script to be idempotent (upsert, not create). Add a `docker-entrypoint.sh` that runs migrations before starting the server.
 
 **Acceptance Criteria:**
-- [ ] `db:migrate:deploy` runs pending migrations
-- [ ] `db:migrate:reset` resets and re-seeds
-- [ ] Seed script is idempotent (safe to run multiple times)
-- [ ] Docker entrypoint runs migrations automatically
-- [ ] Typecheck passes
+- [x] `db:migrate:deploy` runs pending migrations
+- [x] `db:migrate:reset` resets and re-seeds
+- [x] Seed script is idempotent (safe to run multiple times)
+- [x] Docker entrypoint runs migrations automatically
+- [x] Typecheck passes
 
 ---
 

@@ -46,6 +46,10 @@ RUN npm run db:generate --workspace=apps/api
 # Copy built output from builder
 COPY --from=builder /app/apps/api/dist apps/api/dist
 
+# Copy entrypoint script
+COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Non-root user for security
 RUN addgroup -S transio && adduser -S transio -G transio
 USER transio
@@ -55,4 +59,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://localhost:3000/health/live || exit 1
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "apps/api/dist/server.js"]

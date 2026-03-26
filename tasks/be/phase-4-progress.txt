@@ -96,5 +96,21 @@
 - Learnings: busTracking service uses findUnique (not findFirst) — mock must match. Provider integration test mocks must match the select: { provider: true } pattern used since iteration 13.
 ---
 
+## Iteration 15 - TASK-015: Create Docker setup for backend
+- Created multi-stage Dockerfile (builder + runner) with node:20-alpine, non-root user, health check
+- Created docker-compose.yml with PostgreSQL 16 + API service, health checks, env var passthrough
+- Added .dockerignore to keep image slim (excludes node_modules, dist, tests, coverage)
+- Updated .env.example with HOST and LOG_LEVEL variables
+- Learnings: Monorepo workspace installs need --workspace and --include-workspace-root flags. Prisma client must be generated in both build and runtime stages (runtime needs the native binary for the runtime OS).
+---
+
+## Iteration 16 - TASK-016: Create database migration and seed scripts for Docker
+- Added `db:migrate:deploy` (prisma migrate deploy) and `db:migrate:reset` (prisma migrate reset --force) npm scripts
+- Made seed script fully idempotent: providers use findFirst+create, users use upsert (email is unique), buses use upsert (licensePlate is unique), routes use findFirst by name+provider, schedules use findFirst by route+bus+departure+tripDate
+- Created docker-entrypoint.sh that runs `prisma migrate deploy` before starting the server
+- Updated Dockerfile with ENTRYPOINT pointing to the entrypoint script
+- Learnings: Provider.contactEmail is nullable and not unique — can't use Prisma upsert on it. Use findFirst+create pattern instead. Bus.licensePlate is @unique so upsert works directly.
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.

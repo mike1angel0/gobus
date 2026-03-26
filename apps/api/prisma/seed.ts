@@ -10,34 +10,24 @@ async function main() {
   const adapter = new PrismaPg({ connectionString: process.env['DATABASE_URL']! });
   const prisma = new PrismaClient({ adapter });
 
-  console.log('Seeding database…');
+  console.log('Seeding database (idempotent)…');
 
   // ─── Providers ──────────────────────────────────────────────────────────────
+  async function upsertProvider(
+    name: string,
+    contactEmail: string,
+    contactPhone: string,
+    status: 'APPROVED' | 'PENDING',
+  ) {
+    const existing = await prisma.provider.findFirst({ where: { name } });
+    if (existing) return existing;
+    return prisma.provider.create({ data: { name, contactEmail, contactPhone, status } });
+  }
+
   const [providerA, providerB, providerC] = await Promise.all([
-    prisma.provider.create({
-      data: {
-        name: 'TransBalkan Express',
-        contactEmail: 'office@transbalkan.ro',
-        contactPhone: '+40700100200',
-        status: 'APPROVED',
-      },
-    }),
-    prisma.provider.create({
-      data: {
-        name: 'CarpathianBus',
-        contactEmail: 'info@carpathianbus.ro',
-        contactPhone: '+40700300400',
-        status: 'APPROVED',
-      },
-    }),
-    prisma.provider.create({
-      data: {
-        name: 'DanubeLine',
-        contactEmail: 'contact@danubeline.ro',
-        contactPhone: '+40700500600',
-        status: 'PENDING',
-      },
-    }),
+    upsertProvider('TransBalkan Express', 'office@transbalkan.ro', '+40700100200', 'APPROVED'),
+    upsertProvider('CarpathianBus', 'info@carpathianbus.ro', '+40700300400', 'APPROVED'),
+    upsertProvider('DanubeLine', 'contact@danubeline.ro', '+40700500600', 'PENDING'),
   ]);
 
   // ─── Users ──────────────────────────────────────────────────────────────────
@@ -45,8 +35,10 @@ async function main() {
 
   const users = await Promise.all([
     // Admin
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'admin@transio.dev' },
+      update: {},
+      create: {
         email: 'admin@transio.dev',
         name: 'Admin User',
         passwordHash,
@@ -54,8 +46,10 @@ async function main() {
       },
     }),
     // Provider admins (one per provider)
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'owner@transbalkan.ro' },
+      update: {},
+      create: {
         email: 'owner@transbalkan.ro',
         name: 'Ion Popescu',
         passwordHash,
@@ -63,8 +57,10 @@ async function main() {
         providerId: providerA.id,
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'owner@carpathianbus.ro' },
+      update: {},
+      create: {
         email: 'owner@carpathianbus.ro',
         name: 'Maria Ionescu',
         passwordHash,
@@ -72,8 +68,10 @@ async function main() {
         providerId: providerB.id,
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'owner@danubeline.ro' },
+      update: {},
+      create: {
         email: 'owner@danubeline.ro',
         name: 'Andrei Vasile',
         passwordHash,
@@ -82,8 +80,10 @@ async function main() {
       },
     }),
     // Drivers (one per provider)
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'driver1@transbalkan.ro' },
+      update: {},
+      create: {
         email: 'driver1@transbalkan.ro',
         name: 'Gheorghe Marin',
         passwordHash,
@@ -91,8 +91,10 @@ async function main() {
         providerId: providerA.id,
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'driver1@carpathianbus.ro' },
+      update: {},
+      create: {
         email: 'driver1@carpathianbus.ro',
         name: 'Vasile Dumitrescu',
         passwordHash,
@@ -100,8 +102,10 @@ async function main() {
         providerId: providerB.id,
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'driver1@danubeline.ro' },
+      update: {},
+      create: {
         email: 'driver1@danubeline.ro',
         name: 'Florin Stancu',
         passwordHash,
@@ -110,8 +114,10 @@ async function main() {
       },
     }),
     // Passengers
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'passenger1@example.com' },
+      update: {},
+      create: {
         email: 'passenger1@example.com',
         name: 'Elena Radu',
         passwordHash,
@@ -119,8 +125,10 @@ async function main() {
         phone: '+40712345678',
       },
     }),
-    prisma.user.create({
-      data: {
+    prisma.user.upsert({
+      where: { email: 'passenger2@example.com' },
+      update: {},
+      create: {
         email: 'passenger2@example.com',
         name: 'Cristian Popa',
         passwordHash,
@@ -162,13 +170,19 @@ async function main() {
   ];
 
   // ─── Routes with stops ─────────────────────────────────────────────────────
-  // Helper to create a route with its stops
-  async function createRoute(
+  // Helper to create a route with its stops (idempotent by name+provider)
+  async function upsertRoute(
     name: string,
     providerId: string,
     stopNames: string[],
     coords: Array<[number, number]>,
   ) {
+    // Check if route already exists for this provider
+    const existing = await prisma.route.findFirst({
+      where: { name, providerId },
+    });
+    if (existing) return existing;
+
     const route = await prisma.route.create({ data: { name, providerId } });
     await prisma.stop.createMany({
       data: stopNames.map((stopName, i) => ({
@@ -185,36 +199,36 @@ async function main() {
   // 8 routes across 3 providers
   const routes = await Promise.all([
     // Provider A — TransBalkan Express (3 routes)
-    createRoute('București → Cluj-Napoca', providerA.id, [cities[0], cities[10], cities[5], cities[11], cities[1]], [
+    upsertRoute('București → Cluj-Napoca', providerA.id, [cities[0], cities[10], cities[5], cities[11], cities[1]], [
       [44.4268, 26.1025], [44.9467, 26.024], [45.6427, 25.5887], [46.5386, 24.5554], [46.7712, 23.6236],
     ]),
-    createRoute('București → Timișoara', providerA.id, [cities[0], cities[9], cities[13], cities[7], cities[2]], [
+    upsertRoute('București → Timișoara', providerA.id, [cities[0], cities[9], cities[13], cities[7], cities[2]], [
       [44.4268, 26.1025], [44.8565, 24.8691], [45.0997, 24.3694], [44.3302, 23.7949], [45.7489, 21.2087],
     ]),
-    createRoute('București → Constanța', providerA.id, [cities[0], cities[4]], [
+    upsertRoute('București → Constanța', providerA.id, [cities[0], cities[4]], [
       [44.4268, 26.1025], [44.1598, 28.6348],
     ]),
     // Provider B — CarpathianBus (3 routes)
-    createRoute('Cluj-Napoca → Sibiu', providerB.id, [cities[1], cities[11], cities[12], cities[6]], [
+    upsertRoute('Cluj-Napoca → Sibiu', providerB.id, [cities[1], cities[11], cities[12], cities[6]], [
       [46.7712, 23.6236], [46.5386, 24.5554], [46.0677, 23.5695], [45.7983, 24.1256],
     ]),
-    createRoute('Cluj-Napoca → Oradea', providerB.id, [cities[1], cities[8]], [
+    upsertRoute('Cluj-Napoca → Oradea', providerB.id, [cities[1], cities[8]], [
       [46.7712, 23.6236], [47.0722, 21.9212],
     ]),
-    createRoute('Brașov → Iași', providerB.id, [cities[5], cities[11], cities[3]], [
+    upsertRoute('Brașov → Iași', providerB.id, [cities[5], cities[11], cities[3]], [
       [45.6427, 25.5887], [46.5386, 24.5554], [47.1585, 27.6014],
     ]),
     // Provider C — DanubeLine (2 routes)
-    createRoute('Timișoara → Arad', providerC.id, [cities[2], cities[14]], [
+    upsertRoute('Timișoara → Arad', providerC.id, [cities[2], cities[14]], [
       [45.7489, 21.2087], [46.1866, 21.3123],
     ]),
-    createRoute('Craiova → București', providerC.id, [cities[7], cities[9], cities[0]], [
+    upsertRoute('Craiova → București', providerC.id, [cities[7], cities[9], cities[0]], [
       [44.3302, 23.7949], [44.8565, 24.8691], [44.4268, 26.1025],
     ]),
   ]);
 
   // ─── Buses with seat grids ─────────────────────────────────────────────────
-  async function createBus(
+  async function upsertBus(
     licensePlate: string,
     model: string,
     rows: number,
@@ -222,9 +236,15 @@ async function main() {
     providerId: string,
   ) {
     const capacity = rows * columns;
-    const bus = await prisma.bus.create({
-      data: { licensePlate, model, capacity, rows, columns, providerId },
+    const bus = await prisma.bus.upsert({
+      where: { licensePlate },
+      update: {},
+      create: { licensePlate, model, capacity, rows, columns, providerId },
     });
+
+    // Only create seats if none exist yet
+    const seatCount = await prisma.seat.count({ where: { busId: bus.id } });
+    if (seatCount > 0) return bus;
 
     const seatData: Array<{
       row: number;
@@ -261,11 +281,11 @@ async function main() {
   }
 
   const buses = await Promise.all([
-    createBus('B-100-TBE', 'Mercedes Tourismo', 10, 4, providerA.id),
-    createBus('B-200-TBE', 'MAN Lion Coach', 12, 4, providerA.id),
-    createBus('CJ-100-CB', 'Irizar i6', 10, 4, providerB.id),
-    createBus('CJ-200-CB', 'Setra S 516 HD', 8, 4, providerB.id),
-    createBus('TM-100-DL', 'Neoplan Cityliner', 10, 4, providerC.id),
+    upsertBus('B-100-TBE', 'Mercedes Tourismo', 10, 4, providerA.id),
+    upsertBus('B-200-TBE', 'MAN Lion Coach', 12, 4, providerA.id),
+    upsertBus('CJ-100-CB', 'Irizar i6', 10, 4, providerB.id),
+    upsertBus('CJ-200-CB', 'Setra S 516 HD', 8, 4, providerB.id),
+    upsertBus('TM-100-DL', 'Neoplan Cityliner', 10, 4, providerC.id),
   ]);
 
   // ─── Schedules with stop times and segment pricing ─────────────────────────
@@ -312,6 +332,17 @@ async function main() {
     departure.setUTCHours(input.departureHour, input.departureMinute, 0, 0);
 
     const arrival = new Date(departure.getTime() + input.durationMinutes * 60_000);
+
+    // Check if schedule already exists (same route, bus, departure, trip date)
+    const existingSchedule = await prisma.schedule.findFirst({
+      where: {
+        routeId: route.id,
+        busId: bus.id,
+        departureTime: departure,
+        tripDate: refDate,
+      },
+    });
+    if (existingSchedule) continue;
 
     // Fetch stops for this route to create stop times
     const stops = await prisma.stop.findMany({
