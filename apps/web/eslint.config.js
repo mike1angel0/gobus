@@ -61,6 +61,7 @@ export default defineConfig([
     files: ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}'],
     rules: {
       'jsdoc/require-jsdoc': 'off',
+      'max-lines-per-function': 'off',
     },
   },
   {
@@ -69,6 +70,7 @@ export default defineConfig([
       'jsdoc/require-jsdoc': 'off',
       'react-refresh/only-export-components': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
+      'jsx-a11y/label-has-associated-control': 'off',
     },
   },
   {

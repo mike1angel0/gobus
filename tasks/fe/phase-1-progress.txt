@@ -67,3 +67,29 @@
 - 90 tests passing (62 new for keys + provider)
 - Learnings: react-refresh/only-export-components ESLint rule forbids mixing component exports with non-component exports (like QueryClient). Split constants into a separate .ts file and keep only the component in the .tsx file.
 ---
+
+## Iteration 8 - TASK-008: Create auth context and hooks with secure token handling
+- Created src/contexts/auth-types.ts with AuthContext, types (User, RegisterData, AuthStatus, AuthContextValue), JWT helpers, and localStorage helpers
+- Created src/contexts/auth-context.tsx with AuthProvider: login, register, logout, changePassword, forgotPassword, resetPassword, auto-refresh, session restore
+- Created src/hooks/useAuth.ts hook consuming AuthContext
+- Access token stored in memory only (setAccessToken from api/client), refresh token in localStorage
+- Auto-refresh schedules timer using JWT exp claim, refreshes 60s before expiry
+- On 401 during refresh → full logout; on 403/423 during restore → silent clearAuth
+- Wired AuthProvider into main.tsx, updated renderWithProviders with optional withAuth flag
+- 15 unit tests covering: initial state, login, register, logout, changePassword, forgotPassword, resetPassword, auto-refresh, error scenarios, useAuth outside provider
+- Learnings: jsdom in vitest doesn't provide a proper localStorage by default — must mock it with Object.defineProperty(globalThis, 'localStorage', {...}). Also react-refresh/only-export-components rule forces separating createContext + types into a non-component .ts file and keeping only the component export in the .tsx file (same pattern as TASK-007).
+---
+
+## Iteration 9 - TASK-009: Create login page
+- Created src/pages/auth/login.tsx with email/password form using React Hook Form + Zod + zodResolver
+- Created src/pages/auth/login-schema.ts (separated to satisfy react-refresh/only-export-components)
+- Created src/components/ui/label.tsx (shadcn Label component, manual install due to CLI config issue)
+- Zod schema mirrors OpenAPI spec constraints: email format + max 255, password min 1 + max 128
+- API error handling: INVALID_CREDENTIALS, ACCOUNT_SUSPENDED, ACCOUNT_LOCKED with user-facing messages
+- Field-level RFC 9457 errors mapped to form fields via setError()
+- Role-based redirect via useEffect watching isAuthenticated + user state
+- Used h1 instead of CardTitle for proper heading semantics (CardTitle renders as div)
+- 29 tests covering: rendering, accessibility, client-side validation, form submission, API error handling, role redirects, schema validation
+- Updated ESLint config: max-lines-per-function off for test files, jsx-a11y/label-has-associated-control off for shadcn UI components
+- Learnings: CardTitle from shadcn uses div not heading — use h1 directly for accessibility. Shadcn CLI fails with "Invalid configuration" on this project — manually create components instead. Always separate exported constants/functions from default component exports to satisfy react-refresh.
+---

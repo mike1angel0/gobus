@@ -32,17 +32,7 @@
 
 ### ~~TASK-008: Create auth context and hooks with secure token handling~~ ✅
 
-### TASK-009: Create login page
-**Description:** Create `src/pages/auth/login.tsx`. Form with email + password fields. Zod validation (email format, password min 6 chars). React Hook Form + zodResolver. Calls `login()` from auth context. Redirects to role-appropriate dashboard on success. Shows field-level errors from API (RFC 9457 errors mapped to fields). Loading state on submit button.
-
-**Acceptance Criteria:**
-- [ ] Form with Zod validation + React Hook Form
-- [ ] API errors mapped to form fields
-- [ ] Loading spinner on submit
-- [ ] Redirects on success (PROVIDER → /provider, DRIVER → /driver, ADMIN → /admin, PASSENGER → /)
-- [ ] Accessible: labels, aria attributes, keyboard navigable
-- [ ] Component test with RTL
-- [ ] Typecheck passes
+### ~~TASK-009: Create login page~~ ✅
 
 ### TASK-010: Create register page
 **Description:** Create `src/pages/auth/register.tsx`. Role toggle (PASSENGER / PROVIDER). Shared fields: name, email, password, phone. Provider-specific: providerName. Zod validation including password strength (min 8, uppercase+lowercase+digit). Password strength indicator. React Hook Form. Auto-login after registration.
