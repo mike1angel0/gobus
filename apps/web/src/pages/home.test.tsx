@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import HomePage from './home';
@@ -67,16 +67,19 @@ describe('HomePage', () => {
     it('has labels for all form inputs', () => {
       renderWithProviders(<HomePage />);
 
-      expect(screen.getByLabelText('Origin')).toHaveAttribute('id', 'origin');
-      expect(screen.getByLabelText('Destination')).toHaveAttribute('id', 'destination');
-      expect(screen.getByLabelText('Travel date')).toHaveAttribute('id', 'travel-date');
+      expect(screen.getByLabelText('Origin')).toHaveAttribute('id', 'search-origin');
+      expect(screen.getByLabelText('Destination')).toHaveAttribute('id', 'search-destination');
+      expect(screen.getByLabelText('Travel date')).toHaveAttribute('id', 'search-date');
     });
 
-    it('enforces maxLength on origin and destination inputs', () => {
-      renderWithProviders(<HomePage />);
+    it('uses sr-only labels in compact mode on home page', () => {
+      const { container } = renderWithProviders(<HomePage />);
 
-      expect(screen.getByLabelText('Origin')).toHaveAttribute('maxLength', '200');
-      expect(screen.getByLabelText('Destination')).toHaveAttribute('maxLength', '200');
+      const form = container.querySelector('form');
+      const labels = form?.querySelectorAll('label');
+      labels?.forEach((label) => {
+        expect(label).toHaveClass('sr-only');
+      });
     });
   });
 
@@ -85,33 +88,31 @@ describe('HomePage', () => {
       const user = userEvent.setup();
       renderWithProviders(<HomePage />);
 
-      await user.type(screen.getByLabelText('Origin'), 'Bucharest');
-      await user.type(screen.getByLabelText('Destination'), 'Cluj');
-      await user.type(screen.getByLabelText('Travel date'), '2026-04-01');
+      await user.selectOptions(screen.getByLabelText('Origin'), 'Berlin');
+      await user.selectOptions(screen.getByLabelText('Destination'), 'Prague');
+
       await user.click(screen.getByRole('button', { name: /search/i }));
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        '/search?origin=Bucharest&destination=Cluj&date=2026-04-01',
-      );
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+      });
+
+      const navigatedUrl = mockNavigate.mock.calls[0][0] as string;
+      expect(navigatedUrl).toContain('origin=Berlin');
+      expect(navigatedUrl).toContain('destination=Prague');
+      expect(navigatedUrl).toContain('date=');
     });
 
-    it('navigates to /search with partial params when some fields empty', async () => {
-      const user = userEvent.setup();
-      renderWithProviders(<HomePage />);
-
-      await user.type(screen.getByLabelText('Origin'), 'Bucharest');
-      await user.click(screen.getByRole('button', { name: /search/i }));
-
-      expect(mockNavigate).toHaveBeenCalledWith('/search?origin=Bucharest');
-    });
-
-    it('navigates to /search with empty params when no fields filled', async () => {
+    it('shows validation error when submitting without required fields', async () => {
       const user = userEvent.setup();
       renderWithProviders(<HomePage />);
 
       await user.click(screen.getByRole('button', { name: /search/i }));
 
-      expect(mockNavigate).toHaveBeenCalledWith('/search?');
+      await waitFor(() => {
+        expect(screen.getByText('Origin is required')).toBeInTheDocument();
+      });
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 

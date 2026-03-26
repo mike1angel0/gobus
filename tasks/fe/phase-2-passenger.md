@@ -16,19 +16,7 @@
 
 ## Search & Results
 
-### TASK-003: Create SearchForm component
-**Description:** Create `src/components/search/search-form.tsx`. City dropdown for origin and destination (15 European cities). Date picker. Swap button to swap origin/destination. Compact and full layout modes. On submit, navigates to `/search?origin=X&destination=Y&date=Z` with query params.
-
-**Acceptance Criteria:**
-- [ ] City dropdowns with all 15 cities
-- [ ] Date picker (defaults to today, min: today)
-- [ ] Swap button swaps origin/destination
-- [ ] Form validation: origin ≠ destination, both required
-- [ ] Navigates to search page with query params
-- [ ] Compact mode for home page, full mode for search page
-- [ ] Accessible: labels, keyboard navigation
-- [ ] Component test
-- [ ] Typecheck passes
+### ~~TASK-003: Create SearchForm component~~ ✅
 
 ### TASK-004: Create TripCard component
 **Description:** Create `src/components/search/trip-card.tsx`. Displays: provider logo + name, departure/arrival times, route name, duration, price, available seats count, delay badge (if active delay). Expandable section showing stop list with times. Link to trip detail page.
