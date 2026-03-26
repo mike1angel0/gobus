@@ -61,17 +61,8 @@
 
 ## Frontend Security Hardening
 
-### TASK-012: XSS prevention audit
-**Description:** Audit all components for XSS vectors: (1) Verify no `dangerouslySetInnerHTML` usage anywhere. (2) Verify no user-controlled data in `href` attributes (prevent `javascript:` URL injection) — create a `sanitizeUrl(url)` helper that strips non-https schemes. (3) Verify all user-provided strings rendered via JSX `{variable}` (React auto-escapes). (4) Verify no user input in `style` attributes or CSS custom properties. (5) Audit Leaflet map popups — if using `.bindPopup(userString)`, switch to React Leaflet's `<Popup>` component which auto-escapes. (6) Audit toast notifications — verify they escape HTML.
-
-**Acceptance Criteria:**
-- [ ] Zero `dangerouslySetInnerHTML` in codebase
-- [ ] `sanitizeUrl()` helper created and used for all URL rendering (avatarUrl, provider logo, etc.)
-- [ ] `sanitizeUrl` rejects `javascript:`, `data:`, `vbscript:` schemes — only allows `https:` and relative URLs
-- [ ] Leaflet popups use React Leaflet `<Popup>` component (not raw `.bindPopup()`)
-- [ ] All toast messages use plain text (no HTML rendering)
-- [ ] Unit tests for sanitizeUrl
-- [ ] Typecheck passes
+### TASK-012: XSS prevention audit ✅
+- [x] Zero dangerouslySetInnerHTML, sanitizeUrl() helper with 17 tests, Leaflet uses React <Popup>, toasts use Radix plain text, no dynamic href/src bindings, no user input in style attrs, typecheck passes
 
 ### TASK-013: Subresource Integrity for CDN assets
 **Description:** Add SRI (Subresource Integrity) hashes to all CDN-loaded resources: Leaflet CSS from unpkg. If any other CDN resources exist, add SRI to those too. Alternatively, bundle Leaflet CSS locally to eliminate CDN dependency entirely (preferred).
