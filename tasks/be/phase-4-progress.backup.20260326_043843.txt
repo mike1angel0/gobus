@@ -1,0 +1,213 @@
+# Progress Log
+
+## Compacted History
+
+### Tasks Completed (Iterations 1–9)
+1. **CORS** — @fastify/cors with parseCorsOrigins(), dev auto-includes localhost ports, credentials enabled, X-Request-Id exposed
+2. **Helmet** — Strict CSP, HSTS 1yr+preload, X-Frame-Options DENY, referrer-policy strict-origin-when-cross-origin; disabled in test env
+3. **Rate limiting** — @fastify/rate-limit global 100/min, auth 10/min, search 30/min; 429 → RFC 9457 with Retry-After
+4. **Input sanitization** — .trim() on all user string fields, bodyLimit 1MB, genReqId via randomUUID, 413 handling
+5. **Audit logging service** — AuditService with fire-and-forget log(), paginated getByUser(), 12 audit actions
+6. **Audit hooks** — request.audit() plugin extracting IP/UA, integrated into all auth routes (8 events) and booking routes (2 events)
+7. **Token cleanup & sessions** — cleanupTokens job (expired tokens, used resets, stale locks), revokeAllSessions, DELETE /admin/users/:id/sessions
+8. **Admin user management** — GET /admin/users (filterable), PATCH /admin/users/:id/status (suspend/unsuspend/unlock), GET /admin/audit-logs (filterable)
+9. **Structured logging** — Pino-backed createLogger(), pino-pretty in dev, sensitive field redaction, LOG_LEVEL env, request-logger plugin
+
+### Key Patterns
+- RFC 9457 Problem Details for all error responses (type, title, status, detail, code, errors[])
+- Response envelope: `{ data }` for single, `{ data, meta }` for paginated lists
+- Pagination: page/pageSize query params, service returns `{ items, total }`, route maps to `{ data, meta: { page, pageSize, totalItems, totalPages } }`
+- Integration tests use `app.inject()` with full plugin stack; auth mocks chain `mockResolvedValueOnce` for auth lookup + service lookups
+- Admin endpoints: `preHandler: [app.authenticate, requireAdmin]`
+- Audit logging is fire-and-forget with try/catch wrapper (not just .catch()) to handle synchronous errors
+
+### Important Gotchas
+- @fastify/rate-limit v10 throws errors that hit the error handler — must handle statusCode 429 explicitly
+- Fastify bodyLimit errors arrive as statusCode 413 in error handler
+- Prisma JSON fields need `& object` intersection: `(metadata as Record<string, unknown> & object)`
+- OpenAPI 3.1 uses `type: ['string', 'null']` not `nullable: true`
+- Zod `z.record()` requires 2 args: `z.record(z.string(), z.unknown())`
+- `decorateRequest('audit', null)` needs `as unknown as FastifyRequest['audit']` cast
+- Booking create uses interactive $transaction (callback), not array-style
+- `vi.hoisted()` needed for spies used inside `vi.mock()` factory functions
+- Pino `level` must be a valid string (not undefined) — env schema must provide default
+- Integration test mocks for suspend path need 3 chained mockResolvedValueOnce (auth + status + revoke)
+- When adding pagination, integration test mock must include `.count()` alongside `.findMany()`
+- CWD matters for spec:lint — must run from monorepo root
+
+### Useful Commands
+- `npm run spec:lint` — validate OpenAPI spec (run from monorepo root)
+- `npm run spec:bundle` — bundle spec
+- `npm run jobs:cleanup-tokens` — run token cleanup job
+- `npx vitest run` — run all tests
+- `app.inject({ method, url, headers, payload, remoteAddress })` — for integration tests with IP
+
+---
+
+## Iteration 10 - TASK-010: Add health check enhancements
+- Enhanced `/health` to include: database connectivity check (via `$queryRawUnsafe('SELECT 1')`), memory usage (rss, heapUsed, heapTotal), environment indicator, status degraded/ok based on DB
+- Added `/health/ready` readiness probe — returns 503 if DB unreachable, 200 if ready
+- Added `/health/live` liveness probe — always returns 200
+- 8 integration tests covering: ok+degraded states, ready/not_ready, live always 200, docs endpoints
+- All 390 unit + 315 integration tests pass, typecheck + lint clean
+- Learnings: Health routes need Prisma mock (`$queryRawUnsafe`) in integration tests since they now check DB connectivity. Previous health tests had no mocks — now need full mock setup like other integration tests.
+---
+
+## Iteration 11 - TASK-011: Add request timing and metrics hooks
+- Created `src/api/plugins/metrics.ts` Fastify plugin with onResponse hook tracking request count, response times, error counts by status code
+- Logs slow requests (>5s) with warn level including method, url, responseTime, requestId
+- In production: logs periodic summary every 60s with requestCount, avgResponseTime, p50/p95/p99 percentiles, errorCountByStatus
+- Interval uses `.unref()` to not block process exit; cleans up on app close
+- Exported helper functions (percentile, buildSummary, createMetricsState) for testability
+- 11 unit tests for helpers + 3 integration tests for plugin behavior
+- All 401 unit tests pass, typecheck + lint clean
+- Learnings: Integration test mocks for createLogger need to distinguish by name parameter to capture only the Metrics logger's calls, not other loggers.
+---
+
+## Iteration 12 - TASK-012: Add pagination to all list endpoints
+- Added pagination to delays endpoint (GET /api/v1/delays): updated OpenAPI spec, Zod query schema, service (getBySchedule now takes page/pageSize, returns PaginatedDelays), route, and response schema
+- Added pagination to driver/trips endpoint (GET /api/v1/driver/trips): updated OpenAPI spec, Zod query schema, service (listTrips now takes page/pageSize, returns PaginatedDriverTrips), route, and response schema
+- Capped search results to 50 per page (pageSize max reduced from 100 to 50 in both Zod schema and OpenAPI spec)
+- Bus templates endpoint intentionally left unpaginated (static/fixed list)
+- Updated all existing unit and integration tests to use new paginated response format (data + meta)
+- Added pagination-specific integration tests for delays, driver-trips, and search (pageSize >50 rejected)
+- All 403 unit + 321 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: When adding pagination to an existing endpoint, the integration test mock must also include `.count()` mock alongside `.findMany()` since `Promise.all([findMany, count])` is used. CWD matters for running spec:lint — must run from monorepo root.
+---
+
+## Iteration 13 - TASK-013: Optimize database queries
+- Added 7 composite indexes: Schedule(routeId+status+tripDate), Schedule(busId+status+tripDate), Schedule(driverId+status), Delay(scheduleId+tripDate+active), BookingSeat(scheduleId+tripDate), Booking(userId+status+createdAt), AuditLog(action+createdAt)
+- Optimized all list queries to use `select` instead of fetching full objects (route, bus, schedule, admin buses)
+- Fixed N+1 in provider.service.ts getByUserId — single query with `select: { provider: true }` instead of 2 queries
+- Parallelized schedule create ownership validations with Promise.all (route + bus + driver checks)
+- Parallelized tracking.service.ts bus + schedule validation queries
+- Used minimal `select` for existence checks (admin updateUserStatus, revokeAllSessions, toggleSeat, booking cancel)
+- Optimized schedule driver include: `driver: { select: { id: true, name: true } }` instead of `driver: true`
+- All 403 tests pass, typecheck + lint clean
+- Learnings: When adding `select` to existing queries, all unit tests asserting `toHaveBeenCalledWith` must be updated to include the select clause. When changing from `select: { providerId }` to `select: { provider: true }`, mock return values must also change shape.
+---
+
+## Iteration 14 - TASK-014: Add response caching headers
+- Created cache-control plugin with 4 helpers: cachePublic(maxAge), cachePrivate(maxAge), noCache, privateNoCache
+- Applied cache headers to all GET routes: search (public 30s), trip details (public 10s), bus templates (public 1h), tracking (no-cache), all authenticated data (private no-cache)
+- Fixed pre-existing broken provider integration test (mock pattern didn't match iteration 13's select: { provider: true } change)
+- 5 unit tests for cache-control helpers, 8 integration tests verifying headers on key routes
+- All 408 unit + 329 integration tests pass, typecheck + lint clean
+- Learnings: busTracking service uses findUnique (not findFirst) — mock must match. Provider integration test mocks must match the select: { provider: true } pattern used since iteration 13.
+---
+
+## Iteration 15 - TASK-015: Create Docker setup for backend
+- Created multi-stage Dockerfile (builder + runner) with node:20-alpine, non-root user, health check
+- Created docker-compose.yml with PostgreSQL 16 + API service, health checks, env var passthrough
+- Added .dockerignore to keep image slim (excludes node_modules, dist, tests, coverage)
+- Updated .env.example with HOST and LOG_LEVEL variables
+- Learnings: Monorepo workspace installs need --workspace and --include-workspace-root flags. Prisma client must be generated in both build and runtime stages (runtime needs the native binary for the runtime OS).
+---
+
+## Iteration 16 - TASK-016: Create database migration and seed scripts for Docker
+- Added `db:migrate:deploy` (prisma migrate deploy) and `db:migrate:reset` (prisma migrate reset --force) npm scripts
+- Made seed script fully idempotent: providers use findFirst+create, users use upsert (email is unique), buses use upsert (licensePlate is unique), routes use findFirst by name+provider, schedules use findFirst by route+bus+departure+tripDate
+- Created docker-entrypoint.sh that runs `prisma migrate deploy` before starting the server
+- Updated Dockerfile with ENTRYPOINT pointing to the entrypoint script
+- Learnings: Provider.contactEmail is nullable and not unique — can't use Prisma upsert on it. Use findFirst+create pattern instead. Bus.licensePlate is @unique so upsert works directly.
+---
+
+## Iteration 17 - TASK-017: Add API spec conformance validation
+- Created `src/test/openapi-validator.ts` utility: loads bundled OpenAPI JSON, recursively dereferences $ref, compiles Ajv validators per endpoint/method/status, caches compiled validators
+- Created `src/api/spec-conformance.integration.test.ts` with 66 tests: 40 error response (401) validations for all protected endpoints + 26 success response validations covering all unique response schemas
+- Added `npm run api:validate` in apps/api (vitest runner) and root (bundles spec first, then runs)
+- Installed ajv + ajv-formats as devDependencies
+- Learnings: `import.meta.url` fails tsc with CommonJS output — use `process.cwd()` instead. Driver trips detail uses `date` query param (not `tripDate`). Admin suspend needs 3 chained mockUserFindUnique (auth + service findUnique + revokeAllSessions findUnique). User `preferences: null` fails spec validation since spec expects object type — mock with `{}`.
+---
+
+## Iteration 18 - TASK-018: OWASP API — Ownership enforcement audit (BOLA/IDOR prevention)
+- Created shared `verifyOwnership<T>()` assertion function in `src/domain/errors/ownership.ts` — acts as TypeScript assertion to narrow type after check
+- Refactored 6 services (route, bus, booking, schedule, delay) to use shared helper instead of inline if/throw patterns
+- Wrote 17 integration tests in `src/api/ownership.integration.test.ts` covering: Provider A vs Provider B cross-tenant access on routes/buses/schedules/delays/drivers, Passenger A vs Passenger B cross-user booking access, 404 (not 403) on all ownership failures, admin seat toggle role enforcement
+- All ownership checks were already in place — this task formalized the pattern with a shared helper and dedicated tests
+- 6 unit tests for verifyOwnership helper
+- All 420 unit + 412 integration tests pass, typecheck + lint clean
+- Learnings: Use `asserts resource is T` return type on ownership helper so TypeScript narrows automatically after the call — avoids needing non-null assertions everywhere. Schedule create request body requires `tripDate` in datetime format (not date-only).
+---
+
+## Iteration 19 - TASK-019: Mass assignment and over-posting prevention
+- Created `strictParse()` helper in `shared/schemas.ts` — centralized entry point for all Zod request validation
+- Replaced all 47 direct `.parse(request.body/query/params)` calls across 11 route files with `strictParse(schema, data)`
+- Verified all request body/query/param schemas already use `.strict()` — response-only schemas intentionally don't
+- Registration role whitelist already restricted to PASSENGER/PROVIDER via Zod enum
+- Booking totalPrice already server-computed (not in createBookingBodySchema)
+- Schedule driverId already validated for same-provider ownership in schedule.service.ts
+- 5 unit tests for strictParse, 9 integration tests covering: extra fields → 400, role=ADMIN/DRIVER at registration → 400, totalPrice injection → 400, profile update role escalation → 400
+- All 419 unit + 421 integration tests pass, typecheck + lint clean
+- Learnings: The Edit tool requires a full file Read (not limit=5) before editing. For bulk replacements across many files, sed via Bash is more efficient.
+---
+
+## Iteration 20 - TASK-020: OpenAPI spec — Add comprehensive limits and constraints
+- Audited all 12 spec schema files, 12 path files, and 12 Zod schema files field-by-field
+- All constraints were already in place from prior iterations (TASK-004 input sanitization, TASK-019 mass assignment prevention)
+- Verified: every string has maxLength, every number has min/max, every array has minItems/maxItems, all enums exhaustive, passwords have minLength+pattern, emails have format+maxLength, coordinates bounded, prices bounded
+- All Zod schemas match OpenAPI spec constraints exactly
+- spec:lint passes (only pre-existing warnings), typecheck clean, all 419 tests pass
+- Learnings: When prior tasks already hardened the spec incrementally, the "comprehensive audit" task becomes a verification pass rather than new work. Field-by-field comparison across spec + Zod is the right approach.
+---
+
+## Iteration 21 - TASK-021: XSS and injection prevention
+- Created `sanitize-input.ts` Fastify plugin using `striptags` library — strips HTML tags from all string fields in request body and query via preValidation hook
+- Created `httpsUrlSchema()` helper in shared/schemas.ts — Zod schema that rejects non-HTTPS URLs (blocks javascript:, data:, http:, ftp: schemes)
+- Applied httpsUrlSchema to avatarUrl in updateProfileBodySchema (the only URL input field)
+- CSP header already blocks inline scripts (script-src 'self' from TASK-002 Helmet config)
+- X-Content-Type-Options: nosniff already set by Helmet defaults
+- No user input reflected in response headers (verified via audit and integration test)
+- 9 unit tests for stripHtmlFromStrings, 7 unit tests for httpsUrlSchema, 9 integration tests for XSS prevention
+- All 435 unit + 430 integration tests pass, typecheck + lint clean
+- Learnings: striptags v3 is a CommonJS module that works with ESM import; supertest rejects CRLF in header values (can't test header injection from client side — Node.js HTTP layer itself prevents it)
+---
+
+## Iteration 22 - TASK-022: JWT hardening and token security
+- Added `iss` (transio-api), `aud` (transio-client), `jti` (randomUUID), `nbf` (notBefore: 0) claims to JWT signing
+- Updated `jwt.verify` to validate `algorithms: ['HS256']`, `issuer`, and `audience` — rejects alg:none and non-HS256 tokens
+- Env validation: JWT_SECRET and JWT_REFRESH_SECRET now require >= 32 chars and must be different (Zod `.refine()`)
+- Refresh token revocation already existed in `refreshToken()` method — verified it checks `revokedAt` and does reuse detection
+- Constants `JWT_ISSUER` and `JWT_AUDIENCE` exported from auth.service.ts for shared use in auth plugin
+- 6 new JWT hardening tests: wrong issuer, wrong audience, missing issuer, missing audience, alg:none, non-whitelisted algorithm
+- Updated ALL test token signing (shared helper + 3 inline test files) to include `iss`/`aud` claims
+- All 442 unit + 430 integration tests pass, typecheck + lint clean
+- Learnings: When adding `issuer`/`audience` validation to `jwt.verify`, ALL test token signing across the codebase must be updated. Centralize token creation in a shared test helper (`createAuthHeader`) to minimize this blast radius. The `.refine()` on Zod schemas still infers the same type via `z.infer`.
+---
+
+## Iteration 23 - TASK-023: Account enumeration prevention
+- Registration: returns fake 201 with valid-looking tokens/user for existing emails (indistinguishable response shape). No user/token created in DB.
+- Login: already had dummy bcrypt.hash for non-existent emails (verified)
+- Forgot-password: added bcrypt.hash to non-existent email path for better timing equalization (was only randomBytes before)
+- Added `timingSafeCompare()` helper using `crypto.timingSafeEqual` — applied to logout userId comparison
+- Token comparisons (refresh, reset) use SHA-256 hash → DB lookup, inherently timing-safe
+- 9 integration tests: identical response shapes, timing tolerance tests with bcrypt warmup
+- 6 unit tests for timingSafeCompare, updated existing register tests
+- All 448 unit + 439 integration tests pass, typecheck + lint clean
+- Learnings: Timing tests in test environments with mocked DB are inherently flaky due to JIT warmup. Use multiple iterations + averaging + generous tolerance (500ms). The real protection is that both paths run bcrypt, not the exact timing match. `buildFakeRegistrationResponse` generates a real JWT signed with the actual secret (but with a fake user ID) — this makes it completely indistinguishable from a real registration.
+---
+
+## Iteration 24 - TASK-024: DoS and resource exhaustion prevention
+- Added JSON nesting depth limit (max 5 levels) via exceedsJsonDepth() in sanitize-input plugin — returns 400 before Zod validation
+- Configured Prisma transactionOptions: maxWait 5s, timeout 10s
+- Added max 5 active bookings per user check in BookingService.create() — new RESOURCE_EXHAUSTED error code returns 429
+- Server-side pageSize clamping in parsePagination() with Math.min(pageSize, 100) as defense-in-depth
+- Search query minimum length increased from 1 to 2 chars (both Zod and OpenAPI spec)
+- bodyLimit, array maxItems, search 50/page limit, slow request logging were already implemented in prior tasks
+- 8 new integration tests + 9 new unit tests covering all DoS vectors
+- All 459 unit + 447 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: When adding a new check to booking.create() (like active booking count), ALL integration tests that POST to /bookings need the corresponding mock (mockBookingCount.mockResolvedValueOnce(0)). Changing search minLength from 1 to 2 breaks tests using single-char search queries — update them to use 2+ char queries.
+---
+
+## Iteration 25 - TASK-025: Security headers and CORS hardening
+- Added Permissions-Policy header via onSend hook (helmet v8 dropped permissionsPolicy support)
+- Updated CSP img-src to include `https://*.tile.openstreetmap.org` for map tiles
+- All 7 security headers verified: CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-Powered-By removal
+- CORS was already fully configured from TASK-001 (whitelist origins, credentials, maxAge, restricted methods)
+- 8 integration tests for security headers (up from 5), existing 7 CORS tests already covered all criteria
+- All 459 unit + 450 integration tests pass, typecheck + lint clean
+- Learnings: `@fastify/helmet` v13 (helmet v8) does not support `permissionsPolicy` option — must add Permissions-Policy header manually via Fastify `onSend` hook. Fastify itself never sets X-Powered-By (unlike Express), so helmet's hidePoweredBy is a no-op, but the header is still correctly absent.
+---
+
+## Learnings
+See "Key Patterns", "Important Gotchas", and per-iteration learnings above.
