@@ -28,29 +28,35 @@ const REDACT_PATHS = [
 let _rootLogger: pino.Logger | undefined;
 
 /**
+ * Return the Pino logger configuration object.
+ * Used by Fastify which requires a config object, not a Pino instance.
+ */
+export function getLoggerConfig(): pino.LoggerOptions & { transport?: pino.TransportSingleOptions } {
+  const env = getEnv();
+  const isTest = env.NODE_ENV === 'test';
+  const isDev = env.NODE_ENV === 'development';
+
+  return {
+    level: isTest ? 'silent' : env.LOG_LEVEL,
+    redact: { paths: REDACT_PATHS, censor: '[REDACTED]' },
+    ...(isDev
+      ? {
+          transport: {
+            target: 'pino-pretty',
+            options: { colorize: true, translateTime: 'SYS:HH:MM:ss.l', ignore: 'pid,hostname' },
+          },
+        }
+      : {}),
+  };
+}
+
+/**
  * Return the shared root Pino logger instance, creating it on first access.
  * Configures JSON output in production, pretty-print in development, and silent in test.
  */
 export function getRootLogger(): pino.Logger {
   if (_rootLogger) return _rootLogger;
-
-  const env = getEnv();
-  const isTest = env.NODE_ENV === 'test';
-  const isDev = env.NODE_ENV === 'development';
-
-  const transport = isDev
-    ? {
-        target: 'pino-pretty',
-        options: { colorize: true, translateTime: 'SYS:HH:MM:ss.l', ignore: 'pid,hostname' },
-      }
-    : undefined;
-
-  _rootLogger = pino({
-    level: isTest ? 'silent' : env.LOG_LEVEL,
-    redact: { paths: REDACT_PATHS, censor: '[REDACTED]' },
-    transport,
-  });
-
+  _rootLogger = pino(getLoggerConfig());
   return _rootLogger;
 }
 

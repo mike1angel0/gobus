@@ -99,6 +99,8 @@ interface DbScheduleWithRelations {
     departureTime: Date;
     orderIndex: number;
     priceFromStart: number;
+    lat: number | null;
+    lng: number | null;
   }[];
   route: {
     id: string;

@@ -2,7 +2,9 @@
 set -e
 
 echo "Running database migrations..."
-npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma
+cd /app/apps/api
+npx prisma migrate deploy
+cd /app
 
 echo "Starting server..."
 exec "$@"

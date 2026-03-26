@@ -36,11 +36,11 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:7766}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health/live"]
-      interval: 30s
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health/live"]
+      interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 30s
 
   web:
     build:

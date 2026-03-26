@@ -12,15 +12,15 @@ COPY apps/api/package.json apps/api/
 # Install all dependencies (including devDeps for build)
 RUN npm ci --workspace=apps/api --include-workspace-root
 
-# Copy prisma schema and generate client
+# Copy prisma schema, config, and generate client
 COPY apps/api/prisma apps/api/prisma
+COPY apps/api/prisma.config.ts apps/api/
 RUN npm run db:generate --workspace=apps/api
 
-# Copy api source
+# Copy api source and build TypeScript
+# tsc compiles generated prisma .ts files into dist/generated/prisma/
 COPY apps/api/tsconfig.json apps/api/
 COPY apps/api/src apps/api/src
-
-# Build TypeScript
 RUN npm run build --workspace=apps/api
 
 # ---- Runtime stage ----
@@ -39,12 +39,12 @@ COPY apps/api/package.json apps/api/
 # Install production dependencies only
 RUN npm ci --workspace=apps/api --include-workspace-root --omit=dev
 
-# Copy prisma schema and regenerate client for production
-COPY apps/api/prisma apps/api/prisma
-RUN npm run db:generate --workspace=apps/api
-
-# Copy built output from builder
+# Copy built output (includes compiled prisma client in dist/generated/)
 COPY --from=builder /app/apps/api/dist apps/api/dist
+
+# Copy prisma schema and config (needed for migrate deploy at runtime)
+COPY apps/api/prisma apps/api/prisma
+COPY apps/api/prisma.config.ts apps/api/
 
 # Copy entrypoint script
 COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
@@ -57,7 +57,7 @@ USER transio
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:3000/health/live || exit 1
+  CMD wget -qO- http://127.0.0.1:3000/health/live || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "apps/api/dist/server.js"]

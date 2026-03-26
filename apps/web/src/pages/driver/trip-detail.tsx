@@ -476,11 +476,11 @@ export default function DriverTripDetailPage() {
 
   // Build map data
   const mapStops: MapStop[] = (trip?.stops ?? [])
-    .filter((s: StopTime & { lat?: number; lng?: number }) => s.lat != null && s.lng != null)
-    .map((s: StopTime & { lat?: number; lng?: number }) => ({
+    .filter((s) => s.lat != null && s.lng != null)
+    .map((s) => ({
       name: s.stopName,
-      lat: s.lat as number,
-      lng: s.lng as number,
+      lat: s.lat!,
+      lng: s.lng!,
     }));
 
   const busPosition: BusPosition | undefined = geo.position

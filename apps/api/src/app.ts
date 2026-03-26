@@ -15,7 +15,7 @@ import authPlugin from '@/api/plugins/auth.js';
 import auditPlugin from '@/api/plugins/audit.js';
 import metricsPlugin from '@/api/plugins/metrics.js';
 import sanitizeInputPlugin from '@/api/plugins/sanitize-input.js';
-import { getRootLogger } from '@/infrastructure/logger/logger.js';
+import { getLoggerConfig } from '@/infrastructure/logger/logger.js';
 import healthRoutes from '@/api/health/routes.js';
 import authRoutes from '@/api/auth/routes.js';
 import providerRoutes from '@/api/providers/routes.js';
@@ -75,7 +75,7 @@ function loadOpenApiSpec(): OpenAPIV3.Document {
  */
 export async function buildApp(options: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const app = Fastify({
-    logger: options.logger ?? getRootLogger(),
+    logger: options.logger ?? getLoggerConfig(),
     bodyLimit: 1_048_576, // 1 MB request body size limit
     genReqId: () => randomUUID(),
     requestIdHeader: 'x-request-id',
