@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n/config';
 import type { ReactNode } from 'react';
 
 import { EditBusDialog } from '@/components/fleet/edit-bus-dialog';
@@ -44,7 +46,11 @@ function createWrapper() {
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
   return function Wrapper({ children }: { children: ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    return (
+      <I18nextProvider i18n={i18n}>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </I18nextProvider>
+    );
   };
 }
 
@@ -68,6 +74,7 @@ const mockBusData = {
 
 describe('EditBusDialog', () => {
   beforeEach(() => {
+    i18n.changeLanguage('en');
     vi.clearAllMocks();
   });
 

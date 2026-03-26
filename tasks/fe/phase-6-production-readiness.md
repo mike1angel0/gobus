@@ -56,20 +56,7 @@
 
 ### TASK-012: Translate search and booking namespaces ✅
 
-### TASK-013: Translate provider namespace
-**Description:** Extract all provider dashboard strings. This is the largest namespace covering dashboard stats, routes CRUD, fleet/bus management, schedule management, driver management, and tracking.
-
-**Acceptance Criteria:**
-- [ ] `provider.json` keys organized by sub-section:
-  - `dashboard.*` — stat cards, revenue, occupancy, analytics
-  - `routes.*` — create/edit route dialog, stop list, route card
-  - `fleet.*` — create/edit bus dialog, seat map editor, bus card, license plate, capacity
-  - `schedules.*` — create schedule dialog, filter bar, schedule card, status labels, days of week
-  - `drivers.*` — create driver dialog, driver list, assignment
-  - `analytics.*` — revenue by route, total bookings, occupancy rate
-- [ ] All provider pages and dialogs updated to use `useTranslation('provider')`
-- [ ] Both RO and EN files complete
-- [ ] Typecheck passes, lint clean
+### TASK-013: Translate provider namespace ✅
 
 ### TASK-014: Translate driver, admin, and tracking namespaces
 **Description:** Extract strings for driver features, admin panel, and real-time tracking.

@@ -1,4 +1,6 @@
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -15,13 +17,16 @@ const SEAT_TYPE_CYCLE: readonly SeatType[] = [
   'BLOCKED',
 ] as const;
 
-/** Human-readable labels for seat types. */
-const SEAT_TYPE_LABELS: Record<SeatType, string> = {
-  STANDARD: 'Standard',
-  PREMIUM: 'Premium',
-  DISABLED_ACCESSIBLE: 'Accessible',
-  BLOCKED: 'Blocked',
-};
+/** Returns the translated label for a seat type. */
+function getSeatTypeLabel(type: SeatType, t: TFunction): string {
+  const keyMap: Record<SeatType, string> = {
+    STANDARD: 'fleet.seatMapEditor.seatTypes.standard',
+    PREMIUM: 'fleet.seatMapEditor.seatTypes.premium',
+    DISABLED_ACCESSIBLE: 'fleet.seatMapEditor.seatTypes.accessible',
+    BLOCKED: 'fleet.seatMapEditor.seatTypes.blocked',
+  };
+  return t(keyMap[type]);
+}
 
 /** Style configuration for each seat type in the editor. */
 const SEAT_TYPE_STYLES: Record<SeatType, string> = {
@@ -101,6 +106,7 @@ export const SeatMapEditor = memo(function SeatMapEditor({
   onCancel,
   isSaving = false,
 }: SeatMapEditorProps) {
+  const { t } = useTranslation('provider');
   const [editedSeats, setEditedSeats] = useState<Seat[]>(() => initialSeats.map((s) => ({ ...s })));
   const [brushType, setBrushType] = useState<SeatType | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -197,7 +203,7 @@ export const SeatMapEditor = memo(function SeatMapEditor({
       <BrushToolbar activeBrush={brushType} onBrushChange={setBrushType} />
 
       <TooltipProvider delayDuration={200}>
-        <div ref={gridRef} role="grid" aria-label="Seat map editor" className="inline-block">
+        <div ref={gridRef} role="grid" aria-label={t('fleet.seatMapEditor.gridLabel')} className="inline-block">
           {rowArray.map((row) => (
             <div key={row} role="row" className="flex">
               {colArray.map((col) => {
@@ -225,10 +231,10 @@ export const SeatMapEditor = memo(function SeatMapEditor({
 
       <div className="flex gap-2">
         <Button onClick={handleSave} disabled={isSaving || !hasChanges}>
-          {isSaving ? 'Saving\u2026' : 'Save changes'}
+          {isSaving ? t('fleet.seatMapEditor.saving') : t('fleet.seatMapEditor.saveChanges')}
         </Button>
         <Button variant="outline" onClick={onCancel} disabled={isSaving}>
-          Cancel
+          {t('common.cancel')}
         </Button>
       </div>
     </div>
@@ -250,8 +256,10 @@ interface BrushToolbarProps {
  * Includes a "Cycle" button for the default click-to-cycle behavior.
  */
 function BrushToolbar({ activeBrush, onBrushChange }: BrushToolbarProps) {
+  const { t } = useTranslation('provider');
+
   return (
-    <div role="radiogroup" aria-label="Seat type brush" className="flex flex-wrap gap-2">
+    <div role="radiogroup" aria-label={t('fleet.seatMapEditor.brushLabel')} className="flex flex-wrap gap-2">
       <Button
         type="button"
         variant={activeBrush === null ? 'default' : 'outline'}
@@ -260,7 +268,7 @@ function BrushToolbar({ activeBrush, onBrushChange }: BrushToolbarProps) {
         aria-checked={activeBrush === null}
         onClick={() => onBrushChange(null)}
       >
-        Cycle
+        {t('fleet.seatMapEditor.cycle')}
       </Button>
       {SEAT_TYPE_CYCLE.map((type) => (
         <Button
@@ -278,7 +286,7 @@ function BrushToolbar({ activeBrush, onBrushChange }: BrushToolbarProps) {
               {SEAT_TYPE_ICONS[type]}
             </span>
           )}
-          {SEAT_TYPE_LABELS[type]}
+          {getSeatTypeLabel(type, t)}
         </Button>
       ))}
     </div>
@@ -301,9 +309,15 @@ interface EditorSeatCellProps {
  * Individual seat cell within the seat map editor grid.
  * Displays the seat label with type-specific styling and tooltip.
  */
-const EditorSeatCell = memo(function EditorSeatCell({ seat, onClick, onKeyDown }: EditorSeatCellProps) {
+const EditorSeatCell = memo(function EditorSeatCell({
+  seat,
+  onClick,
+  onKeyDown,
+}: EditorSeatCellProps) {
+  const { t } = useTranslation('provider');
   const icon = SEAT_TYPE_ICONS[seat.type];
-  const ariaLabel = `Seat ${seat.label}, ${SEAT_TYPE_LABELS[seat.type]}. Click to change type.`;
+  const translatedType = getSeatTypeLabel(seat.type, t);
+  const ariaLabel = t('fleet.seatMapEditor.seatAriaLabel', { label: seat.label, type: translatedType });
 
   return (
     <Tooltip>
@@ -328,7 +342,7 @@ const EditorSeatCell = memo(function EditorSeatCell({ seat, onClick, onKeyDown }
       </TooltipTrigger>
       <TooltipContent>
         <p>
-          {seat.label} &middot; {SEAT_TYPE_LABELS[seat.type]}
+          {t('fleet.seatMapEditor.seatTooltip', { label: seat.label, type: translatedType })}
         </p>
       </TooltipContent>
     </Tooltip>
@@ -347,14 +361,15 @@ interface SeatCountSummaryProps {
  * Displays a summary of seat counts by type.
  */
 function SeatCountSummary({ counts }: SeatCountSummaryProps) {
+  const { t } = useTranslation('provider');
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 
   return (
-    <div aria-label="Seat count summary" className="flex flex-wrap gap-4 text-sm">
-      <span className="font-medium">{total} total</span>
+    <div aria-label={t('fleet.seatMapEditor.countSummary')} className="flex flex-wrap gap-4 text-sm">
+      <span className="font-medium">{t('fleet.seatMapEditor.total', { count: total })}</span>
       {SEAT_TYPE_CYCLE.map((type) => (
         <span key={type} className="text-muted-foreground">
-          {counts[type]} {SEAT_TYPE_LABELS[type].toLowerCase()}
+          {counts[type]} {getSeatTypeLabel(type, t).toLowerCase()}
         </span>
       ))}
     </div>

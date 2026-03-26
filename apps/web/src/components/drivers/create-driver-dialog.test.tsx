@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n/config';
 import { CreateDriverDialog } from './create-driver-dialog';
 import { ApiError } from '@/api/errors';
 
@@ -24,9 +26,11 @@ vi.mock('@/api/errors', async () => {
 async function renderOpenDialog() {
   const user = userEvent.setup();
   render(
-    <CreateDriverDialog>
-      <button>Add Driver</button>
-    </CreateDriverDialog>,
+    <I18nextProvider i18n={i18n}>
+      <CreateDriverDialog>
+        <button>Add Driver</button>
+      </CreateDriverDialog>
+    </I18nextProvider>,
   );
   await user.click(screen.getByRole('button', { name: 'Add Driver' }));
   return user;
@@ -43,6 +47,7 @@ async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
 
 describe('CreateDriverDialog', () => {
   beforeEach(() => {
+    i18n.changeLanguage('en');
     mockMutate.mockReset();
     mockCreateDriver.mockReset();
     mockCreateDriver.mockReturnValue({ mutate: mockMutate, isPending: false });
@@ -51,9 +56,11 @@ describe('CreateDriverDialog', () => {
   it('opens dialog when trigger is clicked', async () => {
     const user = userEvent.setup();
     render(
-      <CreateDriverDialog>
-        <button>Add Driver</button>
-      </CreateDriverDialog>,
+      <I18nextProvider i18n={i18n}>
+        <CreateDriverDialog>
+          <button>Add Driver</button>
+        </CreateDriverDialog>
+      </I18nextProvider>,
     );
 
     await user.click(screen.getByRole('button', { name: 'Add Driver' }));
