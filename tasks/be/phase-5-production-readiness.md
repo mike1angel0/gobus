@@ -16,17 +16,7 @@
 
 **TASK-004: Fix provider analytics sequential queries** — Wrapped all analytics queries in `$transaction` for consistent snapshot, parallelized 3 independent queries with `Promise.all`, reused active schedule data for route mapping instead of separate fetch, only fetches unmapped schedules when needed. 5 unit tests.
 
----
-
-## Database & Performance
-
-### TASK-005: Add missing database index
-**Description:** `BusTracking.scheduleId` has no index in `prisma/schema.prisma` despite frequent queries by schedule in tracking routes.
-
-**Acceptance Criteria:**
-- [ ] `@@index([scheduleId])` added to `BusTracking` model in schema.prisma
-- [ ] Migration created with `prisma migrate dev`
-- [ ] Typecheck passes
+**TASK-005: Add missing database index** — Added `@@index([scheduleId])` to BusTracking model in schema.prisma. Migration created and applied.
 
 ---
 

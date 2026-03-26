@@ -340,6 +340,8 @@ model BusTracking {
   updatedAt        DateTime  @updatedAt
 
   bus              Bus       @relation(fields: [busId], references: [id])
+
+  @@index([scheduleId])
 }
 
 // ─── Message ──────────────────────────────────────────────────────────────────
