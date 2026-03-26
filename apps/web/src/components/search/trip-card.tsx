@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Bus, ChevronDown, Clock, MapPin, Users } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { DelayBadge } from '@/components/shared/delay-badge';
 import { cn } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
 
@@ -78,22 +79,6 @@ function getSeatLevel(available: number, total: number): 'high' | 'medium' | 'lo
   return 'low';
 }
 
-/**
- * Returns the delay severity based on delay minutes.
- * @param minutes - Delay duration in minutes
- * @returns Severity: 'on-time', 'minor', or 'major'
- */
-function getDelaySeverity(minutes: number): 'on-time' | 'minor' | 'major' {
-  if (minutes <= 0) return 'on-time';
-  if (minutes <= 15) return 'minor';
-  return 'major';
-}
-
-const DELAY_STYLES = {
-  'on-time': 'bg-green-500/10 text-green-500',
-  minor: 'bg-yellow-500/10 text-yellow-500',
-  major: 'bg-red-500/10 text-red-500',
-} as const;
 
 const SEAT_STYLES = {
   high: 'text-green-500',
@@ -219,26 +204,5 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
         </div>
       )}
     </Card>
-  );
-}
-
-/**
- * Inline delay badge for the TripCard. Color-coded by severity.
- * @param props - Delay minutes and optional reason
- */
-function DelayBadge({ delayMinutes, reason }: { delayMinutes: number; reason?: string }) {
-  const severity = getDelaySeverity(delayMinutes);
-  const label =
-    severity === 'on-time'
-      ? 'On Time'
-      : `Delayed ${delayMinutes}min${reason ? ` — ${reason}` : ''}`;
-
-  return (
-    <span
-      className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium', DELAY_STYLES[severity])}
-      aria-label={label}
-    >
-      {severity === 'on-time' ? 'On Time' : `+${delayMinutes}min`}
-    </span>
   );
 }

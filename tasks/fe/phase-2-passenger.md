@@ -28,16 +28,7 @@
 
 ### ~~TASK-006: Create SeatMap component~~ ✅
 
-### TASK-007: Create DelayBadge component
-**Description:** Create `src/components/shared/delay-badge.tsx`. Color-coded: on-time (green "On Time"), minor ≤15min (yellow "Delayed Xmin"), major >15min (red "Delayed Xmin"). Shows reason if provided. Size variants (sm/md).
-
-**Acceptance Criteria:**
-- [ ] Color coding by severity
-- [ ] Shows delay minutes + optional reason
-- [ ] Size variants
-- [ ] Accessible (aria-label for screen readers)
-- [ ] Component test
-- [ ] Typecheck passes
+### ~~TASK-007: Create DelayBadge component~~ ✅
 
 ### TASK-008: Create trip detail page
 **Description:** Create `src/pages/trip/[id].tsx`. Uses `useTripDetails` hook. Displays: provider info, route name, departure/arrival times, stop list with times and segment prices, delay badge, live map (if tracking active), seat map for selection. Booking form: select boarding/alighting stops from dropdowns (filtered by route order), select seats from seat map, shows computed price (segment-based), submit button. On submit: calls `useCreateBooking`, redirects to /my-trips on success.
