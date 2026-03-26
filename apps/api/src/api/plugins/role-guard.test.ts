@@ -36,8 +36,8 @@ vi.mock('@/infrastructure/prisma/client.js', () => ({
 
 /** Sign a token for the given role. */
 function tokenForRole(role: string, providerId: string | null = null): string {
-  const payload = { sub: 'user-1', email: 'test@example.com', role, providerId };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+  const payload = { sub: 'user-1', email: 'test@example.com', role, providerId, iss: 'transio-api', aud: 'transio-client' };
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m', algorithm: 'HS256' });
 }
 
 describe('role-guard', () => {

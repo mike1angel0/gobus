@@ -22,7 +22,7 @@ describe('createAuthHeader', () => {
   it('embeds userId, email, and role in the JWT payload', () => {
     const header = createAuthHeader('user-1', 'ADMIN');
     const token = header.replace('Bearer ', '');
-    const decoded = jwt.verify(token, secret) as TestTokenPayload;
+    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'], issuer: 'transio-api', audience: 'transio-client' }) as TestTokenPayload;
     expect(decoded.sub).toBe('user-1');
     expect(decoded.role).toBe('ADMIN');
     expect(decoded.email).toBe('user-1@test.com');
@@ -32,7 +32,7 @@ describe('createAuthHeader', () => {
   it('includes providerId when provided', () => {
     const header = createAuthHeader('user-2', 'PROVIDER', { providerId: 'provider-1' });
     const token = header.replace('Bearer ', '');
-    const decoded = jwt.verify(token, secret) as TestTokenPayload;
+    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'], issuer: 'transio-api', audience: 'transio-client' }) as TestTokenPayload;
     expect(decoded.sub).toBe('user-2');
     expect(decoded.role).toBe('PROVIDER');
     expect(decoded.providerId).toBe('provider-1');
@@ -41,7 +41,7 @@ describe('createAuthHeader', () => {
   it('uses custom email when provided', () => {
     const header = createAuthHeader('user-3', 'PASSENGER', { email: 'custom@example.com' });
     const token = header.replace('Bearer ', '');
-    const decoded = jwt.verify(token, secret) as TestTokenPayload;
+    const decoded = jwt.verify(token, secret, { algorithms: ['HS256'], issuer: 'transio-api', audience: 'transio-client' }) as TestTokenPayload;
     expect(decoded.email).toBe('custom@example.com');
   });
 });

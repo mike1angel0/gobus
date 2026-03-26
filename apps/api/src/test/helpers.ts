@@ -71,7 +71,11 @@ export function createAuthHeader(
   };
 
   const secret = process.env.JWT_SECRET ?? 'test-jwt-secret-do-not-use-in-prod';
-  const token = jwt.sign(payload, secret, { expiresIn: '15m' });
+  const token = jwt.sign(
+    { ...payload, iss: 'transio-api', aud: 'transio-client' },
+    secret,
+    { expiresIn: '15m', algorithm: 'HS256' },
+  );
   return `Bearer ${token}`;
 }
 

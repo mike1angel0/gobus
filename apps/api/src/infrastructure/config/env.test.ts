@@ -3,8 +3,8 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 describe('parseEnv', () => {
   function stubAllValid() {
     vi.stubEnv('DATABASE_URL', 'postgresql://localhost:5432/test');
-    vi.stubEnv('JWT_SECRET', 'a-very-long-secret-key-123');
-    vi.stubEnv('JWT_REFRESH_SECRET', 'another-long-secret-key-456');
+    vi.stubEnv('JWT_SECRET', 'a-very-long-secret-key-at-least-32-characters');
+    vi.stubEnv('JWT_REFRESH_SECRET', 'another-long-secret-key-different-32-chars');
     vi.stubEnv('NODE_ENV', 'test');
   }
 
@@ -22,8 +22,8 @@ describe('parseEnv', () => {
     const env = parseEnv();
 
     expect(env.DATABASE_URL).toBe('postgresql://localhost:5432/test');
-    expect(env.JWT_SECRET).toBe('a-very-long-secret-key-123');
-    expect(env.JWT_REFRESH_SECRET).toBe('another-long-secret-key-456');
+    expect(env.JWT_SECRET).toBe('a-very-long-secret-key-at-least-32-characters');
+    expect(env.JWT_REFRESH_SECRET).toBe('another-long-secret-key-different-32-chars');
     expect(env.PORT).toBe(4000);
     expect(env.NODE_ENV).toBe('production');
     expect(env.CORS_ORIGIN).toBe('http://localhost:5173');
@@ -49,12 +49,21 @@ describe('parseEnv', () => {
     expect(() => parseEnv()).toThrow('Invalid environment variables');
   });
 
-  it('throws when JWT_SECRET is too short', async () => {
+  it('throws when JWT_SECRET is too short (< 32 chars)', async () => {
     stubAllValid();
-    vi.stubEnv('JWT_SECRET', 'short');
+    vi.stubEnv('JWT_SECRET', 'only-twenty-five-chars!!');
 
     const { parseEnv } = await import('./env.js');
     expect(() => parseEnv()).toThrow('Invalid environment variables');
+  });
+
+  it('throws when JWT_SECRET and JWT_REFRESH_SECRET are identical', async () => {
+    stubAllValid();
+    vi.stubEnv('JWT_SECRET', 'a-very-long-secret-key-at-least-32-characters');
+    vi.stubEnv('JWT_REFRESH_SECRET', 'a-very-long-secret-key-at-least-32-characters');
+
+    const { parseEnv } = await import('./env.js');
+    expect(() => parseEnv()).toThrow('JWT_SECRET and JWT_REFRESH_SECRET must be different');
   });
 
   it('throws when NODE_ENV is invalid', async () => {

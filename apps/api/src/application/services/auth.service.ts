@@ -1,4 +1,4 @@
-import { randomBytes, createHash } from 'node:crypto';
+import { randomBytes, createHash, randomUUID } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { PrismaClient, User } from '@/generated/prisma/client.js';
@@ -25,6 +25,12 @@ const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+/** JWT issuer claim identifying this service. */
+export const JWT_ISSUER = 'transio-api';
+
+/** JWT audience claim identifying intended recipients. */
+export const JWT_AUDIENCE = 'transio-client';
 
 /**
  * Authentication service handling user registration, login, token management,
@@ -389,15 +395,20 @@ export class AuthService {
   ): Promise<TokenPair> {
     const env = getEnv();
 
-    const payload: Omit<AuthTokenPayload, 'iat' | 'exp'> = {
+    const payload: Omit<AuthTokenPayload, 'iat' | 'exp' | 'nbf'> = {
       sub: user.id,
       email: user.email,
       role: user.role,
       providerId: user.providerId,
+      iss: JWT_ISSUER,
+      aud: JWT_AUDIENCE,
+      jti: randomUUID(),
     };
 
     const accessToken = jwt.sign(payload, env.JWT_SECRET, {
       expiresIn: ACCESS_TOKEN_EXPIRY,
+      notBefore: 0,
+      algorithm: 'HS256',
     });
 
     const refreshTokenRaw = randomBytes(40).toString('hex');

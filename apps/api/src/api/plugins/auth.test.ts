@@ -36,7 +36,11 @@ vi.mock('@/infrastructure/prisma/client.js', () => ({
 
 /** Sign a JWT token with the test secret. */
 function signToken(payload: Record<string, unknown>, options?: jwt.SignOptions): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m', ...options });
+  return jwt.sign(
+    { ...payload, iss: 'transio-api', aud: 'transio-client' },
+    JWT_SECRET,
+    { expiresIn: '15m', algorithm: 'HS256', ...options },
+  );
 }
 
 /** Create a valid token payload. */
@@ -117,7 +121,7 @@ describe('auth plugin', () => {
   });
 
   it('returns 401 when token is signed with wrong secret', async () => {
-    const token = jwt.sign(validPayload(), 'wrong-secret', { expiresIn: '15m' });
+    const token = jwt.sign({ ...validPayload(), iss: 'transio-api', aud: 'transio-client' }, 'wrong-secret', { expiresIn: '15m' });
     const response = await app.inject({
       method: 'GET',
       url: '/protected',
@@ -225,5 +229,98 @@ describe('auth plugin', () => {
     expect(body).toHaveProperty('code');
     expect(body.type).toBe('https://httpstatuses.com/401');
     expect(body.title).toBe('Unauthorized');
+  });
+
+  // ─── JWT hardening tests ─────────────────────────────────────────
+
+  it('returns 401 when token has wrong issuer', async () => {
+    const token = jwt.sign(
+      { ...validPayload(), iss: 'wrong-issuer', aud: 'transio-client' },
+      JWT_SECRET,
+      { expiresIn: '15m', algorithm: 'HS256' },
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: '/protected',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().code).toBe('AUTH_INVALID_CREDENTIALS');
+  });
+
+  it('returns 401 when token has wrong audience', async () => {
+    const token = jwt.sign(
+      { ...validPayload(), iss: 'transio-api', aud: 'wrong-audience' },
+      JWT_SECRET,
+      { expiresIn: '15m', algorithm: 'HS256' },
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: '/protected',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().code).toBe('AUTH_INVALID_CREDENTIALS');
+  });
+
+  it('returns 401 when token is missing issuer claim', async () => {
+    const token = jwt.sign(
+      { ...validPayload(), aud: 'transio-client' },
+      JWT_SECRET,
+      { expiresIn: '15m', algorithm: 'HS256' },
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: '/protected',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().code).toBe('AUTH_INVALID_CREDENTIALS');
+  });
+
+  it('returns 401 when token is missing audience claim', async () => {
+    const token = jwt.sign(
+      { ...validPayload(), iss: 'transio-api' },
+      JWT_SECRET,
+      { expiresIn: '15m', algorithm: 'HS256' },
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: '/protected',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().code).toBe('AUTH_INVALID_CREDENTIALS');
+  });
+
+  it('returns 401 when token uses alg:none (unsigned)', async () => {
+    // Craft a token with alg: none — jsonwebtoken's verify rejects this
+    // when algorithms whitelist doesn't include 'none'
+    const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url');
+    const payload = Buffer.from(JSON.stringify({ ...validPayload(), iss: 'transio-api', aud: 'transio-client' })).toString('base64url');
+    const unsignedToken = `${header}.${payload}.`;
+    const response = await app.inject({
+      method: 'GET',
+      url: '/protected',
+      headers: { authorization: `Bearer ${unsignedToken}` },
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().code).toBe('AUTH_INVALID_CREDENTIALS');
+  });
+
+  it('returns 401 when token uses RS256 algorithm (not in whitelist)', async () => {
+    // Token signed with HS256 but claiming RS256 won't pass the algorithms check
+    const token = jwt.sign(
+      { ...validPayload(), iss: 'transio-api', aud: 'transio-client' },
+      JWT_SECRET,
+      { expiresIn: '15m', algorithm: 'HS384' },
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: '/protected',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().code).toBe('AUTH_INVALID_CREDENTIALS');
   });
 });

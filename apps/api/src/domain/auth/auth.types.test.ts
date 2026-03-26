@@ -76,12 +76,19 @@ describe('Auth domain types', () => {
         email: 'user@example.com',
         role: 'PASSENGER',
         providerId: null,
+        iss: 'transio-api',
+        aud: 'transio-client',
+        jti: '550e8400-e29b-41d4-a716-446655440000',
+        nbf: 1700000000,
         iat: 1700000000,
         exp: 1700000900,
       };
       expect(payload.sub).toBe('cm1abc123');
       expect(payload.role).toBe('PASSENGER');
       expect(payload.providerId).toBeNull();
+      expect(payload.iss).toBe('transio-api');
+      expect(payload.aud).toBe('transio-client');
+      expect(payload.jti).toBe('550e8400-e29b-41d4-a716-446655440000');
       expect(payload.exp - payload.iat).toBe(900);
     });
 
@@ -91,6 +98,10 @@ describe('Auth domain types', () => {
         email: 'provider@example.com',
         role: 'PROVIDER',
         providerId: 'cm1prov789',
+        iss: 'transio-api',
+        aud: 'transio-client',
+        jti: '550e8400-e29b-41d4-a716-446655440001',
+        nbf: 1700000000,
         iat: 1700000000,
         exp: 1700000900,
       };

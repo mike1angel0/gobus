@@ -49,6 +49,14 @@ export interface AuthTokenPayload {
   role: 'PASSENGER' | 'PROVIDER' | 'DRIVER' | 'ADMIN';
   /** Associated provider ID (for PROVIDER and DRIVER roles). */
   providerId: string | null;
+  /** Token issuer identifier. */
+  iss: string;
+  /** Token audience identifier. */
+  aud: string;
+  /** Unique token identifier for tracking. */
+  jti: string;
+  /** Not-before timestamp (seconds since epoch). */
+  nbf: number;
   /** Token issued-at timestamp (seconds since epoch). */
   iat: number;
   /** Token expiration timestamp (seconds since epoch). */

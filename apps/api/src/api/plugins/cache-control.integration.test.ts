@@ -66,7 +66,7 @@ const JWT_SECRET = 'test-jwt-secret-do-not-use-in-prod';
 
 /** Generate a valid access token for testing. */
 function makeToken(payload: Record<string, unknown>): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+  return jwt.sign({ ...payload, iss: 'transio-api', aud: 'transio-client' }, JWT_SECRET, { expiresIn: '15m', algorithm: 'HS256' });
 }
 
 const passengerToken = makeToken({

@@ -287,13 +287,13 @@
 **Description:** Harden JWT configuration: (1) Validate `iss` (issuer) and `aud` (audience) claims on every token verification. (2) Explicitly reject `alg: none` tokens. (3) Use RS256 (asymmetric) or ensure HS256 secret is ≥256 bits. (4) Set access token expiry to 15min (already done). (5) Add `jti` (JWT ID) claim for token tracking. (6) Validate token hasn't been revoked (check RefreshToken table). (7) Add `nbf` (not before) claim. (8) Ensure JWT_SECRET and JWT_REFRESH_SECRET are different values. (9) Add env validation that secrets are ≥32 characters.
 
 **Acceptance Criteria:**
-- [ ] JWT includes `iss`, `aud`, `jti`, `nbf` claims
-- [ ] Token verification validates `iss` and `aud`
-- [ ] `alg: none` explicitly rejected (jsonwebtoken library does this by default with algorithms option)
-- [ ] Env validation: JWT_SECRET ≥ 32 chars, JWT_REFRESH_SECRET ≥ 32 chars, both different
-- [ ] Refresh token revocation checked on every refresh
-- [ ] Unit tests for token validation edge cases (expired, wrong audience, wrong issuer, revoked)
-- [ ] Typecheck passes
+- [x] JWT includes `iss`, `aud`, `jti`, `nbf` claims
+- [x] Token verification validates `iss` and `aud`
+- [x] `alg: none` explicitly rejected (jsonwebtoken library does this by default with algorithms option)
+- [x] Env validation: JWT_SECRET ≥ 32 chars, JWT_REFRESH_SECRET ≥ 32 chars, both different
+- [x] Refresh token revocation checked on every refresh
+- [x] Unit tests for token validation edge cases (expired, wrong audience, wrong issuer, revoked)
+- [x] Typecheck passes
 
 ### TASK-023: Account enumeration prevention
 **Description:** Prevent attackers from discovering valid email addresses: (1) Registration: if email exists, return same 200 response as success (or use email verification flow). (2) Login: always run bcrypt.compare even when user not found (timing-safe). (3) Forgot-password: already returns 200 always (verify). (4) Rate limit all auth endpoints (already done in TASK-003). (5) Add constant-time string comparison for tokens where applicable.

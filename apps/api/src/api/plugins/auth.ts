@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import type { AuthTokenPayload } from '@/domain/auth/auth.types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
+import { JWT_ISSUER, JWT_AUDIENCE } from '@/application/services/auth.service.js';
 import { getEnv } from '@/infrastructure/config/env.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
@@ -59,7 +60,11 @@ function extractAndVerifyToken(request: FastifyRequest): AuthTokenPayload {
   const env = getEnv();
 
   try {
-    return jwt.verify(token, env.JWT_SECRET) as AuthTokenPayload;
+    return jwt.verify(token, env.JWT_SECRET, {
+      algorithms: ['HS256'],
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    }) as AuthTokenPayload;
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
       throw new AppError(401, ErrorCodes.AUTH_TOKEN_EXPIRED, 'Access token has expired');

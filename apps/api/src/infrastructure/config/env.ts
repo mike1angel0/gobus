@@ -4,34 +4,42 @@ import { z } from 'zod';
  * Schema for validating environment variables with Zod.
  * Throws a descriptive error on startup if any required variable is missing or invalid.
  */
-const envSchema = z.object({
-  /** PostgreSQL connection string */
-  DATABASE_URL: z.string().min(1).describe('PostgreSQL connection string'),
+const envSchema = z
+  .object({
+    /** PostgreSQL connection string */
+    DATABASE_URL: z.string().min(1).describe('PostgreSQL connection string'),
 
-  /** Secret key for signing JWT access tokens */
-  JWT_SECRET: z.string().min(16).describe('Secret key for signing JWT access tokens'),
+    /** Secret key for signing JWT access tokens (min 32 chars for 256-bit security) */
+    JWT_SECRET: z.string().min(32).describe('Secret key for signing JWT access tokens (>= 32 chars)'),
 
-  /** Secret key for signing JWT refresh tokens */
-  JWT_REFRESH_SECRET: z.string().min(16).describe('Secret key for signing JWT refresh tokens'),
+    /** Secret key for JWT refresh tokens (min 32 chars, must differ from JWT_SECRET) */
+    JWT_REFRESH_SECRET: z
+      .string()
+      .min(32)
+      .describe('Secret key for JWT refresh tokens (>= 32 chars, must differ from JWT_SECRET)'),
 
-  /** Server port */
-  PORT: z.coerce.number().int().min(1).max(65535).default(3000).describe('Server port'),
+    /** Server port */
+    PORT: z.coerce.number().int().min(1).max(65535).default(3000).describe('Server port'),
 
-  /** Node environment */
-  NODE_ENV: z
-    .enum(['development', 'production', 'test'])
-    .default('development')
-    .describe('Node environment'),
+    /** Node environment */
+    NODE_ENV: z
+      .enum(['development', 'production', 'test'])
+      .default('development')
+      .describe('Node environment'),
 
-  /** Allowed CORS origin */
-  CORS_ORIGIN: z.string().default('http://localhost:3001').describe('Allowed CORS origin'),
+    /** Allowed CORS origin */
+    CORS_ORIGIN: z.string().default('http://localhost:3001').describe('Allowed CORS origin'),
 
-  /** Log level for structured logging */
-  LOG_LEVEL: z
-    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
-    .default('info')
-    .describe('Log level for structured logging'),
-});
+    /** Log level for structured logging */
+    LOG_LEVEL: z
+      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+      .default('info')
+      .describe('Log level for structured logging'),
+  })
+  .refine((data) => data.JWT_SECRET !== data.JWT_REFRESH_SECRET, {
+    message: 'JWT_SECRET and JWT_REFRESH_SECRET must be different values',
+    path: ['JWT_REFRESH_SECRET'],
+  });
 
 /** Inferred type of validated environment variables. */
 export type Env = z.infer<typeof envSchema>;

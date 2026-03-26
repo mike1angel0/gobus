@@ -662,11 +662,16 @@ describe('AuthService', () => {
       const decoded = jwt.verify(
         tokens.accessToken,
         process.env.JWT_SECRET ?? 'test-jwt-secret-do-not-use-in-prod',
+        { algorithms: ['HS256'], issuer: 'transio-api', audience: 'transio-client' },
       ) as Record<string, unknown>;
       expect(decoded.sub).toBe('user-1');
       expect(decoded.email).toBe('test@example.com');
       expect(decoded.role).toBe('PASSENGER');
       expect(decoded.providerId).toBeNull();
+      expect(decoded.iss).toBe('transio-api');
+      expect(decoded.aud).toBe('transio-client');
+      expect(decoded.jti).toMatch(/^[0-9a-f-]{36}$/);
+      expect(decoded.nbf).toEqual(expect.any(Number));
 
       // Verify refresh token is stored as hash (not plaintext)
       const createCall = (prisma.refreshToken.create as ReturnType<typeof vi.fn>).mock.calls[0][0];
