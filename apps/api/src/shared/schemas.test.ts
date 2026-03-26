@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { z, ZodError } from 'zod';
 
 import {
   dataResponse,
   idParamSchema,
   paginatedResponse,
   paginationQuerySchema,
+  strictParse,
 } from './schemas.js';
-import { z } from 'zod';
 
 describe('paginationQuerySchema', () => {
   it('applies defaults when no values provided', () => {
@@ -94,5 +95,46 @@ describe('paginatedResponse', () => {
         meta: { total: 101, page: 1, pageSize: 101, totalPages: 1 },
       }),
     ).toThrow();
+  });
+});
+
+describe('strictParse', () => {
+  const testSchema = z
+    .object({
+      name: z.string().max(100),
+      age: z.number().int().min(0).max(200),
+    })
+    .strict();
+
+  it('parses valid data and returns typed result', () => {
+    const result = strictParse(testSchema, { name: 'Alice', age: 30 });
+    expect(result).toEqual({ name: 'Alice', age: 30 });
+  });
+
+  it('rejects unknown fields with ZodError when schema is strict', () => {
+    expect(() =>
+      strictParse(testSchema, { name: 'Alice', age: 30, isAdmin: true }),
+    ).toThrow(ZodError);
+  });
+
+  it('includes unrecognized key name in ZodError', () => {
+    try {
+      strictParse(testSchema, { name: 'Alice', age: 30, role: 'ADMIN' });
+      expect.fail('should have thrown');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ZodError);
+      const zodErr = err as ZodError;
+      expect(zodErr.issues.length).toBe(1);
+      expect(zodErr.issues[0].code).toBe('unrecognized_keys');
+      expect(zodErr.issues[0].message).toContain('role');
+    }
+  });
+
+  it('rejects invalid data types', () => {
+    expect(() => strictParse(testSchema, { name: 123, age: 'abc' })).toThrow(ZodError);
+  });
+
+  it('rejects when required fields are missing', () => {
+    expect(() => strictParse(testSchema, { name: 'Alice' })).toThrow(ZodError);
   });
 });

@@ -5,7 +5,7 @@ import { BookingService } from '@/application/services/booking.service.js';
 import type { BookingWithDetails } from '@/application/services/booking.service.js';
 import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
-import { idParamSchema } from '@/shared/schemas.js';
+import { idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createBookingBodySchema, listBookingsQuerySchema } from '@/api/bookings/schemas.js';
 import { privateNoCache } from '@/api/plugins/cache-control.js';
 
@@ -75,7 +75,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/bookings — list user's bookings (paginated, optional status filter)
   app.get('/api/v1/bookings', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    const { page, pageSize, status } = listBookingsQuerySchema.parse(request.query);
+    const { page, pageSize, status } = strictParse(listBookingsQuerySchema, request.query);
     const result = await bookingService.listByUser(request.user.id, { page, pageSize, status });
 
     return {
@@ -86,7 +86,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /api/v1/bookings — create a new booking
   app.post('/api/v1/bookings', { preHandler: [app.authenticate] }, async (request, reply) => {
-    const body = createBookingBodySchema.parse(request.body);
+    const body = strictParse(createBookingBodySchema, request.body);
     const booking = await bookingService.create(request.user.id, body);
 
     request.audit(AuditActions.BOOKING_CREATED, 'booking', booking.id);
@@ -96,7 +96,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/bookings/:id — get booking details (ownership enforced)
   app.get('/api/v1/bookings/:id', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    const { id } = idParamSchema.parse(request.params);
+    const { id } = strictParse(idParamSchema, request.params);
     const booking = await bookingService.getById(id, request.user.id);
 
     return { data: serializeBookingWithDetails(booking) };
@@ -104,7 +104,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
 
   // DELETE /api/v1/bookings/:id — cancel a booking (ownership enforced)
   app.delete('/api/v1/bookings/:id', { preHandler: [app.authenticate] }, async (request) => {
-    const { id } = idParamSchema.parse(request.params);
+    const { id } = strictParse(idParamSchema, request.params);
     const booking = await bookingService.cancel(id, request.user.id);
 
     request.audit(AuditActions.BOOKING_CANCELLED, 'booking', booking.id);

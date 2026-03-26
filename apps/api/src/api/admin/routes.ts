@@ -9,7 +9,7 @@ import type { AuditLogEntity } from '@/domain/audit/audit.entity.js';
 import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireAdmin } from '@/api/plugins/role-guard.js';
-import { idParamSchema } from '@/shared/schemas.js';
+import { idParamSchema, strictParse } from '@/shared/schemas.js';
 import { privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   adminListBusesQuerySchema,
@@ -110,7 +110,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/admin/buses',
     { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
     async (request) => {
-      const query = adminListBusesQuerySchema.parse(request.query);
+      const query = strictParse(adminListBusesQuerySchema, request.query);
       const result = await adminService.listAllBuses(query);
 
       return {
@@ -125,7 +125,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/admin/users',
     { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
     async (request) => {
-      const query = adminListUsersQuerySchema.parse(request.query);
+      const query = strictParse(adminListUsersQuerySchema, request.query);
       const result = await adminService.listUsers(query);
 
       return {
@@ -140,8 +140,8 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/admin/users/:id/status',
     { preHandler: [app.authenticate, requireAdmin] },
     async (request) => {
-      const { id } = idParamSchema.parse(request.params);
-      const { action } = updateUserStatusBodySchema.parse(request.body);
+      const { id } = strictParse(idParamSchema, request.params);
+      const { action } = strictParse(updateUserStatusBodySchema, request.body);
       const user = await adminService.updateUserStatus(id, action);
 
       request.audit(auditActionMap[action], 'user', id);
@@ -155,7 +155,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/admin/audit-logs',
     { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
     async (request) => {
-      const query = adminListAuditLogsQuerySchema.parse(request.query);
+      const query = strictParse(adminListAuditLogsQuerySchema, request.query);
       const result = await adminService.listAuditLogs(query);
 
       return {
@@ -170,8 +170,8 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/admin/seats/:id',
     { preHandler: [app.authenticate, requireAdmin] },
     async (request) => {
-      const { id } = idParamSchema.parse(request.params);
-      const { isEnabled } = toggleSeatBodySchema.parse(request.body);
+      const { id } = strictParse(idParamSchema, request.params);
+      const { isEnabled } = strictParse(toggleSeatBodySchema, request.body);
       const seat = await adminService.toggleSeat(id, isEnabled);
 
       return { data: serializeSeat(seat) };
@@ -183,7 +183,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/admin/users/:id/sessions',
     { preHandler: [app.authenticate, requireAdmin] },
     async (request, reply) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       await adminService.revokeAllSessions(id);
 
       return reply.status(204).send();

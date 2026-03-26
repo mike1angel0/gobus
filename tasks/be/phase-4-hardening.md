@@ -237,15 +237,15 @@
 **Description:** Audit ALL request body parsing. Every endpoint must use Zod `.strict()` mode to reject unknown fields. Specifically prevent: role escalation at registration (only PASSENGER and PROVIDER allowed, not ADMIN/DRIVER), price manipulation on bookings (server must compute totalPrice, never trust client), driverId injection on schedules (validate driver belongs to same provider). Create a shared Zod helper `strictParse(schema, body)` that rejects unknown properties and returns 400 with field-level errors.
 
 **Acceptance Criteria:**
-- [ ] All Zod schemas use `.strict()` — unknown fields rejected with 400
-- [ ] Registration endpoint: role whitelist (PASSENGER, PROVIDER only)
-- [ ] Booking creation: totalPrice computed server-side from segment pricing (never from request body)
-- [ ] Schedule creation: driverId validated to belong to same provider
-- [ ] `strictParse()` helper used in all routes
-- [ ] Integration tests: extra fields in request body → 400
-- [ ] Integration tests: role=ADMIN at registration → 400
-- [ ] Integration tests: manipulated totalPrice ignored
-- [ ] Typecheck passes
+- [x] All Zod schemas use `.strict()` — unknown fields rejected with 400
+- [x] Registration endpoint: role whitelist (PASSENGER, PROVIDER only)
+- [x] Booking creation: totalPrice computed server-side from segment pricing (never from request body)
+- [x] Schedule creation: driverId validated to belong to same provider
+- [x] `strictParse()` helper used in all routes
+- [x] Integration tests: extra fields in request body → 400
+- [x] Integration tests: role=ADMIN at registration → 400
+- [x] Integration tests: manipulated totalPrice ignored
+- [x] Typecheck passes
 
 ### TASK-020: OpenAPI spec — Add comprehensive limits and constraints
 **Description:** Update `spec/openapi.yaml` to add explicit constraints on EVERY field:

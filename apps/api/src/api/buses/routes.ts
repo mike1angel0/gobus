@@ -11,7 +11,7 @@ import type {
 } from '@/domain/buses/bus.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
-import { paginationQuerySchema, idParamSchema } from '@/shared/schemas.js';
+import { paginationQuerySchema, idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createBusRequestSchema, updateBusRequestSchema } from '@/api/buses/schemas.js';
 import { cachePublic, privateNoCache } from '@/api/plugins/cache-control.js';
 
@@ -106,7 +106,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/buses — list provider's buses (paginated)
   app.get('/api/v1/buses', { preHandler: [app.authenticate, requireProvider, privateNoCache] }, async (request) => {
-    const { page, pageSize } = paginationQuerySchema.parse(request.query);
+    const { page, pageSize } = strictParse(paginationQuerySchema, request.query);
     const providerId = request.user.providerId!;
 
     const result = await busService.listByProvider(providerId, { page, pageSize });
@@ -122,7 +122,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/buses',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const body = createBusRequestSchema.parse(request.body);
+      const body = strictParse(createBusRequestSchema, request.body);
       const providerId = request.user.providerId!;
 
       const bus = await busService.create(providerId, body);
@@ -136,7 +136,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/buses/:id',
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;
 
       const bus = await busService.getById(id, providerId);
@@ -150,8 +150,8 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/buses/:id',
     { preHandler: [app.authenticate, requireProvider] },
     async (request) => {
-      const { id } = idParamSchema.parse(request.params);
-      const body = updateBusRequestSchema.parse(request.body);
+      const { id } = strictParse(idParamSchema, request.params);
+      const body = strictParse(updateBusRequestSchema, request.body);
       const providerId = request.user.providerId!;
 
       const bus = await busService.update(id, providerId, body);
@@ -165,7 +165,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/buses/:id',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;
 
       await busService.delete(id, providerId);

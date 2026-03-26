@@ -14,7 +14,7 @@ import type {
 } from '@/domain/schedules/schedule.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
-import { idParamSchema } from '@/shared/schemas.js';
+import { idParamSchema, strictParse } from '@/shared/schemas.js';
 import { privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   scheduleFilterQuerySchema,
@@ -117,7 +117,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const { page, pageSize, routeId, busId, status, fromDate, toDate } =
-        scheduleFilterQuerySchema.parse(request.query);
+        strictParse(scheduleFilterQuerySchema, request.query);
       const providerId = request.user.providerId!;
 
       const filters = {
@@ -142,7 +142,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/schedules',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const body = createScheduleRequestSchema.parse(request.body);
+      const body = strictParse(createScheduleRequestSchema, request.body);
       const providerId = request.user.providerId!;
 
       const schedule = await scheduleService.create(providerId, {
@@ -172,7 +172,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/schedules/:id',
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;
 
       const schedule = await scheduleService.getById(id, providerId);
@@ -186,8 +186,8 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/schedules/:id',
     { preHandler: [app.authenticate, requireProvider] },
     async (request) => {
-      const { id } = idParamSchema.parse(request.params);
-      const body = updateScheduleRequestSchema.parse(request.body);
+      const { id } = strictParse(idParamSchema, request.params);
+      const body = strictParse(updateScheduleRequestSchema, request.body);
       const providerId = request.user.providerId!;
 
       const updateData = {
@@ -208,7 +208,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/schedules/:id',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;
 
       await scheduleService.cancel(id, providerId);

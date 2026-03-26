@@ -1,6 +1,17 @@
 import { z } from 'zod';
 
 /**
+ * Parse and validate input data against a strict Zod schema.
+ * Rejects unknown fields with a 400 error to prevent mass assignment attacks.
+ * All schemas passed to this function should use `.strict()` to reject unknown properties.
+ *
+ * @throws {ZodError} When validation fails (caught by error-handler plugin → RFC 9457 400 response)
+ */
+export function strictParse<T extends z.ZodType>(schema: T, data: unknown): z.infer<T> {
+  return schema.parse(data);
+}
+
+/**
  * Zod schema for pagination query parameters.
  * Matches OpenAPI PageParam (default 1) and PageSizeParam (default 20, max 100).
  */

@@ -130,5 +130,17 @@
 - Learnings: Use `asserts resource is T` return type on ownership helper so TypeScript narrows automatically after the call — avoids needing non-null assertions everywhere. Schedule create request body requires `tripDate` in datetime format (not date-only).
 ---
 
+## Iteration 19 - TASK-019: Mass assignment and over-posting prevention
+- Created `strictParse()` helper in `shared/schemas.ts` — centralized entry point for all Zod request validation
+- Replaced all 47 direct `.parse(request.body/query/params)` calls across 11 route files with `strictParse(schema, data)`
+- Verified all request body/query/param schemas already use `.strict()` — response-only schemas intentionally don't
+- Registration role whitelist already restricted to PASSENGER/PROVIDER via Zod enum
+- Booking totalPrice already server-computed (not in createBookingBodySchema)
+- Schedule driverId already validated for same-provider ownership in schedule.service.ts
+- 5 unit tests for strictParse, 9 integration tests covering: extra fields → 400, role=ADMIN/DRIVER at registration → 400, totalPrice injection → 400, profile update role escalation → 400
+- All 419 unit + 421 integration tests pass, typecheck + lint clean
+- Learnings: The Edit tool requires a full file Read (not limit=5) before editing. For bulk replacements across many files, sed via Bash is more efficient.
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.

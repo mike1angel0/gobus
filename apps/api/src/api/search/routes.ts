@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { SearchService } from '@/application/services/search.service.js';
+import { strictParse } from '@/shared/schemas.js';
 import { SEARCH_RATE_LIMIT } from '@/api/plugins/rate-limit.js';
 import { cachePublic } from '@/api/plugins/cache-control.js';
 import type { SearchResult, TripDetail, TripStopTime } from '@/domain/search/search.entity.js';
@@ -75,7 +76,7 @@ async function searchRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/search — search for available trips
   app.get('/api/v1/search', { preHandler: [cachePublic(30)], config: { rateLimit: SEARCH_RATE_LIMIT } }, async (request) => {
-    const { origin, destination, date, page, pageSize } = searchQuerySchema.parse(request.query);
+    const { origin, destination, date, page, pageSize } = strictParse(searchQuerySchema, request.query);
 
     const result = await searchService.searchTrips({ origin, destination, date, page, pageSize });
 
@@ -87,8 +88,8 @@ async function searchRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/trips/:scheduleId — get trip details with seat availability
   app.get('/api/v1/trips/:scheduleId', { preHandler: [cachePublic(10)], config: { rateLimit: SEARCH_RATE_LIMIT } }, async (request) => {
-    const { scheduleId } = tripDetailParamsSchema.parse(request.params);
-    const { tripDate } = tripDetailQuerySchema.parse(request.query);
+    const { scheduleId } = strictParse(tripDetailParamsSchema, request.params);
+    const { tripDate } = strictParse(tripDetailQuerySchema, request.query);
 
     const detail = await searchService.getTripDetails(scheduleId, tripDate);
 

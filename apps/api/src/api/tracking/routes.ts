@@ -7,6 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { busIdParamSchema, trackingUpdateSchema } from '@/api/tracking/schemas.js';
+import { strictParse } from '@/shared/schemas.js';
 import { noCache } from '@/api/plugins/cache-control.js';
 
 /**
@@ -38,7 +39,7 @@ async function trackingRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/tracking/:busId — get bus live position
   app.get('/api/v1/tracking/:busId', { preHandler: [app.authenticate, noCache] }, async (request) => {
-    const { busId } = busIdParamSchema.parse(request.params);
+    const { busId } = strictParse(busIdParamSchema, request.params);
     const tracking = await trackingService.getByBusId(busId);
 
     if (!tracking) {
@@ -54,7 +55,7 @@ async function trackingRoutes(app: FastifyInstance): Promise<void> {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can update tracking');
     }
 
-    const body = trackingUpdateSchema.parse(request.body);
+    const body = strictParse(trackingUpdateSchema, request.body);
     const tracking = await trackingService.updatePosition(request.user.id, body);
 
     return { data: serializeTrackingData(tracking) };

@@ -5,7 +5,7 @@ import { DriverService } from '@/application/services/driver.service.js';
 import type { DriverEntity } from '@/domain/drivers/driver.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
-import { paginationQuerySchema, idParamSchema } from '@/shared/schemas.js';
+import { paginationQuerySchema, idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createDriverRequestSchema } from '@/api/drivers/schemas.js';
 import { privateNoCache } from '@/api/plugins/cache-control.js';
 
@@ -33,7 +33,7 @@ async function driverRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/drivers',
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
-      const { page, pageSize } = paginationQuerySchema.parse(request.query);
+      const { page, pageSize } = strictParse(paginationQuerySchema, request.query);
       const providerId = request.user.providerId!;
 
       const result = await driverService.listByProvider(providerId, { page, pageSize });
@@ -50,7 +50,7 @@ async function driverRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/drivers',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const body = createDriverRequestSchema.parse(request.body);
+      const body = strictParse(createDriverRequestSchema, request.body);
       const providerId = request.user.providerId!;
 
       const driver = await driverService.create(providerId, body);
@@ -64,7 +64,7 @@ async function driverRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/drivers/:id',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;
 
       await driverService.delete(id, providerId);

@@ -5,7 +5,7 @@ import { RouteService } from '@/application/services/route.service.js';
 import type { RouteEntity, RouteWithStops, StopEntity } from '@/domain/routes/route.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
-import { paginationQuerySchema, idParamSchema } from '@/shared/schemas.js';
+import { paginationQuerySchema, idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createRouteRequestSchema } from '@/api/routes/schemas.js';
 import { privateNoCache } from '@/api/plugins/cache-control.js';
 
@@ -59,7 +59,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/routes',
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
-      const { page, pageSize } = paginationQuerySchema.parse(request.query);
+      const { page, pageSize } = strictParse(paginationQuerySchema, request.query);
       const providerId = request.user.providerId!;
 
       const result = await routeService.listByProvider(providerId, { page, pageSize });
@@ -76,7 +76,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/routes',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const body = createRouteRequestSchema.parse(request.body);
+      const body = strictParse(createRouteRequestSchema, request.body);
       const providerId = request.user.providerId!;
 
       const route = await routeService.create(providerId, body);
@@ -90,7 +90,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/routes/:id',
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;
 
       const route = await routeService.getById(id, providerId);
@@ -104,7 +104,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/routes/:id',
     { preHandler: [app.authenticate, requireProvider] },
     async (request, reply) => {
-      const { id } = idParamSchema.parse(request.params);
+      const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;
 
       await routeService.delete(id, providerId);

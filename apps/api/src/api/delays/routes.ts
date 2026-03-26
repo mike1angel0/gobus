@@ -6,7 +6,7 @@ import type { DelayData } from '@/domain/delays/delay.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
-import { idParamSchema } from '@/shared/schemas.js';
+import { idParamSchema, strictParse } from '@/shared/schemas.js';
 import { privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   listDelaysQuerySchema,
@@ -41,7 +41,7 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/delays — list delays for a schedule + tripDate (paginated)
   app.get('/api/v1/delays', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    const { scheduleId, tripDate, page, pageSize } = listDelaysQuerySchema.parse(request.query);
+    const { scheduleId, tripDate, page, pageSize } = strictParse(listDelaysQuerySchema, request.query);
     const result = await delayService.getBySchedule(scheduleId, tripDate, page, pageSize);
 
     return { data: result.data.map(serializeDelay), meta: result.meta };
@@ -53,7 +53,7 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers and providers can report delays');
     }
 
-    const body = createDelayBodySchema.parse(request.body);
+    const body = strictParse(createDelayBodySchema, request.body);
     const delay = await delayService.create(
       {
         id: request.user.id,
@@ -72,8 +72,8 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only providers can update delays');
     }
 
-    const { id } = idParamSchema.parse(request.params);
-    const body = updateDelayBodySchema.parse(request.body);
+    const { id } = strictParse(idParamSchema, request.params);
+    const body = strictParse(updateDelayBodySchema, request.body);
     const delay = await delayService.update(id, request.user.providerId!, body);
 
     return { data: serializeDelay(delay) };
