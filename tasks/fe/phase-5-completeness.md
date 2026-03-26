@@ -100,21 +100,21 @@ Replace the placeholder admin index page with a real dashboard.
 
 Implement `/admin/users` page for managing platform users.
 
-- [ ] Create `pages/admin/users.tsx` with paginated user table/list
-- [ ] Filter bar: role dropdown (PASSENGER/PROVIDER/DRIVER/ADMIN), status dropdown (ACTIVE/SUSPENDED/LOCKED)
-- [ ] Each user row shows: name, email, role badge, status badge, provider name (if applicable), createdAt
-- [ ] Action buttons per user:
+- [x] Create `pages/admin/users.tsx` with paginated user table/list
+- [x] Filter bar: role dropdown (PASSENGER/PROVIDER/DRIVER/ADMIN), status dropdown (ACTIVE/SUSPENDED/LOCKED)
+- [x] Each user row shows: name, email, role badge, status badge, provider name (if applicable), createdAt
+- [x] Action buttons per user:
   - Suspend (ACTIVE → SUSPENDED) with confirmation dialog
   - Unsuspend (SUSPENDED → ACTIVE) with confirmation dialog
   - Unlock (LOCKED → ACTIVE) with confirmation dialog
   - Force logout with confirmation dialog
-- [ ] Disable actions on the current admin's own row (cannot suspend/logout yourself)
-- [ ] Pagination controls
-- [ ] Loading skeleton, error state with retry, empty state
-- [ ] Add "Users" nav link to ADMIN role in navbar-links.ts
-- [ ] Add `/admin/users` route in router.tsx
-- [ ] Component tests: render user list, filter by role, filter by status, suspend/unsuspend/unlock actions, force logout, confirmation dialogs, pagination, self-action prevention, loading/error/empty states
-- [ ] Typecheck passes, lint clean
+- [x] Disable actions on the current admin's own row (cannot suspend/logout yourself)
+- [x] Pagination controls
+- [x] Loading skeleton, error state with retry, empty state
+- [x] Add "Users" nav link to ADMIN role in navbar-links.ts
+- [x] Add `/admin/users` route in router.tsx
+- [x] Component tests: render user list, filter by role, filter by status, suspend/unsuspend/unlock actions, force logout, confirmation dialogs, pagination, self-action prevention, loading/error/empty states
+- [x] Typecheck passes, lint clean
 
 ### TASK-008: Create admin audit log page
 

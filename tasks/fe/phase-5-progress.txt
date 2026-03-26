@@ -50,3 +50,22 @@
 - 17 new tests (25 total in use-admin.test.ts): all 4 query/mutation hooks with success, filters, error handling
 - Learnings: Admin keys already existed in keys.ts but auditLogs only had page/pageSize — always check existing key factories match the full OpenAPI query params before using them.
 ---
+
+## Iteration 6 - TASK-006: Create admin dashboard page
+- Created `pages/admin/dashboard.tsx` with stats cards (total users, providers, buses, audit events) and recent activity section
+- Aggregated data from existing admin endpoints (no dedicated stats endpoint exists) — used pageSize: 1 queries to get meta.total counts
+- Added quick action links to Users, Fleet, and Audit Logs sub-pages
+- Replaced PlaceholderPage in router.tsx with AdminDashboardPage, removed unused PlaceholderPage import
+- Documented spec gap: no `GET /api/v1/admin/schedules` endpoint for "total active schedules" stat — used audit events count instead
+- 18 component tests covering loading, error, loaded states, stat cards, recent activity, quick actions, accessibility, data fetching
+- Learnings: When there's no dedicated summary/stats endpoint, aggregate counts from list endpoints using pageSize: 1 and reading meta.total. Document missing endpoints in SPEC_GAPS.md for backend pickup.
+---
+
+## Iteration 7 - TASK-007: Create admin user management page
+- Created `pages/admin/users.tsx` with paginated user list, role/status filter dropdowns, confirmation dialogs for all actions
+- Decomposed into 8 sub-components (UserFilterBar, UserListSkeleton, UserRow, UserActions, UserConfirmDialog, UserPagination, UserListContent, AdminUsersPage) to stay under complexity limits
+- Self-action prevention: action buttons disabled when user.id === currentUser.id
+- Added "Dashboard" and "Users" nav links for ADMIN role in navbar-links.ts, route in router.tsx
+- 29 component tests covering loading/error/empty states, filters, actions, confirmation dialogs, pagination, self-action prevention, accessibility
+- Learnings: When dialog content duplicates info from the parent page (e.g., user email), use `within(dialog)` in tests to scope queries and avoid "multiple elements found" errors. Run tests from `apps/web/` directory, not monorepo root.
+---
