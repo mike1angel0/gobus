@@ -30,7 +30,6 @@ services:
     environment:
       DATABASE_URL: postgresql://transio:${POSTGRES_PASSWORD?POSTGRES_PASSWORD is required}@postgres:5432/transio
       JWT_SECRET: ${JWT_SECRET?JWT_SECRET is required - set it in .env or environment}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET?JWT_REFRESH_SECRET is required - set it in .env or environment}
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 3000
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:7766}

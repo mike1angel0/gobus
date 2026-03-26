@@ -127,8 +127,6 @@ vi.mock('@/infrastructure/prisma/client.js', () => ({
 vi.mock('@/infrastructure/config/env.js', () => ({
   getEnv: () => ({
     JWT_SECRET: process.env.JWT_SECRET ?? 'test-jwt-secret-do-not-use-in-prod',
-    JWT_REFRESH_SECRET:
-      process.env.JWT_REFRESH_SECRET ?? 'test-jwt-refresh-secret-do-not-use-in-prod',
     NODE_ENV: 'test',
     DATABASE_URL: 'postgresql://test:test@localhost:5432/transio_test',
   }),

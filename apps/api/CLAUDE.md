@@ -163,8 +163,7 @@ npm run build              # tsc + tsc-alias (must succeed)
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DATABASE_URL` | PostgreSQL connection string | — (required) |
-| `JWT_SECRET` | Access token signing secret (≥16 chars) | — (required) |
-| `JWT_REFRESH_SECRET` | Refresh token signing secret (≥16 chars) | — (required) |
+| `JWT_SECRET` | Access token signing secret (≥32 chars) | — (required) |
 | `PORT` | Server port | `3000` |
 | `NODE_ENV` | `development` / `production` / `test` | `development` |
 | `CORS_ORIGIN` | Allowed CORS origin | `http://localhost:3001` |

@@ -15,12 +15,6 @@ const envSchema = z
       .min(32)
       .describe('Secret key for signing JWT access tokens (>= 32 chars)'),
 
-    /** Secret key for JWT refresh tokens (min 32 chars, must differ from JWT_SECRET) */
-    JWT_REFRESH_SECRET: z
-      .string()
-      .min(32)
-      .describe('Secret key for JWT refresh tokens (>= 32 chars, must differ from JWT_SECRET)'),
-
     /** Server port */
     PORT: z.coerce.number().int().min(1).max(65535).default(3000).describe('Server port'),
 
@@ -47,10 +41,6 @@ const envSchema = z
       .max(100)
       .default(10)
       .describe('Maximum number of connections in the PostgreSQL connection pool'),
-  })
-  .refine((data) => data.JWT_SECRET !== data.JWT_REFRESH_SECRET, {
-    message: 'JWT_SECRET and JWT_REFRESH_SECRET must be different values',
-    path: ['JWT_REFRESH_SECRET'],
   });
 
 /** Inferred type of validated environment variables. */

@@ -31,7 +31,6 @@ vi.mock('@/infrastructure/logger/logger.js', () => ({
 function stubValidEnv(overrides: Record<string, string> = {}) {
   vi.stubEnv('DATABASE_URL', 'postgresql://localhost:5432/test');
   vi.stubEnv('JWT_SECRET', 'a-very-long-secret-key-at-least-32-characters');
-  vi.stubEnv('JWT_REFRESH_SECRET', 'another-long-secret-key-different-32-chars');
   vi.stubEnv('NODE_ENV', 'test');
   for (const [key, value] of Object.entries(overrides)) {
     vi.stubEnv(key, value);

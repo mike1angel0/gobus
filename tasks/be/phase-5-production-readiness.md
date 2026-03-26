@@ -40,15 +40,7 @@
 
 **TASK-012: Add cache headers to remaining endpoints** — All GET endpoints already had `privateNoCache`/`cachePublic`/`noCache`. Added `noCache` preHandler to all 25 mutation endpoints (POST/PUT/PATCH/DELETE) across auth, bookings, buses, routes, drivers, schedules, delays, admin, tracking. 3 integration tests.
 
-### TASK-013: Clean up unused JWT_REFRESH_SECRET
-**Description:** `JWT_REFRESH_SECRET` is required in env validation (`src/infrastructure/config/env.ts` line 19-22) but never used — refresh tokens are stored as SHA-256 hashes, not signed JWTs. Either use it or remove it.
-
-**Acceptance Criteria:**
-- [ ] Decision: either implement refresh tokens as JWTs signed with this secret, OR remove the env var requirement
-- [ ] If removed: update env.ts schema, .env.example, docker-compose.yml, test setup
-- [ ] If used: implement JWT-based refresh tokens with this secret
-- [ ] All tests pass
-- [ ] Typecheck passes
+**TASK-013: Clean up unused JWT_REFRESH_SECRET** — Removed unused JWT_REFRESH_SECRET env var (refresh tokens use SHA-256 hashes, not signed JWTs). Updated env.ts schema, .env.example (root + api), docker-compose.yml, test setup, and CLAUDE.md.
 
 ---
 

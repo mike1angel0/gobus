@@ -7,6 +7,5 @@
 // Set test environment variables before any imports
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-jwt-secret-do-not-use-in-prod';
-process.env.JWT_REFRESH_SECRET = 'test-jwt-refresh-secret-do-not-use-in-prod';
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/transio_test';
 process.env.LOG_LEVEL = 'silent';
