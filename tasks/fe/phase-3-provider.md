@@ -104,14 +104,14 @@ All use typed API client, proper cache invalidation, toast notifications on muta
 **Description:** Create `src/pages/provider/tracking.tsx`. Full-width live map showing all provider's active buses. Bus list sidebar with: bus info, current route, current stop, speed, last updated. Click bus in list to center map on it. Delay reporting form: select schedule, enter delay minutes, reason dropdown, notes. Active delays list with deactivate button.
 
 **Acceptance Criteria:**
-- [ ] Full-width LiveMap showing all active provider buses
-- [ ] Bus list sidebar with real-time info (5s polling)
-- [ ] Click bus → map centers on it
-- [ ] Delay reporting form with validation
-- [ ] Active delays list with deactivate button
-- [ ] Responsive: map fullscreen on mobile, sidebar as bottom sheet
-- [ ] Component test
-- [ ] Typecheck passes
+- [x] Full-width LiveMap showing all active provider buses
+- [x] Bus list sidebar with real-time info (5s polling)
+- [x] Click bus → map centers on it
+- [x] Delay reporting form with validation
+- [x] Active delays list with deactivate button
+- [x] Responsive: map fullscreen on mobile, sidebar as bottom sheet
+- [x] Component test
+- [x] Typecheck passes
 
 ---
 

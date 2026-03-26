@@ -22,6 +22,7 @@ const ProviderRoutesPage = lazy(() => import('@/pages/provider/routes'));
 const ProviderFleetPage = lazy(() => import('@/pages/provider/fleet'));
 const ProviderSchedulesPage = lazy(() => import('@/pages/provider/schedules'));
 const ProviderDriversPage = lazy(() => import('@/pages/provider/drivers'));
+const ProviderTrackingPage = lazy(() => import('@/pages/provider/tracking'));
 
 /* ---------- Router ---------- */
 
@@ -70,7 +71,7 @@ export const router = createBrowserRouter([
                   { path: 'fleet', element: <ProviderFleetPage /> },
                   { path: 'schedules', element: <ProviderSchedulesPage /> },
                   { path: 'drivers', element: <ProviderDriversPage /> },
-                  { path: 'tracking', element: <PlaceholderPage /> },
+                  { path: 'tracking', element: <ProviderTrackingPage /> },
                 ],
               },
 

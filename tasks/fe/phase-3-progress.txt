@@ -68,3 +68,28 @@
 - 27 tests covering loading, error, empty, loaded states, filter bar, cancel flow, driver assignment, create dialog, accessibility
 - Learnings: ESLint complexity max 15 is strict — extract custom hooks for data fetching (useSchedulesPageData, useCreateScheduleData), separate validation/error-handling into standalone functions, and extract ScheduleListContent to eliminate conditional render branches from the page component
 ---
+
+## Iteration 7 - TASK-007: Create driver management page
+- Created src/pages/provider/drivers.tsx with driver list cards showing name, email, phone, assigned schedule count
+- Extracted src/components/drivers/create-driver-dialog.tsx with name, email, password, phone fields
+- Form validation matches OpenAPI spec: name 1-100, email max 255 with format check, password 8-128 with uppercase/lowercase/digit pattern, phone max 20
+- Handles 409 email conflict error with field-level message on email input
+- Delete with confirmation dialog warns about schedule unassignment impact when assignedScheduleCount > 0
+- Updated router.tsx to replace PlaceholderPage with ProviderDriversPage at /provider/drivers
+- 28 tests covering loading, error, empty, loaded states, create dialog with all validations, 409 conflict handling, delete confirmation with schedule warning, accessibility, responsive layout
+- Learnings: Use noValidate on forms with type="email" inputs to prevent browser HTML5 validation from blocking our custom validation in tests; use ApiError class instances (not plain objects) when simulating API errors in tests since isApiError uses instanceof; wrap async state updates from error callbacks in waitFor
+---
+
+## Iteration 8 - TASK-008: Create provider tracking page
+- Created src/pages/provider/tracking.tsx with full-width LiveMap, bus sidebar, delay reporting, and active delays list
+- Extracted 3 components: tracking-bus-sidebar.tsx (bus list with real-time info), report-delay-dialog.tsx (delay form with Zod validation), active-delays-list.tsx (delays with deactivate button)
+- Custom useTrackingPageData hook aggregates buses, tracking (5s polling via useProviderTracking), and active schedules
+- Bus selection centers map on the selected bus; sidebar shows speed, current stop, last updated time
+- Delay form validates against OpenAPI spec: offsetMinutes 1-1440, reason enum, note max 500 chars, required scheduleId/tripDate
+- Active delays section appears when a bus with a schedule is selected, with deactivate button using useUpdateDelay
+- Responsive layout: flex-col on mobile (map on top, sidebar below), flex-row on desktop (map fills left, sidebar 320px right)
+- Updated router.tsx to replace PlaceholderPage with ProviderTrackingPage at /provider/tracking
+- 30 tests covering loading, error, empty, loaded states, bus selection, delay reporting form with validation, active delays with deactivate, accessibility, responsive layout, data fetching
+- Mocked LiveMap component in tests since leaflet requires DOM environment not available in jsdom
+- Learnings: Wrap intermediate variables from React Query in useMemo to avoid ESLint react-hooks/exhaustive-deps warnings about logical expressions in dependency arrays; mock complex DOM-dependent components (like leaflet maps) with simple divs in tests
+---
