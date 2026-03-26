@@ -50,7 +50,7 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "${PORT:-7766}:80"
+      - "${PORT:-7766}:8080"
 
 volumes:
   pgdata:

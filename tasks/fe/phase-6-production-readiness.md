@@ -30,14 +30,7 @@
 
 ## Docker Hardening
 
-### TASK-004: Harden web Dockerfile
-**Description:** `apps/web/Dockerfile` runs as root and has no health check. Container orchestrators (k8s, ECS) need health checks for readiness probes, and running as root is a security risk.
-
-**Acceptance Criteria:**
-- [ ] `HEALTHCHECK` directive added: `curl -f http://localhost:80/ || exit 1` (or `wget -q --spider`)
-- [ ] Non-root user configured: nginx runs as non-root (nginx:alpine image supports this with proper config)
-- [ ] Verify container starts and serves correctly with non-root user
-- [ ] Verify health check passes: `docker inspect --format='{{.State.Health.Status}}'`
+### TASK-004: Harden web Dockerfile ✅
 
 ---
 
