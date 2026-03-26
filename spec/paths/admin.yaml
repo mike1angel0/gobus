@@ -36,6 +36,8 @@ buses:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -71,6 +73,8 @@ userSessions:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -119,6 +123,8 @@ users:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -170,6 +176,8 @@ userStatus:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -234,6 +242,8 @@ auditLogs:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -285,5 +295,8 @@ seatById:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
+

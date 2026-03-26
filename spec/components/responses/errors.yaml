@@ -36,6 +36,27 @@ Locked:
         $ref: '../schemas/common.yaml#/ErrorResponse'
 TooManyRequests:
   description: Rate limit exceeded
+  headers:
+    X-RateLimit-Limit:
+      description: Maximum number of requests allowed in the time window
+      schema:
+        type: integer
+        example: 100
+    X-RateLimit-Remaining:
+      description: Number of requests remaining in the current time window
+      schema:
+        type: integer
+        example: 0
+    X-RateLimit-Reset:
+      description: Unix timestamp (seconds) when the rate limit resets
+      schema:
+        type: integer
+        example: 1700000000
+    Retry-After:
+      description: Seconds to wait before retrying
+      schema:
+        type: integer
+        example: 60
   content:
     application/json:
       schema:

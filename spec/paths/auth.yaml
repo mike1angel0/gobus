@@ -31,6 +31,8 @@ register:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -73,6 +75,8 @@ login:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -103,6 +107,8 @@ refresh:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -130,6 +136,8 @@ logout:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -154,6 +162,8 @@ forgot-password:
           application/json:
             schema:
               $ref: '../components/schemas/auth.yaml#/MessageDataResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -184,6 +194,8 @@ reset-password:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -221,6 +233,8 @@ change-password:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -246,6 +260,8 @@ me:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -282,5 +298,8 @@ me:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
+

@@ -37,6 +37,8 @@ list:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -90,6 +92,8 @@ passengers:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
@@ -143,5 +147,8 @@ detail:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
+

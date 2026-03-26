@@ -26,14 +26,7 @@
 
 **TASK-007: Document 500 error responses on all endpoints** — Added `InternalServerError` response component to `errors.yaml` referencing `ErrorResponse` schema. Added `'500': $ref` to all 50 operations across 12 path files. Bundled spec.
 
-### TASK-008: Document rate limiting in OpenAPI spec
-**Description:** Rate limiting is implemented but not documented in the spec. Missing: `429 Too Many Requests` response, `X-RateLimit-*` response headers, `Retry-After` header.
-
-**Acceptance Criteria:**
-- [ ] `spec/components/responses/errors.yaml` has `RateLimited` response (429) with `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After` headers
-- [ ] All endpoints reference `'429': $ref` to the rate limited response
-- [ ] `npm run spec:lint` passes
-- [ ] Typecheck passes
+**TASK-008: Document rate limiting in OpenAPI spec** — Added `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After` headers to `TooManyRequests` response component. Added `'429': $ref` to all 50 operations across 12 path files.
 
 ### TASK-009: Add missing validation constraints to OpenAPI spec
 **Description:** Several schema fields lack `minLength` constraints. ID parameters lack `pattern` for CUID format validation. Some 4xx error codes are missing from specific endpoints (POST /schedules missing 409 for overlap, POST /routes missing 400 for invalid stop order).

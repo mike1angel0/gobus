@@ -36,3 +36,16 @@
 - Updated OpenAPI spec (8 response schemas + CreateScheduleRequest input), Zod schemas (7 response + 1 request), route serializers (5 files), and 7 integration test files
 - Learnings: spec-conformance tests read from `spec/dist/openapi.json` (bundled spec) — must run `npx redocly bundle` after spec changes; pre-existing failures exist in driver-trips spec-conformance and cache-control integration tests (not related to this task); `z.string().date()` validates `YYYY-MM-DD` format strictly — datetime strings like `2025-06-01T00:00:00.000Z` are rejected
 ---
+
+## Iteration 7 - TASK-007: Document 500 error responses on all endpoints
+- Added `InternalServerError` response component to `spec/components/responses/errors.yaml`
+- Added `'500': $ref` to all 50 operations across 12 path files using a Python script for consistency
+- Bundled spec with `npx redocly bundle`
+- Learnings: spec/dist/ is gitignored so don't try to commit bundled output; path files use inline schema refs for existing 4xx errors (not response component refs), but 500 uses `$ref` to named response component per acceptance criteria; total operations count is 50 (not 43 as stated in PRD)
+---
+
+## Iteration 8 - TASK-008: Document rate limiting in OpenAPI spec
+- Added `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After` headers to existing `TooManyRequests` response component in errors.yaml
+- Added `'429': $ref` to all 50 operations across 12 path files
+- Learnings: Python regex `\1` backreference inserts `\x01` byte when using `re.sub` with raw strings improperly — use raw strings for replacement or explicit group references; always verify YAML files with `xxd` or similar if spec:lint reports non-printable characters; the TooManyRequests response component already existed in errors.yaml but lacked headers
+---
