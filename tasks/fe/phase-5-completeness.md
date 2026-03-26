@@ -30,14 +30,14 @@ Implement a `/profile` page accessible to all authenticated users for viewing an
 
 Implement a `/provider/profile` page for providers to view their company information.
 
-- [ ] Create `pages/provider/profile.tsx` showing provider details: name, logo, contactEmail, contactPhone, status (APPROVED/PENDING badge), createdAt
-- [ ] Create `useProviderProfile` hook calling `GET /api/v1/providers/me`, typed from OpenAPI spec, query key in keys.ts
-- [ ] Show pending status with warning banner ("Your provider account is pending approval")
-- [ ] Loading skeleton, error state with retry
-- [ ] Add "Profile" nav link to PROVIDER role in navbar-links.ts
-- [ ] Add `/provider/profile` route in router.tsx
-- [ ] Component tests: render profile, pending status banner, loading/error states
-- [ ] Typecheck passes, lint clean
+- [x] Create `pages/provider/profile.tsx` showing provider details: name, logo, contactEmail, contactPhone, status (APPROVED/PENDING badge), createdAt
+- [x] Create `useProviderProfile` hook calling `GET /api/v1/providers/me`, typed from OpenAPI spec, query key in keys.ts
+- [x] Show pending status with warning banner ("Your provider account is pending approval")
+- [x] Loading skeleton, error state with retry
+- [x] Add "Profile" nav link to PROVIDER role in navbar-links.ts
+- [x] Add `/provider/profile` route in router.tsx
+- [x] Component tests: render profile, pending status banner, loading/error states
+- [x] Typecheck passes, lint clean
 
 ### TASK-003: Integrate provider analytics into dashboard
 

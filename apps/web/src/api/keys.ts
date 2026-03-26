@@ -120,6 +120,13 @@ export const adminKeys = {
     filters ? (['admin', 'audit-logs', filters] as const) : (['admin', 'audit-logs'] as const),
 };
 
+/** Query keys for the authenticated provider's own profile (`/providers/me`). */
+export const providerProfileKeys = {
+  all: ['provider-profile'] as const,
+  /** Key for the provider's own profile (`GET /providers/me`). */
+  me: () => ['provider-profile', 'me'] as const,
+};
+
 /** Query keys for driver trip resources (`/driver/trips`). */
 export const driverTripKeys = {
   all: ['driver-trips'] as const,

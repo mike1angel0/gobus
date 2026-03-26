@@ -23,6 +23,7 @@ const ProviderFleetPage = lazy(() => import('@/pages/provider/fleet'));
 const ProviderSchedulesPage = lazy(() => import('@/pages/provider/schedules'));
 const ProviderDriversPage = lazy(() => import('@/pages/provider/drivers'));
 const ProviderTrackingPage = lazy(() => import('@/pages/provider/tracking'));
+const ProviderProfilePage = lazy(() => import('@/pages/provider/profile'));
 const DriverTripsPage = lazy(() => import('@/pages/driver/trips'));
 const DriverTripDetailPage = lazy(() => import('@/pages/driver/trip-detail'));
 const DriverDelayPage = lazy(() => import('@/pages/driver/delay'));
@@ -79,6 +80,7 @@ export const router = createBrowserRouter([
                   { path: 'schedules', element: <ProviderSchedulesPage /> },
                   { path: 'drivers', element: <ProviderDriversPage /> },
                   { path: 'tracking', element: <ProviderTrackingPage /> },
+                  { path: 'profile', element: <ProviderProfilePage /> },
                 ],
               },
 
