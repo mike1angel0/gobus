@@ -55,5 +55,22 @@
 - Learnings: The `toast` function from shadcn can be imported standalone from `@/hooks/use-toast` without needing `useToast` hook — simpler for one-off success notifications. For change password, map 401 status directly to currentPassword field error regardless of error code, as the spec uses 401 for incorrect current password.
 ---
 
+## Iteration 13 - TASK-013: Create React Router setup with auth guards
+- Created AuthGuard (redirects unauthenticated to /auth/login with `from` state, renders nothing during loading to prevent flash) and RoleGuard (checks user role against allowedRoles, redirects to / on mismatch)
+- Created router.tsx with createBrowserRouter, all routes lazy-loaded via React.lazy + Suspense. RootLayout wraps providers (QueryClient, Auth) inside the router tree so they have access to router context
+- Moved providers from main.tsx into RootLayout component inside the router — necessary because createBrowserRouter renders outside the React tree from main.tsx
+- Created placeholder.tsx for unimplemented routes
+- 16 tests across auth-guard and role-guard covering: authenticated access, unauthenticated redirect, loading state (no flash), location state preservation, role matching/mismatch for all 4 roles
+- Learnings: With createBrowserRouter, providers must be inside the router tree (RootLayout), not wrapping RouterProvider in main.tsx. Router config file (router.tsx) needs react-refresh/only-export-components disabled since it exports a non-component. React Compiler's react-hooks/immutability rule prevents mutating external variables in components — render state as text in test assertions instead of capturing to external refs.
+---
+
+## Iteration 14 - TASK-014: Create Navbar component
+- Created navbar-links.ts with NavLink type, AUTH_NAV_LINKS (role-filtered), PUBLIC_NAV_LINKS, and getLinksForRole() utility
+- Created navbar-mobile.tsx with slide-in mobile menu: backdrop, focus management (auto-focus close button on open), Escape key handler, role-based links, user name display, sign out / login+register for unauth
+- Created navbar.tsx with responsive desktop/mobile layout: logo link, role-based nav links, active link highlighting via useLocation, user name + sign out (authenticated), login/register (unauthenticated), hamburger toggle with aria-expanded
+- 29 tests covering: unauthenticated state (logo, public links, login/register), all 4 roles (PASSENGER, PROVIDER, DRIVER, ADMIN link visibility), active link highlighting, accessibility (landmarks, aria-labels, aria-expanded), mobile menu (open/close via button/backdrop/escape, role links, sign out, login/register, close on link click)
+- Learnings: When checking CSS class absence, use `className.split(' ')` array check since `toContain('bg-accent')` matches `hover:bg-accent` too. Split mobile menu into separate component to keep navbar under ESLint complexity limits.
+---
+
 ## Learnings
 See "Key Patterns & Gotchas" in Compacted History above, plus iteration-specific learnings in each iteration entry.

@@ -46,18 +46,7 @@
 
 ### ~~TASK-013: Create React Router setup with auth guards~~ ✅
 
-### TASK-014: Create Navbar component
-**Description:** Create `src/components/layout/navbar.tsx`. Responsive with mobile hamburger menu. Role-based navigation links: PASSENGER (Home, Search, My Trips), PROVIDER (Dashboard, Routes, Fleet, Schedules, Drivers, Tracking), DRIVER (Trips, History), ADMIN (Fleet). Shows user name + sign out. Logo with link to home.
-
-**Acceptance Criteria:**
-- [ ] Responsive: desktop horizontal nav, mobile hamburger menu
-- [ ] Role-based link visibility
-- [ ] Active link highlighting
-- [ ] User info + sign out button (authenticated)
-- [ ] Login/Register links (unauthenticated)
-- [ ] Accessible: ARIA labels, keyboard navigation, focus management on mobile menu
-- [ ] Component test with different roles
-- [ ] Typecheck passes
+### ~~TASK-014: Create Navbar component~~ ✅
 
 ### TASK-015: Create app layout and home page
 **Description:** Create `src/components/layout/app-layout.tsx` wrapping Navbar + Outlet + ToastContainer. Create `src/pages/home.tsx` with hero section, search form, popular routes preview. Use the dark glass-morphism design language.
