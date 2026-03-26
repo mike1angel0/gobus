@@ -1,0 +1,51 @@
+import { describe, it, expect, vi } from 'vitest';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from '@/test/helpers';
+import { ErrorFallback } from './error-fallback';
+
+describe('ErrorFallback', () => {
+  it('renders default error message', () => {
+    renderWithProviders(<ErrorFallback />);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Error');
+    expect(screen.getByText('Something went wrong. Please try again.')).toBeInTheDocument();
+  });
+
+  it('renders custom error message', () => {
+    renderWithProviders(<ErrorFallback message="Custom failure" />);
+    expect(screen.getByText('Custom failure')).toBeInTheDocument();
+  });
+
+  it('renders retry button when onRetry is provided', () => {
+    const onRetry = vi.fn();
+    renderWithProviders(<ErrorFallback onRetry={onRetry} />);
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+  });
+
+  it('does not render retry button when onRetry is omitted', () => {
+    renderWithProviders(<ErrorFallback />);
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+  });
+
+  it('calls onRetry when retry button is clicked', async () => {
+    const user = userEvent.setup();
+    const onRetry = vi.fn();
+    renderWithProviders(<ErrorFallback onRetry={onRetry} />);
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it('has accessible alert role', () => {
+    renderWithProviders(<ErrorFallback />);
+    const alert = screen.getByRole('alert');
+    expect(alert).toBeInTheDocument();
+  });
+
+  it('hides icon from assistive technology', () => {
+    const { container } = renderWithProviders(<ErrorFallback />);
+    const svg = container.querySelector('svg');
+    expect(svg).toHaveAttribute('aria-hidden', 'true');
+  });
+});

@@ -27,6 +27,7 @@ const DriverTripsPage = lazy(() => import('@/pages/driver/trips'));
 const DriverTripDetailPage = lazy(() => import('@/pages/driver/trip-detail'));
 const DriverDelayPage = lazy(() => import('@/pages/driver/delay'));
 const AdminFleetPage = lazy(() => import('@/pages/admin/fleet'));
+const NotFoundPage = lazy(() => import('@/components/error/not-found'));
 
 /* ---------- Router ---------- */
 
@@ -101,6 +102,9 @@ export const router = createBrowserRouter([
               },
             ],
           },
+
+          /* ---- 404 catch-all ---- */
+          { path: '*', element: <NotFoundPage /> },
         ],
       },
     ],

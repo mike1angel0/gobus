@@ -34,16 +34,8 @@
 
 ## Error Handling & Resilience
 
-### TASK-007: Create error boundary components
-**Description:** Create `src/components/error/error-boundary.tsx` (React error boundary wrapping pages, shows friendly error UI with retry). Create `src/components/error/not-found.tsx` (404 page). Create `src/components/error/error-fallback.tsx` (generic error display with retry button). Add error boundaries at route level in router.tsx.
-
-**Acceptance Criteria:**
-- [ ] Error boundary catches render errors, shows fallback UI
-- [ ] Fallback includes error message + retry button
-- [ ] 404 page for unknown routes
-- [ ] Error boundaries at page level (one page crash doesn't break app)
-- [ ] Component test for error boundary
-- [ ] Typecheck passes
+### TASK-007: Create error boundary components ✅
+- [x] ErrorBoundary class component catches render errors with fallback UI and retry, ErrorFallback generic error display, NotFound 404 page, error boundary in AppLayout wrapping Outlet, 404 catch-all route, 17 tests, typecheck passes
 
 ### TASK-008: Add loading states and empty states consistency
 **Description:** Audit all pages for consistent UX patterns: loading (skeleton screens, not spinners), empty state (illustration + message + action CTA), error state (message + retry). Create reusable components: `src/components/shared/loading-skeleton.tsx`, `src/components/shared/empty-state.tsx`, `src/components/shared/error-state.tsx`.
