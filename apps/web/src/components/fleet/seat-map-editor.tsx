@@ -25,14 +25,10 @@ const SEAT_TYPE_LABELS: Record<SeatType, string> = {
 
 /** Style configuration for each seat type in the editor. */
 const SEAT_TYPE_STYLES: Record<SeatType, string> = {
-  STANDARD:
-    'bg-green-100 border-green-400 text-green-800 hover:bg-green-200',
-  PREMIUM:
-    'bg-amber-100 border-amber-400 text-amber-800 hover:bg-amber-200 ring-2 ring-amber-400',
-  DISABLED_ACCESSIBLE:
-    'bg-blue-100 border-blue-400 text-blue-800 hover:bg-blue-200',
-  BLOCKED:
-    'bg-gray-200 border-gray-400 text-gray-500 hover:bg-gray-300',
+  STANDARD: 'bg-green-100 border-green-400 text-green-800 hover:bg-green-200',
+  PREMIUM: 'bg-amber-100 border-amber-400 text-amber-800 hover:bg-amber-200 ring-2 ring-amber-400',
+  DISABLED_ACCESSIBLE: 'bg-blue-100 border-blue-400 text-blue-800 hover:bg-blue-200',
+  BLOCKED: 'bg-gray-200 border-gray-400 text-gray-700 hover:bg-gray-300',
 };
 
 /** Icons/symbols for seat types. */
@@ -48,7 +44,7 @@ const BRUSH_STYLES: Record<SeatType, string> = {
   STANDARD: 'bg-green-100 border-green-400 text-green-800',
   PREMIUM: 'bg-amber-100 border-amber-400 text-amber-800',
   DISABLED_ACCESSIBLE: 'bg-blue-100 border-blue-400 text-blue-800',
-  BLOCKED: 'bg-gray-200 border-gray-400 text-gray-600',
+  BLOCKED: 'bg-gray-200 border-gray-400 text-gray-700',
 };
 
 /** Props for the {@link SeatMapEditor} component. */
@@ -118,7 +114,12 @@ export function SeatMapEditor({
   }, [editedSeats]);
 
   const counts = useMemo(() => {
-    const c: Record<SeatType, number> = { STANDARD: 0, PREMIUM: 0, DISABLED_ACCESSIBLE: 0, BLOCKED: 0 };
+    const c: Record<SeatType, number> = {
+      STANDARD: 0,
+      PREMIUM: 0,
+      DISABLED_ACCESSIBLE: 0,
+      BLOCKED: 0,
+    };
     for (const seat of editedSeats) {
       c[seat.type]++;
     }
@@ -132,9 +133,7 @@ export function SeatMapEditor({
   }, [editedSeats, initialSeats]);
 
   const updateSeatType = useCallback((seatId: string, newType: SeatType) => {
-    setEditedSeats((prev) =>
-      prev.map((s) => (s.id === seatId ? { ...s, type: newType } : s)),
-    );
+    setEditedSeats((prev) => prev.map((s) => (s.id === seatId ? { ...s, type: newType } : s)));
   }, []);
 
   const handleSeatClick = useCallback(
@@ -275,7 +274,9 @@ function BrushToolbar({ activeBrush, onBrushChange }: BrushToolbarProps) {
           onClick={() => onBrushChange(type)}
         >
           {SEAT_TYPE_ICONS[type] && (
-            <span className="mr-1" aria-hidden="true">{SEAT_TYPE_ICONS[type]}</span>
+            <span className="mr-1" aria-hidden="true">
+              {SEAT_TYPE_ICONS[type]}
+            </span>
           )}
           {SEAT_TYPE_LABELS[type]}
         </Button>
@@ -326,7 +327,9 @@ function EditorSeatCell({ seat, onClick, onKeyDown }: EditorSeatCellProps) {
         </button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{seat.label} &middot; {SEAT_TYPE_LABELS[seat.type]}</p>
+        <p>
+          {seat.label} &middot; {SEAT_TYPE_LABELS[seat.type]}
+        </p>
       </TooltipContent>
     </Tooltip>
   );
