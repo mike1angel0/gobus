@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom';
+import { AuthProvider } from '@/contexts/auth-context';
 
 /**
  * Options for {@link renderWithProviders}. Extends RTL's RenderOptions
@@ -12,6 +13,8 @@ interface ProvidersOptions extends Omit<RenderOptions, 'wrapper'> {
   routerProps?: MemoryRouterProps;
   /** Custom QueryClient instance. A fresh client is created per test by default. */
   queryClient?: QueryClient;
+  /** Whether to include AuthProvider in the wrapper. Defaults to `false`. */
+  withAuth?: boolean;
 }
 
 /**
@@ -43,14 +46,15 @@ function createTestQueryClient(): QueryClient {
  */
 function renderWithProviders(
   ui: ReactElement,
-  { routerProps, queryClient, ...renderOptions }: ProvidersOptions = {},
+  { routerProps, queryClient, withAuth = false, ...renderOptions }: ProvidersOptions = {},
 ) {
   const client = queryClient ?? createTestQueryClient();
 
   function Wrapper({ children }: { children: ReactNode }) {
+    const content = <MemoryRouter {...routerProps}>{children}</MemoryRouter>;
     return (
       <QueryClientProvider client={client}>
-        <MemoryRouter {...routerProps}>{children}</MemoryRouter>
+        {withAuth ? <AuthProvider>{content}</AuthProvider> : content}
       </QueryClientProvider>
     );
   }

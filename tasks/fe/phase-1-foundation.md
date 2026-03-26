@@ -30,25 +30,7 @@
 
 ## Auth Flow
 
-### TASK-008: Create auth context and hooks with secure token handling
-**Description:** Create `src/contexts/auth-context.tsx` with AuthProvider. **Secure token storage:** access token in memory only (never localStorage/sessionStorage — XSS-safe), refresh token in httpOnly cookie (if API supports) or localStorage as fallback. Methods: `login(email, password)`, `register(data)`, `logout()` (calls POST /auth/logout to revoke server-side), `refreshToken()`, `changePassword(current, new)`, `forgotPassword(email)`, `resetPassword(token, newPassword)`. Create `src/hooks/useAuth.ts`. Auto-refresh access token before expiry (use JWT exp claim, refresh 1 minute before expiry). Auto-attach access token to API client via interceptor.
-
-**Acceptance Criteria:**
-- [ ] Access token stored in memory only (not localStorage)
-- [ ] Refresh token in localStorage (or httpOnly cookie if supported)
-- [ ] `login` calls POST /auth/login, stores tokens, fetches user profile
-- [ ] `register` calls POST /auth/register, stores tokens
-- [ ] `logout` calls POST /auth/logout (revokes refresh token server-side), then clears local state
-- [ ] `changePassword` calls POST /auth/change-password
-- [ ] `forgotPassword` calls POST /auth/forgot-password
-- [ ] `resetPassword` calls POST /auth/reset-password
-- [ ] Auto-refresh: reads JWT exp, refreshes 1 min before expiry
-- [ ] On 401 during refresh → full logout (session expired)
-- [ ] On 423 → show "Account locked" message
-- [ ] On 403 (suspended) → show "Account suspended" message, logout
-- [ ] Unit tests for auth state transitions including error scenarios
-- [ ] JSDoc on all exports
-- [ ] Typecheck passes
+### ~~TASK-008: Create auth context and hooks with secure token handling~~ ✅
 
 ### TASK-009: Create login page
 **Description:** Create `src/pages/auth/login.tsx`. Form with email + password fields. Zod validation (email format, password min 6 chars). React Hook Form + zodResolver. Calls `login()` from auth context. Redirects to role-appropriate dashboard on success. Shows field-level errors from API (RFC 9457 errors mapped to fields). Loading state on submit button.
