@@ -68,21 +68,10 @@ function loadOpenApiSpec(): OpenAPIV3.Document {
 }
 
 /**
- * Build and configure the Fastify application instance.
- *
- * Registers core plugins (error handler, swagger, health routes)
- * and returns a ready-to-use app.
- * Use this factory in both production server and tests.
+ * Register core middleware plugins: CORS, compression, security headers, error handling,
+ * input sanitization, request logging, metrics, rate limiting, and Swagger docs.
  */
-export async function buildApp(options: FastifyServerOptions = {}): Promise<FastifyInstance> {
-  const app = Fastify({
-    logger: options.logger ?? getLoggerConfig(),
-    bodyLimit: 1_048_576, // 1 MB request body size limit
-    genReqId: () => randomUUID(),
-    requestIdHeader: 'x-request-id',
-    ...options,
-  });
-
+async function registerPlugins(app: FastifyInstance): Promise<void> {
   // Propagate x-request-id to responses for request tracing
   app.addHook('onRequest', async (request, reply) => {
     void reply.header('x-request-id', request.id);
@@ -98,8 +87,9 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
     exposedHeaders: ['X-Request-Id'],
   });
 
-  // Response compression (disabled in test to avoid interference with integration tests)
   const isTest = process.env.NODE_ENV === 'test';
+
+  // Response compression (disabled in test to avoid interference with integration tests)
   if (!isTest) {
     await app.register(compress, {
       threshold: 1024, // Only compress responses > 1KB
@@ -138,14 +128,8 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   }
 
   await app.register(errorHandler);
-
-  // Input sanitization — strip HTML tags from all string inputs (XSS prevention)
   await app.register(sanitizeInputPlugin);
-
-  // Request logging (method, url, status, timing)
   await app.register(requestLoggerPlugin);
-
-  // Request metrics (timing percentiles, error rates, periodic summary)
   await app.register(metricsPlugin);
 
   // Rate limiting (disabled in test to avoid interference with integration tests)
@@ -158,21 +142,19 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   if (!isProduction) {
     await app.register(swagger, {
       mode: 'static',
-      specification: {
-        document: loadOpenApiSpec(),
-      },
+      specification: { document: loadOpenApiSpec() },
     });
-
-    await app.register(swaggerUi, {
-      routePrefix: '/docs',
-    });
+    await app.register(swaggerUi, { routePrefix: '/docs' });
   }
 
-  // Plugins
   await app.register(authPlugin);
   await app.register(auditPlugin);
+}
 
-  // Routes
+/**
+ * Register all API route handlers on the Fastify instance.
+ */
+async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(healthRoutes);
   await app.register(authRoutes);
   await app.register(providerRoutes);
@@ -186,6 +168,26 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
   await app.register(delayRoutes);
   await app.register(driverTripRoutes);
   await app.register(adminRoutes);
+}
+
+/**
+ * Build and configure the Fastify application instance.
+ *
+ * Register core plugins (error handler, swagger, health routes)
+ * and return a ready-to-use app.
+ * Use this factory in both production server and tests.
+ */
+export async function buildApp(options: FastifyServerOptions = {}): Promise<FastifyInstance> {
+  const app = Fastify({
+    logger: options.logger ?? getLoggerConfig(),
+    bodyLimit: 1_048_576, // 1 MB request body size limit
+    genReqId: () => randomUUID(),
+    requestIdHeader: 'x-request-id',
+    ...options,
+  });
+
+  await registerPlugins(app);
+  await registerRoutes(app);
 
   return app;
 }
