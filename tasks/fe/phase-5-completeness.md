@@ -76,13 +76,13 @@ Implement passenger list view on the driver trip detail page.
 
 Create all remaining admin hooks needed for the admin panel.
 
-- [ ] Create `useAdminUsers` hook: `GET /api/v1/admin/users` with page, pageSize, role, status filters, typed from OpenAPI spec
-- [ ] Create `useUpdateUserStatus` mutation hook: `PATCH /api/v1/admin/users/{id}/status` with status body, invalidates admin user queries on success, toast on success/failure
-- [ ] Create `useForceLogout` mutation hook: `DELETE /api/v1/admin/users/{id}/sessions`, invalidates admin user queries on success, toast on success/failure
-- [ ] Create `useAuditLogs` hook: `GET /api/v1/admin/audit-logs` with page, pageSize, userId, action, dateFrom, dateTo filters, typed from OpenAPI spec
-- [ ] Add query key factories for admin users and audit logs in keys.ts
-- [ ] JSDoc on all exports, unit tests for each hook
-- [ ] Typecheck passes, lint clean
+- [x] Create `useAdminUsers` hook: `GET /api/v1/admin/users` with page, pageSize, role, status filters, typed from OpenAPI spec
+- [x] Create `useUpdateUserStatus` mutation hook: `PATCH /api/v1/admin/users/{id}/status` with status body, invalidates admin user queries on success, toast on success/failure
+- [x] Create `useForceLogout` mutation hook: `DELETE /api/v1/admin/users/{id}/sessions`, invalidates admin user queries on success, toast on success/failure
+- [x] Create `useAuditLogs` hook: `GET /api/v1/admin/audit-logs` with page, pageSize, userId, action, dateFrom, dateTo filters, typed from OpenAPI spec
+- [x] Add query key factories for admin users and audit logs in keys.ts
+- [x] JSDoc on all exports, unit tests for each hook
+- [x] Typecheck passes, lint clean
 
 ### TASK-006: Create admin dashboard page
 

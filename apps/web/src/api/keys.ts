@@ -116,7 +116,14 @@ export const adminKeys = {
   /** Matches a specific user's sessions. */
   userSessions: (id: string) => ['admin', 'users', 'sessions', id] as const,
   /** Matches admin audit log queries. */
-  auditLogs: (filters?: { page?: number; pageSize?: number }) =>
+  auditLogs: (filters?: {
+    page?: number;
+    pageSize?: number;
+    userId?: string;
+    action?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) =>
     filters ? (['admin', 'audit-logs', filters] as const) : (['admin', 'audit-logs'] as const),
 };
 

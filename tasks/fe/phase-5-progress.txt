@@ -28,3 +28,25 @@
 - 3 hook tests + 14 analytics section tests + 2 dashboard integration tests, all passing
 - Learnings: Extracting analytics into separate component keeps both files under 200 lines and cleanly separates concerns. The analytics query is independent from the existing dashboard queries — error in analytics doesn't block the rest of the dashboard.
 ---
+
+## Iteration 4 - TASK-004: Create driver passenger manifest
+- Created `useDriverTripPassengers` hook calling `GET /api/v1/driver/trips/{scheduleId}/passengers` with date query param
+- Added `passengers` key factory to `driverTripKeys` in keys.ts
+- Created `components/driver/passenger-list.tsx` as separate component (trip-detail.tsx was already 613 lines)
+- PassengerList shows name, boarding/alighting stops, seat labels, status badge per passenger
+- Confirmed count / total seats in header, loading skeleton, error with retry, empty state
+- Extracted `PassengerListContent` sub-component to stay under ESLint complexity limit of 15
+- Replaced static passenger count card in trip-detail.tsx with PassengerList component
+- Updated trip-detail.test.tsx to mock useDriverTripPassengers and adapt passenger info tests
+- 4 hook tests + 17 component tests + 41 page tests (68 total), all passing
+- Learnings: When adding a new hook to an already-mocked module, ALL existing tests that mock that module need the new export added to their mock factory or they will fail with "not a function" errors.
+---
+
+## Iteration 5 - TASK-005: Create admin hooks for users and audit logs
+- Added 4 hooks to use-admin.ts: useAdminUsers (query), useUpdateUserStatus (mutation), useForceLogout (mutation), useAuditLogs (query)
+- Updated adminKeys.auditLogs in keys.ts to include all filter params (userId, action, dateFrom, dateTo) matching the OpenAPI spec
+- Used UserStatusAction type from generated types for type-safe action parameter
+- Mutation hooks invalidate both list and detail/session keys on success, show descriptive toasts per action
+- 17 new tests (25 total in use-admin.test.ts): all 4 query/mutation hooks with success, filters, error handling
+- Learnings: Admin keys already existed in keys.ts but auditLogs only had page/pageSize — always check existing key factories match the full OpenAPI query params before using them.
+---
