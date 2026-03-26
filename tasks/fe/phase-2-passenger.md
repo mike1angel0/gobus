@@ -8,30 +8,9 @@
 
 ## React Query Hooks
 
-### TASK-001: Create search hooks
-**Description:** Create `src/hooks/use-search.ts` with: `useSearchTrips(query: { origin, destination, date })` — React Query hook calling `GET /api/v1/search`. `useTripDetails(scheduleId, date)` — calls `GET /api/v1/trips/{scheduleId}?date=`. Both use query key factories from `api/keys.ts`. Configure staleTime for search (30s) and trip details (10s).
+### ~~TASK-001: Create search hooks~~ ✅
 
-**Acceptance Criteria:**
-- [ ] Both hooks use typed API client (response types from OpenAPI spec)
-- [ ] Proper query keys with dependency on params
-- [ ] `enabled` flag: don't fetch if params missing
-- [ ] Loading, error, and data states properly typed
-- [ ] Unit tests for hooks (mock API client)
-- [ ] JSDoc on all hooks
-- [ ] Typecheck passes
-
-### TASK-002: Create booking hooks
-**Description:** Create `src/hooks/use-bookings.ts` with: `useBookings()` — paginated list of user's bookings. `useBookingDetail(id)` — single booking. `useCreateBooking()` — mutation, invalidates bookings + trip details queries on success. `useCancelBooking()` — mutation, invalidates bookings on success. All mutations show toast on success/error.
-
-**Acceptance Criteria:**
-- [ ] All hooks typed from OpenAPI spec
-- [ ] `useCreateBooking` invalidates relevant queries on success
-- [ ] `useCancelBooking` shows confirmation before cancelling (or caller handles)
-- [ ] Error handling: 409 (seat conflict) shows specific message
-- [ ] Toast notifications on mutation success/error
-- [ ] Unit tests
-- [ ] JSDoc
-- [ ] Typecheck passes
+### ~~TASK-002: Create booking hooks~~ ✅
 
 ---
 

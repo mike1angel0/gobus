@@ -1,0 +1,19 @@
+## Iteration 1 - TASK-001: Create search hooks
+- Created `src/hooks/use-search.ts` with `useSearchTrips` and `useTripDetails` hooks
+- Both hooks use typed openapi-fetch client via `useApiClient()` hook
+- Query keys use `searchKeys.lists()` and `searchKeys.detail()` from `api/keys.ts`
+- `enabled` guards: origin/destination >= 2 chars + date non-empty for search; scheduleId + date non-empty for detail
+- staleTime: 30s for search, 10s for trip details
+- 10 unit tests all passing, typecheck clean, lint clean
+- Learnings: The openapi-fetch client returns `{ data }` from the response, and the generated types handle the path/query param structure automatically via the `params` object
+---
+
+## Iteration 2 - TASK-002: Create booking hooks
+- Created `src/hooks/use-bookings.ts` with 4 hooks: `useBookings`, `useBookingDetail`, `useCreateBooking`, `useCancelBooking`
+- All hooks typed from OpenAPI spec, mutations use toast notifications and query invalidation
+- `useCreateBooking` invalidates both `bookingKeys.all` and `searchKeys.all` (seat availability changes)
+- 409 seat conflict gets a specific "Seats already taken" toast message
+- Caller handles confirmation before cancel (documented in JSDoc)
+- 14 unit tests all passing, typecheck clean, lint clean
+- Learnings: Tests for mutations need `act()` wrapper around `mutate()` calls. The toast hook uses `{ toast }` destructured from `useToast()`.
+---
