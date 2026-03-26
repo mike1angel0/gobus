@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { LanguageSwitcher } from './language-switcher';
 import type { NavLink } from './navbar-links';
 
 /** Props for the mobile navigation menu. */
@@ -110,7 +111,8 @@ export function MobileMenu({
           ))}
         </ul>
 
-        <div className="mt-6 border-t border-border pt-4">
+        <div className="mt-6 border-t border-border pt-4 space-y-2">
+          <LanguageSwitcher />
           {isAuthenticated ? (
             <Button
               variant="ghost"

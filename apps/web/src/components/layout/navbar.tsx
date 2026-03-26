@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getLinksForRole, PUBLIC_NAV_LINKS } from './navbar-links';
+import { LanguageSwitcher } from './language-switcher';
 import { MobileMenu } from './navbar-mobile';
 
 /**
@@ -62,6 +63,7 @@ export function Navbar() {
 
         {/* Desktop right section */}
         <div className="hidden md:flex md:items-center md:gap-2">
+          <LanguageSwitcher />
           {isAuthenticated && user ? (
             <>
               <span className="text-sm text-muted-foreground">{user.name}</span>

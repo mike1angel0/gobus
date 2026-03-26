@@ -46,17 +46,7 @@
 
 ### TASK-007: Set up react-i18next with per-domain translation files ✅
 
-### TASK-008: Create language switcher component
-**Description:** Add a language toggle to the navbar that allows switching between RO and EN. Switching languages should update all visible text immediately without page reload.
-
-**Acceptance Criteria:**
-- [ ] Create `src/components/layout/language-switcher.tsx` — dropdown or toggle button (RO / EN)
-- [ ] Shows current language with flag emoji or label (🇷🇴 RO / 🇬🇧 EN)
-- [ ] Calls `i18n.changeLanguage()` on selection
-- [ ] Language change persists in `localStorage` and survives page refresh
-- [ ] Integrated into `navbar.tsx` (desktop) and `navbar-mobile.tsx` (mobile menu)
-- [ ] Component test: renders, switches language, persists choice
-- [ ] Typecheck passes, lint clean
+### TASK-008: Create language switcher component ✅
 
 ### TASK-009: Translate common namespace
 **Description:** Extract all shared UI strings into `common.json` for both RO and EN. This covers buttons, loading states, error states, empty states, pagination, confirmation dialogs, and toast messages used across multiple domains.
