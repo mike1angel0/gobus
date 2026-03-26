@@ -7,6 +7,7 @@ import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { idParamSchema } from '@/shared/schemas.js';
 import { createBookingBodySchema, listBookingsQuerySchema } from '@/api/bookings/schemas.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a BookingWithDetails domain entity to a JSON-safe response object.
@@ -73,7 +74,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   const bookingService = new BookingService(getPrisma());
 
   // GET /api/v1/bookings — list user's bookings (paginated, optional status filter)
-  app.get('/api/v1/bookings', { preHandler: [app.authenticate] }, async (request) => {
+  app.get('/api/v1/bookings', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
     const { page, pageSize, status } = listBookingsQuerySchema.parse(request.query);
     const result = await bookingService.listByUser(request.user.id, { page, pageSize, status });
 
@@ -94,7 +95,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // GET /api/v1/bookings/:id — get booking details (ownership enforced)
-  app.get('/api/v1/bookings/:id', { preHandler: [app.authenticate] }, async (request) => {
+  app.get('/api/v1/bookings/:id', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
     const { id } = idParamSchema.parse(request.params);
     const booking = await bookingService.getById(id, request.user.id);
 

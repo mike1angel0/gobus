@@ -13,6 +13,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { paginationQuerySchema, idParamSchema } from '@/shared/schemas.js';
 import { createBusRequestSchema, updateBusRequestSchema } from '@/api/buses/schemas.js';
+import { cachePublic, privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a BusEntity to a JSON-safe response object.
@@ -95,7 +96,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   // Registered before /:id to avoid matching "templates" as an id parameter
   app.get(
     '/api/v1/buses/templates',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, cachePublic(3600)] },
     async () => {
       const templates = busService.getTemplates();
 
@@ -104,7 +105,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // GET /api/v1/buses — list provider's buses (paginated)
-  app.get('/api/v1/buses', { preHandler: [app.authenticate, requireProvider] }, async (request) => {
+  app.get('/api/v1/buses', { preHandler: [app.authenticate, requireProvider, privateNoCache] }, async (request) => {
     const { page, pageSize } = paginationQuerySchema.parse(request.query);
     const providerId = request.user.providerId!;
 
@@ -133,7 +134,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/buses/:id — get bus details with seats
   app.get(
     '/api/v1/buses/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const { id } = idParamSchema.parse(request.params);
       const providerId = request.user.providerId!;

@@ -5,6 +5,7 @@ import { ProviderService } from '@/application/services/provider.service.js';
 import type { ProviderEntity } from '@/domain/providers/provider.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a ProviderEntity to a JSON-safe response object.
@@ -28,7 +29,7 @@ async function providerRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/providers/me
   app.get(
     '/api/v1/providers/me',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const provider = await providerService.getByUserId(request.user.id);
 

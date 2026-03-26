@@ -7,6 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { paginationQuerySchema, idParamSchema } from '@/shared/schemas.js';
 import { createRouteRequestSchema } from '@/api/routes/schemas.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a RouteEntity to a JSON-safe response object.
@@ -56,7 +57,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/routes — list provider's routes (paginated)
   app.get(
     '/api/v1/routes',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const { page, pageSize } = paginationQuerySchema.parse(request.query);
       const providerId = request.user.providerId!;
@@ -87,7 +88,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/routes/:id — get route details with stops
   app.get(
     '/api/v1/routes/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const { id } = idParamSchema.parse(request.params);
       const providerId = request.user.providerId!;

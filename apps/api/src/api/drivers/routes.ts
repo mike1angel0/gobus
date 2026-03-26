@@ -7,6 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { paginationQuerySchema, idParamSchema } from '@/shared/schemas.js';
 import { createDriverRequestSchema } from '@/api/drivers/schemas.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a DriverEntity to a JSON-safe response object.
@@ -30,7 +31,7 @@ async function driverRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/drivers — list provider's drivers (paginated)
   app.get(
     '/api/v1/drivers',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const { page, pageSize } = paginationQuerySchema.parse(request.query);
       const providerId = request.user.providerId!;

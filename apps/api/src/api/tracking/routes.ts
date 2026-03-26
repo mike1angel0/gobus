@@ -7,6 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { busIdParamSchema, trackingUpdateSchema } from '@/api/tracking/schemas.js';
+import { noCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a BusTrackingData domain entity to a JSON-safe response object.
@@ -36,7 +37,7 @@ async function trackingRoutes(app: FastifyInstance): Promise<void> {
   const trackingService = new TrackingService(getPrisma());
 
   // GET /api/v1/tracking/:busId — get bus live position
-  app.get('/api/v1/tracking/:busId', { preHandler: [app.authenticate] }, async (request) => {
+  app.get('/api/v1/tracking/:busId', { preHandler: [app.authenticate, noCache] }, async (request) => {
     const { busId } = busIdParamSchema.parse(request.params);
     const tracking = await trackingService.getByBusId(busId);
 

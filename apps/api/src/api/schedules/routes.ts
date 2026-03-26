@@ -15,6 +15,7 @@ import type {
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { idParamSchema } from '@/shared/schemas.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   scheduleFilterQuerySchema,
   createScheduleRequestSchema,
@@ -113,7 +114,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/schedules — list provider's schedules (paginated, filterable)
   app.get(
     '/api/v1/schedules',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const { page, pageSize, routeId, busId, status, fromDate, toDate } =
         scheduleFilterQuerySchema.parse(request.query);
@@ -169,7 +170,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/schedules/:id — get schedule details
   app.get(
     '/api/v1/schedules/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
       const { id } = idParamSchema.parse(request.params);
       const providerId = request.user.providerId!;

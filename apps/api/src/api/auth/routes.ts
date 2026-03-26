@@ -8,6 +8,7 @@ import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import type { UserEntity } from '@/domain/users/user.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   registerBodySchema,
   loginBodySchema,
@@ -143,7 +144,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // GET /api/v1/auth/me
-  app.get('/api/v1/auth/me', { preHandler: [app.authenticate] }, async (request) => {
+  app.get('/api/v1/auth/me', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
     const user = await authService.getProfile(request.user.id);
 
     return { data: serializeUser(user) };

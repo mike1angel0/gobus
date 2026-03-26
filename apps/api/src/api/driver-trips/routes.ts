@@ -11,6 +11,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { listDriverTripsQuerySchema, scheduleIdParamSchema } from '@/api/driver-trips/schemas.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 
 /** Serialize a DriverTrip entity to a JSON-safe object. */
 function serializeDriverTrip(trip: DriverTrip): Record<string, unknown> {
@@ -58,7 +59,7 @@ function serializeDriverTripDetail(detail: DriverTripDetail): Record<string, unk
 async function driverTripRoutes(app: FastifyInstance): Promise<void> {
   const driverTripService = new DriverTripService(getPrisma());
 
-  app.get('/api/v1/driver/trips', { preHandler: [app.authenticate] }, async (request) => {
+  app.get('/api/v1/driver/trips', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
     if (request.user.role !== 'DRIVER') {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access trip list');
     }
@@ -71,7 +72,7 @@ async function driverTripRoutes(app: FastifyInstance): Promise<void> {
 
   app.get(
     '/api/v1/driver/trips/:scheduleId',
-    { preHandler: [app.authenticate] },
+    { preHandler: [app.authenticate, privateNoCache] },
     async (request) => {
       if (request.user.role !== 'DRIVER') {
         throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access trip details');

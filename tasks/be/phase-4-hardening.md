@@ -166,11 +166,11 @@
 **Description:** Add appropriate Cache-Control headers: search results (public, max-age=30), trip details (public, max-age=10), bus templates (public, max-age=3600), tracking data (no-cache), user data (private, no-cache). Create a Fastify preHandler helper for setting cache headers.
 
 **Acceptance Criteria:**
-- [ ] Cache headers set per route type
-- [ ] Public cacheable endpoints have appropriate max-age
-- [ ] Private/dynamic data has no-cache
-- [ ] Helper function for easy cache configuration per route
-- [ ] Typecheck passes
+- [x] Cache headers set per route type
+- [x] Public cacheable endpoints have appropriate max-age
+- [x] Private/dynamic data has no-cache
+- [x] Helper function for easy cache configuration per route
+- [x] Typecheck passes
 
 ---
 

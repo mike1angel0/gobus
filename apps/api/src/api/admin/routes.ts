@@ -10,6 +10,7 @@ import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireAdmin } from '@/api/plugins/role-guard.js';
 import { idParamSchema } from '@/shared/schemas.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   adminListBusesQuerySchema,
   toggleSeatBodySchema,
@@ -107,7 +108,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/admin/buses — list all buses (paginated, optional provider filter)
   app.get(
     '/api/v1/admin/buses',
-    { preHandler: [app.authenticate, requireAdmin] },
+    { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
     async (request) => {
       const query = adminListBusesQuerySchema.parse(request.query);
       const result = await adminService.listAllBuses(query);
@@ -122,7 +123,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/admin/users — list all users (paginated, optional role/status filter)
   app.get(
     '/api/v1/admin/users',
-    { preHandler: [app.authenticate, requireAdmin] },
+    { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
     async (request) => {
       const query = adminListUsersQuerySchema.parse(request.query);
       const result = await adminService.listUsers(query);
@@ -152,7 +153,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
   // GET /api/v1/admin/audit-logs — list audit logs (paginated, optional filters)
   app.get(
     '/api/v1/admin/audit-logs',
-    { preHandler: [app.authenticate, requireAdmin] },
+    { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
     async (request) => {
       const query = adminListAuditLogsQuerySchema.parse(request.query);
       const result = await adminService.listAuditLogs(query);

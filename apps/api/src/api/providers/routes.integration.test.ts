@@ -76,10 +76,8 @@ describe('Provider Routes', () => {
       const provider = makeDbProvider();
       // Auth plugin: check user status
       mockUserFindUnique.mockResolvedValueOnce({ id: 'user-1', status: 'ACTIVE' });
-      // ProviderService.getByUserId: find user to get providerId
-      mockUserFindUnique.mockResolvedValueOnce({ id: 'user-1', providerId: 'prov-1' });
-      // ProviderService.getById: find provider
-      mockProviderFindUnique.mockResolvedValueOnce(provider);
+      // ProviderService.getByUserId: find user with provider via select: { provider: true }
+      mockUserFindUnique.mockResolvedValueOnce({ provider });
 
       const authHeader = createAuthHeader('user-1', 'PROVIDER', {
         email: 'provider@test.com',
@@ -127,8 +125,8 @@ describe('Provider Routes', () => {
     it('returns 404 when user has no associated provider', async () => {
       // Auth plugin: check user status
       mockUserFindUnique.mockResolvedValueOnce({ id: 'user-3', status: 'ACTIVE' });
-      // ProviderService.getByUserId: user has no providerId
-      mockUserFindUnique.mockResolvedValueOnce({ id: 'user-3', providerId: null });
+      // ProviderService.getByUserId: user has no associated provider
+      mockUserFindUnique.mockResolvedValueOnce({ provider: null });
 
       const authHeader = createAuthHeader('user-3', 'PROVIDER', {
         email: 'orphan@test.com',

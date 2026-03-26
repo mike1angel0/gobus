@@ -7,6 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { idParamSchema } from '@/shared/schemas.js';
+import { privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   listDelaysQuerySchema,
   createDelayBodySchema,
@@ -39,7 +40,7 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
   const delayService = new DelayService(getPrisma());
 
   // GET /api/v1/delays — list delays for a schedule + tripDate (paginated)
-  app.get('/api/v1/delays', { preHandler: [app.authenticate] }, async (request) => {
+  app.get('/api/v1/delays', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
     const { scheduleId, tripDate, page, pageSize } = listDelaysQuerySchema.parse(request.query);
     const result = await delayService.getBySchedule(scheduleId, tripDate, page, pageSize);
 
