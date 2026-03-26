@@ -144,3 +144,16 @@
 - Learnings: Always verify Zod-to-spec parity for optional string fields (min constraint often missed); response schema numeric fields need explicit upper bounds even if theoretically unbounded
 ---
 
+## Iteration 23 - US-QA-009: Refactor authRoutes in auth/routes.ts
+- Extracted 9 route handlers into standalone named functions (handleRegister, handleLogin, handleRefresh, handleLogout, handleForgotPassword, handleResetPassword, handleChangePassword, handleGetProfile, handleUpdateProfile)
+- `authRoutes` function reduced from 153 lines to ~20 lines (route registrations only)
+- Also marked US-QA-001/002/003 as done in PRD (already implemented in iteration 17)
+- Learnings: Fastify handler extraction pattern — pass authService as first arg, use arrow wrapper in route registration; shared route options (rateLimited, authenticated) reduce duplication
+---
+
+## Iteration 22 - US-QA-008: Add integration tests for provider routes error branch
+- Added explicit `providerId` guard to analytics route (matching tracking route pattern) — removes `!` non-null assertion
+- Added 4 integration tests for GET /api/v1/provider/analytics: happy path (200), 403 no providerId, 403 wrong role, 401 no auth
+- Learnings: Mock `$transaction` with `mockImplementation((fn) => fn(tx))` pattern for integration tests; analytics `averageOccupancy` returns decimal ratio (0.1) not percentage (10); avoid circular type `typeof tx` inside its own declaration — use `unknown` instead
+---
+

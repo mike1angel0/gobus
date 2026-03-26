@@ -77,17 +77,11 @@
 
 #### API Contract Stories
 
-**US-QA-001** | Fix Zod schema: schedules `driverId` missing `minLength: 1` per OpenAPI spec
-- AC1: `createScheduleRequestSchema.driverId` has `.min(1)` matching OpenAPI `minLength: 1`
-- AC2: Integration test confirms empty string `""` for `driverId` returns 400
+**US-QA-001** | ~~Fix Zod schema: schedules `driverId` missing `minLength: 1` per OpenAPI spec~~ — DONE: Added `.min(1)` to `createScheduleRequestSchema.driverId` matching OpenAPI `minLength: 1`.
 
-**US-QA-002** | Fix Zod schema: search `pageSize` max 50 vs OpenAPI spec max 100
-- AC1: Either update Zod `searchQuerySchema.pageSize` to `.max(100)` matching spec, or add `maximum: 50` override in OpenAPI search query parameter
-- AC2: Integration test confirms the chosen limit is enforced
+**US-QA-002** | ~~Fix Zod schema: search `pageSize` max 50 vs OpenAPI spec max 100~~ — DONE: Already aligned — both OpenAPI spec and Zod use max 50.
 
-**US-QA-003** | Fix Zod schema: provider/auth `createdAt`/`updatedAt` missing `.max(30)` per OpenAPI spec
-- AC1: `providerSchema` and auth `userSchema` datetime fields have `.max(30)` matching OpenAPI `maxLength: 30`
-- AC2: Pattern is consistent across all response schemas
+**US-QA-003** | ~~Fix Zod schema: provider/auth `createdAt`/`updatedAt` missing `.max(30)` per OpenAPI spec~~ — DONE: Added `.max(30)` to all datetime fields in `providerSchema` and auth `userSchema`.
 
 #### Coverage Gap Stories
 
@@ -103,9 +97,7 @@
 
 #### Complexity Stories
 
-**US-QA-009** | Refactor `authRoutes` in auth/routes.ts: extract individual route handlers (153 lines)
-- AC1: `authRoutes` function is under 100 lines with handlers extracted to named functions
-- AC2: All existing auth integration tests still pass
+**US-QA-009** | ~~Refactor `authRoutes` in auth/routes.ts: extract individual route handlers (153 lines)~~ — DONE: Extracted 9 route handlers into named functions (`handleRegister`, `handleLogin`, etc.). `authRoutes` is now ~20 lines. All 992 tests pass.
 
 **US-QA-010** | Refactor `buildApp` in app.ts: extract plugin registration (115 lines)
 - AC1: `buildApp` function is under 100 lines with plugin setup extracted
