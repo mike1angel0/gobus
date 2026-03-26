@@ -58,6 +58,14 @@
 - Learnings: Current codebase has no XSS vectors — React auto-escapes JSX, React Router `to` prop doesn't support javascript: scheme, Leaflet uses React components. The sanitizeUrl helper is preventive for when user-provided URLs (avatarUrl, logos) are added.
 ---
 
+## Iteration 13 - TASK-013: Subresource Integrity for CDN assets
+- Leaflet CSS already bundled locally via `import 'leaflet/dist/leaflet.css'` in live-map.tsx — no CDN dependency
+- index.html has zero external CDN `<link>` or `<script>` tags
+- Only external URL is CartoDB tile server (`basemaps.cartocdn.com`) which serves dynamic map tiles at runtime — not a static asset eligible for SRI
+- No code changes needed — all criteria already satisfied
+- Learnings: Check existing imports before assuming CDN usage. Vite bundles CSS imports from node_modules into the build output.
+---
+
 ## Learnings
 - Run vitest from `apps/web/`, not monorepo root
 - Follow existing page patterns (sub-components for skeleton/error/empty/card)

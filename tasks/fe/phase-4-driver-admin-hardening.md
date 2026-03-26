@@ -64,13 +64,8 @@
 ### TASK-012: XSS prevention audit ✅
 - [x] Zero dangerouslySetInnerHTML, sanitizeUrl() helper with 17 tests, Leaflet uses React <Popup>, toasts use Radix plain text, no dynamic href/src bindings, no user input in style attrs, typecheck passes
 
-### TASK-013: Subresource Integrity for CDN assets
-**Description:** Add SRI (Subresource Integrity) hashes to all CDN-loaded resources: Leaflet CSS from unpkg. If any other CDN resources exist, add SRI to those too. Alternatively, bundle Leaflet CSS locally to eliminate CDN dependency entirely (preferred).
-
-**Acceptance Criteria:**
-- [ ] Leaflet CSS either bundled locally OR loaded with `integrity` + `crossOrigin` attributes
-- [ ] No CDN resources without SRI hashes
-- [ ] Typecheck passes
+### TASK-013: Subresource Integrity for CDN assets ✅
+- [x] Leaflet CSS bundled locally via `import 'leaflet/dist/leaflet.css'` (no CDN), zero CDN link/script tags in index.html, only external URL is CartoDB tile server (dynamic runtime tiles, not SRI-eligible), typecheck passes
 
 ### TASK-014: Secure token and sensitive data handling
 **Description:** Audit all client-side data handling: (1) Access token NEVER in localStorage/sessionStorage (memory only). (2) No sensitive data in URL params (no tokens, passwords, or PII in query strings). (3) Password reset token in URL is one-time use (verify with BE). (4) Clear sensitive form data on unmount (password fields). (5) No sensitive data in browser console (no logging tokens, passwords, user data). (6) Add `autocomplete="off"` on password fields where appropriate (new password fields, not login). (7) Ensure 401/403/423 responses clear all local auth state.
