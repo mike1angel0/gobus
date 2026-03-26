@@ -103,3 +103,50 @@
 - [x] i18n: language switcher works in both desktop and mobile nav
 - [x] i18n: page refresh preserves selected language
 - [x] i18n: dynamic page titles translated in both languages
+
+---
+
+## QA Batch 1 — Quality Analysis
+
+**Coverage:** 95.74% (target 90%) — PASS
+**Type Safety:** Zero `any` types — PASS
+**JSDoc:** All Phase 6 exports documented — PASS
+**Complexity:** No Phase 6 files exceed limits — PASS
+**Lint:** Zero errors (2 warnings from prior phases) — PASS
+
+### US-QA-001: Fix a11y: `<html lang>` not updated on language switch (WCAG 3.1.1)
+**Priority:** High
+**Description:** `index.html` has `<html lang="en">` hardcoded. When the user switches to Romanian via the LanguageSwitcher, the `lang` attribute is never updated. This violates WCAG 3.1.1 (Language of Page, Level A) and causes screen readers to announce Romanian text with English pronunciation.
+
+**Acceptance Criteria:**
+- [ ] Add a `languageChanged` listener (in `i18n/config.ts` or `root-layout.tsx`) that sets `document.documentElement.lang` to the current i18n language
+- [ ] Set `<html lang="ro">` in `index.html` to match the default `fallbackLng: 'ro'`
+
+### US-QA-002: Fix i18n: Hardcoded "Menu" string in navbar-mobile.tsx
+**Priority:** High
+**Description:** `navbar-mobile.tsx:85` contains `<span className="text-sm text-muted-foreground">Menu</span>` — a visible English label that is not passed through `t()`. This was missed during TASK-010 (nav namespace translation). The string will always render in English regardless of language setting.
+
+**Acceptance Criteria:**
+- [ ] Replace hardcoded `"Menu"` with `t('menu.title')` or equivalent nav namespace key
+- [ ] Add the corresponding key to both `en/nav.json` and `ro/nav.json` translation files
+
+### US-QA-003: Fix i18n: Replace hardcoded usePageTitle strings with t() calls
+**Priority:** Medium
+**Description:** Three pages pass hardcoded English strings to `usePageTitle()` instead of using `t()`, so their page titles do not change when the user switches language.
+
+**Affected files:**
+- `src/pages/home.tsx:10` — `usePageTitle('Home')`
+- `src/pages/profile.tsx:44` — `usePageTitle('Profile')`
+- `src/pages/placeholder.tsx:8` — `usePageTitle('Coming Soon')`
+
+**Acceptance Criteria:**
+- [ ] Replace all three hardcoded strings with `t()` calls using appropriate namespace keys
+- [ ] Add corresponding keys to both `en` and `ro` translation files
+
+### US-QA-004: Fix a11y: Improve LanguageSwitcher aria-label to include current language
+**Priority:** Low
+**Description:** The LanguageSwitcher button's `aria-label` says `"Switch language to EN"` but does not indicate the current language. A more descriptive label like `"Current language: Romanian. Switch to English"` better satisfies WCAG 4.1.2 (Name, Role, Value).
+
+**Acceptance Criteria:**
+- [ ] Update aria-label to include both current and target language (e.g. `"Language: {current}. Switch to {target}"`)
+- [ ] Add the aria-label pattern as a translatable i18n key in both `en` and `ro` nav translation files
