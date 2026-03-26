@@ -46,3 +46,34 @@
 - 28 tests covering: loading, error+retry, empty, bus cards, grouping by provider, seat grid preview, seat expand/collapse, seat loading/error, enabled/disabled styles, toggle mutation (enable+disable), count summary, pagination (next/prev/hide single page), accessibility (headings, landmarks, aria-expanded, aria-labels, icons hidden), data fetching params
 - Learnings: `gridcell` role does not support `aria-pressed` — use descriptive aria-label instead. Extract sub-components (FleetContent, FleetPagination, GroupedBusList) to keep page complexity under ESLint max (15). Wrap useMemo deps on stable references, not derived `??` expressions.
 ---
+## Iteration 7 - TASK-007: Create error boundary components
+- Created `src/components/error/error-boundary.tsx` (class component with getDerivedStateFromError, custom fallback prop, reset/retry)
+- Created `src/components/error/error-fallback.tsx` (generic error display with icon, message, optional retry button)
+- Created `src/components/error/not-found.tsx` (404 page with link to home)
+- Added ErrorBoundary wrapping `<Outlet />` in AppLayout so one page crash doesn't break the app
+- Added 404 catch-all route (`path: '*'`) with lazy-loaded NotFoundPage in router.tsx
+- 17 tests across 3 test files covering: default/custom messages, retry, recovery after reset, custom fallback, 404 content, accessibility (alert role, aria-hidden icons)
+- Learnings: Place ErrorBoundary in AppLayout (wrapping Outlet) rather than per-route for cleaner code with same isolation. Use `_error` prefix for unused params in componentDidCatch to satisfy lint.
+---
+## Iteration 8 - TASK-008: Add loading states and empty states consistency
+- Created 3 shared components in `src/components/shared/`: `PageError` (error-state.tsx), `EmptyState` (empty-state.tsx), `CardGridSkeleton` + `CardListSkeleton` (loading-skeleton.tsx)
+- Refactored all 10 pages to use shared components, removing ~60 inline duplicate components (net -363 lines)
+- Pages updated: fleet, drivers, routes, schedules, tracking, dashboard (provider), my-trips, search (public), trips (driver), fleet (admin)
+- Dashboard kept its section-level inline empty state (compact card variant) since it differs from full-page pattern
+- Tracking and admin fleet kept unique skeletons (map+sidebar and grouped layouts) since they don't fit the generic grid/list pattern
+- 22 new tests for shared components: error-state (6), empty-state (6), loading-skeleton (10)
+- All 1076 tests pass, typecheck clean, lint clean
+- Learnings: When removing an inline component that was the only user of an import (e.g. AlertCircle), check all other usages of the import before removing it. The tracking page still used Button even after removing the error component that seemed to be its only consumer.
+---
+## Iteration 9 - TASK-009: WCAG 2.1 AA compliance audit
+- Comprehensive audit found codebase already ~90% compliant: semantic HTML, aria-labels, aria-describedby on form errors, focus-visible styles, Radix UI focus trapping on dialogs
+- Added skip-to-content link in AppLayout (sr-only, visible on focus, targets #main-content)
+- Added `id="main-content"` to `<main>` element for skip link target
+- Added `aria-live="polite"` to tracking bus sidebar list and active delays list for real-time updates
+- Installed vitest-axe and created `src/test/a11y.ts` helper with `checkA11y(container)` function
+- Configured vitest-axe matchers in test setup via `expect.extend(axeMatchers)`
+- 6 new tests in app-layout.test.tsx (skip link rendering, visibility, focus, axe audit)
+- 1 new test each in tracking-bus-sidebar.test.tsx and active-delays-list.test.tsx (aria-live)
+- All 1084 tests pass, typecheck clean, lint clean
+- Learnings: vitest-axe requires explicit `expect.extend(matchers)` in setup, not just import of extend-expect. Use `import * as axeMatchers from 'vitest-axe/matchers'` pattern.
+---

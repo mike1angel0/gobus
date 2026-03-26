@@ -85,7 +85,10 @@ function BusCard({ trackedBus, isSelected, onSelect }: BusCardProps) {
               <Bus className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
               <span className="truncate font-semibold">{bus.licensePlate}</span>
               {tracking?.isActive && (
-                <span className="ml-auto inline-flex h-2 w-2 rounded-full bg-green-500" aria-label="Active" />
+                <span
+                  className="ml-auto inline-flex h-2 w-2 rounded-full bg-green-500"
+                  aria-label="Active"
+                />
               )}
             </div>
             <div className="space-y-1 text-xs text-muted-foreground">
@@ -153,7 +156,7 @@ export function TrackingBusSidebar({
   }
 
   return (
-    <div className="space-y-3" role="list" aria-label="Bus tracking list">
+    <div className="space-y-3" role="list" aria-label="Bus tracking list" aria-live="polite">
       {trackedBuses.map((tb) => (
         <div key={tb.bus.id} role="listitem">
           <BusCard

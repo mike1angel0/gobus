@@ -61,7 +61,7 @@ export function ActiveDelaysList({ delays, isLoading }: ActiveDelaysListProps) {
   }
 
   return (
-    <div className="space-y-2" role="list" aria-label="Active delays">
+    <div className="space-y-2" role="list" aria-label="Active delays" aria-live="polite">
       {activeDelays.map((delay) => (
         <Card key={delay.id} role="listitem">
           <CardContent className="flex items-center justify-between p-3">
@@ -69,7 +69,8 @@ export function ActiveDelaysList({ delays, isLoading }: ActiveDelaysListProps) {
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-yellow-500" aria-hidden="true" />
                 <span className="text-sm font-medium">
-                  +{delay.offsetMinutes} min — {delay.reason.charAt(0) + delay.reason.slice(1).toLowerCase()}
+                  +{delay.offsetMinutes} min —{' '}
+                  {delay.reason.charAt(0) + delay.reason.slice(1).toLowerCase()}
                 </span>
               </div>
               {delay.note && (
