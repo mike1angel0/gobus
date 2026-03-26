@@ -1,16 +1,39 @@
 {
+  "pageTitle": "Search",
+  "heading": "Search trips",
   "form": {
-    "origin": "Departure from",
+    "origin": "Origin",
     "destination": "Destination",
-    "date": "Date",
+    "date": "Travel date",
     "passengers": "Passengers",
-    "submit": "Search trips"
+    "submit": "Search",
+    "swap": "Swap",
+    "swapAriaLabel": "Swap origin and destination",
+    "selectPlaceholder": "Select {{label}}",
+    "searchAriaLabel": "Search trips",
+    "validation": {
+      "originRequired": "Origin is required",
+      "destinationRequired": "Destination is required",
+      "dateRequired": "Date is required",
+      "sameOriginDestination": "Origin and destination must be different"
+    }
   },
   "results": {
     "tripsFound": "{{count}} trip found",
     "tripsFound_other": "{{count}} trips found",
     "noTrips": "No trips found",
-    "filters": "Filters"
+    "noTripsMessage": "We couldn't find any trips matching your search. Try different cities or another date.",
+    "filters": "Filters",
+    "ariaLabel": "Search results"
+  },
+  "empty": {
+    "title": "Search for trips",
+    "message": "Enter your origin, destination, and travel date above to find available trips."
+  },
+  "loading": "Loading search results",
+  "error": {
+    "title": "Something went wrong",
+    "message": "We couldn't load search results. Please try again."
   },
   "tripCard": {
     "departure": "Departure",
@@ -19,13 +42,47 @@
     "price": "Price",
     "seatsAvailable": "{{count}} seat available",
     "seatsAvailable_other": "{{count}} seats available",
-    "details": "Details"
+    "details": "Details",
+    "hideStops": "Hide stops",
+    "stopsCount": "{{count}} stops",
+    "tripStops": "Trip stops",
+    "ariaLabel": "{{route}}: {{origin}} to {{destination}}, departing {{time}}, {{price}} EUR, {{seats}} seats available"
   },
   "tripDetail": {
+    "pageTitle": "Trip Details",
+    "heading": "Trip Details",
     "title": "Trip details",
+    "backToSearch": "Back to search",
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "from": "From",
+    "stopsCount": "Stops ({{count}})",
+    "cancelled": "Cancelled",
     "route": "Route",
     "schedule": "Schedule",
     "stops": "Stops",
-    "selectSeats": "Select seats"
+    "selectSeats": "Select seats",
+    "tripStops": "Trip stops",
+    "loadingAriaLabel": "Loading trip details",
+    "error": {
+      "title": "Something went wrong",
+      "message": "We couldn't load the trip details. Please try again.",
+      "retry": "Try again"
+    },
+    "booking": {
+      "title": "Book this trip",
+      "boardingStop": "Boarding stop",
+      "alightingStop": "Alighting stop",
+      "selectStop": "Select stop",
+      "selectBoarding": "Select boarding stop",
+      "selectAlighting": "Select alighting stop",
+      "seats": "Seats:",
+      "priceSummary": "Price summary",
+      "seatCount": "{{count}} seat",
+      "seatCount_other": "{{count}} seats",
+      "confirming": "Booking...",
+      "confirm": "Confirm Booking",
+      "confirmAriaLabel": "Confirm booking"
+    }
   }
 }

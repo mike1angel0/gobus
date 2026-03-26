@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, ArrowLeft, Clock, MapPin, Bus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,8 +70,9 @@ function computeSegmentPrice(
  * Skeleton loader displayed while trip detail data is being fetched.
  */
 function TripDetailSkeleton() {
+  const { t } = useTranslation('search');
   return (
-    <div className="space-y-6" aria-busy="true" aria-label="Loading trip details">
+    <div className="space-y-6" aria-busy="true" aria-label={t('tripDetail.loadingAriaLabel')}>
       <Skeleton className="h-8 w-48" />
       <Card>
         <CardContent className="space-y-4 pt-6">
@@ -106,15 +108,16 @@ interface ErrorStateProps {
  * Error state shown when the trip detail fetch fails.
  */
 function ErrorState({ onRetry }: ErrorStateProps) {
+  const { t } = useTranslation('search');
   return (
     <div className="flex flex-col items-center py-16 text-center" role="alert">
       <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Something went wrong</h2>
+      <h2 className="mb-2 text-xl font-semibold">{t('tripDetail.error.title')}</h2>
       <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load the trip details. Please try again.
+        {t('tripDetail.error.message')}
       </p>
       <Button onClick={onRetry} variant="outline">
-        Try again
+        {t('tripDetail.error.retry')}
       </Button>
     </div>
   );
@@ -130,8 +133,9 @@ interface StopListProps {
  * Renders the ordered list of stops with times and cumulative prices.
  */
 function StopList({ stops }: StopListProps) {
+  const { t } = useTranslation('search');
   return (
-    <ol className="space-y-2" aria-label="Trip stops">
+    <ol className="space-y-2" aria-label={t('tripDetail.tripStops')}>
       {stops.map((stop, index) => (
         <li key={stop.id} className="flex items-start gap-3">
           <div className="flex flex-col items-center">
@@ -179,6 +183,7 @@ interface BookingFormProps {
  * Booking form with boarding/alighting stop dropdowns, seat map, price summary, and submit button.
  */
 function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormProps) {
+  const { t } = useTranslation('search');
   const navigate = useNavigate();
   const createBooking = useCreateBooking();
 
@@ -264,23 +269,23 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Book this trip</CardTitle>
+        <CardTitle>{t('tripDetail.booking.title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Stop Selection */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="boarding-stop" className="mb-1.5 block text-sm font-medium">
-              Boarding stop
+              {t('tripDetail.booking.boardingStop')}
             </label>
             <select
               id="boarding-stop"
               value={boardingStop}
               onChange={(e) => handleBoardingChange(e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label="Select boarding stop"
+              aria-label={t('tripDetail.booking.selectBoarding')}
             >
-              <option value="">Select stop</option>
+              <option value="">{t('tripDetail.booking.selectStop')}</option>
               {sortedStops.slice(0, -1).map((stop) => (
                 <option key={stop.id} value={stop.stopName}>
                   {stop.stopName}
@@ -290,7 +295,7 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
           </div>
           <div>
             <label htmlFor="alighting-stop" className="mb-1.5 block text-sm font-medium">
-              Alighting stop
+              {t('tripDetail.booking.alightingStop')}
             </label>
             <select
               id="alighting-stop"
@@ -298,9 +303,9 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
               onChange={(e) => setAlightingStop(e.target.value)}
               disabled={boardingStop === ''}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Select alighting stop"
+              aria-label={t('tripDetail.booking.selectAlighting')}
             >
-              <option value="">Select stop</option>
+              <option value="">{t('tripDetail.booking.selectStop')}</option>
               {alightingOptions.map((stop) => (
                 <option key={stop.id} value={stop.stopName}>
                   {stop.stopName}
@@ -312,7 +317,7 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
 
         {/* Seat Map */}
         <div>
-          <h3 className="mb-3 text-sm font-medium">Select seats</h3>
+          <h3 className="mb-3 text-sm font-medium">{t('tripDetail.selectSeats')}</h3>
           <SeatMap
             seats={trip.seats}
             selectedSeatIds={selectedSeatIds}
@@ -323,16 +328,16 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
 
         {/* Price Summary */}
         {totalPrice !== null && selectedSeatIds.length > 0 && (
-          <div className="rounded-md bg-muted p-4" aria-label="Price summary" role="region">
+          <div className="rounded-md bg-muted p-4" aria-label={t('tripDetail.booking.priceSummary')} role="region">
             <div className="flex items-center justify-between text-sm">
               <span>
-                {selectedSeatIds.length} {selectedSeatIds.length === 1 ? 'seat' : 'seats'} ×{' '}
+                {t('tripDetail.booking.seatCount', { count: selectedSeatIds.length })} ×{' '}
                 {formatPrice(segmentPrice ?? 0)}
               </span>
               <span className="text-lg font-bold">{formatPrice(totalPrice)}</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Seats: {selectedSeatLabels.join(', ')}
+              {t('tripDetail.booking.seats')} {selectedSeatLabels.join(', ')}
             </p>
           </div>
         )}
@@ -343,9 +348,9 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
           disabled={!canSubmit}
           className="w-full"
           size="lg"
-          aria-label="Confirm booking"
+          aria-label={t('tripDetail.booking.confirmAriaLabel')}
         >
-          {createBooking.isPending ? 'Booking...' : 'Confirm Booking'}
+          {createBooking.isPending ? t('tripDetail.booking.confirming') : t('tripDetail.booking.confirm')}
         </Button>
       </CardContent>
     </Card>
@@ -362,6 +367,7 @@ interface TripDetailContentProps {
  * Renders the trip info card and booking form once data is loaded.
  */
 function TripDetailContent({ trip }: TripDetailContentProps) {
+  const { t } = useTranslation('search');
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
 
   const sortedStops = useMemo(
@@ -378,7 +384,7 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
             <CardTitle>{trip.routeName}</CardTitle>
             {trip.status === 'CANCELLED' && (
               <span className="rounded bg-destructive/10 px-2 py-0.5 text-sm font-medium text-destructive">
-                Cancelled
+                {t('tripDetail.cancelled')}
               </span>
             )}
           </div>
@@ -392,7 +398,7 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
           <div className="flex items-center gap-4">
             <div className="text-center">
               <p className="text-2xl font-bold">{formatTime(trip.departureTime)}</p>
-              <p className="text-xs text-muted-foreground">Departure</p>
+              <p className="text-xs text-muted-foreground">{t('tripDetail.departure')}</p>
             </div>
             <div className="flex flex-1 flex-col items-center gap-1">
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -404,13 +410,13 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold">{formatTime(trip.arrivalTime)}</p>
-              <p className="text-xs text-muted-foreground">Arrival</p>
+              <p className="text-xs text-muted-foreground">{t('tripDetail.arrival')}</p>
             </div>
           </div>
 
           {/* Base Price */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">From</span>
+            <span className="text-sm text-muted-foreground">{t('tripDetail.from')}</span>
             <span className="text-lg font-bold text-primary">{formatPrice(trip.basePrice)}</span>
           </div>
 
@@ -418,7 +424,7 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
           <div>
             <h3 className="mb-3 flex items-center gap-1 text-sm font-medium">
               <MapPin className="h-4 w-4" aria-hidden="true" />
-              Stops ({sortedStops.length})
+              {t('tripDetail.stopsCount', { count: sortedStops.length })}
             </h3>
             <StopList stops={sortedStops} />
           </div>
@@ -457,7 +463,8 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
  * ```
  */
 export default function TripDetailPage() {
-  usePageTitle('Trip Details');
+  const { t } = useTranslation('search');
+  usePageTitle(t('tripDetail.pageTitle'));
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const date = searchParams.get('date') ?? '';
@@ -476,10 +483,10 @@ export default function TripDetailPage() {
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        Back to search
+        {t('tripDetail.backToSearch')}
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold">Trip Details</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('tripDetail.heading')}</h1>
 
       {isLoading && <TripDetailSkeleton />}
       {isError && <ErrorState onRetry={() => refetch()} />}

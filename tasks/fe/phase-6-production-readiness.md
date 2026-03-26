@@ -54,15 +54,7 @@
 
 ### TASK-011: Translate auth namespace ✅
 
-### TASK-012: Translate search and booking namespaces
-**Description:** Extract strings for the public search experience and booking flow.
-
-**Acceptance Criteria:**
-- [ ] `search.json` keys cover: search form (origin, destination, date, passengers labels/placeholders), trip card (departure, arrival, duration, price, seats available), trip detail page, filters, "X trips found" with interpolation
-- [ ] `booking.json` keys cover: seat selection instructions, seat types (Standard, Premium, Accessible, Blocked), booking card (status, trip date, boarding/alighting stops, seats, total price), "My Trips" page title, cancel booking confirmation, booking status labels (Confirmed, Cancelled, Completed)
-- [ ] Pages updated: `search.tsx`, `trip/[id].tsx`, `my-trips.tsx`, `search-form.tsx`, `trip-card.tsx`, `booking-card.tsx`, `seat-map.tsx`
-- [ ] Both RO and EN files complete
-- [ ] Typecheck passes, lint clean
+### TASK-012: Translate search and booking namespaces ✅
 
 ### TASK-013: Translate provider namespace
 **Description:** Extract all provider dashboard strings. This is the largest namespace covering dashboard stats, routes CRUD, fleet/bus management, schedule management, driver management, and tracking.

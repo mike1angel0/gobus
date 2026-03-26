@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Bus, ChevronDown, Clock, MapPin, Users } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -105,6 +106,7 @@ const SEAT_STYLES = {
  * ```
  */
 export function TripCard({ trip, delay, stops, className }: TripCardProps) {
+  const { t } = useTranslation('search');
   const [expanded, setExpanded] = useState(false);
   const seatLevel = getSeatLevel(trip.availableSeats, trip.totalSeats);
   const tripUrl = `/trip/${encodeURIComponent(trip.scheduleId)}?date=${encodeURIComponent(trip.tripDate)}`;
@@ -114,7 +116,14 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
       <Link
         to={tripUrl}
         className="block p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        aria-label={`${trip.routeName}: ${trip.origin} to ${trip.destination}, departing ${formatTime(trip.departureTime)}, ${trip.price.toFixed(2)} EUR, ${trip.availableSeats} seats available`}
+        aria-label={t('tripCard.ariaLabel', {
+          route: trip.routeName,
+          origin: trip.origin,
+          destination: trip.destination,
+          time: formatTime(trip.departureTime),
+          price: trip.price.toFixed(2),
+          seats: trip.availableSeats,
+        })}
       >
         {/* Top row: provider + delay badge + price */}
         <div className="flex items-start justify-between gap-2">
@@ -152,7 +161,7 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
         <div className="mt-3 flex items-center gap-1">
           <Users className={cn('h-4 w-4', SEAT_STYLES[seatLevel])} aria-hidden="true" />
           <span className={cn('text-sm', SEAT_STYLES[seatLevel])}>
-            {trip.availableSeats} {trip.availableSeats === 1 ? 'seat' : 'seats'} available
+            {t('tripCard.seatsAvailable', { count: trip.availableSeats })}
           </span>
         </div>
       </Link>
@@ -169,14 +178,14 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
             aria-controls="trip-stops"
           >
             <MapPin className="h-3 w-3" aria-hidden="true" />
-            {expanded ? 'Hide stops' : `${stops.length} stops`}
+            {expanded ? t('tripCard.hideStops') : t('tripCard.stopsCount', { count: stops.length })}
             <ChevronDown
               className={cn('h-3 w-3 transition-transform', expanded && 'rotate-180')}
               aria-hidden="true"
             />
           </Button>
           {expanded && (
-            <ol id="trip-stops" className="px-4 pb-3" aria-label="Trip stops">
+            <ol id="trip-stops" className="px-4 pb-3" aria-label={t('tripCard.tripStops')}>
               {stops.map((stop) => (
                 <li
                   key={`${stop.stopName}-${stop.departureTime}`}

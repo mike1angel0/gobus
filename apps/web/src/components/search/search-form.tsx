@@ -1,12 +1,15 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowRightLeft, Calendar, MapPin, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import type { TFunction } from 'i18next';
 
 /**
  * European cities available for trip search.
@@ -32,18 +35,25 @@ const CITIES = [
 
 const today = () => format(new Date(), 'yyyy-MM-dd');
 
-const searchFormSchema = z
-  .object({
-    origin: z.string().min(1, 'Origin is required'),
-    destination: z.string().min(1, 'Destination is required'),
-    date: z.string().min(1, 'Date is required'),
-  })
-  .refine((data) => data.origin !== data.destination, {
-    message: 'Origin and destination must be different',
-    path: ['destination'],
-  });
+/**
+ * Creates a search form Zod schema with translated validation messages.
+ * @param t - Translation function from the 'search' namespace
+ * @returns Zod schema for the search form
+ */
+function createSearchFormSchema(t: TFunction) {
+  return z
+    .object({
+      origin: z.string().min(1, t('form.validation.originRequired')),
+      destination: z.string().min(1, t('form.validation.destinationRequired')),
+      date: z.string().min(1, t('form.validation.dateRequired')),
+    })
+    .refine((data) => data.origin !== data.destination, {
+      message: t('form.validation.sameOriginDestination'),
+      path: ['destination'],
+    });
+}
 
-type SearchFormValues = z.infer<typeof searchFormSchema>;
+type SearchFormValues = z.infer<ReturnType<typeof createSearchFormSchema>>;
 
 /** Props for the {@link SearchForm} component. */
 export interface SearchFormProps {
@@ -73,6 +83,8 @@ interface CitySelectProps {
   ) => infer R
     ? R
     : never;
+  /** Placeholder text for the empty option. */
+  placeholder: string;
 }
 
 /** City dropdown select field with icon, label, and error display. */
@@ -84,6 +96,7 @@ function CitySelect({
   error,
   isInvalid,
   registration,
+  placeholder,
 }: CitySelectProps) {
   const errorId = `${id}-error`;
   return (
@@ -109,7 +122,7 @@ function CitySelect({
           aria-invalid={isInvalid ? 'true' : undefined}
           aria-describedby={isInvalid ? errorId : undefined}
         >
-          <option value="">Select {label.toLowerCase()}</option>
+          <option value="">{placeholder}</option>
           {CITIES.map((city) => (
             <option key={city} value={city}>
               {city}
@@ -140,17 +153,19 @@ interface DateFieldProps {
   ) => infer R
     ? R
     : never;
+  /** Label text for the date field. */
+  label: string;
 }
 
 /** Date input field with calendar icon, label, and error display. */
-function DateField({ hideLabel, error, isInvalid, registration }: DateFieldProps) {
+function DateField({ hideLabel, error, isInvalid, registration, label }: DateFieldProps) {
   return (
     <div className="relative">
       <Label
         htmlFor="search-date"
         className={hideLabel ? 'sr-only' : 'mb-1.5 block text-sm font-medium'}
       >
-        Travel date
+        {label}
       </Label>
       <div className="relative">
         <Calendar
@@ -199,8 +214,11 @@ function DateField({ hideLabel, error, isInvalid, registration }: DateFieldProps
  * ```
  */
 export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
+  const { t } = useTranslation('search');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const schema = useMemo(() => createSearchFormSchema(t), [t]);
 
   const {
     register,
@@ -209,7 +227,7 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
     watch,
     formState: { errors },
   } = useForm<SearchFormValues>({
-    resolver: zodResolver(searchFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       origin: searchParams.get('origin') ?? '',
       destination: searchParams.get('destination') ?? '',
@@ -243,7 +261,7 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
         className,
       )}
       role="search"
-      aria-label="Search trips"
+      aria-label={t('form.searchAriaLabel')}
       noValidate
     >
       <div
@@ -256,12 +274,13 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
       >
         <CitySelect
           id="search-origin"
-          label="Origin"
+          label={t('form.origin')}
           value={origin}
           hideLabel={isCompact}
           error={errors.origin?.message}
           isInvalid={!!errors.origin}
           registration={register('origin')}
+          placeholder={t('form.selectPlaceholder', { label: t('form.origin').toLowerCase() })}
         />
 
         {/* Swap button (only in full mode, placed between origin and destination) */}
@@ -272,7 +291,7 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
               variant="ghost"
               size="icon"
               onClick={handleSwap}
-              aria-label="Swap origin and destination"
+              aria-label={t('form.swapAriaLabel')}
               className="h-10 w-10"
             >
               <ArrowRightLeft className="h-4 w-4" />
@@ -282,12 +301,13 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
 
         <CitySelect
           id="search-destination"
-          label="Destination"
+          label={t('form.destination')}
           value={destination}
           hideLabel={isCompact}
           error={errors.destination?.message}
           isInvalid={!!errors.destination}
           registration={register('destination')}
+          placeholder={t('form.selectPlaceholder', { label: t('form.destination').toLowerCase() })}
         />
 
         <DateField
@@ -295,6 +315,7 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
           error={errors.date?.message}
           isInvalid={!!errors.date}
           registration={register('date')}
+          label={t('form.date')}
         />
 
         {/* Submit + Swap (compact) */}
@@ -306,16 +327,16 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
                 variant="ghost"
                 size="sm"
                 onClick={handleSwap}
-                aria-label="Swap origin and destination"
+                aria-label={t('form.swapAriaLabel')}
               >
                 <ArrowRightLeft className="mr-2 h-4 w-4" />
-                Swap
+                {t('form.swap')}
               </Button>
             </div>
           )}
           <Button type="submit" className="w-full">
             <Search className="mr-2 h-4 w-4" />
-            Search
+            {t('form.submit')}
           </Button>
         </div>
       </div>
@@ -328,10 +349,10 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
             variant="ghost"
             size="sm"
             onClick={handleSwap}
-            aria-label="Swap origin and destination"
+            aria-label={t('form.swapAriaLabel')}
           >
             <ArrowRightLeft className="mr-2 h-4 w-4" />
-            Swap
+            {t('form.swap')}
           </Button>
         </div>
       )}

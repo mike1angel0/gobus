@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import MyTripsPage from './my-trips';
 import { renderWithProviders } from '@/test/helpers';
 
@@ -75,6 +76,7 @@ function mockDetailResponse(detail = mockBookingDetail) {
 
 describe('MyTripsPage', () => {
   beforeEach(() => {
+    i18n.changeLanguage('en');
     mockGet.mockReset();
     mockDelete.mockReset();
   });
@@ -273,7 +275,7 @@ describe('MyTripsPage', () => {
       expect(screen.getByText('$45.00')).toBeInTheDocument();
       expect(screen.getByText('Seats: 1A, 1B')).toBeInTheDocument();
       expect(screen.getByText('Order: ORD-001')).toBeInTheDocument();
-      expect(screen.getByText('CONFIRMED')).toBeInTheDocument();
+      expect(screen.getByText('Confirmed')).toBeInTheDocument();
     });
 
     it('shows status badge with correct text for completed bookings', async () => {
@@ -299,7 +301,7 @@ describe('MyTripsPage', () => {
       await user.click(screen.getByRole('tab', { name: /past/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('COMPLETED')).toBeInTheDocument();
+        expect(screen.getByText('Completed')).toBeInTheDocument();
       });
     });
   });
@@ -398,7 +400,7 @@ describe('MyTripsPage', () => {
       await user.click(screen.getByRole('tab', { name: /past/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('COMPLETED')).toBeInTheDocument();
+        expect(screen.getByText('Completed')).toBeInTheDocument();
       });
 
       expect(screen.queryByRole('button', { name: 'Cancel booking' })).not.toBeInTheDocument();

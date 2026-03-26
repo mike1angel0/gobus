@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SearchX } from 'lucide-react';
 import { SearchForm } from '@/components/search/search-form';
 import { TripCard } from '@/components/search/trip-card';
@@ -21,10 +22,11 @@ interface ResultsListProps {
  * Renders the list of trip search results with a count header.
  */
 function ResultsList({ results }: ResultsListProps) {
+  const { t } = useTranslation('search');
   return (
-    <div className="space-y-4" aria-label="Search results">
+    <div className="space-y-4" aria-label={t('results.ariaLabel')}>
       <p className="text-sm text-muted-foreground">
-        {results.length} {results.length === 1 ? 'trip' : 'trips'} found
+        {t('results.tripsFound', { count: results.length })}
       </p>
       {results.map((trip) => (
         <TripCard key={`${trip.scheduleId}-${trip.tripDate}`} trip={trip} />
@@ -51,25 +53,27 @@ interface SearchContentProps {
  * Renders the appropriate content section based on the current search state.
  */
 function SearchContent({ hasParams, isLoading, isError, results, onRetry }: SearchContentProps) {
+  const { t } = useTranslation('search');
+
   if (!hasParams) {
     return (
       <EmptyState
         icon={SearchX}
-        title="Search for trips"
-        message="Enter your origin, destination, and travel date above to find available trips."
+        title={t('empty.title')}
+        message={t('empty.message')}
       />
     );
   }
 
   if (isLoading) {
-    return <CardListSkeleton label="Loading search results" />;
+    return <CardListSkeleton label={t('loading')} />;
   }
 
   if (isError) {
     return (
       <PageError
-        title="Something went wrong"
-        message="We couldn't load search results. Please try again."
+        title={t('error.title')}
+        message={t('error.message')}
         onRetry={onRetry}
       />
     );
@@ -79,8 +83,8 @@ function SearchContent({ hasParams, isLoading, isError, results, onRetry }: Sear
     return (
       <EmptyState
         icon={SearchX}
-        title="No trips found"
-        message="We couldn't find any trips matching your search. Try different cities or another date."
+        title={t('results.noTrips')}
+        message={t('results.noTripsMessage')}
       />
     );
   }
@@ -107,7 +111,8 @@ function SearchContent({ hasParams, isLoading, isError, results, onRetry }: Sear
  * ```
  */
 export default function SearchPage() {
-  usePageTitle('Search');
+  const { t } = useTranslation('search');
+  usePageTitle(t('pageTitle'));
   const [searchParams] = useSearchParams();
 
   const origin = searchParams.get('origin') ?? '';
@@ -125,7 +130,7 @@ export default function SearchPage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">Search trips</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('heading')}</h1>
 
       <SearchForm mode="full" className="mb-8" />
 

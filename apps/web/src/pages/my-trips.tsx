@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Luggage } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -98,10 +99,11 @@ interface BookingListProps {
 
 /** Renders a list of booking cards. */
 function BookingList({ bookings, variant }: BookingListProps) {
+  const { t } = useTranslation('booking');
   return (
     <ol
       className="space-y-4"
-      aria-label={`${variant === 'upcoming' ? 'Upcoming' : 'Past'} bookings`}
+      aria-label={variant === 'upcoming' ? t('myTrips.upcomingAriaLabel') : t('myTrips.pastAriaLabel')}
     >
       {bookings.map((booking) => (
         <li key={booking.id}>
@@ -143,15 +145,17 @@ function MyTripsContent({
   hasMore,
   onLoadMore,
 }: MyTripsContentProps) {
+  const { t } = useTranslation('booking');
+
   if (isLoading && upcoming.length === 0 && past.length === 0) {
-    return <CardListSkeleton label="Loading bookings" />;
+    return <CardListSkeleton label={t('loading')} />;
   }
 
   if (isError && upcoming.length === 0 && past.length === 0) {
     return (
       <PageError
-        title="Something went wrong"
-        message="We couldn't load your bookings. Please try again."
+        title={t('error.title')}
+        message={t('error.message')}
         onRetry={onRetry}
       />
     );
@@ -161,9 +165,9 @@ function MyTripsContent({
     return (
       <EmptyState
         icon={Luggage}
-        title="No trips yet"
-        message="You haven't booked any trips. Search for a trip to get started!"
-        action={{ label: 'Search trips', href: '/search' }}
+        title={t('myTrips.noTrips')}
+        message={t('myTrips.noTripsMessage')}
+        action={{ label: t('myTrips.searchTrips'), href: '/search' }}
       />
     );
   }
@@ -174,7 +178,7 @@ function MyTripsContent({
     return (
       <div className="flex flex-col items-center py-12 text-center" role="status">
         <p className="text-muted-foreground">
-          {activeTab === 'upcoming' ? 'No upcoming trips' : 'No past trips'}
+          {activeTab === 'upcoming' ? t('myTrips.noUpcoming') : t('myTrips.noPast')}
         </p>
       </div>
     );
@@ -186,7 +190,7 @@ function MyTripsContent({
       {hasMore && (
         <div className="flex justify-center pt-2">
           <Button variant="outline" onClick={onLoadMore} disabled={isLoading}>
-            {isLoading ? 'Loading...' : 'Load more'}
+            {isLoading ? t('myTrips.loadingMore') : t('myTrips.loadMore')}
           </Button>
         </div>
       )}
@@ -212,7 +216,8 @@ function MyTripsContent({
  * ```
  */
 export default function MyTripsPage() {
-  usePageTitle('My Trips');
+  const { t } = useTranslation('booking');
+  usePageTitle(t('myTrips.pageTitle'));
   const [activeTab, setActiveTab] = useState<Tab>('upcoming');
   const [page, setPage] = useState(1);
 
@@ -232,19 +237,19 @@ export default function MyTripsPage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">My trips</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('myTrips.heading')}</h1>
 
-      <div role="tablist" aria-label="Trip categories" className="mb-6 flex border-b">
+      <div role="tablist" aria-label={t('myTrips.tabsAriaLabel')} className="mb-6 flex border-b">
         <TabButton
           active={activeTab === 'upcoming'}
           onClick={() => setActiveTab('upcoming')}
-          label="Upcoming"
+          label={t('myTrips.upcoming')}
           count={upcoming.length}
         />
         <TabButton
           active={activeTab === 'past'}
           onClick={() => setActiveTab('past')}
-          label="Past"
+          label={t('myTrips.past')}
           count={past.length}
         />
       </div>

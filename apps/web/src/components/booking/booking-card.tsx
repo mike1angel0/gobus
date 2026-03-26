@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp, MapPin, Clock, Bus, X } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,12 +66,13 @@ function getStatusClasses(status: Booking['status']): string {
  * Includes schedule info, bus info, and live tracking map for active trips.
  */
 function BookingDetail({ bookingId, busId }: { bookingId: string; busId?: string }) {
+  const { t } = useTranslation('booking');
   const { data: detailData, isLoading } = useBookingDetail(bookingId);
   const { data: trackingData } = useBusTracking(busId ?? '', !!busId);
 
   if (isLoading) {
     return (
-      <div className="space-y-2 pt-4" aria-busy="true" aria-label="Loading booking details">
+      <div className="space-y-2 pt-4" aria-busy="true" aria-label={t('card.loadingAriaLabel')}>
         <div className="h-4 w-48 animate-pulse rounded bg-muted" />
         <div className="h-4 w-36 animate-pulse rounded bg-muted" />
         <div className="h-4 w-40 animate-pulse rounded bg-muted" />
@@ -133,6 +135,7 @@ interface CancelDialogProps {
  * Dialog that confirms booking cancellation before calling the API.
  */
 function CancelDialog({ bookingId, orderId }: CancelDialogProps) {
+  const { t } = useTranslation('booking');
   const cancelBooking = useCancelBooking();
   const [open, setOpen] = useState(false);
 
@@ -145,24 +148,24 @@ function CancelDialog({ bookingId, orderId }: CancelDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" size="sm" aria-label="Cancel booking">
+        <Button variant="destructive" size="sm" aria-label={t('cancel.buttonAriaLabel')}>
           <X className="mr-1 h-3 w-3" aria-hidden="true" />
-          Cancel
+          {t('cancel.button')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Cancel booking</DialogTitle>
+          <DialogTitle>{t('cancel.title')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to cancel booking {orderId}? This action cannot be undone.
+            {t('cancel.description', { orderId })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Keep booking</Button>
+            <Button variant="outline">{t('cancel.keep')}</Button>
           </DialogClose>
           <Button variant="destructive" onClick={handleCancel} disabled={cancelBooking.isPending}>
-            {cancelBooking.isPending ? 'Cancelling...' : 'Yes, cancel'}
+            {cancelBooking.isPending ? t('cancel.cancelling') : t('cancel.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -185,6 +188,7 @@ function CancelDialog({ bookingId, orderId }: CancelDialogProps) {
  * ```
  */
 export function BookingCard({ booking, variant }: BookingCardProps) {
+  const { t } = useTranslation('booking');
   const [expanded, setExpanded] = useState(false);
   const { data: detailData } = useBookingDetail(expanded ? booking.id : '');
 
@@ -202,7 +206,7 @@ export function BookingCard({ booking, variant }: BookingCardProps) {
               <span
                 className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium ${getStatusClasses(booking.status)}`}
               >
-                {booking.status}
+                {t(`status.${booking.status}`)}
               </span>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">{formatDate(booking.tripDate)}</p>
@@ -211,8 +215,8 @@ export function BookingCard({ booking, variant }: BookingCardProps) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          <span>Seats: {booking.seatLabels.join(', ')}</span>
-          <span>Order: {booking.orderId}</span>
+          <span>{t('card.seats')} {booking.seatLabels.join(', ')}</span>
+          <span>{t('card.order')} {booking.orderId}</span>
         </div>
 
         <div className="mt-3 flex items-center justify-between">
@@ -222,14 +226,14 @@ export function BookingCard({ booking, variant }: BookingCardProps) {
               size="sm"
               onClick={() => setExpanded(!expanded)}
               aria-expanded={expanded}
-              aria-label={expanded ? 'Collapse details' : 'Expand details'}
+              aria-label={expanded ? t('card.collapseDetails') : t('card.expandDetails')}
             >
               {expanded ? (
                 <ChevronUp className="mr-1 h-4 w-4" aria-hidden="true" />
               ) : (
                 <ChevronDown className="mr-1 h-4 w-4" aria-hidden="true" />
               )}
-              Details
+              {t('card.details')}
             </Button>
           </div>
 

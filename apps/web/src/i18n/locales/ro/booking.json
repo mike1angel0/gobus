@@ -11,23 +11,71 @@
     "accessible": "Accesibil",
     "blocked": "Blocat"
   },
+  "seatStates": {
+    "available": "Disponibil",
+    "selected": "Selectat",
+    "occupied": "Ocupat",
+    "blocked": "Blocat",
+    "disabled": "Dezactivat"
+  },
+  "seatMap": {
+    "ariaLabel": "Harta locurilor",
+    "legendAriaLabel": "Legenda hărții locurilor",
+    "noSeats": "Nu sunt locuri disponibile pentru această cursă.",
+    "seatAriaLabel": "Locul {{label}}",
+    "premium": "Premium"
+  },
   "card": {
     "status": "Status",
     "tripDate": "Data călătoriei",
     "boardingStop": "Stația de îmbarcare",
     "alightingStop": "Stația de coborâre",
-    "seats": "Locuri",
-    "totalPrice": "Preț total"
+    "seats": "Locuri:",
+    "order": "Comandă:",
+    "totalPrice": "Preț total",
+    "details": "Detalii",
+    "expandDetails": "Extinde detaliile",
+    "collapseDetails": "Restrânge detaliile",
+    "loadingAriaLabel": "Se încarcă detaliile rezervării"
+  },
+  "cancel": {
+    "title": "Anulează rezervarea",
+    "button": "Anulează",
+    "buttonAriaLabel": "Anulează rezervarea",
+    "description": "Ești sigur că vrei să anulezi rezervarea {{orderId}}? Această acțiune nu poate fi anulată.",
+    "keep": "Păstrează rezervarea",
+    "cancelling": "Se anulează...",
+    "confirm": "Da, anulează"
   },
   "myTrips": {
-    "title": "Călătoriile mele",
-    "noTrips": "Nu ai nicio rezervare",
+    "pageTitle": "Călătoriile mele",
+    "heading": "Călătoriile mele",
+    "upcoming": "Viitoare",
+    "past": "Trecute",
+    "tabsAriaLabel": "Categorii de călătorii",
+    "upcomingAriaLabel": "Rezervări viitoare",
+    "pastAriaLabel": "Rezervări trecute",
+    "noTrips": "Nicio călătorie încă",
+    "noTripsMessage": "Nu ai rezervat nicio călătorie. Caută o cursă pentru a începe!",
+    "searchTrips": "Caută curse",
+    "noUpcoming": "Nicio călătorie viitoare",
+    "noPast": "Nicio călătorie trecută",
+    "loadMore": "Încarcă mai multe",
+    "loadingMore": "Se încarcă...",
     "cancelBooking": "Anulează rezervarea",
     "cancelConfirmation": "Ești sigur că vrei să anulezi această rezervare?"
+  },
+  "loading": "Se încarcă rezervările",
+  "error": {
+    "title": "Ceva nu a mers bine",
+    "message": "Nu am putut încărca rezervările tale. Te rugăm să încerci din nou."
   },
   "status": {
     "confirmed": "Confirmată",
     "cancelled": "Anulată",
-    "completed": "Finalizată"
+    "completed": "Finalizată",
+    "CONFIRMED": "Confirmată",
+    "CANCELLED": "Anulată",
+    "COMPLETED": "Finalizată"
   }
 }

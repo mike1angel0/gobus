@@ -11,23 +11,71 @@
     "accessible": "Accessible",
     "blocked": "Blocked"
   },
+  "seatStates": {
+    "available": "Available",
+    "selected": "Selected",
+    "occupied": "Occupied",
+    "blocked": "Blocked",
+    "disabled": "Disabled"
+  },
+  "seatMap": {
+    "ariaLabel": "Seat map",
+    "legendAriaLabel": "Seat map legend",
+    "noSeats": "No seats available for this trip.",
+    "seatAriaLabel": "Seat {{label}}",
+    "premium": "Premium"
+  },
   "card": {
     "status": "Status",
     "tripDate": "Trip date",
     "boardingStop": "Boarding stop",
     "alightingStop": "Alighting stop",
-    "seats": "Seats",
-    "totalPrice": "Total price"
+    "seats": "Seats:",
+    "order": "Order:",
+    "totalPrice": "Total price",
+    "details": "Details",
+    "expandDetails": "Expand details",
+    "collapseDetails": "Collapse details",
+    "loadingAriaLabel": "Loading booking details"
+  },
+  "cancel": {
+    "title": "Cancel booking",
+    "button": "Cancel",
+    "buttonAriaLabel": "Cancel booking",
+    "description": "Are you sure you want to cancel booking {{orderId}}? This action cannot be undone.",
+    "keep": "Keep booking",
+    "cancelling": "Cancelling...",
+    "confirm": "Yes, cancel"
   },
   "myTrips": {
-    "title": "My Trips",
-    "noTrips": "You have no bookings",
+    "pageTitle": "My Trips",
+    "heading": "My trips",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "tabsAriaLabel": "Trip categories",
+    "upcomingAriaLabel": "Upcoming bookings",
+    "pastAriaLabel": "Past bookings",
+    "noTrips": "No trips yet",
+    "noTripsMessage": "You haven't booked any trips. Search for a trip to get started!",
+    "searchTrips": "Search trips",
+    "noUpcoming": "No upcoming trips",
+    "noPast": "No past trips",
+    "loadMore": "Load more",
+    "loadingMore": "Loading...",
     "cancelBooking": "Cancel booking",
     "cancelConfirmation": "Are you sure you want to cancel this booking?"
+  },
+  "loading": "Loading bookings",
+  "error": {
+    "title": "Something went wrong",
+    "message": "We couldn't load your bookings. Please try again."
   },
   "status": {
     "confirmed": "Confirmed",
     "cancelled": "Cancelled",
-    "completed": "Completed"
+    "completed": "Completed",
+    "CONFIRMED": "Confirmed",
+    "CANCELLED": "Cancelled",
+    "COMPLETED": "Completed"
   }
 }

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { components } from '@/api/generated/types';
@@ -40,21 +41,12 @@ const SEAT_STYLES: Record<SeatState, string> = {
   disabled: 'bg-gray-50 border-gray-200 text-gray-300 cursor-not-allowed',
 };
 
-/** Human-readable labels for seat states, used in the legend. */
-const STATE_LABELS: Record<SeatState, string> = {
-  available: 'Available',
-  selected: 'Selected',
-  occupied: 'Occupied',
-  blocked: 'Blocked',
-  disabled: 'Disabled',
-};
-
-/** Human-readable labels for seat types. */
-const TYPE_LABELS: Record<SeatAvailability['type'], string> = {
-  STANDARD: 'Standard',
-  PREMIUM: 'Premium',
-  DISABLED_ACCESSIBLE: 'Accessible',
-  BLOCKED: 'Blocked',
+/** Seat type keys mapped to translation keys. */
+const TYPE_TRANSLATION_KEYS: Record<SeatAvailability['type'], string> = {
+  STANDARD: 'seatTypes.standard',
+  PREMIUM: 'seatTypes.premium',
+  DISABLED_ACCESSIBLE: 'seatTypes.accessible',
+  BLOCKED: 'seatTypes.blocked',
 };
 
 /**
@@ -91,22 +83,6 @@ function formatPrice(price: number): string {
 }
 
 /**
- * Builds an accessible label for a seat describing its label, type, state, and price.
- * @param seat - Seat availability data
- * @param state - Current visual state of the seat
- * @param price - Effective price to display
- * @returns Descriptive string for screen readers
- */
-function buildSeatAriaLabel(seat: SeatAvailability, state: SeatState, price: number): string {
-  const parts = [`Seat ${seat.label}`, TYPE_LABELS[seat.type]];
-  if (state === 'available' || state === 'selected') {
-    parts.push(formatPrice(price));
-  }
-  parts.push(STATE_LABELS[state]);
-  return parts.join(', ');
-}
-
-/**
  * Interactive bus seat map grid for selecting seats during booking.
  *
  * Renders seats in a grid layout based on row/column data from the API.
@@ -130,6 +106,7 @@ export function SeatMap({
   aisleAfterColumn = 2,
   basePrice,
 }: SeatMapProps) {
+  const { t } = useTranslation('booking');
   const gridRef = useRef<HTMLDivElement>(null);
   const selectedSet = useMemo(() => new Set(selectedSeatIds), [selectedSeatIds]);
 
@@ -200,7 +177,7 @@ export function SeatMap({
   if (seats.length === 0) {
     return (
       <p className="text-sm text-muted-foreground" role="status">
-        No seats available for this trip.
+        {t('seatMap.noSeats')}
       </p>
     );
   }
@@ -211,7 +188,7 @@ export function SeatMap({
   return (
     <TooltipProvider delayDuration={300}>
       <div className="space-y-4">
-        <div ref={gridRef} role="grid" aria-label="Seat map" className="inline-block">
+        <div ref={gridRef} role="grid" aria-label={t('seatMap.ariaLabel')} className="inline-block">
           {rows.map((row) => (
             <div key={row} role="row" className="flex">
               {cols.map((col) => {
@@ -262,13 +239,24 @@ interface SeatCellProps {
  * Renders the seat with appropriate styling, state indicators, and tooltip.
  */
 function SeatCell({ seat, isSelected, basePrice, onClick, onKeyDown }: SeatCellProps) {
+  const { t } = useTranslation('booking');
   const state = getSeatState(seat, isSelected);
   const effectivePrice = getEffectivePrice(seat, basePrice);
-  const ariaLabel = buildSeatAriaLabel(seat, state, effectivePrice);
+
+  const typeLabel = t(TYPE_TRANSLATION_KEYS[seat.type]);
+  const stateLabel = t(`seatStates.${state}`);
+
+  const ariaLabelParts = [`${t('seatMap.seatAriaLabel', { label: seat.label })}`, typeLabel];
+  if (state === 'available' || state === 'selected') {
+    ariaLabelParts.push(formatPrice(effectivePrice));
+  }
+  ariaLabelParts.push(stateLabel);
+  const ariaLabel = ariaLabelParts.join(', ');
+
   const isInteractive = state === 'available' || state === 'selected';
   const isPremium = seat.type === 'PREMIUM';
 
-  const tooltipText = `${seat.label} · ${TYPE_LABELS[seat.type]} · ${formatPrice(effectivePrice)}`;
+  const tooltipText = `${seat.label} · ${typeLabel} · ${formatPrice(effectivePrice)}`;
 
   return (
     <Tooltip>
@@ -308,31 +296,33 @@ function SeatCell({ seat, isSelected, basePrice, onClick, onKeyDown }: SeatCellP
  * Legend showing all seat state and type indicators used in the seat map.
  */
 function SeatLegend() {
-  const items: Array<{ label: string; className: string; content: string }> = [
-    { label: 'Available', className: SEAT_STYLES.available, content: '' },
-    { label: 'Selected', className: SEAT_STYLES.selected, content: '' },
-    { label: 'Occupied', className: SEAT_STYLES.occupied, content: '' },
+  const { t } = useTranslation('booking');
+
+  const items: Array<{ labelKey: string; className: string; content: string }> = [
+    { labelKey: 'seatStates.available', className: SEAT_STYLES.available, content: '' },
+    { labelKey: 'seatStates.selected', className: SEAT_STYLES.selected, content: '' },
+    { labelKey: 'seatStates.occupied', className: SEAT_STYLES.occupied, content: '' },
     {
-      label: 'Blocked',
+      labelKey: 'seatStates.blocked',
       className: SEAT_STYLES.blocked,
       content: '✕',
     },
     {
-      label: 'Disabled',
+      labelKey: 'seatStates.disabled',
       className: SEAT_STYLES.disabled,
       content: '⊘',
     },
     {
-      label: 'Premium',
+      labelKey: 'seatMap.premium',
       className: cn(SEAT_STYLES.available, 'ring-2 ring-amber-400'),
       content: '',
     },
   ];
 
   return (
-    <div role="group" aria-label="Seat map legend" className="flex flex-wrap gap-3">
+    <div role="group" aria-label={t('seatMap.legendAriaLabel')} className="flex flex-wrap gap-3">
       {items.map((item) => (
-        <div key={item.label} className="flex items-center gap-1.5">
+        <div key={item.labelKey} className="flex items-center gap-1.5">
           <span
             className={cn(
               'inline-flex h-6 w-6 items-center justify-center rounded border text-[10px] font-medium',
@@ -342,7 +332,7 @@ function SeatLegend() {
           >
             {item.content}
           </span>
-          <span className="text-xs text-muted-foreground">{item.label}</span>
+          <span className="text-xs text-muted-foreground">{t(item.labelKey)}</span>
         </div>
       ))}
     </div>
