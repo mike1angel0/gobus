@@ -1,0 +1,119 @@
+## Iteration 1 - TASK-001: Initialize Vite + React + TypeScript strict
+- Scaffolded Vite project with React 19 + TypeScript 5.9.3 strict mode
+- Configured path aliases (@/ → src/) in tsconfig.app.json and vite.config.ts
+- Installed core deps: react-router-dom, @tanstack/react-query, react-hook-form, zod, @hookform/resolvers, date-fns
+- Scripts: dev, build, preview, typecheck all working
+- Learnings: Vite create template uses React 19 (not 18) — fine, backwards compatible. TypeScript 5.9 ships with strict by default in template.
+---
+
+## Iteration 2 - TASK-002: Configure Tailwind CSS + shadcn/ui
+- Installed Tailwind CSS v3.4, PostCSS, Autoprefixer, tailwindcss-animate
+- Replicated exact color palette from _legacy/tailwind.config.ts (primary, accent, dark)
+- Ported all utility classes from _legacy/src/app/globals.css: .glass, .glass-card, .btn-primary, .btn-accent, .btn-secondary, .input-field
+- Added shadcn/ui CSS variables for dark theme, configured components.json
+- Installed shadcn components: button, input, card, dialog, toast, toaster
+- Created src/lib/utils.ts with cn() helper
+- Learnings: shadcn v4 CLI creates `@/` as a literal directory when path aliases aren't properly resolved. Had to move files manually. Added resolvedPaths to components.json to fix future installs. Also `tailwindcss-animate` should be in regular deps (not dev) since it's imported in tailwind.config.js which is processed at build time.
+---
+
+## Iteration 3 - TASK-003: Configure ESLint, Prettier, and quality gates
+- Installed eslint-plugin-jsx-a11y, eslint-plugin-jsdoc, prettier
+- Configured ESLint flat config with: complexity gates (max-lines: 500, max-lines-per-function: 250, complexity: 15, max-depth: 4), JSDoc on exports, no-explicit-any as error, jsx-a11y recommended
+- Excluded shadcn/ui components and config files from JSDoc requirements (generated code)
+- Configured Prettier: semi, singleQuote, printWidth: 100
+- Added scripts: lint, format:check, format:fix
+- Auto-formatted existing files with Prettier
+- All quality gates pass: lint, format:check, typecheck
+- Learnings: shadcn/ui generated components trigger JSDoc/react-refresh/unused-vars warnings — exclude them via file-specific config overrides rather than disabling rules globally.
+---
+
+## Iteration 4 - TASK-004: Set up Vitest + React Testing Library
+- Installed vitest, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event, jsdom, @vitest/coverage-v8
+- Created vitest.config.ts with jsdom environment, @/ path alias, v8 coverage with 90% thresholds
+- Created src/test/setup.ts importing jest-dom/vitest matchers
+- Created src/test/helpers.tsx with renderWithProviders() wrapping QueryClientProvider + MemoryRouter
+- Added test, test:watch, test:coverage scripts
+- Excluded shadcn-generated files (use-toast.ts, utils.ts, components/ui/) from coverage to avoid false negatives
+- Added vitest/globals types to tsconfig.app.json for global describe/it/expect
+- Smoke test for App component passes, coverage at 100% for non-excluded source
+- Learnings: shadcn's use-toast.ts is ~180 lines of generated code that tanks coverage if included. Exclude it alongside components/ui/ in vitest coverage config.
+---
+
+## Iteration 5 - TASK-005: Set up OpenAPI type generation
+- Installed openapi-typescript v7.13 as devDep
+- Created `npm run api:sync` script that generates types from `../../spec/dist/openapi.json` to `src/api/generated/types.ts`
+- Created `src/api/generated/.gitkeep` for directory persistence
+- Generated 4241 lines of types covering all 30+ API paths and 47 operations
+- Created `apps/web/CLAUDE.md` documenting API-first workflow and type generation pipeline
+- Added `coverage` to ESLint globalIgnores (was causing spurious warnings)
+- Learnings: openapi-typescript v7 generates clean types including paths, operations, and components interfaces. The bundled spec at `spec/dist/openapi.json` must exist before running api:sync — run `npm run spec:bundle` from root first.
+---
+
+## Iteration 6 - TASK-006: Create typed API client
+- Installed openapi-fetch, created src/api/client.ts (typed client with auth middleware), src/api/errors.ts (ApiError class, RFC 9457 parsing), src/api/hooks.ts (useApiClient hook)
+- Access token stored in memory only (setAccessToken/getAccessToken), never localStorage
+- Auth middleware auto-attaches Bearer token and fires onUnauthorized callback on 401
+- Error middleware parses RFC 9457 responses into ApiError instances, falls back to generic error for non-conforming responses
+- 28 unit tests covering error parsing, type guards, token management, and hook stability
+- Learnings: openapi-fetch middleware uses onRequest/onResponse pattern. The middleware must clone the response before reading the body (response.clone().json()) since the body stream can only be consumed once. Keep token in module-level variable for simplicity — auth context will call setAccessToken().
+---
+
+## Iteration 7 - TASK-007: Create React Query configuration and key factories
+- Created src/providers/query-client.ts with QueryClient defaults (staleTime: 30s, retry: 1, refetchOnWindowFocus: false, gcTime: 5min)
+- Created src/providers/query-provider.tsx with AppQueryProvider component
+- Created src/api/keys.ts with 11 key factories: authKeys, routeKeys, busKeys, scheduleKeys, bookingKeys, trackingKeys, searchKeys, driverKeys, delayKeys, adminKeys, driverTripKeys
+- Each factory has .all, .lists(filters?), .detail(id) for hierarchical cache invalidation
+- Wired AppQueryProvider into main.tsx wrapping the App
+- 90 tests passing (62 new for keys + provider)
+- Learnings: react-refresh/only-export-components ESLint rule forbids mixing component exports with non-component exports (like QueryClient). Split constants into a separate .ts file and keep only the component in the .tsx file.
+---
+
+## Iteration 8 - TASK-008: Create auth context and hooks with secure token handling
+- Created src/contexts/auth-types.ts with AuthContext, types (User, RegisterData, AuthStatus, AuthContextValue), JWT helpers, and localStorage helpers
+- Created src/contexts/auth-context.tsx with AuthProvider: login, register, logout, changePassword, forgotPassword, resetPassword, auto-refresh, session restore
+- Created src/hooks/useAuth.ts hook consuming AuthContext
+- Access token stored in memory only (setAccessToken from api/client), refresh token in localStorage
+- Auto-refresh schedules timer using JWT exp claim, refreshes 60s before expiry
+- On 401 during refresh → full logout; on 403/423 during restore → silent clearAuth
+- Wired AuthProvider into main.tsx, updated renderWithProviders with optional withAuth flag
+- 15 unit tests covering: initial state, login, register, logout, changePassword, forgotPassword, resetPassword, auto-refresh, error scenarios, useAuth outside provider
+- Learnings: jsdom in vitest doesn't provide a proper localStorage by default — must mock it with Object.defineProperty(globalThis, 'localStorage', {...}). Also react-refresh/only-export-components rule forces separating createContext + types into a non-component .ts file and keeping only the component export in the .tsx file (same pattern as TASK-007).
+---
+
+## Iteration 9 - TASK-009: Create login page
+- Created src/pages/auth/login.tsx with email/password form using React Hook Form + Zod + zodResolver
+- Created src/pages/auth/login-schema.ts (separated to satisfy react-refresh/only-export-components)
+- Created src/components/ui/label.tsx (shadcn Label component, manual install due to CLI config issue)
+- Zod schema mirrors OpenAPI spec constraints: email format + max 255, password min 1 + max 128
+- API error handling: INVALID_CREDENTIALS, ACCOUNT_SUSPENDED, ACCOUNT_LOCKED with user-facing messages
+- Field-level RFC 9457 errors mapped to form fields via setError()
+- Role-based redirect via useEffect watching isAuthenticated + user state
+- Used h1 instead of CardTitle for proper heading semantics (CardTitle renders as div)
+- 29 tests covering: rendering, accessibility, client-side validation, form submission, API error handling, role redirects, schema validation
+- Updated ESLint config: max-lines-per-function off for test files, jsx-a11y/label-has-associated-control off for shadcn UI components
+- Learnings: CardTitle from shadcn uses div not heading — use h1 directly for accessibility. Shadcn CLI fails with "Invalid configuration" on this project — manually create components instead. Always separate exported constants/functions from default component exports to satisfy react-refresh.
+---
+
+## Iteration 10 - TASK-010: Create register page
+- Created register-schema.ts with Zod validation matching OpenAPI spec (email max 255, name max 100, password min 8/max 128 with uppercase+lowercase+digit pattern, phone max 20, providerName max 200 conditional on PROVIDER role, confirmPassword match)
+- Created register-fields.tsx with extracted RoleToggle, IdentityFields, PasswordFields components to keep main page under complexity limits
+- Created register.tsx with role toggle (PASSENGER/PROVIDER), conditional provider fields, password strength indicator (weak/fair/strong with progressbar), API error mapping (EMAIL_ALREADY_EXISTS → email field, field-level RFC 9457 errors), auto-login after success
+- 48 tests covering rendering, accessibility, password strength indicator, client-side validation (empty form, invalid email, password rules, confirm mismatch, provider without name), form submission (passenger, provider, phone), API errors (409, 400 field errors, generic), redirect
+- Added max-lines: 'off' for test files in ESLint config (test files naturally exceed 500 lines)
+- Learnings: For complex forms, extract field groups into separate components to stay under ESLint complexity/max-lines-per-function limits. React Compiler's react-hooks/incompatible-library warning on watch() is expected — React Hook Form's watch API can't be memoized but it's the standard way to observe field values. Use it.each for repetitive schema validation tests to save lines.
+---
+
+## Iteration 11 - TASK-011: Create forgot password and reset password pages
+- Created forgot-password-schema.ts (email validation matching OpenAPI spec) and forgot-password.tsx (email form, success view with anti-enumeration message, network error handling)
+- Created reset-password-schema.ts (password min 8/max 128 with uppercase+lowercase+digit, confirmPassword match) and reset-password.tsx (reads ?token= from URL, password strength indicator reusing getPasswordStrength from register, API error handling for TOKEN_EXPIRED/INVALID_TOKEN codes, field-level RFC 9457 errors, redirect to login on success)
+- Extracted reset-password-error.tsx (TokenErrorView) to keep main component under ESLint complexity limit of 15
+- 47 tests across both pages covering: rendering, accessibility (semantic headings, labels, aria-invalid, aria-describedby), client-side validation, form submission, success states, API errors (expired/invalid token, field errors, generic errors, network errors), password strength indicator, schema validation
+- Learnings: ApiError constructor takes an ErrorResponse object, not individual args. Extract early-return views into separate components to reduce cyclomatic complexity below ESLint threshold.
+---
+
+## Iteration 12 - TASK-012: Create change password page
+- Created change-password-schema.ts with Zod validation matching OpenAPI spec (currentPassword min 1/max 128, newPassword min 8/max 128 with uppercase+lowercase+digit pattern, confirmPassword match)
+- Created change-password.tsx with current password field, new password + confirm with strength indicator (reusing getPasswordStrength from register-schema), form reset on success, success toast via shadcn useToast, API error mapping (401/INVALID_CREDENTIALS → currentPassword field error, field-level RFC 9457 errors, generic fallback)
+- 26 tests covering: rendering, accessibility (labels, autocomplete, aria-invalid, aria-describedby), client-side validation (empty, short, weak pattern, mismatch), password strength indicator, form submission (success + toast + reset), API errors (401 with/without code, 400 field errors, 500 generic, non-API), schema validation
+- Learnings: The `toast` function from shadcn can be imported standalone from `@/hooks/use-toast` without needing `useToast` hook — simpler for one-off success notifications. For change password, map 401 status directly to currentPassword field error regardless of error code, as the spec uses 401 for incorrect current password.
+---
