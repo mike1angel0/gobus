@@ -49,3 +49,18 @@
 - Added `'429': $ref` to all 50 operations across 12 path files
 - Learnings: Python regex `\1` backreference inserts `\x01` byte when using `re.sub` with raw strings improperly — use raw strings for replacement or explicit group references; always verify YAML files with `xxd` or similar if spec:lint reports non-printable characters; the TooManyRequests response component already existed in errors.yaml but lacked headers
 ---
+
+## Iteration 9 - TASK-009: Add missing validation constraints to OpenAPI spec
+- Added `minLength: 1` to required string fields in request schemas: RegisterRequest.email, LoginRequest.email, ForgotPasswordRequest.email, CreateDriverRequest.email, CreateScheduleRequest.routeId/busId/driverId
+- Added `minLength: 1` to IdParam and inline path/query ID params (driver-trips scheduleId x2, delays scheduleId)
+- Added 409 response on POST /schedules for overlap/bus unavailability
+- Updated POST /routes 400 description to include invalid stop ordering
+- Learnings: Many path files already had minLength on inline params (tracking, search); focus on request body schemas and parameter files for missing constraints; pre-existing test failures in driver-trips spec-conformance and cache-control still present (not caused by this task)
+---
+
+## Iteration 10 - TASK-010: Remove hardcoded secrets from docker-compose.yml
+- Replaced hardcoded POSTGRES_PASSWORD, JWT_SECRET, JWT_REFRESH_SECRET with `${VAR?error message}` syntax — docker compose now fails with clear error if any required secret is missing
+- DATABASE_URL now references `${POSTGRES_PASSWORD}` variable instead of hardcoded password
+- Created root `.env.example` with all required/optional docker-compose variables documented
+- Learnings: Docker compose `${VAR?message}` syntax provides clear error messages on missing vars; `apps/api/.env.example` already had good documentation and didn't need changes; this task is infrastructure-only (no code changes, no tests needed)
+---

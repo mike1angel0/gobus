@@ -34,15 +34,7 @@
 
 ## Infrastructure Hardening
 
-### TASK-010: Remove hardcoded secrets from docker-compose.yml
-**Description:** `docker-compose.yml` lines 6-8 and 31-33 have hardcoded fallback values for `JWT_SECRET`, `JWT_REFRESH_SECRET`, and `POSTGRES_PASSWORD`. If deployed without overriding env vars, all JWTs are forgeable.
-
-**Acceptance Criteria:**
-- [ ] JWT_SECRET and JWT_REFRESH_SECRET have NO default fallback in docker-compose.yml (require explicit env var)
-- [ ] POSTGRES_PASSWORD has NO default fallback
-- [ ] Docker compose fails with clear error message if secrets not provided
-- [ ] `.env.example` at repo root documents all required docker-compose variables
-- [ ] Existing `apps/api/.env.example` updated if needed
+**TASK-010: Remove hardcoded secrets from docker-compose.yml** — Replaced hardcoded POSTGRES_PASSWORD, JWT_SECRET, JWT_REFRESH_SECRET with `${VAR?error}` syntax requiring explicit env vars. DATABASE_URL now references POSTGRES_PASSWORD variable. Created root `.env.example` documenting all required and optional docker-compose variables.
 
 ### TASK-011: Add response compression
 **Description:** No `@fastify/compress` plugin registered. JSON API responses are sent uncompressed, wasting bandwidth.

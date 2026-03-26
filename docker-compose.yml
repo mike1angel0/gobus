@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: transio
-      POSTGRES_PASSWORD: transio_dev_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?POSTGRES_PASSWORD is required - set it in .env or environment}
       POSTGRES_DB: transio
     ports:
       - "${PG_PORT:-5632}:5432"
@@ -28,9 +28,9 @@ services:
     ports:
       - "${API_PORT:-3100}:3000"
     environment:
-      DATABASE_URL: postgresql://transio:transio_dev_password@postgres:5432/transio
-      JWT_SECRET: ${JWT_SECRET:-docker-dev-jwt-secret-change-in-production}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-docker-dev-jwt-refresh-secret-change-in-prod}
+      DATABASE_URL: postgresql://transio:${POSTGRES_PASSWORD?POSTGRES_PASSWORD is required}@postgres:5432/transio
+      JWT_SECRET: ${JWT_SECRET?JWT_SECRET is required - set it in .env or environment}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET?JWT_REFRESH_SECRET is required - set it in .env or environment}
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 3000
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:7766}
