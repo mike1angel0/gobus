@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import AdminUsersPage from './users';
 import { renderWithProviders } from '@/test/helpers';
 
@@ -77,6 +78,7 @@ function mutationIdle() {
 
 describe('AdminUsersPage', () => {
   beforeEach(() => {
+    i18n.changeLanguage('en');
     mockAdminUsers.mockReset();
     mockUpdateUserStatus.mockReset();
     mockForceLogout.mockReset();
@@ -133,8 +135,20 @@ describe('AdminUsersPage', () => {
   describe('user list', () => {
     it('renders user rows with name, email, role badge, and status badge', () => {
       const users = [
-        createUser({ id: 'u1', name: 'Alice', email: 'alice@test.com', role: 'PASSENGER', status: 'ACTIVE' }),
-        createUser({ id: 'u2', name: 'Bob', email: 'bob@test.com', role: 'DRIVER', status: 'SUSPENDED' }),
+        createUser({
+          id: 'u1',
+          name: 'Alice',
+          email: 'alice@test.com',
+          role: 'PASSENGER',
+          status: 'ACTIVE',
+        }),
+        createUser({
+          id: 'u2',
+          name: 'Bob',
+          email: 'bob@test.com',
+          role: 'DRIVER',
+          status: 'SUSPENDED',
+        }),
       ];
       mockAdminUsers.mockReturnValue(loadedState(users));
 
@@ -144,20 +158,19 @@ describe('AdminUsersPage', () => {
       expect(screen.getByText('alice@test.com')).toBeInTheDocument();
       expect(screen.getByText('Bob')).toBeInTheDocument();
       expect(screen.getByText('bob@test.com')).toBeInTheDocument();
-      expect(screen.getByText('PASSENGER')).toBeInTheDocument();
-      expect(screen.getByText('DRIVER')).toBeInTheDocument();
-      expect(screen.getByText('ACTIVE')).toBeInTheDocument();
-      expect(screen.getByText('SUSPENDED')).toBeInTheDocument();
+      // Role and status labels also appear in filter dropdowns, so use getAllByText
+      expect(screen.getAllByText('Passenger').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Driver').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Active').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Suspended').length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows provider ID when present', () => {
-      mockAdminUsers.mockReturnValue(
-        loadedState([createUser({ providerId: 'prov-123' })]),
-      );
+      mockAdminUsers.mockReturnValue(loadedState([createUser({ providerId: 'prov-123' })]));
 
       renderWithProviders(<AdminUsersPage />);
 
-      expect(screen.getByText('Provider: prov-123')).toBeInTheDocument();
+      expect(screen.getByText(/Provider:.*prov-123/)).toBeInTheDocument();
     });
 
     it('shows createdAt date', () => {
@@ -248,9 +261,7 @@ describe('AdminUsersPage', () => {
     });
 
     it('shows force logout button for all users', () => {
-      mockAdminUsers.mockReturnValue(
-        loadedState([createUser({ id: 'u1', name: 'Alice' })]),
-      );
+      mockAdminUsers.mockReturnValue(loadedState([createUser({ id: 'u1', name: 'Alice' })]));
 
       renderWithProviders(<AdminUsersPage />);
 
@@ -260,7 +271,9 @@ describe('AdminUsersPage', () => {
     it('opens confirmation dialog on suspend click', async () => {
       const user = userEvent.setup();
       mockAdminUsers.mockReturnValue(
-        loadedState([createUser({ id: 'u1', name: 'Alice', email: 'alice@test.com', status: 'ACTIVE' })]),
+        loadedState([
+          createUser({ id: 'u1', name: 'Alice', email: 'alice@test.com', status: 'ACTIVE' }),
+        ]),
       );
 
       renderWithProviders(<AdminUsersPage />);
@@ -397,9 +410,7 @@ describe('AdminUsersPage', () => {
       renderWithProviders(<AdminUsersPage />);
       await user.click(screen.getByRole('button', { name: 'Next' }));
 
-      expect(mockAdminUsers).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 2 }),
-      );
+      expect(mockAdminUsers).toHaveBeenCalledWith(expect.objectContaining({ page: 2 }));
     });
   });
 
@@ -409,7 +420,9 @@ describe('AdminUsersPage', () => {
 
       renderWithProviders(<AdminUsersPage />);
 
-      expect(screen.getByRole('heading', { level: 1, name: 'User Management' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { level: 1, name: 'User Management' }),
+      ).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'User list' })).toBeInTheDocument();
     });
 

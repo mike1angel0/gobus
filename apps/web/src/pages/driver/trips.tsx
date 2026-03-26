@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { format, addDays, subDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, Clock, Bus, Calendar } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,12 +38,12 @@ const STATUS_STYLES: Record<ReturnType<typeof deriveTripStatus>, string> = {
   cancelled: 'bg-red-100 text-red-700',
 };
 
-/** Status display labels. */
-const STATUS_LABELS: Record<ReturnType<typeof deriveTripStatus>, string> = {
-  upcoming: 'Upcoming',
-  'in-progress': 'In Progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
+/** Status display key map for i18n. */
+const STATUS_KEYS: Record<ReturnType<typeof deriveTripStatus>, string> = {
+  upcoming: 'trips.status.upcoming',
+  'in-progress': 'trips.status.in-progress',
+  completed: 'trips.status.completed',
+  cancelled: 'trips.status.cancelled',
 };
 
 /* ---------- Trip Card ---------- */
@@ -57,16 +58,18 @@ interface TripCardProps {
 
 /** Displays a single trip card with route, times, bus, and status. */
 function TripCard({ trip, onSelect }: TripCardProps) {
+  const { t } = useTranslation('driver');
   const tripStatus = deriveTripStatus(trip);
   const depTime = format(new Date(trip.departureTime), 'HH:mm');
   const arrTime = format(new Date(trip.arrivalTime), 'HH:mm');
+  const statusLabel = t(STATUS_KEYS[tripStatus]);
 
   return (
     <Card
       className="cursor-pointer transition-shadow hover:shadow-md"
       role="button"
       tabIndex={0}
-      aria-label={`Trip ${trip.routeName}, ${depTime} to ${arrTime}, ${STATUS_LABELS[tripStatus]}`}
+      aria-label={t('trips.tripLabel', { route: trip.routeName, depTime, arrTime, status: statusLabel })}
       onClick={() => onSelect(trip.scheduleId)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -81,7 +84,7 @@ function TripCard({ trip, onSelect }: TripCardProps) {
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[tripStatus]}`}
           >
-            {STATUS_LABELS[tripStatus]}
+            {statusLabel}
           </span>
         </div>
 
@@ -122,12 +125,14 @@ interface TripListContentProps {
 
 /** Renders the appropriate content based on query state. */
 function TripListContent({ isLoading, isError, trips, onRetry, onSelect }: TripListContentProps) {
-  if (isLoading) return <CardListSkeleton label="Loading trips" />;
+  const { t } = useTranslation('driver');
+
+  if (isLoading) return <CardListSkeleton label={t('trips.loadingTrips')} />;
   if (isError) {
     return (
       <PageError
-        title="Failed to load trips"
-        message="We couldn't load your trips. Please try again."
+        title={t('trips.errorTitle')}
+        message={t('trips.errorMessage')}
         onRetry={onRetry}
       />
     );
@@ -136,14 +141,14 @@ function TripListContent({ isLoading, isError, trips, onRetry, onSelect }: TripL
     return (
       <EmptyState
         icon={Calendar}
-        title="No trips assigned for this date"
-        message="You don't have any scheduled trips for this day. Use the navigation arrows to check other dates."
+        title={t('trips.noTripsTitle')}
+        message={t('trips.noTripsMessage')}
       />
     );
   }
 
   return (
-    <div className="space-y-4" aria-label="Trips list">
+    <div className="space-y-4" aria-label={t('trips.listLabel')}>
       {trips.map((trip) => (
         <TripCard key={trip.scheduleId} trip={trip} onSelect={onSelect} />
       ))}
@@ -165,23 +170,24 @@ interface DateNavProps {
 
 /** Date navigation with prev/next day buttons. */
 function DateNav({ selectedDate, onPrev, onNext }: DateNavProps) {
+  const { t } = useTranslation('driver');
   const dateLabel = format(selectedDate, 'EEEE, MMM d, yyyy');
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
 
   return (
     <div className="flex items-center justify-center gap-3">
-      <Button variant="outline" size="icon" onClick={onPrev} aria-label="Previous day">
+      <Button variant="outline" size="icon" onClick={onPrev} aria-label={t('trips.previousDay')}>
         <ChevronLeft className="h-4 w-4" aria-hidden="true" />
       </Button>
       <span className="min-w-48 text-center font-medium" aria-live="polite">
         {dateLabel}
         {isToday && (
           <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
-            Today
+            {t('trips.today')}
           </span>
         )}
       </span>
-      <Button variant="outline" size="icon" onClick={onNext} aria-label="Next day">
+      <Button variant="outline" size="icon" onClick={onNext} aria-label={t('trips.nextDay')}>
         <ChevronRight className="h-4 w-4" aria-hidden="true" />
       </Button>
     </div>
@@ -205,7 +211,8 @@ function DateNav({ selectedDate, onPrev, onNext }: DateNavProps) {
  * ```
  */
 export default function DriverTripsPage() {
-  usePageTitle('Driver Trips');
+  const { t } = useTranslation('driver');
+  usePageTitle(t('trips.title'));
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const navigate = useNavigate();
 
@@ -226,7 +233,7 @@ export default function DriverTripsPage() {
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 py-6">
-      <h1 className="mb-6 text-2xl font-bold">My Trips</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('trips.title')}</h1>
 
       <div className="mb-6">
         <DateNav selectedDate={selectedDate} onPrev={handlePrev} onNext={handleNext} />
@@ -234,7 +241,7 @@ export default function DriverTripsPage() {
 
       <section aria-labelledby="trips-heading">
         <h2 id="trips-heading" className="sr-only">
-          Trips
+          {t('trips.heading')}
         </h2>
         <TripListContent
           isLoading={isLoading}

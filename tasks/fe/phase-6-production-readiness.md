@@ -58,16 +58,7 @@
 
 ### TASK-013: Translate provider namespace ✅
 
-### TASK-014: Translate driver, admin, and tracking namespaces
-**Description:** Extract strings for driver features, admin panel, and real-time tracking.
-
-**Acceptance Criteria:**
-- [ ] `driver.json` keys cover: trip list (date navigation, schedule cards), trip detail (location sharing, stop progress, passenger count), delay reporting (preset buttons, reason dropdown, notes, custom minutes)
-- [ ] `admin.json` keys cover: user management (role/status filters, suspend/unsuspend/unlock/force-logout actions, confirmation dialogs), audit logs (action filter, date range, expandable detail), fleet management (seat toggle), dashboard stat cards
-- [ ] `tracking.json` keys cover: live map labels, bus sidebar (speed, last update, active delays), delay list, report delay dialog
-- [ ] All driver, admin, and tracking pages/components updated
-- [ ] Both RO and EN files complete
-- [ ] Typecheck passes, lint clean
+### TASK-014: Translate driver, admin, and tracking namespaces ✅
 
 ### TASK-015: Translate error boundary and 404 page
 **Description:** Translate the error fallback and not-found pages.

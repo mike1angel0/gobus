@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import {
   MapPin,
   Clock,
@@ -36,8 +37,9 @@ const GPS_INTERVAL_MS = 5_000;
 
 /** Skeleton placeholder shown while trip detail loads. */
 function TripDetailSkeleton() {
+  const { t } = useTranslation('driver');
   return (
-    <div className="space-y-4" aria-busy="true" aria-label="Loading trip details">
+    <div className="space-y-4" aria-busy="true" aria-label={t('tripDetail.loadingLabel')}>
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-64 w-full rounded-lg" />
       <Skeleton className="h-10 w-full" />
@@ -60,15 +62,16 @@ interface TripDetailErrorProps {
 
 /** Error state shown when trip detail fails to load. */
 function TripDetailError({ onRetry }: TripDetailErrorProps) {
+  const { t } = useTranslation('driver');
   return (
     <div className="flex flex-col items-center py-16 text-center" role="alert">
       <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">Failed to load trip details</h2>
+      <h2 className="mb-2 text-xl font-semibold">{t('tripDetail.errorTitle')}</h2>
       <p className="mb-6 max-w-md text-muted-foreground">
-        We couldn&apos;t load the trip information. Please try again.
+        {t('tripDetail.errorMessage')}
       </p>
       <Button onClick={onRetry} variant="outline">
-        Try again
+        {t('tripDetail.tryAgain')}
       </Button>
     </div>
   );
@@ -95,16 +98,17 @@ function StopProgressTracker({
   onAdvance,
   isAdvancing,
 }: StopProgressTrackerProps) {
+  const { t } = useTranslation('driver');
   const sortedStops = [...stops].sort((a, b) => a.orderIndex - b.orderIndex);
   const isLastStop = currentStopIndex >= sortedStops.length - 1;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Stop Progress</CardTitle>
+        <CardTitle className="text-lg">{t('tripDetail.stopProgress')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ol className="space-y-3" aria-label="Stop progress">
+        <ol className="space-y-3" aria-label={t('tripDetail.stopProgressLabel')}>
           {sortedStops.map((stop, idx) => {
             const isPassed = idx < currentStopIndex;
             const isCurrent = idx === currentStopIndex;
@@ -119,13 +123,13 @@ function StopProgressTracker({
                 aria-current={isCurrent ? 'step' : undefined}
               >
                 {isPassed ? (
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" aria-label="Passed" />
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" aria-label={t('tripDetail.passed')} />
                 ) : isCurrent ? (
-                  <Navigation className="h-5 w-5 shrink-0 text-primary" aria-label="Current stop" />
+                  <Navigation className="h-5 w-5 shrink-0 text-primary" aria-label={t('tripDetail.currentStop')} />
                 ) : (
                   <Circle
                     className="h-5 w-5 shrink-0 text-muted-foreground"
-                    aria-label="Upcoming"
+                    aria-label={t('tripDetail.upcomingStop')}
                   />
                 )}
                 <span
@@ -144,15 +148,15 @@ function StopProgressTracker({
             className="mt-4 w-full"
             onClick={onAdvance}
             disabled={isAdvancing}
-            aria-label={`Arrived at ${sortedStops[currentStopIndex + 1]?.stopName ?? 'next stop'}`}
+            aria-label={t('tripDetail.arrivedAt', { stop: sortedStops[currentStopIndex + 1]?.stopName ?? '' })}
           >
             <MapPin className="mr-2 h-4 w-4" aria-hidden="true" />
-            {isAdvancing ? 'Updating...' : 'Arrived at Next Stop'}
+            {isAdvancing ? t('tripDetail.updating') : t('tripDetail.arrivedAtNext')}
           </Button>
         )}
 
         {isLastStop && (
-          <p className="mt-4 text-center text-sm text-muted-foreground">All stops completed</p>
+          <p className="mt-4 text-center text-sm text-muted-foreground">{t('tripDetail.allStopsCompleted')}</p>
         )}
       </CardContent>
     </Card>
@@ -176,31 +180,32 @@ interface LocationSharingToggleProps {
 
 /** Toggle button for starting/stopping location sharing. */
 function LocationSharingToggle({ isSharing, onToggle, permission }: LocationSharingToggleProps) {
+  const { t } = useTranslation('driver');
   const isDisabled = permission === 'denied' || permission === 'unavailable';
 
   return (
     <Card>
       <CardContent className="flex items-center justify-between p-4">
         <div>
-          <h3 className="font-medium">Location Sharing</h3>
+          <h3 className="font-medium">{t('tripDetail.locationSharing')}</h3>
           <p className="text-sm text-muted-foreground">
             {permission === 'denied'
-              ? 'Location permission denied. Enable in browser settings.'
+              ? t('tripDetail.permissionDenied')
               : permission === 'unavailable'
-                ? 'Geolocation is not available in this browser.'
+                ? t('tripDetail.geoUnavailable')
                 : isSharing
-                  ? 'Sharing your live position'
-                  : 'Share your location with passengers'}
+                  ? t('tripDetail.sharingActive')
+                  : t('tripDetail.sharingInactive')}
           </p>
         </div>
         <Button
           variant={isSharing ? 'destructive' : 'default'}
           onClick={onToggle}
           disabled={isDisabled}
-          aria-label={isSharing ? 'Stop sharing location' : 'Start sharing location'}
+          aria-label={isSharing ? t('tripDetail.stopSharingLabel') : t('tripDetail.startSharingLabel')}
         >
           <Navigation className="mr-2 h-4 w-4" aria-hidden="true" />
-          {isSharing ? 'Stop Sharing' : 'Start Sharing'}
+          {isSharing ? t('tripDetail.stopSharing') : t('tripDetail.startSharing')}
         </Button>
       </CardContent>
     </Card>
@@ -217,6 +222,7 @@ interface TripInfoHeaderProps {
 
 /** Displays trip route, times, bus, and passenger info. */
 function TripInfoHeader({ trip }: TripInfoHeaderProps) {
+  const { t } = useTranslation('driver');
   const depTime = format(new Date(trip.departureTime), 'HH:mm');
   const arrTime = format(new Date(trip.arrivalTime), 'HH:mm');
   const tripDate = format(new Date(trip.tripDate), 'MMM d, yyyy');
@@ -258,7 +264,7 @@ function TripInfoHeader({ trip }: TripInfoHeaderProps) {
             <dt className="sr-only">Passengers</dt>
             <Users className="h-4 w-4 shrink-0" aria-hidden="true" />
             <dd>
-              {trip.passengerCount} / {trip.totalSeats} passengers
+              {t('tripDetail.passengers', { current: trip.passengerCount, total: trip.totalSeats })}
             </dd>
           </div>
         </dl>
@@ -444,7 +450,8 @@ function useGpsPosting({
  * ```
  */
 export default function DriverTripDetailPage() {
-  usePageTitle('Trip Detail');
+  const { t } = useTranslation('driver');
+  usePageTitle(t('tripDetail.title'));
   const { id: scheduleId = '' } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -495,15 +502,15 @@ export default function DriverTripDetailPage() {
   const handleToggleSharing = useCallback(() => {
     if (geo.isWatching) {
       geo.stopWatching();
-      toast({ title: 'Location sharing stopped' });
+      toast({ title: t('tripDetail.sharingStopped') });
     } else {
       geo.startWatching();
       toast({
-        title: 'Location sharing started',
-        description: 'Passengers can now see your position.',
+        title: t('tripDetail.sharingStarted'),
+        description: t('tripDetail.sharingStartedDesc'),
       });
     }
-  }, [geo, toast]);
+  }, [geo, toast, t]);
 
   const handleAdvanceStop = useCallback(() => {
     if (!trip) return;
@@ -513,11 +520,11 @@ export default function DriverTripDetailPage() {
     setIsAdvancing(true);
     setCurrentStopIndex((prev) => prev + 1);
     toast({
-      title: 'Stop updated',
-      description: `Arrived at ${sortedStops[currentStopIndex + 1]?.stopName ?? 'next stop'}`,
+      title: t('tripDetail.stopUpdated'),
+      description: t('tripDetail.arrivedAt', { stop: sortedStops[currentStopIndex + 1]?.stopName ?? '' }),
     });
     setIsAdvancing(false);
-  }, [trip, currentStopIndex, toast]);
+  }, [trip, currentStopIndex, toast, t]);
 
   const handleReportDelay = useCallback(() => {
     navigate(`/driver/delay?scheduleId=${scheduleId}&date=${date ?? ''}`);
@@ -530,7 +537,7 @@ export default function DriverTripDetailPage() {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-6">
-        <h1 className="mb-6 text-2xl font-bold">Trip Details</h1>
+        <h1 className="mb-6 text-2xl font-bold">{t('tripDetail.title')}</h1>
         <TripDetailSkeleton />
       </div>
     );
@@ -539,7 +546,7 @@ export default function DriverTripDetailPage() {
   if (isError || !trip) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-6">
-        <h1 className="mb-6 text-2xl font-bold">Trip Details</h1>
+        <h1 className="mb-6 text-2xl font-bold">{t('tripDetail.title')}</h1>
         <TripDetailError onRetry={refetch} />
       </div>
     );
@@ -549,13 +556,13 @@ export default function DriverTripDetailPage() {
     <div className="mx-auto w-full max-w-lg px-4 py-6">
       {/* Back button */}
       <div className="mb-4">
-        <Button variant="ghost" size="sm" onClick={handleBack} aria-label="Back to trips list">
+        <Button variant="ghost" size="sm" onClick={handleBack} aria-label={t('tripDetail.backLabel')}>
           <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
-          Back
+          {t('tripDetail.back')}
         </Button>
       </div>
 
-      <h1 className="mb-6 text-2xl font-bold">Trip Details</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('tripDetail.title')}</h1>
 
       <div className="space-y-4">
         {/* Trip info */}
@@ -564,7 +571,7 @@ export default function DriverTripDetailPage() {
         {/* Live Map */}
         <section aria-labelledby="map-heading">
           <h2 id="map-heading" className="sr-only">
-            Live Map
+            {t('tripDetail.liveMap')}
           </h2>
           <div className="h-64 overflow-hidden rounded-lg">
             <LiveMap stops={mapStops} busPosition={busPosition} />
@@ -581,7 +588,7 @@ export default function DriverTripDetailPage() {
         {/* Stop progress */}
         <section aria-labelledby="stops-heading">
           <h2 id="stops-heading" className="sr-only">
-            Stop Progress
+            {t('tripDetail.stopProgress')}
           </h2>
           <StopProgressTracker
             stops={trip.stops}
@@ -594,7 +601,7 @@ export default function DriverTripDetailPage() {
         {/* Passenger manifest */}
         <section aria-labelledby="passengers-heading">
           <h2 id="passengers-heading" className="sr-only">
-            Passenger Manifest
+            {t('tripDetail.passengersHeading')}
           </h2>
           <PassengerList
             passengers={passengersData?.data}
@@ -610,10 +617,10 @@ export default function DriverTripDetailPage() {
           variant="outline"
           className="w-full"
           onClick={handleReportDelay}
-          aria-label="Report a delay"
+          aria-label={t('tripDetail.reportDelayLabel')}
         >
           <AlertTriangle className="mr-2 h-4 w-4" aria-hidden="true" />
-          Report Delay
+          {t('tripDetail.reportDelay')}
         </Button>
       </div>
     </div>
