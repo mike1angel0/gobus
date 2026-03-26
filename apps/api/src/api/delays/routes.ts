@@ -25,7 +25,7 @@ function serializeDelay(data: DelayData): Record<string, unknown> {
     offsetMinutes: data.offsetMinutes,
     reason: data.reason,
     note: data.note,
-    tripDate: data.tripDate.toISOString(),
+    tripDate: data.tripDate.toISOString().slice(0, 10),
     active: data.active,
     createdAt: data.createdAt.toISOString(),
   };

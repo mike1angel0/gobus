@@ -123,9 +123,9 @@ Schedule:
       $ref: '#/ScheduleStatus'
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Specific date for this trip instance
+      format: date
+      maxLength: 10
+      description: Specific date for this trip instance (ISO 8601 date format)
     createdAt:
       type: string
       format: date-time
@@ -196,9 +196,9 @@ ScheduleWithDetails:
       $ref: '#/ScheduleStatus'
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Specific date for this trip instance
+      format: date
+      maxLength: 10
+      description: Specific date for this trip instance (ISO 8601 date format)
     stopTimes:
       type: array
       minItems: 0
@@ -330,9 +330,9 @@ CreateScheduleRequest:
       description: Base price for the full route
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Specific date for this trip instance
+      format: date
+      maxLength: 10
+      description: Specific date for this trip instance (ISO 8601 date format, e.g. 2026-03-25)
     stopTimes:
       type: array
       minItems: 2

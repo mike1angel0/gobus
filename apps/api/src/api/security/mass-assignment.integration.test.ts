@@ -161,7 +161,7 @@ describe('Mass Assignment Prevention', () => {
           seatLabels: ['1A'],
           boardingStop: 'Stop A',
           alightingStop: 'Stop B',
-          tripDate: '2025-06-01T00:00:00.000Z',
+          tripDate: '2025-06-01',
           totalPrice: 999.99,
         },
       });
@@ -342,7 +342,7 @@ describe('Mass Assignment Prevention', () => {
           seatLabels: ['1A'],
           boardingStop: 'Stop A',
           alightingStop: 'Stop B',
-          tripDate: '2025-06-01T00:00:00.000Z',
+          tripDate: '2025-06-01',
           totalPrice: 0.01,
         },
       });

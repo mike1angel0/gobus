@@ -68,7 +68,7 @@ export const delaySchema = z.object({
   offsetMinutes: z.number().int().min(1).max(1440).describe('Delay duration in minutes'),
   reason: delayReasonEnum.describe('Reason for a schedule delay'),
   note: z.string().max(500).nullable().describe('Optional free-text note about the delay'),
-  tripDate: z.string().datetime().max(30).describe('Date of the affected trip'),
+  tripDate: z.string().date().max(10).describe('Date of the affected trip (ISO 8601 date format)'),
   active: z.boolean().describe('Whether the delay is currently active'),
   createdAt: z.string().datetime().max(30).describe('Delay creation timestamp'),
 });

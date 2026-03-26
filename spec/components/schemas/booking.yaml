@@ -56,9 +56,9 @@ Booking:
       description: Name of the alighting stop
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Date of the trip
+      format: date
+      maxLength: 10
+      description: Date of the trip (ISO 8601 date format)
     seatLabels:
       type: array
       minItems: 1
@@ -124,9 +124,9 @@ BookingWithDetails:
       description: Name of the alighting stop
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Date of the trip
+      format: date
+      maxLength: 10
+      description: Date of the trip (ISO 8601 date format)
     seatLabels:
       type: array
       minItems: 1

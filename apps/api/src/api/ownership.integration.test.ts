@@ -248,7 +248,7 @@ describe('BOLA/IDOR Ownership Enforcement', () => {
             departureTime: '2025-06-01T08:00:00.000Z',
             arrivalTime: '2025-06-01T12:00:00.000Z',
             basePrice: 50,
-            tripDate: '2025-06-01T00:00:00.000Z',
+            tripDate: '2025-06-01',
             stopTimes: [
               {
                 stopName: 'A',
@@ -287,7 +287,7 @@ describe('BOLA/IDOR Ownership Enforcement', () => {
             departureTime: '2025-06-01T08:00:00.000Z',
             arrivalTime: '2025-06-01T12:00:00.000Z',
             basePrice: 50,
-            tripDate: '2025-06-01T00:00:00.000Z',
+            tripDate: '2025-06-01',
             stopTimes: [
               {
                 stopName: 'A',

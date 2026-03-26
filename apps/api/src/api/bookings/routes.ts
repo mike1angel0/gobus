@@ -23,7 +23,7 @@ function serializeBookingWithDetails(booking: BookingWithDetails): Record<string
     status: booking.status,
     boardingStop: booking.boardingStop,
     alightingStop: booking.alightingStop,
-    tripDate: booking.tripDate.toISOString(),
+    tripDate: booking.tripDate.toISOString().slice(0, 10),
     seatLabels: booking.seatLabels,
     createdAt: booking.createdAt.toISOString(),
     schedule: {
@@ -60,7 +60,7 @@ function serializeBookingForList(booking: BookingWithDetails): Record<string, un
     status: booking.status,
     boardingStop: booking.boardingStop,
     alightingStop: booking.alightingStop,
-    tripDate: booking.tripDate.toISOString(),
+    tripDate: booking.tripDate.toISOString().slice(0, 10),
     seatLabels: booking.seatLabels,
     createdAt: booking.createdAt.toISOString(),
   };

@@ -132,7 +132,7 @@ describe('Driver Trip Routes', () => {
       expect(response.body.data[0].scheduleId).toBe('sched-1');
       expect(response.body.data[0].departureTime).toBe('2026-03-25T08:00:00.000Z');
       expect(response.body.data[0].arrivalTime).toBe('2026-03-25T12:00:00.000Z');
-      expect(response.body.data[0].tripDate).toBe('2026-03-25T00:00:00.000Z');
+      expect(response.body.data[0].tripDate).toBe('2026-03-25');
       expect(response.body.data[0].routeName).toBe('Bucharest - Brasov');
       expect(response.body.data[0].busLicensePlate).toBe('B-123-ABC');
       expect(response.body.data[0].status).toBe('ACTIVE');
@@ -254,7 +254,7 @@ describe('Driver Trip Routes', () => {
       expect(response.body.data.scheduleId).toBe('sched-1');
       expect(response.body.data.departureTime).toBe('2026-03-25T08:00:00.000Z');
       expect(response.body.data.arrivalTime).toBe('2026-03-25T12:00:00.000Z');
-      expect(response.body.data.tripDate).toBe('2026-03-25T00:00:00.000Z');
+      expect(response.body.data.tripDate).toBe('2026-03-25');
       expect(response.body.data.routeName).toBe('Bucharest - Brasov');
       expect(response.body.data.busLicensePlate).toBe('B-123-ABC');
       expect(response.body.data.busModel).toBe('Mercedes Sprinter');

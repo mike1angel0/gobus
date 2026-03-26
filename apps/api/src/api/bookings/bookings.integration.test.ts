@@ -150,7 +150,7 @@ describe('Booking Routes', () => {
       expect(response.body.data[0].status).toBe('CONFIRMED');
       expect(response.body.data[0].boardingStop).toBe('Bucharest');
       expect(response.body.data[0].alightingStop).toBe('Cluj');
-      expect(response.body.data[0].tripDate).toBe('2026-03-25T00:00:00.000Z');
+      expect(response.body.data[0].tripDate).toBe('2026-03-25');
       expect(response.body.data[0].seatLabels).toEqual(['1A', '1B']);
       expect(response.body.data[0].createdAt).toBe('2026-03-20T10:00:00.000Z');
       // List response should NOT include schedule details

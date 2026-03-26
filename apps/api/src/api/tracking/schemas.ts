@@ -52,7 +52,7 @@ export const busTrackingSchema = z.object({
     .max(100)
     .describe('Index of the current or next stop in the route'),
   isActive: z.boolean().describe('Whether the bus is actively transmitting position'),
-  tripDate: z.string().datetime().max(30).nullable().describe('Date of the current trip'),
+  tripDate: z.string().date().max(10).nullable().describe('Date of the current trip (ISO 8601 date format)'),
   updatedAt: z.string().datetime().max(30).describe('Last position update timestamp'),
 });
 

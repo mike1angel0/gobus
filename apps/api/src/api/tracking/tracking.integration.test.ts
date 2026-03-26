@@ -106,7 +106,7 @@ describe('Tracking Routes', () => {
       expect(response.body.data.scheduleId).toBe('sched-1');
       expect(response.body.data.currentStopIndex).toBe(2);
       expect(response.body.data.isActive).toBe(true);
-      expect(response.body.data.tripDate).toBe('2026-03-25T00:00:00.000Z');
+      expect(response.body.data.tripDate).toBe('2026-03-25');
       expect(response.body.data.updatedAt).toBe('2026-03-25T10:30:00.000Z');
     });
 

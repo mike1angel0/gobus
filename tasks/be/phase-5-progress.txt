@@ -24,3 +24,15 @@
 - Reused active schedule data for schedule→route mapping instead of fetching all schedules separately; only fetches unmapped schedules when revenue exists on non-active schedules
 - Learnings: Mock Prisma `$transaction` with `vi.fn((fn) => fn(tx))` pattern — pass the mock tx object into the callback; expose `_tx` on the mock prisma for test access; use `mockResolvedValueOnce` chaining for groupBy that's called multiple times with different args
 ---
+
+## Iteration 5 - TASK-005: Add missing database index
+- Added `@@index([scheduleId])` to BusTracking model in schema.prisma
+- Migration created and applied successfully
+- Learnings: Simple schema-only tasks (adding indexes) don't require tests — just schema change, migration, and typecheck. Migration also picked up pending StopTime lat/lng columns that were in schema but not yet migrated.
+---
+
+## Iteration 6 - TASK-006: Fix tripDate format inconsistency across schemas
+- Standardized `tripDate` to `format: date` (YYYY-MM-DD) everywhere — it's semantically a calendar date, not a timestamp
+- Updated OpenAPI spec (8 response schemas + CreateScheduleRequest input), Zod schemas (7 response + 1 request), route serializers (5 files), and 7 integration test files
+- Learnings: spec-conformance tests read from `spec/dist/openapi.json` (bundled spec) — must run `npx redocly bundle` after spec changes; pre-existing failures exist in driver-trips spec-conformance and cache-control integration tests (not related to this task); `z.string().date()` validates `YYYY-MM-DD` format strictly — datetime strings like `2025-06-01T00:00:00.000Z` are rejected
+---

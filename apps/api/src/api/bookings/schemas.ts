@@ -54,7 +54,7 @@ export const bookingSchema = z.object({
   status: bookingStatusSchema.describe('Booking status'),
   boardingStop: z.string().max(200).describe('Name of the boarding stop'),
   alightingStop: z.string().max(200).describe('Name of the alighting stop'),
-  tripDate: z.string().datetime().max(30).describe('Date of the trip'),
+  tripDate: z.string().date().max(10).describe('Date of the trip (ISO 8601 date format)'),
   seatLabels: z
     .array(z.string().max(10).describe('Seat label'))
     .min(1)

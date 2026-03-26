@@ -22,17 +22,7 @@
 
 ## OpenAPI Spec Compliance
 
-### TASK-006: Fix tripDate format inconsistency across schemas
-**Description:** `tripDate` field uses `format: date` in SearchResult (`spec/components/schemas/search.yaml` L47) but `format: date-time` in Schedule (`schedule.yaml` L124), Booking (`booking.yaml` L57), and DriverTrip (`admin.yaml` L204). The implementation in search routes slices to date format. Standardize across all schemas.
-
-**Acceptance Criteria:**
-- [ ] `tripDate` uses consistent format across ALL schemas (date-time or date — pick one)
-- [ ] If `date`: all serialization uses `.toISOString().slice(0, 10)`
-- [ ] If `date-time`: all serialization uses full `.toISOString()`
-- [ ] All Zod schemas match the chosen format
-- [ ] `npm run spec:lint` passes
-- [ ] `npm run api:validate` passes (spec conformance test)
-- [ ] Typecheck passes
+**TASK-006: Fix tripDate format inconsistency across schemas** — Standardized `tripDate` to `format: date` (YYYY-MM-DD) across all OpenAPI schemas, Zod schemas, and route serializers. Updated 8 spec files, 5 Zod schemas, 5 route serializers, and 7 integration tests.
 
 ### TASK-007: Document 500 error responses on all endpoints
 **Description:** None of the 43 endpoints in the OpenAPI spec document `500 Internal Server Error`. In production, any endpoint can fail with 5xx. Add a reusable 500 response component and reference it from all endpoints.

@@ -62,9 +62,9 @@ BusTracking:
       type:
         - string
         - 'null'
-      format: date-time
-      maxLength: 30
-      description: Date of the current trip
+      format: date
+      maxLength: 10
+      description: Date of the current trip (ISO 8601 date format)
     updatedAt:
       type: string
       format: date-time

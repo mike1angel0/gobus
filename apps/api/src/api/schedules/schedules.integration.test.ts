@@ -216,7 +216,7 @@ describe('Schedule Routes', () => {
       expect(response.body.data[0].daysOfWeek).toEqual([1, 3, 5]);
       expect(response.body.data[0].basePrice).toBe(50);
       expect(response.body.data[0].status).toBe('ACTIVE');
-      expect(response.body.data[0].tripDate).toBe('2024-07-01T00:00:00.000Z');
+      expect(response.body.data[0].tripDate).toBe('2024-07-01');
       expect(response.body.data[0].createdAt).toBe('2024-06-01T10:00:00.000Z');
       expect(response.body.meta.total).toBe(1);
       expect(response.body.meta.page).toBe(1);
@@ -284,7 +284,7 @@ describe('Schedule Routes', () => {
       arrivalTime: '2024-07-01T12:00:00.000Z',
       daysOfWeek: [1, 3, 5],
       basePrice: 50,
-      tripDate: '2024-07-01T00:00:00.000Z',
+      tripDate: '2024-07-01',
       stopTimes: [
         {
           stopName: 'Bucharest',

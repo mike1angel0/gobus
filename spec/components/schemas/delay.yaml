@@ -42,9 +42,9 @@ Delay:
       description: Optional free-text note about the delay
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Date of the affected trip
+      format: date
+      maxLength: 10
+      description: Date of the affected trip (ISO 8601 date format)
     active:
       type: boolean
       description: Whether the delay is currently active

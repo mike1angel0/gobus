@@ -85,7 +85,7 @@ function serializeSchedule(schedule: ScheduleEntity): Record<string, unknown> {
     daysOfWeek: schedule.daysOfWeek,
     basePrice: schedule.basePrice,
     status: schedule.status,
-    tripDate: schedule.tripDate.toISOString(),
+    tripDate: schedule.tripDate.toISOString().slice(0, 10),
     createdAt: schedule.createdAt.toISOString(),
   };
 }

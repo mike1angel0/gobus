@@ -121,7 +121,7 @@ describe('Delay Routes', () => {
       expect(response.body.data[0].offsetMinutes).toBe(15);
       expect(response.body.data[0].reason).toBe('TRAFFIC');
       expect(response.body.data[0].note).toBeNull();
-      expect(response.body.data[0].tripDate).toBe('2026-03-25T00:00:00.000Z');
+      expect(response.body.data[0].tripDate).toBe('2026-03-25');
       expect(response.body.data[0].active).toBe(true);
       expect(response.body.data[0].createdAt).toBe('2026-03-25T08:00:00.000Z');
       expect(response.body.data[1].id).toBe('delay-2');

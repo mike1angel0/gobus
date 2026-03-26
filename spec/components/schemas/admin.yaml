@@ -203,9 +203,9 @@ DriverTrip:
       description: Scheduled arrival time
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Date of this trip
+      format: date
+      maxLength: 10
+      description: Date of this trip (ISO 8601 date format)
     routeName:
       type: string
       maxLength: 200
@@ -250,9 +250,9 @@ DriverTripDetail:
       description: Scheduled arrival time
     tripDate:
       type: string
-      format: date-time
-      maxLength: 30
-      description: Date of this trip
+      format: date
+      maxLength: 10
+      description: Date of this trip (ISO 8601 date format)
     routeName:
       type: string
       maxLength: 200

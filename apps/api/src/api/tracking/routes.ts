@@ -25,7 +25,7 @@ function serializeTrackingData(data: BusTrackingData): Record<string, unknown> {
     scheduleId: data.scheduleId,
     currentStopIndex: data.currentStopIndex,
     isActive: data.isActive,
-    tripDate: data.tripDate ? data.tripDate.toISOString() : null,
+    tripDate: data.tripDate ? data.tripDate.toISOString().slice(0, 10) : null,
     updatedAt: data.updatedAt.toISOString(),
   };
 }
