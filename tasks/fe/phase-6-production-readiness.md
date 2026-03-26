@@ -22,14 +22,7 @@
 - [x] All headers applied with `always` directive
 - [x] Manual test with `curl -I` verifies all headers present
 
-### TASK-002: Add gzip compression to nginx.conf
-**Description:** Nginx serves all responses uncompressed. Text-based assets (JS, CSS, HTML, JSON) benefit significantly from gzip compression.
-
-**Acceptance Criteria:**
-- [ ] `gzip on` with `gzip_types text/plain text/css application/json application/javascript text/xml application/xml`
-- [ ] `gzip_min_length 1000` to skip tiny responses
-- [ ] `gzip_vary on` for CDN compatibility
-- [ ] Manual test: `curl -H 'Accept-Encoding: gzip' -I` shows `Content-Encoding: gzip`
+### TASK-002: Add gzip compression to nginx.conf ✅
 
 ### TASK-003: Add cache-busting for index.html
 **Description:** Nginx serves `index.html` for all SPA routes but has no explicit cache directive for it. Browsers may cache stale HTML that references old JS bundles after deployments.

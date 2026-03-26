@@ -5,3 +5,10 @@
 - No TypeScript code changed, typecheck still passes
 - Learnings: nginx `add_header` in server block applies to all locations unless overridden; the `always` flag ensures headers are sent even on error responses
 ---
+
+## Iteration 2 - TASK-002: Add gzip compression to nginx.conf
+- Added gzip on, gzip_vary on, gzip_min_length 1000, and gzip_types for text/CSS/JSON/JS/XML to nginx.conf server block
+- Nginx config syntax validated via Docker (upstream resolution error is expected outside docker-compose, same as TASK-001)
+- Typecheck passes, no TS code changes
+- Learnings: gzip directives go in the server block before location blocks; gzip_vary is important for CDN/proxy caching
+---
