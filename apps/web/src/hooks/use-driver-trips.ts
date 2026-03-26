@@ -85,6 +85,6 @@ export function useDriverTripDetail(scheduleId: string, date?: string) {
       return data;
     },
     enabled: scheduleId.length > 0,
-    staleTime: 60 * 1000,
+    staleTime: 30 * 1000,
   });
 }

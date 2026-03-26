@@ -54,20 +54,8 @@
 ### TASK-010: Optimize bundle and rendering ✅
 - [x] All routes lazy-loaded (22 pages via React.lazy), SeatMapEditor+EditorSeatCell+LiveMap+BusMarker wrapped in React.memo, stopIcon memoized with useMemo, polling uses refs for non-visual state (useGpsPosting) and React Query refetchInterval (component-scoped), bundle 303.5KB gzipped total (258KB excl. leaflet), no unused imports, typecheck passes, 1084 tests pass
 
-### TASK-011: Optimize API calls
-**Description:** Review all React Query usage:
-- Proper staleTime per query type (search: 30s, lists: 60s, details: 30s, tracking: 5s)
-- No duplicate queries (shared query keys)
-- Request deduplication (React Query handles this, verify no manual fetch())
-- Abort unnecessary requests on unmount (React Query handles, verify)
-- No raw `fetch()` calls — all through typed API client
-
-**Acceptance Criteria:**
-- [ ] All queries have appropriate staleTime
-- [ ] No duplicate queries on same page
-- [ ] No raw fetch() calls in components
-- [ ] Tracking polling stops when page unmounts
-- [ ] Typecheck passes
+### TASK-011: Optimize API calls ✅
+- [x] Detail queries staleTime updated to 30s (bookings, buses, routes, schedules, driver-trips), lists 60s, search 30s, tracking 5s, templates 5m. Removed unused duplicate useTracking hook. Zero raw fetch() calls, polling stops on unmount via enabled flag, 1081 tests pass, typecheck passes
 
 ---
 

@@ -99,7 +99,7 @@ export function useScheduleDetail(id: string) {
       return data;
     },
     enabled: id.length > 0,
-    staleTime: 60 * 1000,
+    staleTime: 30 * 1000,
   });
 }
 

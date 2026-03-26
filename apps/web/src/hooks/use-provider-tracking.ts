@@ -10,38 +10,6 @@ import type { components } from '@/api/generated/types';
 export type TrackingUpdateBody = components['schemas']['TrackingUpdate'];
 
 /**
- * React Query hook that fetches live tracking data for a specific bus with polling.
- *
- * Calls `GET /api/v1/tracking/{busId}` with a 5-second polling interval.
- * The query is only enabled when `busId` is non-empty and `enabled` is true.
- *
- * @param busId - The bus identifier to track.
- * @param enabled - Whether the query should be active. Defaults to `true`.
- * @returns A React Query result with the bus tracking data.
- *
- * @example
- * ```tsx
- * const { data } = useTracking('bus_abc123');
- * ```
- */
-export function useTracking(busId: string, enabled = true) {
-  const client = useApiClient();
-
-  return useQuery({
-    queryKey: trackingKeys.detail(busId),
-    queryFn: async () => {
-      const { data } = await client.GET('/api/v1/tracking/{busId}', {
-        params: { path: { busId } },
-      });
-      return data;
-    },
-    enabled: busId.length > 0 && enabled,
-    staleTime: 5 * 1000,
-    refetchInterval: enabled ? 5 * 1000 : false,
-  });
-}
-
-/**
  * React Query mutation hook that updates a bus's GPS position.
  *
  * Calls `POST /api/v1/tracking`. On success, invalidates the specific bus's
@@ -83,12 +51,11 @@ export function useUpdateTracking() {
 /**
  * React Query hook that fetches tracking data for multiple buses.
  *
- * Wraps multiple `useTracking` calls by fetching individual bus positions.
+ * Fetches individual bus positions in parallel via `Promise.all`.
  * Uses the tracking list query key for cache management. Polls every 5 seconds.
  *
- * Note: The API does not have a provider-level batch tracking endpoint.
- * This hook fetches tracking for a single bus at a time. For provider tracking
- * pages, call `useTracking` for each active bus individually.
+ * Note: The API does not have a provider-level batch tracking endpoint,
+ * so this hook fetches each bus's position individually.
  *
  * @param busIds - Array of bus identifiers to track.
  * @param enabled - Whether polling should be active. Defaults to `true`.

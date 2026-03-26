@@ -3,11 +3,7 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
 
-import {
-  useTracking,
-  useUpdateTracking,
-  useProviderTracking,
-} from '@/hooks/use-provider-tracking';
+import { useUpdateTracking, useProviderTracking } from '@/hooks/use-provider-tracking';
 import { ApiError } from '@/api/errors';
 
 const mockGet = vi.fn();
@@ -49,45 +45,6 @@ const mockTrackingResponse = {
     updatedAt: '2026-04-01T10:30:00Z',
   },
 };
-
-describe('useTracking', () => {
-  beforeEach(() => {
-    mockGet.mockReset();
-  });
-
-  it('fetches tracking data for a valid bus id', async () => {
-    mockGet.mockResolvedValueOnce({ data: mockTrackingResponse });
-
-    const { result } = renderHook(() => useTracking('bus_1'), {
-      wrapper: createWrapper(),
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    expect(result.current.data).toEqual(mockTrackingResponse);
-    expect(mockGet).toHaveBeenCalledWith('/api/v1/tracking/{busId}', {
-      params: { path: { busId: 'bus_1' } },
-    });
-  });
-
-  it('does not fetch when busId is empty', () => {
-    const { result } = renderHook(() => useTracking(''), {
-      wrapper: createWrapper(),
-    });
-
-    expect(result.current.fetchStatus).toBe('idle');
-    expect(mockGet).not.toHaveBeenCalled();
-  });
-
-  it('does not fetch when disabled', () => {
-    const { result } = renderHook(() => useTracking('bus_1', false), {
-      wrapper: createWrapper(),
-    });
-
-    expect(result.current.fetchStatus).toBe('idle');
-    expect(mockGet).not.toHaveBeenCalled();
-  });
-});
 
 describe('useUpdateTracking', () => {
   beforeEach(() => {
@@ -169,11 +126,9 @@ describe('useProviderTracking', () => {
   });
 
   it('fetches tracking for multiple buses', async () => {
-    mockGet
-      .mockResolvedValueOnce({ data: mockTrackingResponse })
-      .mockResolvedValueOnce({
-        data: { ...mockTrackingResponse, data: { ...mockTrackingResponse.data, busId: 'bus_2' } },
-      });
+    mockGet.mockResolvedValueOnce({ data: mockTrackingResponse }).mockResolvedValueOnce({
+      data: { ...mockTrackingResponse, data: { ...mockTrackingResponse.data, busId: 'bus_2' } },
+    });
 
     const { result } = renderHook(() => useProviderTracking(['bus_1', 'bus_2']), {
       wrapper: createWrapper(),
