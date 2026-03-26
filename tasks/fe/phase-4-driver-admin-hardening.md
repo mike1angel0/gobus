@@ -27,18 +27,8 @@
 ### TASK-005: Create admin hooks ✅
 - [x] Typed from OpenAPI spec, useAdminBuses with pagination/providerId filter, useToggleSeat mutation invalidates admin+provider bus queries, JSDoc, 9 tests, typecheck passes
 
-### TASK-006: Create admin fleet page
-**Description:** Create `src/pages/admin/fleet.tsx`. List all buses from all providers (grouped by provider). For each bus: show provider name, bus info, seat map in view mode with enable/disable toggles per seat. Click seat toggles enabled state via API. Visual indicator for disabled seats.
-
-**Acceptance Criteria:**
-- [ ] Buses grouped by provider
-- [ ] Seat map with enable/disable toggle per seat
-- [ ] Disabled seats visually distinct
-- [ ] Toggle calls API immediately (optimistic update)
-- [ ] Pagination
-- [ ] Loading/error states
-- [ ] Component test
-- [ ] Typecheck passes
+### TASK-006: Create admin fleet page ✅
+- [x] Buses grouped by provider, seat map with enable/disable toggle per seat, disabled seats visually distinct, toggle calls API immediately, pagination, loading/error/empty states, 28 component tests, typecheck passes
 
 ---
 

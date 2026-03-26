@@ -26,6 +26,7 @@ const ProviderTrackingPage = lazy(() => import('@/pages/provider/tracking'));
 const DriverTripsPage = lazy(() => import('@/pages/driver/trips'));
 const DriverTripDetailPage = lazy(() => import('@/pages/driver/trip-detail'));
 const DriverDelayPage = lazy(() => import('@/pages/driver/delay'));
+const AdminFleetPage = lazy(() => import('@/pages/admin/fleet'));
 
 /* ---------- Router ---------- */
 
@@ -95,7 +96,7 @@ export const router = createBrowserRouter([
                 element: <RoleGuard allowedRoles={['ADMIN']} />,
                 children: [
                   { index: true, element: <PlaceholderPage /> },
-                  { path: 'fleet', element: <PlaceholderPage /> },
+                  { path: 'fleet', element: <AdminFleetPage /> },
                 ],
               },
             ],

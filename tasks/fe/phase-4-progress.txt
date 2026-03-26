@@ -21,3 +21,28 @@
 - Documented 3 spec gaps in SPEC_GAPS.md: (1) DriverTripDetail missing busId for tracking, (2) StopTime missing lat/lng for map, (3) No passenger list data (only count)
 - Learnings: No Badge UI component exists, use styled spans. Avoid setState in effects (use lazy initializer). Don't update refs during render (use effects). Use `format(new Date(...), 'HH:mm')` in tests for timezone independence.
 ---
+## Iteration 4 - TASK-004: Create delay reporting page
+- Created `src/pages/driver/delay.tsx` with preset minute buttons (5/10/15/20/30/45/60), custom minutes input, reason dropdown, optional notes textarea with character count, Zod validation matching OpenAPI spec constraints
+- Receives scheduleId and date from URL search params (set by trip-detail page). Missing params guard shows fallback UI
+- Submit calls useCreateDelay (which handles toast internally), redirects back to trip detail on success
+- Updated router.tsx to replace PlaceholderPage with DriverDelayPage at `/driver/delay`
+- 25 tests covering: missing params (3 tests), form rendering (6), preset buttons (2), character count (1), validation (3), submission (3), navigation (2), accessibility (5)
+- Learnings: Use `offsetMinutes !== ''` not `offsetMinutes ?` for string-to-number conversion — `'0'` is falsy. Zod gives "Required" for undefined number fields, not min error. Use `required_error` option on z.enum for custom messages.
+---
+## Iteration 5 - TASK-005: Create admin hooks
+- Created `src/hooks/use-admin.ts` with `useAdminBuses(params)` and `useToggleSeat()` hooks
+- `useAdminBuses` supports page, pageSize, and providerId filter params, uses adminKeys.buses for query keys, staleTime 60s
+- `useToggleSeat` mutation calls `PATCH /api/v1/admin/seats/{id}`, invalidates both adminKeys.buses() and busKeys.all for cross-view consistency
+- Dynamic toast messages: "Seat enabled"/"Seat disabled" based on isEnabled value
+- 9 tests covering: paginated fetch, providerId filter, default params, error surfacing, disable+toast, enable+toast, ApiError detail, ApiError title fallback, generic error
+- Learnings: Admin hooks follow exact same pattern as provider hooks. Invalidate both admin and provider query keys when admin mutates shared resources (seats are visible in both admin and provider views).
+---
+## Iteration 6 - TASK-006: Create admin fleet page
+- Created `src/pages/admin/fleet.tsx` with: buses grouped by providerId, expandable seat toggle grid per bus, pagination (20/page), loading skeleton, error+retry, empty state
+- SeatToggleGrid fetches bus detail (with seats) via useBusDetail on expand, renders clickable seat buttons that call useToggleSeat
+- Disabled seats shown with red tint + line-through, enabled seats colored by type (green=standard, amber=premium, blue=accessible)
+- Legend for seat colors, enabled/disabled count summary
+- Updated router.tsx to use AdminFleetPage at `/admin/fleet`
+- 28 tests covering: loading, error+retry, empty, bus cards, grouping by provider, seat grid preview, seat expand/collapse, seat loading/error, enabled/disabled styles, toggle mutation (enable+disable), count summary, pagination (next/prev/hide single page), accessibility (headings, landmarks, aria-expanded, aria-labels, icons hidden), data fetching params
+- Learnings: `gridcell` role does not support `aria-pressed` — use descriptive aria-label instead. Extract sub-components (FleetContent, FleetPagination, GroupedBusList) to keep page complexity under ESLint max (15). Wrap useMemo deps on stable references, not derived `??` expressions.
+---
