@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
+import i18n from '@/i18n/config';
 import { renderWithProviders } from '@/test/helpers';
 import { NotFound } from './not-found';
+
+beforeEach(async () => {
+  await i18n.changeLanguage('en');
+});
 
 describe('NotFound', () => {
   it('renders 404 heading', () => {
@@ -32,5 +37,17 @@ describe('NotFound', () => {
     const { container } = renderWithProviders(<NotFound />);
     const svg = container.querySelector('svg');
     expect(svg).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('renders Romanian translations when language is ro', async () => {
+    await i18n.changeLanguage('ro');
+    renderWithProviders(<NotFound />);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Pagina nu a fost găsită',
+    );
+    expect(
+      screen.getByText('Pagina pe care o cauți nu există sau a fost mutată.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Mergi acasă' })).toBeInTheDocument();
   });
 });

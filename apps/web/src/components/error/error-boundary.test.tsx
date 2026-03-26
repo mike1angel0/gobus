@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import i18n from '@/i18n/config';
 import { renderWithProviders } from '@/test/helpers';
 import { ErrorBoundary } from './error-boundary';
 
@@ -13,8 +14,9 @@ function ThrowingChild({ shouldThrow }: { shouldThrow: boolean }) {
 }
 
 /** Suppress console.error noise from React during error boundary tests. */
-beforeEach(() => {
+beforeEach(async () => {
   vi.spyOn(console, 'error').mockImplementation(() => {});
+  await i18n.changeLanguage('en');
 });
 
 describe('ErrorBoundary', () => {

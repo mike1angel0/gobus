@@ -25,9 +25,11 @@
     "serverError": "Eroare de server. Te rugăm să încerci din nou.",
     "validation": "Verifică datele introduse",
     "somethingWentWrong": "Ceva nu a mers bine",
+    "somethingWentWrongDefault": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
+    "errorHeading": "Eroare",
     "tryAgain": "Încearcă din nou",
     "pageNotFound": "Pagina nu a fost găsită",
-    "pageNotFoundDescription": "Pagina pe care o cauți nu există",
+    "pageNotFoundDescription": "Pagina pe care o cauți nu există sau a fost mutată.",
     "goHome": "Mergi acasă"
   },
   "empty": {

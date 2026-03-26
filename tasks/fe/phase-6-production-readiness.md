@@ -60,15 +60,7 @@
 
 ### TASK-014: Translate driver, admin, and tracking namespaces ✅
 
-### TASK-015: Translate error boundary and 404 page
-**Description:** Translate the error fallback and not-found pages.
-
-**Acceptance Criteria:**
-- [ ] Error fallback: "Something went wrong", "Try again", error details (when available)
-- [ ] Not found: "Page not found", "The page you're looking for doesn't exist", "Go home" button
-- [ ] `error-boundary.tsx`, `error-fallback.tsx`, `not-found.tsx` updated to use `useTranslation('common')`
-- [ ] Both RO and EN files updated
-- [ ] Typecheck passes, lint clean
+### TASK-015: Translate error boundary and 404 page ✅
 
 ---
 

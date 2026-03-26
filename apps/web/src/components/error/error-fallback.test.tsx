@@ -1,8 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import i18n from '@/i18n/config';
 import { renderWithProviders } from '@/test/helpers';
 import { ErrorFallback } from './error-fallback';
+
+beforeEach(async () => {
+  await i18n.changeLanguage('en');
+});
 
 describe('ErrorFallback', () => {
   it('renders default error message', () => {
@@ -47,5 +52,15 @@ describe('ErrorFallback', () => {
     const { container } = renderWithProviders(<ErrorFallback />);
     const svg = container.querySelector('svg');
     expect(svg).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('renders Romanian translations when language is ro', async () => {
+    await i18n.changeLanguage('ro');
+    renderWithProviders(<ErrorFallback onRetry={vi.fn()} />);
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Eroare');
+    expect(
+      screen.getByText('Ceva nu a mers bine. Te rugăm să încerci din nou.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reîncearcă' })).toBeInTheDocument();
   });
 });
