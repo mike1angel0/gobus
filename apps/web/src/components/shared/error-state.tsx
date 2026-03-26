@@ -1,9 +1,10 @@
 import { AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 /** Props for the {@link PageError} component. */
 export interface PageErrorProps {
-  /** Heading displayed above the message. Defaults to "Something went wrong". */
+  /** Heading displayed above the message. Defaults to translated "Something went wrong". */
   title?: string;
   /** Descriptive message shown below the heading. */
   message?: string;
@@ -16,6 +17,7 @@ export interface PageErrorProps {
  *
  * Used as the standard error UI across all pages and data-fetching sections.
  * Includes `role="alert"` so screen readers announce the error immediately.
+ * Uses the `common` i18n namespace for default strings and the retry button label.
  *
  * @example
  * ```tsx
@@ -26,18 +28,18 @@ export interface PageErrorProps {
  * />
  * ```
  */
-export function PageError({
-  title = 'Something went wrong',
-  message = 'An unexpected error occurred. Please try again.',
-  onRetry,
-}: PageErrorProps) {
+export function PageError({ title, message, onRetry }: PageErrorProps) {
+  const { t } = useTranslation('common');
+  const resolvedTitle = title ?? t('errors.somethingWentWrong');
+  const resolvedMessage = message ?? t('errors.generic');
+
   return (
     <div className="flex flex-col items-center py-16 text-center" role="alert">
       <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
-      <h2 className="mb-2 text-xl font-semibold">{title}</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">{message}</p>
+      <h2 className="mb-2 text-xl font-semibold">{resolvedTitle}</h2>
+      <p className="mb-6 max-w-md text-muted-foreground">{resolvedMessage}</p>
       <Button onClick={onRetry} variant="outline">
-        Try again
+        {t('buttons.retry')}
       </Button>
     </div>
   );

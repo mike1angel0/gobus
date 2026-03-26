@@ -48,19 +48,7 @@
 
 ### TASK-008: Create language switcher component ✅
 
-### TASK-009: Translate common namespace
-**Description:** Extract all shared UI strings into `common.json` for both RO and EN. This covers buttons, loading states, error states, empty states, pagination, confirmation dialogs, and toast messages used across multiple domains.
-
-**Acceptance Criteria:**
-- [ ] `common.json` keys include: `buttons.save`, `buttons.cancel`, `buttons.delete`, `buttons.edit`, `buttons.create`, `buttons.retry`, `buttons.back`, `buttons.confirm`, `buttons.close`, `buttons.search`, `buttons.submit`
-- [ ] Loading: `loading.generic`, `loading.saving`, `loading.deleting`
-- [ ] Errors: `errors.generic`, `errors.network`, `errors.notFound`, `errors.forbidden`, `errors.serverError`, `errors.validation`
-- [ ] Empty states: `empty.noResults`, `empty.noData`
-- [ ] Pagination: `pagination.page`, `pagination.of`, `pagination.next`, `pagination.previous`, `pagination.showing`
-- [ ] Toasts: `toast.success`, `toast.error`, `toast.saved`, `toast.deleted`, `toast.created`
-- [ ] All shared components (`error-state.tsx`, `empty-state.tsx`, `loading-skeleton.tsx`) updated to use `useTranslation('common')`
-- [ ] Both `ro/common.json` and `en/common.json` complete
-- [ ] Typecheck passes, lint clean
+### TASK-009: Translate common namespace ✅
 
 ### TASK-010: Translate nav namespace
 **Description:** Extract all navigation labels into `nav.json`. This includes navbar links, mobile menu, user menu items, and the skip-to-content link.

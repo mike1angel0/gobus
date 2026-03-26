@@ -5,12 +5,10 @@ import { renderWithProviders } from '@/test/helpers';
 import { PageError } from './error-state';
 
 describe('PageError', () => {
-  it('renders default title and message', () => {
+  it('renders translated default title and message', () => {
     renderWithProviders(<PageError onRetry={vi.fn()} />);
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Something went wrong');
-    expect(
-      screen.getByText('An unexpected error occurred. Please try again.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('An unexpected error occurred')).toBeInTheDocument();
   });
 
   it('renders custom title and message', () => {
@@ -25,7 +23,7 @@ describe('PageError', () => {
     expect(screen.getByText("We couldn't load your buses.")).toBeInTheDocument();
   });
 
-  it('renders retry button', () => {
+  it('renders translated retry button', () => {
     renderWithProviders(<PageError onRetry={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
   });
