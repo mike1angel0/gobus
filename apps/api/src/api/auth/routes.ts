@@ -42,20 +42,24 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   const authService = new AuthService(getPrisma());
 
   // POST /api/v1/auth/register
-  app.post('/api/v1/auth/register', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request, reply) => {
-    const body = strictParse(registerBodySchema, request.body);
-    const { user, tokens } = await authService.register(body);
+  app.post(
+    '/api/v1/auth/register',
+    { config: { rateLimit: AUTH_RATE_LIMIT } },
+    async (request, reply) => {
+      const body = strictParse(registerBodySchema, request.body);
+      const { user, tokens } = await authService.register(body);
 
-    request.audit(AuditActions.REGISTER, 'user', user.id);
+      request.audit(AuditActions.REGISTER, 'user', user.id);
 
-    return reply.status(201).send({
-      data: {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        user: serializeUser(user),
-      },
-    });
-  });
+      return reply.status(201).send({
+        data: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          user: serializeUser(user),
+        },
+      });
+    },
+  );
 
   // POST /api/v1/auth/login
   app.post('/api/v1/auth/login', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
@@ -109,28 +113,36 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/forgot-password
-  app.post('/api/v1/auth/forgot-password', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
-    const body = strictParse(forgotPasswordBodySchema, request.body);
-    await authService.forgotPassword(body.email);
+  app.post(
+    '/api/v1/auth/forgot-password',
+    { config: { rateLimit: AUTH_RATE_LIMIT } },
+    async (request) => {
+      const body = strictParse(forgotPasswordBodySchema, request.body);
+      await authService.forgotPassword(body.email);
 
-    request.audit(AuditActions.PASSWORD_RESET_REQUEST, 'user', null, { email: body.email });
+      request.audit(AuditActions.PASSWORD_RESET_REQUEST, 'user', null, { email: body.email });
 
-    return {
-      data: { message: 'If the email exists, a password reset link has been sent.' },
-    };
-  });
+      return {
+        data: { message: 'If the email exists, a password reset link has been sent.' },
+      };
+    },
+  );
 
   // POST /api/v1/auth/reset-password
-  app.post('/api/v1/auth/reset-password', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
-    const body = strictParse(resetPasswordBodySchema, request.body);
-    await authService.resetPassword(body.token, body.newPassword);
+  app.post(
+    '/api/v1/auth/reset-password',
+    { config: { rateLimit: AUTH_RATE_LIMIT } },
+    async (request) => {
+      const body = strictParse(resetPasswordBodySchema, request.body);
+      await authService.resetPassword(body.token, body.newPassword);
 
-    request.audit(AuditActions.PASSWORD_RESET_COMPLETE, 'user');
+      request.audit(AuditActions.PASSWORD_RESET_COMPLETE, 'user');
 
-    return {
-      data: { message: 'Password has been reset successfully.' },
-    };
-  });
+      return {
+        data: { message: 'Password has been reset successfully.' },
+      };
+    },
+  );
 
   // POST /api/v1/auth/change-password
   app.post('/api/v1/auth/change-password', { preHandler: [app.authenticate] }, async (request) => {
@@ -145,11 +157,15 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // GET /api/v1/auth/me
-  app.get('/api/v1/auth/me', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    const user = await authService.getProfile(request.user.id);
+  app.get(
+    '/api/v1/auth/me',
+    { preHandler: [app.authenticate, privateNoCache] },
+    async (request) => {
+      const user = await authService.getProfile(request.user.id);
 
-    return { data: serializeUser(user) };
-  });
+      return { data: serializeUser(user) };
+    },
+  );
 
   // PATCH /api/v1/auth/me
   app.patch('/api/v1/auth/me', { preHandler: [app.authenticate] }, async (request) => {

@@ -79,16 +79,21 @@ describe('DoS and Resource Exhaustion Prevention', () => {
     it('returns 413 for request body exceeding 1MB', async () => {
       const largePayload = 'x'.repeat(1_048_577); // Just over 1MB
 
-      const response = await supertest(app.server)
-        .post('/api/v1/bookings')
-        .set('Authorization', AUTH_HEADER)
-        .set('Content-Type', 'application/json')
-        .send(largePayload)
-        .expect(413);
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/bookings',
+        headers: {
+          authorization: AUTH_HEADER,
+          'content-type': 'application/json',
+        },
+        payload: largePayload,
+      });
 
-      expect(response.body.status).toBe(413);
-      expect(response.body.title).toBe('Payload Too Large');
-      expect(response.body.type).toBe('https://httpstatuses.com/413');
+      expect(response.statusCode).toBe(413);
+      const body = JSON.parse(response.body);
+      expect(body.status).toBe(413);
+      expect(body.title).toBe('Payload Too Large');
+      expect(body.type).toBe('https://httpstatuses.com/413');
     });
   });
 

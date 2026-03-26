@@ -3,14 +3,7 @@ import addFormats from 'ajv-formats';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const SPEC_PATH = resolve(
-  process.cwd(),
-  '..',
-  '..',
-  'spec',
-  'dist',
-  'openapi.json',
-);
+const SPEC_PATH = resolve(process.cwd(), '..', '..', 'spec', 'dist', 'openapi.json');
 
 interface SchemaMap {
   [key: string]: unknown;
@@ -22,10 +15,7 @@ interface OpenAPISpec {
     Record<
       string,
       {
-        responses: Record<
-          string,
-          { content?: { 'application/json'?: { schema: unknown } } }
-        >;
+        responses: Record<string, { content?: { 'application/json'?: { schema: unknown } } }>;
       }
     >
   >;
@@ -33,15 +23,9 @@ interface OpenAPISpec {
 }
 
 /** Recursively resolve internal $ref references against component schemas. */
-function deref(
-  node: unknown,
-  schemas: SchemaMap,
-  seen = new Set<string>(),
-): unknown {
-  if (node === null || node === undefined || typeof node !== 'object')
-    return node;
-  if (Array.isArray(node))
-    return node.map((item) => deref(item, schemas, seen));
+function deref(node: unknown, schemas: SchemaMap, seen = new Set<string>()): unknown {
+  if (node === null || node === undefined || typeof node !== 'object') return node;
+  if (Array.isArray(node)) return node.map((item) => deref(item, schemas, seen));
 
   const obj = node as Record<string, unknown>;
   if (typeof obj['$ref'] === 'string') {
@@ -98,8 +82,7 @@ export function createSpecValidator() {
       const key = `${method.toLowerCase()}:${specPath}:${statusCode}`;
       if (!cache.has(key)) {
         const pathDef = spec.paths[specPath];
-        if (!pathDef)
-          return { valid: false, errors: [`Path not in spec: ${specPath}`] };
+        if (!pathDef) return { valid: false, errors: [`Path not in spec: ${specPath}`] };
         const opDef = pathDef[method.toLowerCase()];
         if (!opDef)
           return {
@@ -110,17 +93,13 @@ export function createSpecValidator() {
         if (!resDef)
           return {
             valid: false,
-            errors: [
-              `Status ${statusCode} not in spec for ${method} ${specPath}`,
-            ],
+            errors: [`Status ${statusCode} not in spec for ${method} ${specPath}`],
           };
         const schema = resDef.content?.['application/json']?.schema;
         if (!schema)
           return {
             valid: false,
-            errors: [
-              `No JSON schema for ${statusCode} ${method} ${specPath}`,
-            ],
+            errors: [`No JSON schema for ${statusCode} ${method} ${specPath}`],
           };
         const resolved = deref(schema, schemas);
         cache.set(key, ajv.compile(resolved as Record<string, unknown>));
@@ -132,8 +111,7 @@ export function createSpecValidator() {
       return {
         valid: false,
         errors: (validate.errors ?? []).map(
-          (e) =>
-            `${e.instancePath || '/'}: ${e.message} ${JSON.stringify(e.params)}`,
+          (e) => `${e.instancePath || '/'}: ${e.message} ${JSON.stringify(e.params)}`,
         ),
       };
     },

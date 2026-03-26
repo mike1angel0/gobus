@@ -116,8 +116,10 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
     '/api/v1/schedules',
     { preHandler: [app.authenticate, requireProvider, privateNoCache] },
     async (request) => {
-      const { page, pageSize, routeId, busId, status, fromDate, toDate } =
-        strictParse(scheduleFilterQuerySchema, request.query);
+      const { page, pageSize, routeId, busId, status, fromDate, toDate } = strictParse(
+        scheduleFilterQuerySchema,
+        request.query,
+      );
       const providerId = request.user.providerId!;
 
       const filters = {

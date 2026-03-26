@@ -22,8 +22,8 @@ export function exceedsJsonDepth(data: unknown, maxDepth: number, currentDepth =
     return data.some((item) => exceedsJsonDepth(item, maxDepth, currentDepth + 1));
   }
 
-  return Object.values(data as Record<string, unknown>).some(
-    (value) => exceedsJsonDepth(value, maxDepth, currentDepth + 1),
+  return Object.values(data as Record<string, unknown>).some((value) =>
+    exceedsJsonDepth(value, maxDepth, currentDepth + 1),
   );
 }
 

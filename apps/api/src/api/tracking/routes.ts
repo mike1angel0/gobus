@@ -38,16 +38,24 @@ async function trackingRoutes(app: FastifyInstance): Promise<void> {
   const trackingService = new TrackingService(getPrisma());
 
   // GET /api/v1/tracking/:busId — get bus live position
-  app.get('/api/v1/tracking/:busId', { preHandler: [app.authenticate, noCache] }, async (request) => {
-    const { busId } = strictParse(busIdParamSchema, request.params);
-    const tracking = await trackingService.getByBusId(busId);
+  app.get(
+    '/api/v1/tracking/:busId',
+    { preHandler: [app.authenticate, noCache] },
+    async (request) => {
+      const { busId } = strictParse(busIdParamSchema, request.params);
+      const tracking = await trackingService.getByBusId(busId);
 
-    if (!tracking) {
-      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'No tracking data found for this bus');
-    }
+      if (!tracking) {
+        throw new AppError(
+          404,
+          ErrorCodes.RESOURCE_NOT_FOUND,
+          'No tracking data found for this bus',
+        );
+      }
 
-    return { data: serializeTrackingData(tracking) };
-  });
+      return { data: serializeTrackingData(tracking) };
+    },
+  );
 
   // POST /api/v1/tracking — update bus GPS position (DRIVER role)
   app.post('/api/v1/tracking', { preHandler: [app.authenticate] }, async (request) => {

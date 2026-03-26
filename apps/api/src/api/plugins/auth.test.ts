@@ -36,11 +36,11 @@ vi.mock('@/infrastructure/prisma/client.js', () => ({
 
 /** Sign a JWT token with the test secret. */
 function signToken(payload: Record<string, unknown>, options?: jwt.SignOptions): string {
-  return jwt.sign(
-    { ...payload, iss: 'transio-api', aud: 'transio-client' },
-    JWT_SECRET,
-    { expiresIn: '15m', algorithm: 'HS256', ...options },
-  );
+  return jwt.sign({ ...payload, iss: 'transio-api', aud: 'transio-client' }, JWT_SECRET, {
+    expiresIn: '15m',
+    algorithm: 'HS256',
+    ...options,
+  });
 }
 
 /** Create a valid token payload. */
@@ -121,7 +121,11 @@ describe('auth plugin', () => {
   });
 
   it('returns 401 when token is signed with wrong secret', async () => {
-    const token = jwt.sign({ ...validPayload(), iss: 'transio-api', aud: 'transio-client' }, 'wrong-secret', { expiresIn: '15m' });
+    const token = jwt.sign(
+      { ...validPayload(), iss: 'transio-api', aud: 'transio-client' },
+      'wrong-secret',
+      { expiresIn: '15m' },
+    );
     const response = await app.inject({
       method: 'GET',
       url: '/protected',
@@ -264,11 +268,10 @@ describe('auth plugin', () => {
   });
 
   it('returns 401 when token is missing issuer claim', async () => {
-    const token = jwt.sign(
-      { ...validPayload(), aud: 'transio-client' },
-      JWT_SECRET,
-      { expiresIn: '15m', algorithm: 'HS256' },
-    );
+    const token = jwt.sign({ ...validPayload(), aud: 'transio-client' }, JWT_SECRET, {
+      expiresIn: '15m',
+      algorithm: 'HS256',
+    });
     const response = await app.inject({
       method: 'GET',
       url: '/protected',
@@ -279,11 +282,10 @@ describe('auth plugin', () => {
   });
 
   it('returns 401 when token is missing audience claim', async () => {
-    const token = jwt.sign(
-      { ...validPayload(), iss: 'transio-api' },
-      JWT_SECRET,
-      { expiresIn: '15m', algorithm: 'HS256' },
-    );
+    const token = jwt.sign({ ...validPayload(), iss: 'transio-api' }, JWT_SECRET, {
+      expiresIn: '15m',
+      algorithm: 'HS256',
+    });
     const response = await app.inject({
       method: 'GET',
       url: '/protected',
@@ -297,7 +299,9 @@ describe('auth plugin', () => {
     // Craft a token with alg: none — jsonwebtoken's verify rejects this
     // when algorithms whitelist doesn't include 'none'
     const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url');
-    const payload = Buffer.from(JSON.stringify({ ...validPayload(), iss: 'transio-api', aud: 'transio-client' })).toString('base64url');
+    const payload = Buffer.from(
+      JSON.stringify({ ...validPayload(), iss: 'transio-api', aud: 'transio-client' }),
+    ).toString('base64url');
     const unsignedToken = `${header}.${payload}.`;
     const response = await app.inject({
       method: 'GET',

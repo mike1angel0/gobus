@@ -474,8 +474,15 @@ describe('PATCH /api/v1/admin/users/:id/status', () => {
     const user = makeUserRecord();
     mockUserFindUnique
       .mockResolvedValueOnce({
-        id: ADMIN_ID, email: 'admin@test.com', name: 'Admin', role: 'ADMIN',
-        providerId: null, phone: null, status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date(),
+        id: ADMIN_ID,
+        email: 'admin@test.com',
+        name: 'Admin',
+        role: 'ADMIN',
+        providerId: null,
+        phone: null,
+        status: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .mockResolvedValueOnce(user) // updateUserStatus findUnique
       .mockResolvedValueOnce(user); // revokeAllSessions findUnique
@@ -497,8 +504,15 @@ describe('PATCH /api/v1/admin/users/:id/status', () => {
     const user = makeUserRecord({ status: 'SUSPENDED' });
     mockUserFindUnique
       .mockResolvedValueOnce({
-        id: ADMIN_ID, email: 'admin@test.com', name: 'Admin', role: 'ADMIN',
-        providerId: null, phone: null, status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date(),
+        id: ADMIN_ID,
+        email: 'admin@test.com',
+        name: 'Admin',
+        role: 'ADMIN',
+        providerId: null,
+        phone: null,
+        status: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .mockResolvedValueOnce(user);
     mockUserUpdate.mockResolvedValue({ ...user, status: 'ACTIVE' });
@@ -521,8 +535,15 @@ describe('PATCH /api/v1/admin/users/:id/status', () => {
     });
     mockUserFindUnique
       .mockResolvedValueOnce({
-        id: ADMIN_ID, email: 'admin@test.com', name: 'Admin', role: 'ADMIN',
-        providerId: null, phone: null, status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date(),
+        id: ADMIN_ID,
+        email: 'admin@test.com',
+        name: 'Admin',
+        role: 'ADMIN',
+        providerId: null,
+        phone: null,
+        status: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .mockResolvedValueOnce(user);
     mockUserUpdate.mockResolvedValue({
@@ -547,8 +568,15 @@ describe('PATCH /api/v1/admin/users/:id/status', () => {
   it('returns 404 when user not found', async () => {
     mockUserFindUnique
       .mockResolvedValueOnce({
-        id: ADMIN_ID, email: 'admin@test.com', name: 'Admin', role: 'ADMIN',
-        providerId: null, phone: null, status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date(),
+        id: ADMIN_ID,
+        email: 'admin@test.com',
+        name: 'Admin',
+        role: 'ADMIN',
+        providerId: null,
+        phone: null,
+        status: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .mockResolvedValueOnce(null);
 
@@ -581,8 +609,15 @@ describe('PATCH /api/v1/admin/users/:id/status', () => {
 
   it('returns 403 for PASSENGER role', async () => {
     mockUserFindUnique.mockResolvedValue({
-      id: PASSENGER_ID, email: 'passenger@test.com', name: 'Passenger', role: 'PASSENGER',
-      providerId: null, phone: null, status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date(),
+      id: PASSENGER_ID,
+      email: 'passenger@test.com',
+      name: 'Passenger',
+      role: 'PASSENGER',
+      providerId: null,
+      phone: null,
+      status: 'ACTIVE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     const res = await supertest(app.server)
@@ -668,8 +703,15 @@ describe('GET /api/v1/admin/audit-logs', () => {
 
   it('returns 403 for PASSENGER role', async () => {
     mockUserFindUnique.mockResolvedValue({
-      id: PASSENGER_ID, email: 'passenger@test.com', name: 'Passenger', role: 'PASSENGER',
-      providerId: null, phone: null, status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date(),
+      id: PASSENGER_ID,
+      email: 'passenger@test.com',
+      name: 'Passenger',
+      role: 'PASSENGER',
+      providerId: null,
+      phone: null,
+      status: 'ACTIVE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     const res = await supertest(app.server)

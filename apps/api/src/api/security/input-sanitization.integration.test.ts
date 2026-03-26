@@ -22,16 +22,12 @@ describe('Input sanitization and validation hardening', () => {
 
       expect(response.status).toBe(200);
       const requestId = response.headers['x-request-id'];
-      expect(requestId).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-      );
+      expect(requestId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     });
 
     it('echoes back a client-provided x-request-id', async () => {
       const clientId = 'my-custom-request-id-123';
-      const response = await supertest(app.server)
-        .get('/health')
-        .set('x-request-id', clientId);
+      const response = await supertest(app.server).get('/health').set('x-request-id', clientId);
 
       expect(response.status).toBe(200);
       expect(response.headers['x-request-id']).toBe(clientId);
@@ -49,14 +45,16 @@ describe('Input sanitization and validation hardening', () => {
 
   describe('body size limit', () => {
     it('rejects payloads larger than 1MB with 413', async () => {
-      const largePayload = { data: 'x'.repeat(1_100_000) };
+      const largePayload = JSON.stringify({ data: 'x'.repeat(1_100_000) });
 
-      const response = await supertest(app.server)
-        .post('/api/v1/auth/login')
-        .send(largePayload)
-        .set('Content-Type', 'application/json');
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/login',
+        headers: { 'content-type': 'application/json' },
+        payload: largePayload,
+      });
 
-      expect(response.status).toBe(413);
+      expect(response.statusCode).toBe(413);
     });
   });
 

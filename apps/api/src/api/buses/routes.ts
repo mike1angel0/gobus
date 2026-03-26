@@ -105,17 +105,21 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // GET /api/v1/buses — list provider's buses (paginated)
-  app.get('/api/v1/buses', { preHandler: [app.authenticate, requireProvider, privateNoCache] }, async (request) => {
-    const { page, pageSize } = strictParse(paginationQuerySchema, request.query);
-    const providerId = request.user.providerId!;
+  app.get(
+    '/api/v1/buses',
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
+    async (request) => {
+      const { page, pageSize } = strictParse(paginationQuerySchema, request.query);
+      const providerId = request.user.providerId!;
 
-    const result = await busService.listByProvider(providerId, { page, pageSize });
+      const result = await busService.listByProvider(providerId, { page, pageSize });
 
-    return {
-      data: result.data.map(serializeBus),
-      meta: result.meta,
-    };
-  });
+      return {
+        data: result.data.map(serializeBus),
+        meta: result.meta,
+      };
+    },
+  );
 
   // POST /api/v1/buses — create a new bus with seat layout
   app.post(

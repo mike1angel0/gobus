@@ -23,7 +23,12 @@ const strongPasswordSchema = z
 /** Zod schema for user preferences matching OpenAPI UserPreferences. */
 export const userPreferencesSchema = z
   .object({
-    language: z.string().trim().max(10).describe('Preferred language code (e.g., en, ro)').optional(),
+    language: z
+      .string()
+      .trim()
+      .max(10)
+      .describe('Preferred language code (e.g., en, ro)')
+      .optional(),
     notifications: z.boolean().describe('Whether to receive push notifications').optional(),
     emailNotifications: z.boolean().describe('Whether to receive email notifications').optional(),
   })

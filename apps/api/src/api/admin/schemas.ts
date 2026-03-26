@@ -89,9 +89,7 @@ export const adminListUsersQuerySchema = z
 /** Zod schema for PATCH /api/v1/admin/users/{id}/status request body matching OpenAPI spec. */
 export const updateUserStatusBodySchema = z
   .object({
-    action: userStatusActionEnum.describe(
-      'The status action to perform on the user account',
-    ),
+    action: userStatusActionEnum.describe('The status action to perform on the user account'),
   })
   .strict();
 
@@ -164,7 +162,10 @@ export const adminAuditLogSchema = z.object({
   resourceId: z.string().max(100).nullable().describe('The specific resource ID affected'),
   ipAddress: z.string().max(45).nullable().describe('Client IP address'),
   userAgent: z.string().max(500).nullable().describe('Client user agent string'),
-  metadata: z.record(z.string(), z.unknown()).nullable().describe('Additional context data for the event'),
+  metadata: z
+    .record(z.string(), z.unknown())
+    .nullable()
+    .describe('Additional context data for the event'),
   createdAt: z.string().datetime().max(30).describe('When the event occurred'),
 });
 

@@ -1,10 +1,4 @@
-import type {
-  PrismaClient,
-  Schedule,
-  StopTime,
-  Route,
-  Bus,
-} from '@/generated/prisma/client.js';
+import type { PrismaClient, Schedule, StopTime, Route, Bus } from '@/generated/prisma/client.js';
 import type {
   ScheduleEntity,
   ScheduleWithDetails,

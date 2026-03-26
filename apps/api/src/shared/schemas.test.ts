@@ -148,9 +148,9 @@ describe('strictParse', () => {
   });
 
   it('rejects unknown fields with ZodError when schema is strict', () => {
-    expect(() =>
-      strictParse(testSchema, { name: 'Alice', age: 30, isAdmin: true }),
-    ).toThrow(ZodError);
+    expect(() => strictParse(testSchema, { name: 'Alice', age: 30, isAdmin: true })).toThrow(
+      ZodError,
+    );
   });
 
   it('includes unrecognized key name in ZodError', () => {

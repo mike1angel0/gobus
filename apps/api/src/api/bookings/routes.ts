@@ -74,15 +74,19 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   const bookingService = new BookingService(getPrisma());
 
   // GET /api/v1/bookings — list user's bookings (paginated, optional status filter)
-  app.get('/api/v1/bookings', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    const { page, pageSize, status } = strictParse(listBookingsQuerySchema, request.query);
-    const result = await bookingService.listByUser(request.user.id, { page, pageSize, status });
+  app.get(
+    '/api/v1/bookings',
+    { preHandler: [app.authenticate, privateNoCache] },
+    async (request) => {
+      const { page, pageSize, status } = strictParse(listBookingsQuerySchema, request.query);
+      const result = await bookingService.listByUser(request.user.id, { page, pageSize, status });
 
-    return {
-      data: result.data.map(serializeBookingForList),
-      meta: result.meta,
-    };
-  });
+      return {
+        data: result.data.map(serializeBookingForList),
+        meta: result.meta,
+      };
+    },
+  );
 
   // POST /api/v1/bookings — create a new booking
   app.post('/api/v1/bookings', { preHandler: [app.authenticate] }, async (request, reply) => {
@@ -95,12 +99,16 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // GET /api/v1/bookings/:id — get booking details (ownership enforced)
-  app.get('/api/v1/bookings/:id', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    const { id } = strictParse(idParamSchema, request.params);
-    const booking = await bookingService.getById(id, request.user.id);
+  app.get(
+    '/api/v1/bookings/:id',
+    { preHandler: [app.authenticate, privateNoCache] },
+    async (request) => {
+      const { id } = strictParse(idParamSchema, request.params);
+      const booking = await bookingService.getById(id, request.user.id);
 
-    return { data: serializeBookingWithDetails(booking) };
-  });
+      return { data: serializeBookingWithDetails(booking) };
+    },
+  );
 
   // DELETE /api/v1/bookings/:id — cancel a booking (ownership enforced)
   app.delete('/api/v1/bookings/:id', { preHandler: [app.authenticate] }, async (request) => {

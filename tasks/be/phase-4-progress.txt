@@ -111,5 +111,31 @@
 - Learnings: `@fastify/helmet` v13 (helmet v8) does not support `permissionsPolicy` option — must add Permissions-Policy header manually via Fastify `onSend` hook. Fastify itself never sets X-Powered-By (unlike Express), so helmet's hidePoweredBy is a no-op, but the header is still correctly absent.
 ---
 
+## Iteration 26 - TASK-026: Secrets and information disclosure prevention
+- Created `.gitleaks.toml` config at monorepo root with allowlist for test files and .env.example
+- Added `npm run security:secrets` (gitleaks) and `npm run security:audit` (gitleaks + npm audit) scripts
+- Hardened error handler: `isPrismaError()` detects PrismaClient* errors by name prefix, returns generic 500
+- Swagger UI disabled when NODE_ENV=production (conditional registration in app.ts)
+- Health endpoint already clean: no version numbers, no internal IPs
+- `.env.example` already complete with all 8 env vars documented
+- npm audit passes with 0 vulnerabilities
+- 2 new Prisma error tests (KnownRequestError, ValidationError) + 6 info disclosure integration tests
+- All 461 unit + 456 integration tests pass, typecheck + lint clean
+- Learnings: gitleaks npm package is fake (1.0.0, unrelated). Use system-installed gitleaks binary. The `.gitleaks.toml` must use `[allowlist]` (singular map) not `[[allowlist]]` (array of maps). Prisma errors can be detected by constructor name starting with 'PrismaClient' — avoids importing Prisma runtime.
+---
+
+## Iteration 27 - TASK-027: Comprehensive quality and security audit
+- All 23 quality/security checks pass
+- Code quality: typecheck ✓, lint ✓, format ✓ (fixed 32 files), build ✓
+- Tests: 461 unit + 456 integration = 917 total, all passing
+- Coverage: 99.38% statements, 94.54% branches, 99.68% functions, 99.44% lines (threshold: 85%)
+- API contract: spec:lint ✓ (3 warnings), api:validate ✓ (66/66 conformance tests)
+- Security: npm audit clean (0 vulnerabilities), zero `any` in production code, no console.log, no hardcoded secrets
+- Fixed 2 flaky oversized payload tests (ECONNRESET with supertest → use app.inject())
+- Excluded entity type files, prisma client, and job runners from coverage (pure types / infrastructure)
+- Prettier formatting applied to 32 files that had drifted
+- Learnings: supertest ECONNRESET on oversized payloads — Fastify closes connection before supertest finishes writing. Use `app.inject()` instead for bodyLimit tests. Entity files are pure TS interfaces — 0% coverage is correct, exclude them.
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.

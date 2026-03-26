@@ -58,9 +58,10 @@ function buildSummary(state: MetricsState): Record<string, unknown> {
 
   return {
     requestCount: state.requestCount,
-    avgResponseTime: state.requestCount > 0
-      ? Math.round((state.totalResponseTime / state.requestCount) * 100) / 100
-      : 0,
+    avgResponseTime:
+      state.requestCount > 0
+        ? Math.round((state.totalResponseTime / state.requestCount) * 100) / 100
+        : 0,
     p50: Math.round(percentile(sorted, 50) * 100) / 100,
     p95: Math.round(percentile(sorted, 95) * 100) / 100,
     p99: Math.round(percentile(sorted, 99) * 100) / 100,
@@ -129,4 +130,10 @@ export default fp(metricsPlugin, {
 });
 
 // Exported for testing
-export { createMetricsState, percentile, buildSummary, SLOW_REQUEST_THRESHOLD_MS, type MetricsState };
+export {
+  createMetricsState,
+  percentile,
+  buildSummary,
+  SLOW_REQUEST_THRESHOLD_MS,
+  type MetricsState,
+};

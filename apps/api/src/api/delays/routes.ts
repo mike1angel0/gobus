@@ -41,7 +41,10 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /api/v1/delays — list delays for a schedule + tripDate (paginated)
   app.get('/api/v1/delays', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    const { scheduleId, tripDate, page, pageSize } = strictParse(listDelaysQuerySchema, request.query);
+    const { scheduleId, tripDate, page, pageSize } = strictParse(
+      listDelaysQuerySchema,
+      request.query,
+    );
     const result = await delayService.getBySchedule(scheduleId, tripDate, page, pageSize);
 
     return { data: result.data.map(serializeDelay), meta: result.meta };

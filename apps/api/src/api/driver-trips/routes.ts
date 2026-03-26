@@ -60,16 +60,20 @@ function serializeDriverTripDetail(detail: DriverTripDetail): Record<string, unk
 async function driverTripRoutes(app: FastifyInstance): Promise<void> {
   const driverTripService = new DriverTripService(getPrisma());
 
-  app.get('/api/v1/driver/trips', { preHandler: [app.authenticate, privateNoCache] }, async (request) => {
-    if (request.user.role !== 'DRIVER') {
-      throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access trip list');
-    }
+  app.get(
+    '/api/v1/driver/trips',
+    { preHandler: [app.authenticate, privateNoCache] },
+    async (request) => {
+      if (request.user.role !== 'DRIVER') {
+        throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access trip list');
+      }
 
-    const { date, page, pageSize } = strictParse(listDriverTripsQuerySchema, request.query);
-    const result = await driverTripService.listTrips(request.user.id, date, page, pageSize);
+      const { date, page, pageSize } = strictParse(listDriverTripsQuerySchema, request.query);
+      const result = await driverTripService.listTrips(request.user.id, date, page, pageSize);
 
-    return { data: result.data.map(serializeDriverTrip), meta: result.meta };
-  });
+      return { data: result.data.map(serializeDriverTrip), meta: result.meta };
+    },
+  );
 
   app.get(
     '/api/v1/driver/trips/:scheduleId',

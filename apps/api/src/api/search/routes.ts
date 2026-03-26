@@ -75,26 +75,37 @@ async function searchRoutes(app: FastifyInstance): Promise<void> {
   const searchService = new SearchService(getPrisma());
 
   // GET /api/v1/search — search for available trips
-  app.get('/api/v1/search', { preHandler: [cachePublic(30)], config: { rateLimit: SEARCH_RATE_LIMIT } }, async (request) => {
-    const { origin, destination, date, page, pageSize } = strictParse(searchQuerySchema, request.query);
+  app.get(
+    '/api/v1/search',
+    { preHandler: [cachePublic(30)], config: { rateLimit: SEARCH_RATE_LIMIT } },
+    async (request) => {
+      const { origin, destination, date, page, pageSize } = strictParse(
+        searchQuerySchema,
+        request.query,
+      );
 
-    const result = await searchService.searchTrips({ origin, destination, date, page, pageSize });
+      const result = await searchService.searchTrips({ origin, destination, date, page, pageSize });
 
-    return {
-      data: result.data.map(serializeSearchResult),
-      meta: result.meta,
-    };
-  });
+      return {
+        data: result.data.map(serializeSearchResult),
+        meta: result.meta,
+      };
+    },
+  );
 
   // GET /api/v1/trips/:scheduleId — get trip details with seat availability
-  app.get('/api/v1/trips/:scheduleId', { preHandler: [cachePublic(10)], config: { rateLimit: SEARCH_RATE_LIMIT } }, async (request) => {
-    const { scheduleId } = strictParse(tripDetailParamsSchema, request.params);
-    const { tripDate } = strictParse(tripDetailQuerySchema, request.query);
+  app.get(
+    '/api/v1/trips/:scheduleId',
+    { preHandler: [cachePublic(10)], config: { rateLimit: SEARCH_RATE_LIMIT } },
+    async (request) => {
+      const { scheduleId } = strictParse(tripDetailParamsSchema, request.params);
+      const { tripDate } = strictParse(tripDetailQuerySchema, request.query);
 
-    const detail = await searchService.getTripDetails(scheduleId, tripDate);
+      const detail = await searchService.getTripDetails(scheduleId, tripDate);
 
-    return { data: serializeTripDetail(detail) };
-  });
+      return { data: serializeTripDetail(detail) };
+    },
+  );
 }
 
 export default fp(searchRoutes, {

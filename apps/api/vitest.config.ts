@@ -23,8 +23,10 @@ export default defineConfig({
         'src/generated/**',
         'src/domain/**/index.ts',
         'src/domain/auth/auth.types.ts',
-        'src/domain/users/user.entity.ts',
+        'src/domain/**/**.entity.ts',
         'src/shared/types.ts',
+        'src/infrastructure/prisma/client.ts',
+        'src/jobs/**',
       ],
       thresholds: {
         statements: 85,

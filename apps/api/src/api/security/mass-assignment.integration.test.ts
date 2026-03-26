@@ -80,7 +80,8 @@ vi.mock('@/infrastructure/logger/logger.js', () => ({
   }),
 }));
 
-const PASSENGER_AUTH = () => createAuthHeader('user-pass-1', 'PASSENGER', { email: 'pass@test.com' });
+const PASSENGER_AUTH = () =>
+  createAuthHeader('user-pass-1', 'PASSENGER', { email: 'pass@test.com' });
 const PROVIDER_AUTH = () =>
   createAuthHeader('user-prov-1', 'PROVIDER', { email: 'prov@test.com', providerId: 'prov-1' });
 
@@ -119,7 +120,9 @@ describe('Mass Assignment Prevention', () => {
       const body = JSON.parse(response.body);
       expect(body.code).toBe('VALIDATION_ERROR');
       expect(body.errors).toEqual(
-        expect.arrayContaining([expect.objectContaining({ message: expect.stringContaining('extraField') })]),
+        expect.arrayContaining([
+          expect.objectContaining({ message: expect.stringContaining('extraField') }),
+        ]),
       );
     });
 
@@ -167,7 +170,9 @@ describe('Mass Assignment Prevention', () => {
       const body = JSON.parse(response.body);
       expect(body.code).toBe('VALIDATION_ERROR');
       expect(body.errors).toEqual(
-        expect.arrayContaining([expect.objectContaining({ message: expect.stringContaining('totalPrice') })]),
+        expect.arrayContaining([
+          expect.objectContaining({ message: expect.stringContaining('totalPrice') }),
+        ]),
       );
     });
 
@@ -222,7 +227,9 @@ describe('Mass Assignment Prevention', () => {
       const body = JSON.parse(response.body);
       expect(body.code).toBe('VALIDATION_ERROR');
       expect(body.errors).toEqual(
-        expect.arrayContaining([expect.objectContaining({ message: expect.stringContaining('role') })]),
+        expect.arrayContaining([
+          expect.objectContaining({ message: expect.stringContaining('role') }),
+        ]),
       );
     });
   });
@@ -344,7 +351,9 @@ describe('Mass Assignment Prevention', () => {
       const body = JSON.parse(response.body);
       expect(body.code).toBe('VALIDATION_ERROR');
       expect(body.errors).toEqual(
-        expect.arrayContaining([expect.objectContaining({ message: expect.stringContaining('totalPrice') })]),
+        expect.arrayContaining([
+          expect.objectContaining({ message: expect.stringContaining('totalPrice') }),
+        ]),
       );
     });
   });

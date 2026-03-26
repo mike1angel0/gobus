@@ -386,7 +386,7 @@
 23. CORS configured with strict origin whitelist
 
 **Acceptance Criteria:**
-- [ ] All 23 checks pass
-- [ ] Coverage report generated and reviewed
-- [ ] Security audit report clean
-- [ ] Backend is production-ready and pentest-hardened
+- [x] All 23 checks pass
+- [x] Coverage report generated and reviewed
+- [x] Security audit report clean
+- [x] Backend is production-ready and pentest-hardened

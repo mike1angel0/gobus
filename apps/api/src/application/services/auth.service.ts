@@ -547,9 +547,10 @@ export class AuthService {
    * Tokens and user ID are fake — any attempt to use them will fail gracefully.
    * Prevents account enumeration via registration endpoint.
    */
-  private buildFakeRegistrationResponse(
-    data: RegisterData,
-  ): { user: UserEntity; tokens: TokenPair } {
+  private buildFakeRegistrationResponse(data: RegisterData): {
+    user: UserEntity;
+    tokens: TokenPair;
+  } {
     const env = getEnv();
     const fakeUserId = randomUUID();
     const now = new Date();

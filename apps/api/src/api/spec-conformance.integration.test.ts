@@ -44,19 +44,78 @@ const mockQueryRawUnsafe = vi.fn();
 const mockTransaction = vi.fn();
 
 const mockPrisma = {
-  user: { findUnique: mockUserFindUnique, create: mockUserCreate, update: mockUserUpdate, findMany: mockUserFindMany, count: mockUserCount },
-  provider: { create: mockProviderCreate, findUnique: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
-  refreshToken: { findUnique: mockRefreshTokenFindUnique, create: mockRefreshTokenCreate, update: mockRefreshTokenUpdate, updateMany: mockRefreshTokenUpdateMany },
-  passwordResetToken: { findUnique: vi.fn(), create: mockPasswordResetTokenCreate, update: vi.fn() },
-  route: { findMany: mockRouteFindMany, count: mockRouteCount, findUnique: mockRouteFindUnique, delete: vi.fn(), create: vi.fn() },
-  bus: { findMany: mockBusFindMany, count: mockBusCount, findUnique: mockBusFindUnique, delete: vi.fn(), update: vi.fn(), create: vi.fn() },
+  user: {
+    findUnique: mockUserFindUnique,
+    create: mockUserCreate,
+    update: mockUserUpdate,
+    findMany: mockUserFindMany,
+    count: mockUserCount,
+  },
+  provider: {
+    create: mockProviderCreate,
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    update: vi.fn(),
+  },
+  refreshToken: {
+    findUnique: mockRefreshTokenFindUnique,
+    create: mockRefreshTokenCreate,
+    update: mockRefreshTokenUpdate,
+    updateMany: mockRefreshTokenUpdateMany,
+  },
+  passwordResetToken: {
+    findUnique: vi.fn(),
+    create: mockPasswordResetTokenCreate,
+    update: vi.fn(),
+  },
+  route: {
+    findMany: mockRouteFindMany,
+    count: mockRouteCount,
+    findUnique: mockRouteFindUnique,
+    delete: vi.fn(),
+    create: vi.fn(),
+  },
+  bus: {
+    findMany: mockBusFindMany,
+    count: mockBusCount,
+    findUnique: mockBusFindUnique,
+    delete: vi.fn(),
+    update: vi.fn(),
+    create: vi.fn(),
+  },
   seat: { findUnique: mockSeatFindUnique, update: mockSeatUpdate },
-  schedule: { findMany: mockScheduleFindMany, count: mockScheduleCount, findUnique: mockScheduleFindUnique, update: vi.fn(), delete: vi.fn(), create: vi.fn(), findFirst: vi.fn(), updateMany: vi.fn() },
-  booking: { findMany: mockBookingFindMany, findUnique: mockBookingFindUnique, create: vi.fn(), update: vi.fn(), count: mockBookingCount },
+  schedule: {
+    findMany: mockScheduleFindMany,
+    count: mockScheduleCount,
+    findUnique: mockScheduleFindUnique,
+    update: vi.fn(),
+    delete: vi.fn(),
+    create: vi.fn(),
+    findFirst: vi.fn(),
+    updateMany: vi.fn(),
+  },
+  booking: {
+    findMany: mockBookingFindMany,
+    findUnique: mockBookingFindUnique,
+    create: vi.fn(),
+    update: vi.fn(),
+    count: mockBookingCount,
+  },
   bookingSeat: { findMany: vi.fn(), create: vi.fn(), createMany: vi.fn() },
   busTracking: { findUnique: mockBusTrackingFindUnique, upsert: vi.fn() },
-  delay: { findMany: mockDelayFindMany, findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), updateMany: vi.fn(), count: mockDelayCount },
-  auditLog: { findMany: mockAuditLogFindMany, count: mockAuditLogCount, create: mockAuditLogCreate },
+  delay: {
+    findMany: mockDelayFindMany,
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    updateMany: vi.fn(),
+    count: mockDelayCount,
+  },
+  auditLog: {
+    findMany: mockAuditLogFindMany,
+    count: mockAuditLogCount,
+    create: mockAuditLogCreate,
+  },
   $transaction: mockTransaction,
   $queryRawUnsafe: mockQueryRawUnsafe,
 };
@@ -68,7 +127,8 @@ vi.mock('@/infrastructure/prisma/client.js', () => ({
 vi.mock('@/infrastructure/config/env.js', () => ({
   getEnv: () => ({
     JWT_SECRET: process.env.JWT_SECRET ?? 'test-jwt-secret-do-not-use-in-prod',
-    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET ?? 'test-jwt-refresh-secret-do-not-use-in-prod',
+    JWT_REFRESH_SECRET:
+      process.env.JWT_REFRESH_SECRET ?? 'test-jwt-refresh-secret-do-not-use-in-prod',
     NODE_ENV: 'test',
     DATABASE_URL: 'postgresql://test:test@localhost:5432/transio_test',
   }),
@@ -76,27 +136,50 @@ vi.mock('@/infrastructure/config/env.js', () => ({
 
 vi.mock('@/infrastructure/logger/logger.js', () => ({
   createLogger: () => ({
-    info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   }),
 }));
 
 // ---------------------------------------------------------------------------
 // Auth helpers
 // ---------------------------------------------------------------------------
-const PROVIDER_AUTH = createAuthHeader('user-1', 'PROVIDER', { email: 'p@test.com', providerId: 'prov-1' });
+const PROVIDER_AUTH = createAuthHeader('user-1', 'PROVIDER', {
+  email: 'p@test.com',
+  providerId: 'prov-1',
+});
 const PASSENGER_AUTH = createAuthHeader('pass-1', 'PASSENGER', { email: 'u@test.com' });
-const DRIVER_AUTH = createAuthHeader('drv-1', 'DRIVER', { email: 'd@test.com', providerId: 'prov-1' });
+const DRIVER_AUTH = createAuthHeader('drv-1', 'DRIVER', {
+  email: 'd@test.com',
+  providerId: 'prov-1',
+});
 const ADMIN_AUTH = createAuthHeader('adm-1', 'ADMIN', { email: 'a@test.com' });
 
-function authProvider() { mockUserFindUnique.mockResolvedValueOnce({ id: 'user-1', status: 'ACTIVE' }); }
-function authPassenger() { mockUserFindUnique.mockResolvedValueOnce({ id: 'pass-1', status: 'ACTIVE' }); }
-function authDriver() { mockUserFindUnique.mockResolvedValueOnce({ id: 'drv-1', status: 'ACTIVE' }); }
+function authProvider() {
+  mockUserFindUnique.mockResolvedValueOnce({ id: 'user-1', status: 'ACTIVE' });
+}
+function authPassenger() {
+  mockUserFindUnique.mockResolvedValueOnce({ id: 'pass-1', status: 'ACTIVE' });
+}
+function authDriver() {
+  mockUserFindUnique.mockResolvedValueOnce({ id: 'drv-1', status: 'ACTIVE' });
+}
 function authAdmin() {
   mockUserFindUnique.mockResolvedValueOnce({
-    id: 'adm-1', email: 'a@test.com', name: 'Admin', role: 'ADMIN',
-    phone: null, avatarUrl: null, providerId: null, status: 'ACTIVE',
-    failedLoginAttempts: 0, lockedUntil: null,
-    createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01'),
+    id: 'adm-1',
+    email: 'a@test.com',
+    name: 'Admin',
+    role: 'ADMIN',
+    phone: null,
+    avatarUrl: null,
+    providerId: null,
+    status: 'ACTIVE',
+    failedLoginAttempts: 0,
+    lockedUntil: null,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
   });
 }
 
@@ -108,45 +191,97 @@ const PASSWORD_HASH = bcrypt.hashSync('Password1!', 4);
 
 function makeUser(overrides = {}) {
   return {
-    id: 'user-1', email: 'test@example.com', name: 'Test User',
-    passwordHash: PASSWORD_HASH, role: 'PASSENGER' as const,
-    phone: null, avatarUrl: null, preferences: {}, providerId: null,
-    status: 'ACTIVE' as const, failedLoginAttempts: 0, lockedUntil: null,
-    createdAt: NOW, updatedAt: NOW, ...overrides,
+    id: 'user-1',
+    email: 'test@example.com',
+    name: 'Test User',
+    passwordHash: PASSWORD_HASH,
+    role: 'PASSENGER' as const,
+    phone: null,
+    avatarUrl: null,
+    preferences: {},
+    providerId: null,
+    status: 'ACTIVE' as const,
+    failedLoginAttempts: 0,
+    lockedUntil: null,
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
   };
 }
 
 function makeRoute(overrides = {}) {
-  return { id: 'route-1', name: 'Bucharest - Cluj', providerId: 'prov-1', createdAt: NOW, ...overrides };
+  return {
+    id: 'route-1',
+    name: 'Bucharest - Cluj',
+    providerId: 'prov-1',
+    createdAt: NOW,
+    ...overrides,
+  };
 }
 
 function makeRouteWithStops(overrides = {}) {
   return {
     ...makeRoute(overrides),
     stops: [
-      { id: 'stop-1', name: 'Bucharest', lat: 44.4268, lng: 26.1025, orderIndex: 0, routeId: 'route-1' },
+      {
+        id: 'stop-1',
+        name: 'Bucharest',
+        lat: 44.4268,
+        lng: 26.1025,
+        orderIndex: 0,
+        routeId: 'route-1',
+      },
       { id: 'stop-2', name: 'Cluj', lat: 46.7712, lng: 23.6236, orderIndex: 1, routeId: 'route-1' },
     ],
   };
 }
 
 function makeBus(overrides = {}) {
-  return { id: 'bus-1', licensePlate: 'B-123-ABC', model: 'Mercedes Tourismo', capacity: 52, rows: 13, columns: 4, providerId: 'prov-1', createdAt: NOW, ...overrides };
+  return {
+    id: 'bus-1',
+    licensePlate: 'B-123-ABC',
+    model: 'Mercedes Tourismo',
+    capacity: 52,
+    rows: 13,
+    columns: 4,
+    providerId: 'prov-1',
+    createdAt: NOW,
+    ...overrides,
+  };
 }
 
 function makeBusWithSeats(overrides = {}) {
   return {
     ...makeBus(overrides),
-    seats: [{ id: 'seat-1', row: 1, column: 1, label: '1A', type: 'STANDARD', price: 0, isEnabled: true, busId: 'bus-1' }],
+    seats: [
+      {
+        id: 'seat-1',
+        row: 1,
+        column: 1,
+        label: '1A',
+        type: 'STANDARD',
+        price: 0,
+        isEnabled: true,
+        busId: 'bus-1',
+      },
+    ],
   };
 }
 
 function makeSchedule(overrides = {}) {
   return {
-    id: 'sched-1', routeId: 'route-1', busId: 'bus-1', driverId: 'drv-1',
-    departureTime: NOW, arrivalTime: new Date('2026-03-25T14:00:00.000Z'),
-    daysOfWeek: [1, 3, 5], basePrice: 50, status: 'ACTIVE',
-    tripDate: new Date('2026-03-25T00:00:00.000Z'), createdAt: NOW, ...overrides,
+    id: 'sched-1',
+    routeId: 'route-1',
+    busId: 'bus-1',
+    driverId: 'drv-1',
+    departureTime: NOW,
+    arrivalTime: new Date('2026-03-25T14:00:00.000Z'),
+    daysOfWeek: [1, 3, 5],
+    basePrice: 50,
+    status: 'ACTIVE',
+    tripDate: new Date('2026-03-25T00:00:00.000Z'),
+    createdAt: NOW,
+    ...overrides,
   };
 }
 
@@ -154,24 +289,59 @@ function makeScheduleWithDetails(overrides = {}) {
   return {
     ...makeSchedule(overrides),
     stopTimes: [
-      { id: 'st-1', stopName: 'Bucharest', arrivalTime: NOW, departureTime: new Date('2026-03-25T10:10:00.000Z'), orderIndex: 0, priceFromStart: 0 },
-      { id: 'st-2', stopName: 'Cluj', arrivalTime: new Date('2026-03-25T13:50:00.000Z'), departureTime: new Date('2026-03-25T14:00:00.000Z'), orderIndex: 1, priceFromStart: 50 },
+      {
+        id: 'st-1',
+        stopName: 'Bucharest',
+        arrivalTime: NOW,
+        departureTime: new Date('2026-03-25T10:10:00.000Z'),
+        orderIndex: 0,
+        priceFromStart: 0,
+      },
+      {
+        id: 'st-2',
+        stopName: 'Cluj',
+        arrivalTime: new Date('2026-03-25T13:50:00.000Z'),
+        departureTime: new Date('2026-03-25T14:00:00.000Z'),
+        orderIndex: 1,
+        priceFromStart: 50,
+      },
     ],
     route: { id: 'route-1', name: 'Bucharest - Cluj', providerId: 'prov-1', createdAt: NOW },
-    bus: { id: 'bus-1', licensePlate: 'B-123-ABC', model: 'Mercedes Tourismo', capacity: 52, rows: 13, columns: 4, providerId: 'prov-1', createdAt: NOW },
+    bus: {
+      id: 'bus-1',
+      licensePlate: 'B-123-ABC',
+      model: 'Mercedes Tourismo',
+      capacity: 52,
+      rows: 13,
+      columns: 4,
+      providerId: 'prov-1',
+      createdAt: NOW,
+    },
     driver: { id: 'drv-1', name: 'Ion Popescu' },
   };
 }
 
 function makeBooking(overrides = {}) {
   return {
-    id: 'book-1', orderId: 'ORD-123', userId: 'pass-1', scheduleId: 'sched-1',
-    totalPrice: 50, status: 'CONFIRMED', boardingStop: 'Bucharest', alightingStop: 'Cluj',
-    tripDate: new Date('2026-03-25T00:00:00.000Z'), createdAt: NOW,
+    id: 'book-1',
+    orderId: 'ORD-123',
+    userId: 'pass-1',
+    scheduleId: 'sched-1',
+    totalPrice: 50,
+    status: 'CONFIRMED',
+    boardingStop: 'Bucharest',
+    alightingStop: 'Cluj',
+    tripDate: new Date('2026-03-25T00:00:00.000Z'),
+    createdAt: NOW,
     bookingSeats: [{ seatLabel: '1A' }],
     schedule: {
-      departureTime: NOW, arrivalTime: new Date('2026-03-25T14:00:00.000Z'),
-      route: { id: 'route-1', name: 'Bucharest - Cluj', provider: { id: 'prov-1', name: 'FlixBus' } },
+      departureTime: NOW,
+      arrivalTime: new Date('2026-03-25T14:00:00.000Z'),
+      route: {
+        id: 'route-1',
+        name: 'Bucharest - Cluj',
+        provider: { id: 'prov-1', name: 'FlixBus' },
+      },
       bus: { id: 'bus-1', licensePlate: 'B-123-ABC', model: 'Mercedes Tourismo' },
     },
     ...overrides,
@@ -180,14 +350,36 @@ function makeBooking(overrides = {}) {
 
 function makeSearchSchedule() {
   return {
-    id: 'sched-1', status: 'ACTIVE', departureTime: NOW,
-    arrivalTime: new Date('2026-03-25T14:00:00.000Z'), basePrice: 50,
+    id: 'sched-1',
+    status: 'ACTIVE',
+    departureTime: NOW,
+    arrivalTime: new Date('2026-03-25T14:00:00.000Z'),
+    basePrice: 50,
     stopTimes: [
-      { id: 'st-1', stopName: 'Bucharest', arrivalTime: NOW, departureTime: new Date('2026-03-25T10:10:00.000Z'), orderIndex: 0, priceFromStart: 0 },
-      { id: 'st-2', stopName: 'Cluj', arrivalTime: new Date('2026-03-25T13:50:00.000Z'), departureTime: new Date('2026-03-25T14:00:00.000Z'), orderIndex: 1, priceFromStart: 50 },
+      {
+        id: 'st-1',
+        stopName: 'Bucharest',
+        arrivalTime: NOW,
+        departureTime: new Date('2026-03-25T10:10:00.000Z'),
+        orderIndex: 0,
+        priceFromStart: 0,
+      },
+      {
+        id: 'st-2',
+        stopName: 'Cluj',
+        arrivalTime: new Date('2026-03-25T13:50:00.000Z'),
+        departureTime: new Date('2026-03-25T14:00:00.000Z'),
+        orderIndex: 1,
+        priceFromStart: 50,
+      },
     ],
     route: { name: 'Bucharest - Cluj', provider: { name: 'FlixBus' } },
-    bus: { seats: [{ id: 'seat-1', isEnabled: true, type: 'STANDARD' }, { id: 'seat-2', isEnabled: true, type: 'STANDARD' }] },
+    bus: {
+      seats: [
+        { id: 'seat-1', isEnabled: true, type: 'STANDARD' },
+        { id: 'seat-2', isEnabled: true, type: 'STANDARD' },
+      ],
+    },
     bookingSeats: [],
     delays: [],
   };
@@ -195,18 +387,51 @@ function makeSearchSchedule() {
 
 function makeTripSchedule() {
   return {
-    id: 'sched-1', status: 'ACTIVE', departureTime: NOW,
-    arrivalTime: new Date('2026-03-25T14:00:00.000Z'), basePrice: 50,
+    id: 'sched-1',
+    status: 'ACTIVE',
+    departureTime: NOW,
+    arrivalTime: new Date('2026-03-25T14:00:00.000Z'),
+    basePrice: 50,
     tripDate: new Date('2026-03-25T00:00:00.000Z'),
     stopTimes: [
-      { id: 'st-1', stopName: 'Bucharest', arrivalTime: NOW, departureTime: new Date('2026-03-25T10:10:00.000Z'), orderIndex: 0, priceFromStart: 0 },
-      { id: 'st-2', stopName: 'Cluj', arrivalTime: new Date('2026-03-25T13:50:00.000Z'), departureTime: new Date('2026-03-25T14:00:00.000Z'), orderIndex: 1, priceFromStart: 50 },
+      {
+        id: 'st-1',
+        stopName: 'Bucharest',
+        arrivalTime: NOW,
+        departureTime: new Date('2026-03-25T10:10:00.000Z'),
+        orderIndex: 0,
+        priceFromStart: 0,
+      },
+      {
+        id: 'st-2',
+        stopName: 'Cluj',
+        arrivalTime: new Date('2026-03-25T13:50:00.000Z'),
+        departureTime: new Date('2026-03-25T14:00:00.000Z'),
+        orderIndex: 1,
+        priceFromStart: 50,
+      },
     ],
     route: { name: 'Bucharest - Cluj', provider: { name: 'FlixBus' } },
     bus: {
       seats: [
-        { id: 'seat-1', row: 1, column: 1, label: '1A', type: 'STANDARD', price: 0, isEnabled: true },
-        { id: 'seat-2', row: 1, column: 2, label: '1B', type: 'STANDARD', price: 0, isEnabled: true },
+        {
+          id: 'seat-1',
+          row: 1,
+          column: 1,
+          label: '1A',
+          type: 'STANDARD',
+          price: 0,
+          isEnabled: true,
+        },
+        {
+          id: 'seat-2',
+          row: 1,
+          column: 2,
+          label: '1B',
+          type: 'STANDARD',
+          price: 0,
+          isEnabled: true,
+        },
       ],
     },
     bookingSeats: [],
@@ -216,31 +441,65 @@ function makeTripSchedule() {
 
 function makeTracking(overrides = {}) {
   return {
-    id: 'track-1', busId: 'bus-1', lat: 44.4268, lng: 26.1025, speed: 60, heading: 90,
-    scheduleId: 'sched-1', currentStopIndex: 1, isActive: true,
-    tripDate: new Date('2026-03-25T00:00:00.000Z'), updatedAt: NOW, ...overrides,
+    id: 'track-1',
+    busId: 'bus-1',
+    lat: 44.4268,
+    lng: 26.1025,
+    speed: 60,
+    heading: 90,
+    scheduleId: 'sched-1',
+    currentStopIndex: 1,
+    isActive: true,
+    tripDate: new Date('2026-03-25T00:00:00.000Z'),
+    updatedAt: NOW,
+    ...overrides,
   };
 }
 
 function makeDelay(overrides = {}) {
   return {
-    id: 'delay-1', scheduleId: 'sched-1', offsetMinutes: 15, reason: 'TRAFFIC',
-    note: null, tripDate: new Date('2026-03-25T00:00:00.000Z'), active: true, createdAt: NOW, ...overrides,
+    id: 'delay-1',
+    scheduleId: 'sched-1',
+    offsetMinutes: 15,
+    reason: 'TRAFFIC',
+    note: null,
+    tripDate: new Date('2026-03-25T00:00:00.000Z'),
+    active: true,
+    createdAt: NOW,
+    ...overrides,
   };
 }
 
 function makeAdminUser(overrides = {}) {
   return {
-    id: 'user-1', email: 'user@test.com', name: 'Test User', role: 'PASSENGER',
-    phone: null, avatarUrl: null, providerId: null, status: 'ACTIVE',
-    failedLoginAttempts: 0, lockedUntil: null, createdAt: NOW, updatedAt: NOW, ...overrides,
+    id: 'user-1',
+    email: 'user@test.com',
+    name: 'Test User',
+    role: 'PASSENGER',
+    phone: null,
+    avatarUrl: null,
+    providerId: null,
+    status: 'ACTIVE',
+    failedLoginAttempts: 0,
+    lockedUntil: null,
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
   };
 }
 
 function makeAuditLog(overrides = {}) {
   return {
-    id: 'audit-1', userId: 'user-1', action: 'LOGIN_SUCCESS', resource: 'auth',
-    resourceId: null, ipAddress: '127.0.0.1', userAgent: 'test', metadata: null, createdAt: NOW, ...overrides,
+    id: 'audit-1',
+    userId: 'user-1',
+    action: 'LOGIN_SUCCESS',
+    resource: 'auth',
+    resourceId: null,
+    ipAddress: '127.0.0.1',
+    userAgent: 'test',
+    metadata: null,
+    createdAt: NOW,
+    ...overrides,
   };
 }
 
@@ -250,8 +509,22 @@ function makeDriverTrip(overrides = {}) {
     route: { name: 'Bucharest - Cluj' },
     bus: { licensePlate: 'B-123-ABC', model: 'Mercedes Tourismo', capacity: 52 },
     stopTimes: [
-      { id: 'st-1', stopName: 'Bucharest', arrivalTime: NOW, departureTime: new Date('2026-03-25T10:10:00.000Z'), orderIndex: 0, priceFromStart: 0 },
-      { id: 'st-2', stopName: 'Cluj', arrivalTime: new Date('2026-03-25T13:50:00.000Z'), departureTime: new Date('2026-03-25T14:00:00.000Z'), orderIndex: 1, priceFromStart: 50 },
+      {
+        id: 'st-1',
+        stopName: 'Bucharest',
+        arrivalTime: NOW,
+        departureTime: new Date('2026-03-25T10:10:00.000Z'),
+        orderIndex: 0,
+        priceFromStart: 0,
+      },
+      {
+        id: 'st-2',
+        stopName: 'Cluj',
+        arrivalTime: new Date('2026-03-25T13:50:00.000Z'),
+        departureTime: new Date('2026-03-25T14:00:00.000Z'),
+        orderIndex: 1,
+        priceFromStart: 50,
+      },
     ],
   };
 }
@@ -288,8 +561,12 @@ describe('API Spec Conformance', () => {
     validator = createSpecValidator();
   });
 
-  afterAll(async () => { await app.close(); });
-  beforeEach(() => { vi.clearAllMocks(); });
+  afterAll(async () => {
+    await app.close();
+  });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   // -----------------------------------------------------------------------
   // 401 Error Response — validates ErrorResponse schema for all protected endpoints
@@ -297,7 +574,11 @@ describe('API Spec Conformance', () => {
   describe('401 Error Response Conformance', () => {
     const protectedEndpoints: Array<{ method: string; path: string; specPath: string }> = [
       { method: 'post', path: '/api/v1/auth/logout', specPath: '/api/v1/auth/logout' },
-      { method: 'post', path: '/api/v1/auth/change-password', specPath: '/api/v1/auth/change-password' },
+      {
+        method: 'post',
+        path: '/api/v1/auth/change-password',
+        specPath: '/api/v1/auth/change-password',
+      },
       { method: 'get', path: '/api/v1/auth/me', specPath: '/api/v1/auth/me' },
       { method: 'patch', path: '/api/v1/auth/me', specPath: '/api/v1/auth/me' },
       { method: 'get', path: '/api/v1/providers/me', specPath: '/api/v1/providers/me' },
@@ -326,14 +607,26 @@ describe('API Spec Conformance', () => {
       { method: 'get', path: '/api/v1/tracking/bus-1', specPath: '/api/v1/tracking/{busId}' },
       { method: 'post', path: '/api/v1/tracking', specPath: '/api/v1/tracking' },
       { method: 'get', path: '/api/v1/driver/trips', specPath: '/api/v1/driver/trips' },
-      { method: 'get', path: '/api/v1/driver/trips/sched-1', specPath: '/api/v1/driver/trips/{scheduleId}' },
+      {
+        method: 'get',
+        path: '/api/v1/driver/trips/sched-1',
+        specPath: '/api/v1/driver/trips/{scheduleId}',
+      },
       { method: 'get', path: '/api/v1/delays', specPath: '/api/v1/delays' },
       { method: 'post', path: '/api/v1/delays', specPath: '/api/v1/delays' },
       { method: 'put', path: '/api/v1/delays/delay-1', specPath: '/api/v1/delays/{id}' },
       { method: 'get', path: '/api/v1/admin/buses', specPath: '/api/v1/admin/buses' },
       { method: 'get', path: '/api/v1/admin/users', specPath: '/api/v1/admin/users' },
-      { method: 'patch', path: '/api/v1/admin/users/user-1/status', specPath: '/api/v1/admin/users/{id}/status' },
-      { method: 'delete', path: '/api/v1/admin/users/user-1/sessions', specPath: '/api/v1/admin/users/{id}/sessions' },
+      {
+        method: 'patch',
+        path: '/api/v1/admin/users/user-1/status',
+        specPath: '/api/v1/admin/users/{id}/status',
+      },
+      {
+        method: 'delete',
+        path: '/api/v1/admin/users/user-1/sessions',
+        specPath: '/api/v1/admin/users/{id}/sessions',
+      },
       { method: 'get', path: '/api/v1/admin/audit-logs', specPath: '/api/v1/admin/audit-logs' },
       { method: 'patch', path: '/api/v1/admin/seats/seat-1', specPath: '/api/v1/admin/seats/{id}' },
     ];
@@ -341,7 +634,9 @@ describe('API Spec Conformance', () => {
     it.each(protectedEndpoints)(
       '$method $path → 401 conforms to ErrorResponse',
       async ({ method, path, specPath }) => {
-        const req = supertest(app.server)[method as 'get' | 'post' | 'put' | 'patch' | 'delete'](path);
+        const req = supertest(app.server)[method as 'get' | 'post' | 'put' | 'patch' | 'delete'](
+          path,
+        );
         const res = await req.expect(401);
         assertConforms(validator, specPath, method, 401, res.body);
       },
@@ -373,9 +668,18 @@ describe('API Spec Conformance', () => {
       const hashedToken = createHash('sha256').update(rawToken).digest('hex');
 
       mockRefreshTokenFindUnique.mockResolvedValueOnce({
-        id: 'rt-1', token: hashedToken, userId: 'user-1',
-        expiresAt: new Date(Date.now() + 86400000), revoked: false,
-        user: { id: 'user-1', email: 'test@example.com', role: 'PASSENGER', providerId: null, status: 'ACTIVE' },
+        id: 'rt-1',
+        token: hashedToken,
+        userId: 'user-1',
+        expiresAt: new Date(Date.now() + 86400000),
+        revoked: false,
+        user: {
+          id: 'user-1',
+          email: 'test@example.com',
+          role: 'PASSENGER',
+          providerId: null,
+          status: 'ACTIVE',
+        },
       });
       mockRefreshTokenUpdate.mockResolvedValueOnce({});
       mockRefreshTokenCreate.mockResolvedValueOnce({ id: 'rt-2' });
@@ -421,9 +725,14 @@ describe('API Spec Conformance', () => {
       authProvider();
       mockUserFindUnique.mockResolvedValueOnce({
         provider: {
-          id: 'prov-1', name: 'FlixBus', logo: null,
-          contactEmail: 'contact@flixbus.com', contactPhone: '+40700000000',
-          status: 'APPROVED', createdAt: NOW, updatedAt: NOW,
+          id: 'prov-1',
+          name: 'FlixBus',
+          logo: null,
+          contactEmail: 'contact@flixbus.com',
+          contactPhone: '+40700000000',
+          status: 'APPROVED',
+          createdAt: NOW,
+          updatedAt: NOW,
         },
       });
 
@@ -503,11 +812,20 @@ describe('API Spec Conformance', () => {
 
     it('GET /drivers → 200 conforms to spec', async () => {
       authProvider();
-      mockUserFindMany.mockResolvedValueOnce([{
-        id: 'drv-1', email: 'driver@test.com', name: 'Driver One',
-        role: 'DRIVER', phone: '+40712345678', status: 'ACTIVE', providerId: 'prov-1',
-        createdAt: NOW, updatedAt: NOW, _count: { driverSchedules: 3 },
-      }]);
+      mockUserFindMany.mockResolvedValueOnce([
+        {
+          id: 'drv-1',
+          email: 'driver@test.com',
+          name: 'Driver One',
+          role: 'DRIVER',
+          phone: '+40712345678',
+          status: 'ACTIVE',
+          providerId: 'prov-1',
+          createdAt: NOW,
+          updatedAt: NOW,
+          _count: { driverSchedules: 3 },
+        },
+      ]);
       mockUserCount.mockResolvedValueOnce(1);
 
       const res = await supertest(app.server)
@@ -620,7 +938,18 @@ describe('API Spec Conformance', () => {
       authDriver();
       mockScheduleFindUnique.mockResolvedValueOnce({
         ...makeDriverTrip({ driverId: 'drv-1' }),
-        bookingSeats: [{ seatLabel: '1A', booking: { id: 'book-1', boardingStop: 'Bucharest', alightingStop: 'Cluj', status: 'CONFIRMED', user: { name: 'Test', phone: '+40700000000' } } }],
+        bookingSeats: [
+          {
+            seatLabel: '1A',
+            booking: {
+              id: 'book-1',
+              boardingStop: 'Bucharest',
+              alightingStop: 'Cluj',
+              status: 'CONFIRMED',
+              user: { name: 'Test', phone: '+40700000000' },
+            },
+          },
+        ],
       });
       mockBookingCount.mockResolvedValueOnce(1);
 
@@ -710,8 +1039,14 @@ describe('API Spec Conformance', () => {
       authAdmin();
       mockSeatFindUnique.mockResolvedValueOnce({ id: 'seat-1' });
       mockSeatUpdate.mockResolvedValueOnce({
-        id: 'seat-1', row: 1, column: 1, label: '1A', type: 'STANDARD',
-        price: 0, isEnabled: false, busId: 'bus-1',
+        id: 'seat-1',
+        row: 1,
+        column: 1,
+        label: '1A',
+        type: 'STANDARD',
+        price: 0,
+        isEnabled: false,
+        busId: 'bus-1',
       });
 
       const res = await supertest(app.server)
@@ -727,9 +1062,7 @@ describe('API Spec Conformance', () => {
       authAdmin();
       const user = makeAdminUser({ id: 'user-1', status: 'ACTIVE' });
       // Service: updateUserStatus findUnique + revokeAllSessions findUnique
-      mockUserFindUnique
-        .mockResolvedValueOnce(user)
-        .mockResolvedValueOnce(user);
+      mockUserFindUnique.mockResolvedValueOnce(user).mockResolvedValueOnce(user);
       mockUserUpdate.mockResolvedValueOnce({ ...user, status: 'SUSPENDED' });
       mockRefreshTokenUpdateMany.mockResolvedValueOnce({ count: 0 });
       mockAuditLogCreate.mockResolvedValueOnce({});

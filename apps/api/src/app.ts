@@ -124,10 +124,7 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
 
     // Permissions-Policy header (not included in helmet v8)
     app.addHook('onSend', async (_request, reply) => {
-      void reply.header(
-        'permissions-policy',
-        'camera=(), microphone=(), geolocation=(self)',
-      );
+      void reply.header('permissions-policy', 'camera=(), microphone=(), geolocation=(self)');
     });
   }
 

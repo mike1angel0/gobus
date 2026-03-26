@@ -128,7 +128,12 @@ export class DriverTripService {
       this.prisma.schedule.count({ where }),
     ]);
 
-    logger.debug('Driver trips listed', { driverId, date: dateStr, count: schedules.length, total });
+    logger.debug('Driver trips listed', {
+      driverId,
+      date: dateStr,
+      count: schedules.length,
+      total,
+    });
 
     return {
       data: schedules.map((s) => toDriverTrip(s, dateObj)),

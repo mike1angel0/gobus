@@ -39,8 +39,9 @@ describe('Rate limiting', () => {
   });
 
   it('applies search rate limit (30/min)', async () => {
-    const response = await supertest(app.server)
-      .get('/api/v1/search?origin=A&destination=B&date=2026-04-01');
+    const response = await supertest(app.server).get(
+      '/api/v1/search?origin=A&destination=B&date=2026-04-01',
+    );
 
     expect(response.headers['x-ratelimit-limit']).toBe('30');
   });

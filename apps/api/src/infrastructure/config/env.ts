@@ -10,7 +10,10 @@ const envSchema = z
     DATABASE_URL: z.string().min(1).describe('PostgreSQL connection string'),
 
     /** Secret key for signing JWT access tokens (min 32 chars for 256-bit security) */
-    JWT_SECRET: z.string().min(32).describe('Secret key for signing JWT access tokens (>= 32 chars)'),
+    JWT_SECRET: z
+      .string()
+      .min(32)
+      .describe('Secret key for signing JWT access tokens (>= 32 chars)'),
 
     /** Secret key for JWT refresh tokens (min 32 chars, must differ from JWT_SECRET) */
     JWT_REFRESH_SECRET: z

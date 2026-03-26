@@ -75,7 +75,13 @@ export const createBusRequestSchema = z
 /** Zod schema for UpdateBusRequest matching OpenAPI UpdateBusRequest schema. */
 export const updateBusRequestSchema = z
   .object({
-    licensePlate: z.string().trim().min(1).max(20).describe('Unique license plate number').optional(),
+    licensePlate: z
+      .string()
+      .trim()
+      .min(1)
+      .max(20)
+      .describe('Unique license plate number')
+      .optional(),
     model: z.string().trim().min(1).max(100).describe('Bus model name').optional(),
     capacity: z.number().int().min(1).max(200).describe('Total number of seats').optional(),
   })
