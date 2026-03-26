@@ -187,5 +187,27 @@
 - Learnings: Timing tests in test environments with mocked DB are inherently flaky due to JIT warmup. Use multiple iterations + averaging + generous tolerance (500ms). The real protection is that both paths run bcrypt, not the exact timing match. `buildFakeRegistrationResponse` generates a real JWT signed with the actual secret (but with a fake user ID) — this makes it completely indistinguishable from a real registration.
 ---
 
+## Iteration 24 - TASK-024: DoS and resource exhaustion prevention
+- Added JSON nesting depth limit (max 5 levels) via exceedsJsonDepth() in sanitize-input plugin — returns 400 before Zod validation
+- Configured Prisma transactionOptions: maxWait 5s, timeout 10s
+- Added max 5 active bookings per user check in BookingService.create() — new RESOURCE_EXHAUSTED error code returns 429
+- Server-side pageSize clamping in parsePagination() with Math.min(pageSize, 100) as defense-in-depth
+- Search query minimum length increased from 1 to 2 chars (both Zod and OpenAPI spec)
+- bodyLimit, array maxItems, search 50/page limit, slow request logging were already implemented in prior tasks
+- 8 new integration tests + 9 new unit tests covering all DoS vectors
+- All 459 unit + 447 integration tests pass, typecheck + lint + spec:lint clean
+- Learnings: When adding a new check to booking.create() (like active booking count), ALL integration tests that POST to /bookings need the corresponding mock (mockBookingCount.mockResolvedValueOnce(0)). Changing search minLength from 1 to 2 breaks tests using single-char search queries — update them to use 2+ char queries.
+---
+
+## Iteration 25 - TASK-025: Security headers and CORS hardening
+- Added Permissions-Policy header via onSend hook (helmet v8 dropped permissionsPolicy support)
+- Updated CSP img-src to include `https://*.tile.openstreetmap.org` for map tiles
+- All 7 security headers verified: CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-Powered-By removal
+- CORS was already fully configured from TASK-001 (whitelist origins, credentials, maxAge, restricted methods)
+- 8 integration tests for security headers (up from 5), existing 7 CORS tests already covered all criteria
+- All 459 unit + 450 integration tests pass, typecheck + lint clean
+- Learnings: `@fastify/helmet` v13 (helmet v8) does not support `permissionsPolicy` option — must add Permissions-Policy header manually via Fastify `onSend` hook. Fastify itself never sets X-Powered-By (unlike Express), so helmet's hidePoweredBy is a no-op, but the header is still correctly absent.
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.

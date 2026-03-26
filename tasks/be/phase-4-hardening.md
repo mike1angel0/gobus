@@ -326,14 +326,14 @@
 **Description:** Ensure all security headers are production-grade: (1) HSTS with 1y max-age, includeSubDomains, preload. (2) CSP: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.tile.openstreetmap.org; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`. (3) X-Frame-Options: DENY. (4) X-Content-Type-Options: nosniff. (5) Referrer-Policy: strict-origin-when-cross-origin. (6) Permissions-Policy: `camera=(), microphone=(), geolocation=(self)`. (7) Remove `X-Powered-By` header. (8) CORS: strict origin whitelist from env, no wildcard with credentials, expose only necessary headers. Verify with curl that no sensitive headers leak.
 
 **Acceptance Criteria:**
-- [ ] All 7 security headers set
-- [ ] `X-Powered-By` removed
-- [ ] CORS origin whitelist from CORS_ORIGIN env (no wildcard)
-- [ ] CORS: credentials true, methods restricted, maxAge: 86400
-- [ ] Integration test: verify all headers present in response
-- [ ] Integration test: CORS preflight returns correct headers
-- [ ] Integration test: cross-origin request from unlisted origin → blocked
-- [ ] Typecheck passes
+- [x] All 7 security headers set
+- [x] `X-Powered-By` removed
+- [x] CORS origin whitelist from CORS_ORIGIN env (no wildcard)
+- [x] CORS: credentials true, methods restricted, maxAge: 86400
+- [x] Integration test: verify all headers present in response
+- [x] Integration test: CORS preflight returns correct headers
+- [x] Integration test: cross-origin request from unlisted origin → blocked
+- [x] Typecheck passes
 
 ### TASK-026: Secrets and information disclosure prevention
 **Description:** (1) Ensure no secrets in git history: add `gitleaks` as devDep, create `npm run security:secrets` script. (2) Error responses never include stack traces, Prisma error details, or SQL in production (`NODE_ENV=production`). (3) Swagger UI disabled in production (only dev/staging). (4) Health endpoint doesn't expose version numbers or internal IPs. (5) Remove seed demo credentials display from any public-facing code. (6) Add `.env.example` with all vars documented but no real values. (7) Verify `npm audit --audit-level=high` passes. (8) Add `npm run security:audit` script that runs both gitleaks + npm audit.

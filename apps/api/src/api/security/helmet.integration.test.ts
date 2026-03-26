@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { buildApp } from '@/app.js';
 
-describe('Helmet security headers', () => {
+describe('Security headers (Helmet)', () => {
   let app: FastifyInstance;
   const originalNodeEnv = process.env.NODE_ENV;
 
@@ -27,6 +27,9 @@ describe('Helmet security headers', () => {
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("script-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("base-uri 'self'");
+    expect(csp).toContain("form-action 'self'");
+    expect(csp).toContain('https://*.tile.openstreetmap.org');
   });
 
   it('sets Strict-Transport-Security header with 1 year max-age', async () => {
@@ -54,5 +57,32 @@ describe('Helmet security headers', () => {
     const response = await supertest(app.server).get('/health');
 
     expect(response.headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
+  });
+
+  it('sets Permissions-Policy with camera, microphone, and geolocation', async () => {
+    const response = await supertest(app.server).get('/health');
+
+    const pp = response.headers['permissions-policy'];
+    expect(pp).toContain('camera=()');
+    expect(pp).toContain('microphone=()');
+    expect(pp).toContain('geolocation=(self)');
+  });
+
+  it('does not expose X-Powered-By header', async () => {
+    const response = await supertest(app.server).get('/health');
+
+    expect(response.headers['x-powered-by']).toBeUndefined();
+  });
+
+  it('has all 7 security headers present in a single response', async () => {
+    const response = await supertest(app.server).get('/health');
+
+    expect(response.headers['content-security-policy']).toBeDefined();
+    expect(response.headers['strict-transport-security']).toBeDefined();
+    expect(response.headers['x-frame-options']).toBe('DENY');
+    expect(response.headers['x-content-type-options']).toBe('nosniff');
+    expect(response.headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
+    expect(response.headers['permissions-policy']).toBeDefined();
+    expect(response.headers['x-powered-by']).toBeUndefined();
   });
 });

@@ -106,7 +106,7 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:'],
+          imgSrc: ["'self'", 'data:', 'https://*.tile.openstreetmap.org'],
           connectSrc: ["'self'"],
           frameAncestors: ["'none'"],
           baseUri: ["'self'"],
@@ -120,6 +120,14 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
       },
       frameguard: { action: 'deny' },
       referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    });
+
+    // Permissions-Policy header (not included in helmet v8)
+    app.addHook('onSend', async (_request, reply) => {
+      void reply.header(
+        'permissions-policy',
+        'camera=(), microphone=(), geolocation=(self)',
+      );
     });
   }
 
