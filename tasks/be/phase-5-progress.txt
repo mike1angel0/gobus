@@ -1,147 +1,63 @@
-## Iteration 1 - TASK-001: Fix unhandled promise rejection in server startup
-- Added `.catch()` on `start()` call for unhandled buildApp failures
-- Extracted `shutdown()` to module level with try/catch for error resilience
-- Signal handlers use `void shutdown()` pattern for proper async handling
-- Learnings: server.ts is excluded from coverage in vitest config; use `vi.resetModules()` + `vi.doMock()` for testing side-effect modules; intercept `process.on` to capture signal handlers without actually registering them
+# Progress Log
+
+## Compacted History
+Iterations 1–21 (TASK-001 through US-QA-007, plus fix iteration 17) are summarized below.
+
+### Key Patterns Discovered
+- **Prisma mocking**: `vi.fn((fn) => fn(tx))` for `$transaction`; expose `_tx` on mock for test access; `mockResolvedValueOnce` chaining for methods called multiple times with different args
+- **Prisma `$queryRaw`**: Tagged template literals auto-parameterize (SQL injection safe); BigInt from COUNT needs `Number()` conversion; mocks must match `$queryRaw` (not `$queryRawUnsafe`)
+- **Module-level side-effect testing**: `vi.resetModules()` + `vi.doMock()` to re-import modules with different env; Fastify `app.inject()` cannot add routes after `app.ready()`
+- **Soft-delete pattern**: `deletedAt DateTime?` column; auth plugin checks deletedAt → 401; login rejects as invalid credentials; services filter out soft-deleted by default
+- **Zod-to-OpenAPI parity**: `z.string().date()` validates YYYY-MM-DD strictly; optional string fields often miss `minLength` constraints; response numeric fields need explicit upper bounds
+- **Spec workflow**: `npx redocly bundle` required after spec changes (spec-conformance tests read from `spec/dist/openapi.json`); `spec/dist/` is gitignored; run spec commands from monorepo root
+- **Test infrastructure**: Integration tests use `vitest.integration.config.ts`; coverage config (`vitest.coverage.config.ts`) combines unit + integration; `createAuthHeader` accepts optional `{ providerId }`
+
+### Important Gotchas
+- `@prisma/adapter-pg` v7.5: `onPoolError`/`onConnectionError` callbacks don't exist in types despite docs
+- After adding Prisma schema fields, must run `npx prisma generate` before typecheck
+- When adding new DB fields (e.g., `deletedAt`), grep all integration test mocks for responses needing the new field
+- Pre-existing test failures can mask new issues — fixing root cause (e.g., missing `$queryRaw` mock) often fixes multiple seemingly unrelated failures
+- Docker compose `${VAR?message}` syntax provides clear error messages on missing vars
+- Python `re.sub` with `\1` backreference can insert `\x01` byte — use raw strings properly
+- Server.ts excluded from coverage in vitest config
+- `npm run spec:lint` and `npm run spec:bundle` must be run from monorepo root
+
+### Useful Commands
+- `npx prisma generate` — regenerate Prisma client after schema changes
+- `npx prisma migrate dev --name <name>` — create and apply migration
+- `npx redocly bundle spec/openapi.yaml -o spec/dist/openapi.json` — bundle spec
+- `npm run spec:lint` — validate OpenAPI spec (from monorepo root)
+- `npm run api:validate` — run 66 spec conformance tests
+
+### Summary of Completed Work (Iterations 1–21)
+- **TASK-001**: Fixed unhandled promise rejection in server startup
+- **TASK-002**: Configured database connection pooling (PrismaPg adapter)
+- **TASK-003**: Fixed search service — replaced in-memory pagination with DB-level raw SQL
+- **TASK-004**: Fixed provider analytics — `$transaction` + `Promise.all` parallelization
+- **TASK-005**: Added `@@index([scheduleId])` to BusTracking model
+- **TASK-006**: Standardized `tripDate` to `format: date` (YYYY-MM-DD) across spec/Zod/routes/tests
+- **TASK-007**: Added 500 error responses to all 50 operations in OpenAPI spec
+- **TASK-008**: Added rate limiting headers (429) to all 50 operations
+- **TASK-009**: Added missing validation constraints (minLength, 409 response) to OpenAPI spec
+- **TASK-010**: Removed hardcoded secrets from docker-compose.yml (`${VAR?msg}` syntax)
+- **TASK-011**: Added `@fastify/compress` (Brotli preferred, 1KB threshold)
+- **TASK-012**: Added `noCache` preHandler to all 25 mutation endpoints
+- **TASK-013**: Removed unused JWT_REFRESH_SECRET from entire codebase
+- **TASK-014**: Implemented user soft-delete (`deletedAt` column + auth/admin/driver/schedule guards)
+- **TASK-015**: Verified all integration tests, fixed 3 pre-existing failures — 968 tests, 96.88% coverage
+- **TASK-016**: All 11 quality gates pass (typecheck, lint, format, tests, coverage, build, spec, security)
+- **Iteration 17**: Fixed Zod-to-spec validation gaps (minLength, max bounds on numeric fields)
+- **US-QA-004 (18)**: Added 6 integration tests for GET /tracking (fleet list)
+- **US-QA-005 (19)**: Added 6 integration tests for GET /driver/trips/:scheduleId/passengers
+- **US-QA-006 (20)**: Added 2 unit tests for bus update with seat layout ($transaction mock pattern)
+- **US-QA-007 (21)**: Added 6 unit tests for driver-trip.service getPassengers
+
 ---
 
-## Iteration 2 - TASK-002: Configure database connection pooling
-- Added `max`, `min`, `idleTimeoutMillis` pool options to PrismaPg adapter in client.ts
-- Added `DATABASE_POOL_MAX` env var (coerced number, default 10) to env schema
-- Documented in .env.example
-- Learnings: @prisma/adapter-pg v7.5 PrismaPg constructor accepts pg.PoolConfig as first arg (connectionString + pool options together); `onPoolError`/`onConnectionError` callbacks advertised in docs don't exist in this version's types — removed to keep typecheck clean; mock PrismaClient `$disconnect` with `vi.fn<() => Promise<void>>()` pattern for proper typing
----
-
-## Iteration 3 - TASK-003: Fix search service in-memory pagination
-- Replaced in-memory filtering + pagination with DB-level approach: raw SQL self-join on StopTime for origin/dest ordering check, separate count query without includes, LIMIT/OFFSET for pagination
-- Only fetches full schedule data (with includes) for the paginated subset of IDs
-- Learnings: Prisma `$queryRaw` with tagged template literals auto-parameterizes values (safe from SQL injection); BigInt returned by COUNT needs `Number()` conversion; mock `$queryRaw` as `vi.fn()` — Prisma calls it with a Sql object from the tagged template; integration tests use separate vitest config (`vitest.integration.config.ts`)
----
-
-## Iteration 4 - TASK-004: Fix provider analytics sequential queries
-- Wrapped all analytics queries in `$transaction` for consistent snapshot
-- Parallelized 3 independent queries (booking aggregate, active schedules, revenue groupBy) with `Promise.all`
-- Reused active schedule data for schedule→route mapping instead of fetching all schedules separately; only fetches unmapped schedules when revenue exists on non-active schedules
-- Learnings: Mock Prisma `$transaction` with `vi.fn((fn) => fn(tx))` pattern — pass the mock tx object into the callback; expose `_tx` on the mock prisma for test access; use `mockResolvedValueOnce` chaining for groupBy that's called multiple times with different args
----
-
-## Iteration 5 - TASK-005: Add missing database index
-- Added `@@index([scheduleId])` to BusTracking model in schema.prisma
-- Migration created and applied successfully
-- Learnings: Simple schema-only tasks (adding indexes) don't require tests — just schema change, migration, and typecheck. Migration also picked up pending StopTime lat/lng columns that were in schema but not yet migrated.
----
-
-## Iteration 6 - TASK-006: Fix tripDate format inconsistency across schemas
-- Standardized `tripDate` to `format: date` (YYYY-MM-DD) everywhere — it's semantically a calendar date, not a timestamp
-- Updated OpenAPI spec (8 response schemas + CreateScheduleRequest input), Zod schemas (7 response + 1 request), route serializers (5 files), and 7 integration test files
-- Learnings: spec-conformance tests read from `spec/dist/openapi.json` (bundled spec) — must run `npx redocly bundle` after spec changes; pre-existing failures exist in driver-trips spec-conformance and cache-control integration tests (not related to this task); `z.string().date()` validates `YYYY-MM-DD` format strictly — datetime strings like `2025-06-01T00:00:00.000Z` are rejected
----
-
-## Iteration 7 - TASK-007: Document 500 error responses on all endpoints
-- Added `InternalServerError` response component to `spec/components/responses/errors.yaml`
-- Added `'500': $ref` to all 50 operations across 12 path files using a Python script for consistency
-- Bundled spec with `npx redocly bundle`
-- Learnings: spec/dist/ is gitignored so don't try to commit bundled output; path files use inline schema refs for existing 4xx errors (not response component refs), but 500 uses `$ref` to named response component per acceptance criteria; total operations count is 50 (not 43 as stated in PRD)
----
-
-## Iteration 8 - TASK-008: Document rate limiting in OpenAPI spec
-- Added `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After` headers to existing `TooManyRequests` response component in errors.yaml
-- Added `'429': $ref` to all 50 operations across 12 path files
-- Learnings: Python regex `\1` backreference inserts `\x01` byte when using `re.sub` with raw strings improperly — use raw strings for replacement or explicit group references; always verify YAML files with `xxd` or similar if spec:lint reports non-printable characters; the TooManyRequests response component already existed in errors.yaml but lacked headers
----
-
-## Iteration 9 - TASK-009: Add missing validation constraints to OpenAPI spec
-- Added `minLength: 1` to required string fields in request schemas: RegisterRequest.email, LoginRequest.email, ForgotPasswordRequest.email, CreateDriverRequest.email, CreateScheduleRequest.routeId/busId/driverId
-- Added `minLength: 1` to IdParam and inline path/query ID params (driver-trips scheduleId x2, delays scheduleId)
-- Added 409 response on POST /schedules for overlap/bus unavailability
-- Updated POST /routes 400 description to include invalid stop ordering
-- Learnings: Many path files already had minLength on inline params (tracking, search); focus on request body schemas and parameter files for missing constraints; pre-existing test failures in driver-trips spec-conformance and cache-control still present (not caused by this task)
----
-
-## Iteration 10 - TASK-010: Remove hardcoded secrets from docker-compose.yml
-- Replaced hardcoded POSTGRES_PASSWORD, JWT_SECRET, JWT_REFRESH_SECRET with `${VAR?error message}` syntax — docker compose now fails with clear error if any required secret is missing
-- DATABASE_URL now references `${POSTGRES_PASSWORD}` variable instead of hardcoded password
-- Created root `.env.example` with all required/optional docker-compose variables documented
-- Learnings: Docker compose `${VAR?message}` syntax provides clear error messages on missing vars; `apps/api/.env.example` already had good documentation and didn't need changes; this task is infrastructure-only (no code changes, no tests needed)
----
-
-## Iteration 11 - TASK-011: Add response compression
-- Installed `@fastify/compress` and registered in `app.ts` with 1KB threshold, Brotli preferred, gzip/deflate fallback
-- Disabled in test environment (same `isTest` guard as helmet/rate-limit)
-- Learnings: Fastify `app.inject()` cannot add routes after `app.ready()` — register test routes before ready; `vi.resetModules()` + `vi.doMock()` needed to re-import `buildApp` with different NODE_ENV; combined multiple assertions (brotli, gzip fallback, threshold) into one test to share the app instance and avoid module re-import complexity
----
-
-## Iteration 12 - TASK-012: Add cache headers to remaining endpoints
-- All GET endpoints already had appropriate cache headers (privateNoCache, cachePublic, noCache)
-- Added `noCache` preHandler to all 25 mutation endpoints (POST/PUT/PATCH/DELETE) across 10 route files
-- Added 3 integration tests: POST /auth/register, DELETE /routes/:id, PATCH /auth/me
-- Learnings: Pre-existing search integration test failure (mock missing $queryRaw for raw SQL) — not related to this task; the noCache preHandler runs before handler, so even if handler errors out the cache header is set
----
-
-## Iteration 13 - TASK-013: Clean up unused JWT_REFRESH_SECRET
-- Decision: remove (refresh tokens use SHA-256 hashes, not signed JWTs)
-- Removed JWT_REFRESH_SECRET from env.ts schema, .refine() validation, .env.example (root + api), docker-compose.yml, test setup, and CLAUDE.md env table
-- Learnings: Simple removal task — grep for all references first, then systematically remove; the .refine() on the Zod schema also needed removal along with the field itself
----
-
-## Iteration 14 - TASK-014: Implement user soft-delete
-- Decision: soft-delete with `deletedAt DateTime?` column (conventional approach, preserves referential integrity)
-- Added `deletedAt` to User model, migration created, Prisma client regenerated
-- Auth plugin checks `deletedAt` and returns 401 (same as "not found" to prevent enumeration)
-- Auth service login rejects soft-deleted users as invalid credentials
-- Admin service: new `softDeleteUser` method, `listUsers` excludes soft-deleted by default, `updateUserStatus` rejects soft-deleted
-- Driver service: `listByProvider` and `delete` exclude soft-deleted drivers
-- Schedule service: `validateDriverOwnership` excludes soft-deleted drivers
-- New DELETE /api/v1/admin/users/:id endpoint with audit logging
-- OpenAPI spec + Zod schemas updated with `deletedAt` field
-- Learnings: After adding a Prisma schema field, must run `npx prisma generate` to update the generated client types before typecheck; existing tests that assert exact select/where params need updating when adding new fields to queries; soft-delete is simpler than archive-and-cascade since it requires no schema restructuring
----
-
-## Iteration 15 - TASK-015: Verify and fix integration tests for untested route files
-- All 9 integration test files already existed with substantial tests (270-818 lines each, 215+ tests total)
-- Fixed 3 pre-existing test failures: (1) admin tests missing `deletedAt` field from TASK-014 soft-delete, (2) cache-control and spec-conformance tests missing `$queryRaw` mock for search service (which uses raw SQL since TASK-003)
-- All 968 tests pass (503 unit + 465 integration), coverage 96.88% statements
-- Learnings: When adding new DB fields (like `deletedAt`), grep all integration test files for mocked Prisma responses that may need the new field; search service uses `$queryRaw` (tagged template) not `$queryRawUnsafe` — mocks must match exactly; the spec-conformance driver-trips test failure was caused by search test's 500 error consuming mock state — fixing the root cause (missing $queryRaw mock) fixed both
----
-
-## Iteration 16 - TASK-016: Phase 5 final quality gates
-- All 11 quality gates pass: typecheck, lint, format:check, unit tests (503), integration tests (465), coverage (96.88%/92.39%/97.32%/97.08%), build, spec:lint, api:validate (66 tests), security:audit (0 leaks, 0 vulns)
-- Fixed Prettier formatting in 17 files (only whitespace changes, no logic changes)
-- Learnings: `npm run spec:lint` and `npm run spec:bundle` must be run from monorepo root, not apps/api; integration test `GET /auth/me` had a transient 405 failure that resolved on re-run (test ordering flakiness); coverage config (`vitest.coverage.config.ts`) combines unit + integration tests — running `vitest run --coverage` alone uses only unit test config and reports lower numbers
----
-
-## Iteration 18 - US-QA-004: Add tests for tracking fleet list route
-- Added 6 integration tests for GET /api/v1/tracking (fleet list): PROVIDER happy path with data, empty array, 403 for PASSENGER/ADMIN/PROVIDER-without-providerId, 401 without auth
-- Added `findMany` mock to busTracking mock object; added PROVIDER/ADMIN auth headers with providerId option
-- Learnings: `createAuthHeader` accepts optional `{ providerId }` to set providerId in JWT; the fleet list route checks both role=PROVIDER and providerId presence separately, so both need tests
----
-
-## Iteration 19 - US-QA-005: Add tests for driver-trips passengers route
-- Added 6 integration tests for GET /api/v1/driver/trips/:scheduleId/passengers: happy path (2 passengers with exact value assertions), empty list, 403 for PASSENGER role, 404 schedule not found, 404 driver mismatch, 401 without auth
-- Added `mockBookingFindMany` to integration test mock setup (was missing since getPassengers uses `booking.findMany`)
-- Learnings: The passengers route uses `schedule.findUnique` with only `{ select: { driverId: true } }` for ownership check, then `booking.findMany` for actual data — mock both separately
----
-
-## Iteration 20 - US-QA-006: Add tests for bus update with seat layout
-- Added 2 unit tests for `updateBus` with `seats` array: (1) transaction branch with deleteMany + bus.update and exact arg assertions, (2) price defaults to 0 and BLOCKED type sets isEnabled=false
-- Mock pattern: override `$transaction` with `mockImplementation` providing `{ seat: { deleteMany }, bus: { update } }` tx object
-- Learnings: The existing `$transaction` mock only exposed `bus.create` — needed to provide `seat.deleteMany` and `bus.update` on the tx for the update-with-seats branch
----
-
-## Iteration 21 - US-QA-007: Add unit tests for driver-trip.service getPassengers
-- Added 6 unit tests for `getPassengers`: happy path with 2 passengers (exact mapping assertions), query filter/ordering verification, empty array, 404 schedule not found, 404 driver mismatch, default date
-- Added `booking.findMany` to mock prisma setup (was missing since only `booking.count` existed)
-- Learnings: The `getPassengers` method uses `schedule.findUnique` with `select: { driverId: true }` (minimal select) then `booking.findMany` — mock schedule returns only need `{ driverId }` for this method
----
-
-## Iteration 17 - Fix Validation Rejection Items
-- Fixed `createScheduleRequestSchema.driverId` — added `.min(1)` matching OpenAPI `minLength: 1`
-- Added `maximum` to OpenAPI+Zod: `RevenueByRoute.revenue` (100M), `ProviderAnalytics.totalBookings` (INT_MAX), `ProviderAnalytics.totalRevenue` (100M)
-- Added `minLength: 1` to OpenAPI+Zod: `UserPreferences.language`, `DriverTripPassenger.seatLabels` items
-- Added `.max(30)` to Zod datetime fields: `providerSchema.createdAt/updatedAt`, `userSchema.createdAt/updatedAt`
-- Search `pageSize` already aligned (both spec and Zod use max 50)
-- All 968 tests pass, 66 spec conformance tests pass, lint clean, typecheck clean
-- Learnings: Always verify Zod-to-spec parity for optional string fields (min constraint often missed); response schema numeric fields need explicit upper bounds even if theoretically unbounded
+## Iteration 22 - US-QA-008: Add integration tests for provider routes error branch
+- Added explicit `providerId` guard to analytics route (matching tracking route pattern) — removes `!` non-null assertion
+- Added 4 integration tests for GET /api/v1/provider/analytics: happy path (200), 403 no providerId, 403 wrong role, 401 no auth
+- Learnings: Mock `$transaction` with `mockImplementation((fn) => fn(tx))` pattern for integration tests; analytics `averageOccupancy` returns decimal ratio (0.1) not percentage (10); avoid circular type `typeof tx` inside its own declaration — use `unknown` instead
 ---
 
 ## Iteration 23 - US-QA-009: Refactor authRoutes in auth/routes.ts
@@ -151,9 +67,12 @@
 - Learnings: Fastify handler extraction pattern — pass authService as first arg, use arrow wrapper in route registration; shared route options (rateLimited, authenticated) reduce duplication
 ---
 
-## Iteration 22 - US-QA-008: Add integration tests for provider routes error branch
-- Added explicit `providerId` guard to analytics route (matching tracking route pattern) — removes `!` non-null assertion
-- Added 4 integration tests for GET /api/v1/provider/analytics: happy path (200), 403 no providerId, 403 wrong role, 401 no auth
-- Learnings: Mock `$transaction` with `mockImplementation((fn) => fn(tx))` pattern for integration tests; analytics `averageOccupancy` returns decimal ratio (0.1) not percentage (10); avoid circular type `typeof tx` inside its own declaration — use `unknown` instead
+## Iteration 24 - US-QA-010: Refactor buildApp in app.ts
+- Extracted `registerPlugins` (CORS, compression, helmet, error handler, sanitization, logging, metrics, rate limit, swagger, auth, audit) and `registerRoutes` (13 route registrations) as private helpers
+- `buildApp` reduced from 115 lines to ~15 lines (Fastify init + 2 calls)
+- All 992 tests pass (511 unit + 481 integration), lint clean, typecheck clean
+- Learnings: Straightforward extraction — no test changes needed since tests import `buildApp` which delegates internally
 ---
 
+## Learnings
+See Compacted History section above for deduplicated learnings, plus individual iteration learnings for recent work.
