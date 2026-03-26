@@ -93,9 +93,7 @@
 
 **US-QA-004** | ~~Add tests for tracking fleet list route~~ — DONE: Added 6 integration tests for GET /api/v1/tracking: PROVIDER happy path (with data and empty), 403 for PASSENGER, 403 for ADMIN, 403 for PROVIDER without providerId, 401 without auth.
 
-**US-QA-005** | Add tests for driver-trips passengers route (lines 101-113 uncovered)
-- AC1: Integration test covers GET /api/v1/driver/trips/:scheduleId/passengers happy path
-- AC2: Integration test covers 403 for non-DRIVER role
+**US-QA-005** | ~~Add tests for driver-trips passengers route~~ — DONE: Added 6 integration tests for GET /api/v1/driver/trips/:scheduleId/passengers: happy path with passengers, empty list, 403 for non-DRIVER, 404 for missing schedule, 404 for driver mismatch, 401 without auth.
 
 **US-QA-006** | Add tests for bus update with seat layout (bus.service.ts lines 174-196 uncovered)
 - AC1: Unit test covers `updateBus` with `seats` array triggering transaction branch

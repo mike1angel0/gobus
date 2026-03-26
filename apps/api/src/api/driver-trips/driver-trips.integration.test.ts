@@ -9,6 +9,7 @@ const mockScheduleFindMany = vi.fn();
 const mockScheduleFindUnique = vi.fn();
 const mockScheduleCount = vi.fn();
 const mockBookingCount = vi.fn();
+const mockBookingFindMany = vi.fn();
 const mockUserFindUnique = vi.fn();
 
 const mockPrisma = {
@@ -19,6 +20,7 @@ const mockPrisma = {
   },
   booking: {
     count: mockBookingCount,
+    findMany: mockBookingFindMany,
   },
   user: {
     findUnique: mockUserFindUnique,
@@ -335,6 +337,116 @@ describe('Driver Trip Routes', () => {
 
     it('returns 401 without authentication', async () => {
       const response = await supertest(app.server).get('/api/v1/driver/trips/sched-1').expect(401);
+
+      expect(response.body.status).toBe(401);
+    });
+  });
+
+  // --- GET /api/v1/driver/trips/:scheduleId/passengers ---
+  describe('GET /api/v1/driver/trips/:scheduleId/passengers', () => {
+    it('returns 200 with passenger list for assigned schedule', async () => {
+      mockScheduleFindUnique.mockResolvedValueOnce({ driverId: DRIVER_ID });
+      mockBookingFindMany.mockResolvedValueOnce([
+        {
+          id: 'booking-1',
+          scheduleId: 'sched-1',
+          tripDate: new Date('2026-03-25T00:00:00.000Z'),
+          status: 'CONFIRMED',
+          boardingStop: 'Bucharest North',
+          alightingStop: 'Brasov',
+          createdAt: new Date('2026-03-20T10:00:00.000Z'),
+          user: { name: 'Ion Popescu' },
+          bookingSeats: [{ seatLabel: 'A1' }, { seatLabel: 'A2' }],
+        },
+        {
+          id: 'booking-2',
+          scheduleId: 'sched-1',
+          tripDate: new Date('2026-03-25T00:00:00.000Z'),
+          status: 'CONFIRMED',
+          boardingStop: 'Bucharest North',
+          alightingStop: 'Ploiesti',
+          createdAt: new Date('2026-03-21T10:00:00.000Z'),
+          user: { name: 'Maria Ionescu' },
+          bookingSeats: [{ seatLabel: 'B3' }],
+        },
+      ]);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/driver/trips/sched-1/passengers?date=2026-03-25')
+        .set('Authorization', DRIVER_AUTH)
+        .expect(200);
+
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.data[0]).toEqual({
+        bookingId: 'booking-1',
+        passengerName: 'Ion Popescu',
+        boardingStop: 'Bucharest North',
+        alightingStop: 'Brasov',
+        seatLabels: ['A1', 'A2'],
+        status: 'CONFIRMED',
+      });
+      expect(response.body.data[1]).toEqual({
+        bookingId: 'booking-2',
+        passengerName: 'Maria Ionescu',
+        boardingStop: 'Bucharest North',
+        alightingStop: 'Ploiesti',
+        seatLabels: ['B3'],
+        status: 'CONFIRMED',
+      });
+    });
+
+    it('returns 200 with empty array when no passengers', async () => {
+      mockScheduleFindUnique.mockResolvedValueOnce({ driverId: DRIVER_ID });
+      mockBookingFindMany.mockResolvedValueOnce([]);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/driver/trips/sched-1/passengers?date=2026-03-25')
+        .set('Authorization', DRIVER_AUTH)
+        .expect(200);
+
+      expect(response.body.data).toEqual([]);
+    });
+
+    it('returns 403 when user is not a DRIVER', async () => {
+      mockUserFindUnique.mockResolvedValue({ id: PASSENGER_ID, status: 'ACTIVE' });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/driver/trips/sched-1/passengers?date=2026-03-25')
+        .set('Authorization', PASSENGER_AUTH)
+        .expect(403);
+
+      expect(response.body.status).toBe(403);
+      expect(response.body.code).toBe('FORBIDDEN');
+    });
+
+    it('returns 404 when schedule not found', async () => {
+      mockScheduleFindUnique.mockResolvedValueOnce(null);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/driver/trips/nonexistent/passengers?date=2026-03-25')
+        .set('Authorization', DRIVER_AUTH)
+        .expect(404);
+
+      expect(response.body.status).toBe(404);
+      expect(response.body.code).toBe('RESOURCE_NOT_FOUND');
+    });
+
+    it('returns 404 when driver not assigned to schedule', async () => {
+      mockScheduleFindUnique.mockResolvedValueOnce({ driverId: 'other-driver' });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/driver/trips/sched-1/passengers?date=2026-03-25')
+        .set('Authorization', DRIVER_AUTH)
+        .expect(404);
+
+      expect(response.body.status).toBe(404);
+      expect(response.body.code).toBe('RESOURCE_NOT_FOUND');
+    });
+
+    it('returns 401 without authentication', async () => {
+      const response = await supertest(app.server)
+        .get('/api/v1/driver/trips/sched-1/passengers')
+        .expect(401);
 
       expect(response.body.status).toBe(401);
     });

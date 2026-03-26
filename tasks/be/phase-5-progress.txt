@@ -110,6 +110,18 @@
 - Learnings: `npm run spec:lint` and `npm run spec:bundle` must be run from monorepo root, not apps/api; integration test `GET /auth/me` had a transient 405 failure that resolved on re-run (test ordering flakiness); coverage config (`vitest.coverage.config.ts`) combines unit + integration tests — running `vitest run --coverage` alone uses only unit test config and reports lower numbers
 ---
 
+## Iteration 18 - US-QA-004: Add tests for tracking fleet list route
+- Added 6 integration tests for GET /api/v1/tracking (fleet list): PROVIDER happy path with data, empty array, 403 for PASSENGER/ADMIN/PROVIDER-without-providerId, 401 without auth
+- Added `findMany` mock to busTracking mock object; added PROVIDER/ADMIN auth headers with providerId option
+- Learnings: `createAuthHeader` accepts optional `{ providerId }` to set providerId in JWT; the fleet list route checks both role=PROVIDER and providerId presence separately, so both need tests
+---
+
+## Iteration 19 - US-QA-005: Add tests for driver-trips passengers route
+- Added 6 integration tests for GET /api/v1/driver/trips/:scheduleId/passengers: happy path (2 passengers with exact value assertions), empty list, 403 for PASSENGER role, 404 schedule not found, 404 driver mismatch, 401 without auth
+- Added `mockBookingFindMany` to integration test mock setup (was missing since getPassengers uses `booking.findMany`)
+- Learnings: The passengers route uses `schedule.findUnique` with only `{ select: { driverId: true } }` for ownership check, then `booking.findMany` for actual data — mock both separately
+---
+
 ## Iteration 17 - Fix Validation Rejection Items
 - Fixed `createScheduleRequestSchema.driverId` — added `.min(1)` matching OpenAPI `minLength: 1`
 - Added `maximum` to OpenAPI+Zod: `RevenueByRoute.revenue` (100M), `ProviderAnalytics.totalBookings` (INT_MAX), `ProviderAnalytics.totalRevenue` (100M)
