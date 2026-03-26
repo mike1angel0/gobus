@@ -36,14 +36,14 @@ All use typed API client, proper cache invalidation, toast notifications on muta
 **Description:** Create `src/pages/provider/dashboard.tsx`. Displays: summary stats cards (total bookings, total revenue, active trips today, average occupancy %). Revenue by route chart (bar chart). Upcoming schedules list (next 5). Quick actions (create route, create schedule). Stats computed from schedules + bookings data.
 
 **Acceptance Criteria:**
-- [ ] Summary stat cards with icons
-- [ ] Revenue chart (use recharts or simple bar chart)
-- [ ] Upcoming schedules list
-- [ ] Quick action buttons
-- [ ] Loading skeletons for all sections
-- [ ] Responsive grid layout
-- [ ] Component test
-- [ ] Typecheck passes
+- [x] Summary stat cards with icons
+- [x] Revenue chart (use recharts or simple bar chart)
+- [x] Upcoming schedules list
+- [x] Quick action buttons
+- [x] Loading skeletons for all sections
+- [x] Responsive grid layout
+- [x] Component test
+- [x] Typecheck passes
 
 ---
 

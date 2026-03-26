@@ -1,0 +1,18 @@
+## Iteration 1 - TASK-001: Create provider domain hooks
+- Created 6 hook files: use-routes.ts, use-buses.ts, use-drivers.ts, use-schedules.ts, use-provider-tracking.ts, use-delays.ts
+- All hooks follow existing patterns from use-bookings.ts: typed API client, query key factories, toast notifications, isApiError error handling
+- 57 tests across 6 test files, all passing
+- Typecheck and lint clean
+- Documented spec gap: no provider-level batch tracking endpoint (GET /api/v1/tracking). Worked around with parallel per-bus requests in useProviderTracking()
+- Learnings: The useProviderTracking hook aggregates individual bus tracking calls — when a batch endpoint is added to the spec, this can be simplified
+---
+
+## Iteration 2 - TASK-002: Create provider dashboard page
+- Created dashboard page at src/pages/provider/dashboard.tsx with stat cards, upcoming schedules list, and quick actions
+- Updated router.tsx to lazy-load the dashboard at /provider index route
+- Stat cards show totals for routes, buses, drivers, and active schedules by fetching list endpoints with pageSize=1
+- Revenue chart and occupancy stats deferred — documented spec gap for missing analytics endpoint (GET /api/v1/provider/analytics)
+- Refactored to reduce cyclomatic complexity: extracted useDashboardData hook, StatsSection, UpcomingSchedulesSection, QuickActionsSection
+- 15 tests covering loading, loaded, empty, error, retry, accessibility, responsive layout, and data fetching assertions
+- Learnings: ESLint complexity rule is strict (max 15) — proactively extract sub-components and custom hooks for pages with multiple queries
+---

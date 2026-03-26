@@ -17,6 +17,7 @@ const SearchPage = lazy(() => import('@/pages/search'));
 const TripDetailPage = lazy(() => import('@/pages/trip/[id]'));
 const MyTripsPage = lazy(() => import('@/pages/my-trips'));
 const PlaceholderPage = lazy(() => import('@/pages/placeholder'));
+const ProviderDashboardPage = lazy(() => import('@/pages/provider/dashboard'));
 
 /* ---------- Router ---------- */
 
@@ -60,7 +61,7 @@ export const router = createBrowserRouter([
                 path: '/provider',
                 element: <RoleGuard allowedRoles={['PROVIDER']} />,
                 children: [
-                  { index: true, element: <PlaceholderPage /> },
+                  { index: true, element: <ProviderDashboardPage /> },
                   { path: 'routes', element: <PlaceholderPage /> },
                   { path: 'fleet', element: <PlaceholderPage /> },
                   { path: 'schedules', element: <PlaceholderPage /> },
