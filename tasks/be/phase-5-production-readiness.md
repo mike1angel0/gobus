@@ -6,18 +6,9 @@
 
 ---
 
-## Process Safety
+## Completed Tasks
 
-### TASK-001: Fix unhandled promise rejection in server startup
-**Description:** In `src/server.ts`, `start()` is called without `.catch()` at line 35. If `buildApp()` throws before the try-catch inside `start()` catches it, the rejection is unhandled and the process crashes silently. Additionally, signal handlers on lines 23-24 call async `shutdown()` without `await`, meaning the process may exit before Prisma disconnects and `app.close()` completes.
-
-**Acceptance Criteria:**
-- [ ] `start()` call has `.catch(err => { console.error(err); process.exit(1) })`
-- [ ] SIGINT/SIGTERM handlers properly `await shutdown()` before exiting
-- [ ] Graceful shutdown waits for Prisma disconnect and Fastify close
-- [ ] Unit test: verify shutdown sequence completes (mock Prisma disconnect + app close)
-- [ ] Manual test: `kill -SIGTERM <pid>` logs shutdown and exits cleanly
-- [ ] Typecheck passes
+**TASK-001: Fix unhandled promise rejection in server startup** — Added `.catch()` on `start()`, extracted `shutdown()` with try/catch around `app.close()`+`disconnectPrisma()`, `void` signal handlers to properly handle async shutdown. 4 unit tests.
 
 ---
 

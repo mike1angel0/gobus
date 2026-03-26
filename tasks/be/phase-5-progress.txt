@@ -1,0 +1,6 @@
+## Iteration 1 - TASK-001: Fix unhandled promise rejection in server startup
+- Added `.catch()` on `start()` call for unhandled buildApp failures
+- Extracted `shutdown()` to module level with try/catch for error resilience
+- Signal handlers use `void shutdown()` pattern for proper async handling
+- Learnings: server.ts is excluded from coverage in vitest config; use `vi.resetModules()` + `vi.doMock()` for testing side-effect modules; intercept `process.on` to capture signal handlers without actually registering them
+---
