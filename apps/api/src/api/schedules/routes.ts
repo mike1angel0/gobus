@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fp from 'fastify-plugin';
 
 import { ScheduleService } from '@/application/services/schedule.service.js';
@@ -104,6 +104,106 @@ function serializeScheduleWithDetails(schedule: ScheduleWithDetails): Record<str
   };
 }
 
+/** Handle GET /api/v1/schedules — list provider's schedules (paginated, filterable). */
+function handleListSchedules(scheduleService: ScheduleService) {
+  return async (request: FastifyRequest) => {
+    const { page, pageSize, routeId, busId, status, fromDate, toDate } = strictParse(
+      scheduleFilterQuerySchema,
+      request.query,
+    );
+    const providerId = request.user.providerId!;
+
+    const filters = {
+      routeId,
+      busId,
+      status,
+      fromDate: fromDate ? new Date(fromDate) : undefined,
+      toDate: toDate ? new Date(toDate) : undefined,
+    };
+
+    const result = await scheduleService.listByProvider(providerId, { page, pageSize }, filters);
+
+    return {
+      data: result.data.map(serializeSchedule),
+      meta: result.meta,
+    };
+  };
+}
+
+/** Handle POST /api/v1/schedules — create a new schedule with stop times. */
+function handleCreateSchedule(scheduleService: ScheduleService) {
+  return async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = strictParse(createScheduleRequestSchema, request.body);
+    const providerId = request.user.providerId!;
+
+    const schedule = await scheduleService.create(providerId, {
+      routeId: body.routeId,
+      busId: body.busId,
+      driverId: body.driverId,
+      departureTime: new Date(body.departureTime),
+      arrivalTime: new Date(body.arrivalTime),
+      daysOfWeek: body.daysOfWeek,
+      basePrice: body.basePrice,
+      tripDate: new Date(body.tripDate),
+      stopTimes: body.stopTimes.map((st) => ({
+        stopName: st.stopName,
+        arrivalTime: new Date(st.arrivalTime),
+        departureTime: new Date(st.departureTime),
+        orderIndex: st.orderIndex,
+        priceFromStart: st.priceFromStart,
+        lat: st.lat,
+        lng: st.lng,
+      })),
+    });
+
+    return reply.status(201).send({ data: serializeScheduleWithDetails(schedule) });
+  };
+}
+
+/** Handle GET /api/v1/schedules/:id — get schedule details. */
+function handleGetSchedule(scheduleService: ScheduleService) {
+  return async (request: FastifyRequest) => {
+    const { id } = strictParse(idParamSchema, request.params);
+    const providerId = request.user.providerId!;
+
+    const schedule = await scheduleService.getById(id, providerId);
+
+    return { data: serializeScheduleWithDetails(schedule) };
+  };
+}
+
+/** Handle PUT /api/v1/schedules/:id — update a schedule. */
+function handleUpdateSchedule(scheduleService: ScheduleService) {
+  return async (request: FastifyRequest) => {
+    const { id } = strictParse(idParamSchema, request.params);
+    const body = strictParse(updateScheduleRequestSchema, request.body);
+    const providerId = request.user.providerId!;
+
+    const updateData = {
+      driverId: body.driverId,
+      status: body.status,
+      departureTime: body.departureTime ? new Date(body.departureTime) : undefined,
+      arrivalTime: body.arrivalTime ? new Date(body.arrivalTime) : undefined,
+    };
+
+    const schedule = await scheduleService.update(id, providerId, updateData);
+
+    return { data: serializeScheduleWithDetails(schedule) };
+  };
+}
+
+/** Handle DELETE /api/v1/schedules/:id — cancel a schedule. */
+function handleCancelSchedule(scheduleService: ScheduleService) {
+  return async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = strictParse(idParamSchema, request.params);
+    const providerId = request.user.providerId!;
+
+    await scheduleService.cancel(id, providerId);
+
+    return reply.status(204).send();
+  };
+}
+
 /**
  * Register all schedule management endpoints under /api/v1/schedules.
  * Implements GET (list), POST (create), GET /:id (detail), PUT /:id (update),
@@ -113,115 +213,11 @@ function serializeScheduleWithDetails(schedule: ScheduleWithDetails): Record<str
 async function scheduleRoutes(app: FastifyInstance): Promise<void> {
   const scheduleService = new ScheduleService(getPrisma());
 
-  // GET /api/v1/schedules — list provider's schedules (paginated, filterable)
-  app.get(
-    '/api/v1/schedules',
-    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
-    async (request) => {
-      const { page, pageSize, routeId, busId, status, fromDate, toDate } = strictParse(
-        scheduleFilterQuerySchema,
-        request.query,
-      );
-      const providerId = request.user.providerId!;
-
-      const filters = {
-        routeId,
-        busId,
-        status,
-        fromDate: fromDate ? new Date(fromDate) : undefined,
-        toDate: toDate ? new Date(toDate) : undefined,
-      };
-
-      const result = await scheduleService.listByProvider(providerId, { page, pageSize }, filters);
-
-      return {
-        data: result.data.map(serializeSchedule),
-        meta: result.meta,
-      };
-    },
-  );
-
-  // POST /api/v1/schedules — create a new schedule with stop times
-  app.post(
-    '/api/v1/schedules',
-    { preHandler: [app.authenticate, requireProvider, noCache] },
-    async (request, reply) => {
-      const body = strictParse(createScheduleRequestSchema, request.body);
-      const providerId = request.user.providerId!;
-
-      const schedule = await scheduleService.create(providerId, {
-        routeId: body.routeId,
-        busId: body.busId,
-        driverId: body.driverId,
-        departureTime: new Date(body.departureTime),
-        arrivalTime: new Date(body.arrivalTime),
-        daysOfWeek: body.daysOfWeek,
-        basePrice: body.basePrice,
-        tripDate: new Date(body.tripDate),
-        stopTimes: body.stopTimes.map((st) => ({
-          stopName: st.stopName,
-          arrivalTime: new Date(st.arrivalTime),
-          departureTime: new Date(st.departureTime),
-          orderIndex: st.orderIndex,
-          priceFromStart: st.priceFromStart,
-          lat: st.lat,
-          lng: st.lng,
-        })),
-      });
-
-      return reply.status(201).send({ data: serializeScheduleWithDetails(schedule) });
-    },
-  );
-
-  // GET /api/v1/schedules/:id — get schedule details
-  app.get(
-    '/api/v1/schedules/:id',
-    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
-    async (request) => {
-      const { id } = strictParse(idParamSchema, request.params);
-      const providerId = request.user.providerId!;
-
-      const schedule = await scheduleService.getById(id, providerId);
-
-      return { data: serializeScheduleWithDetails(schedule) };
-    },
-  );
-
-  // PUT /api/v1/schedules/:id — update a schedule
-  app.put(
-    '/api/v1/schedules/:id',
-    { preHandler: [app.authenticate, requireProvider, noCache] },
-    async (request) => {
-      const { id } = strictParse(idParamSchema, request.params);
-      const body = strictParse(updateScheduleRequestSchema, request.body);
-      const providerId = request.user.providerId!;
-
-      const updateData = {
-        driverId: body.driverId,
-        status: body.status,
-        departureTime: body.departureTime ? new Date(body.departureTime) : undefined,
-        arrivalTime: body.arrivalTime ? new Date(body.arrivalTime) : undefined,
-      };
-
-      const schedule = await scheduleService.update(id, providerId, updateData);
-
-      return { data: serializeScheduleWithDetails(schedule) };
-    },
-  );
-
-  // DELETE /api/v1/schedules/:id — cancel a schedule
-  app.delete(
-    '/api/v1/schedules/:id',
-    { preHandler: [app.authenticate, requireProvider, noCache] },
-    async (request, reply) => {
-      const { id } = strictParse(idParamSchema, request.params);
-      const providerId = request.user.providerId!;
-
-      await scheduleService.cancel(id, providerId);
-
-      return reply.status(204).send();
-    },
-  );
+  app.get('/api/v1/schedules', { preHandler: [app.authenticate, requireProvider, privateNoCache] }, handleListSchedules(scheduleService));
+  app.post('/api/v1/schedules', { preHandler: [app.authenticate, requireProvider, noCache] }, handleCreateSchedule(scheduleService));
+  app.get('/api/v1/schedules/:id', { preHandler: [app.authenticate, requireProvider, privateNoCache] }, handleGetSchedule(scheduleService));
+  app.put('/api/v1/schedules/:id', { preHandler: [app.authenticate, requireProvider, noCache] }, handleUpdateSchedule(scheduleService));
+  app.delete('/api/v1/schedules/:id', { preHandler: [app.authenticate, requireProvider, noCache] }, handleCancelSchedule(scheduleService));
 }
 
 export default fp(scheduleRoutes, {

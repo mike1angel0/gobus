@@ -101,9 +101,7 @@
 
 **US-QA-010** | ~~Refactor `buildApp` in app.ts: extract plugin registration (115 lines)~~ — DONE: Extracted `registerPlugins` and `registerRoutes` helper functions. `buildApp` is now ~15 lines. All 992 tests pass.
 
-**US-QA-011** | Refactor `scheduleRoutes` in schedules/routes.ts: extract route handlers (113 lines)
-- AC1: `scheduleRoutes` function is under 100 lines
-- AC2: All existing schedule integration tests still pass
+**US-QA-011** | ~~Refactor `scheduleRoutes` in schedules/routes.ts: extract route handlers (113 lines)~~ — DONE: Extracted 5 route handlers (`handleListSchedules`, `handleCreateSchedule`, `handleGetSchedule`, `handleUpdateSchedule`, `handleCancelSchedule`). `scheduleRoutes` is now ~10 lines. All 992 tests pass.
 
 **US-QA-012** | Refactor `adminRoutes` in admin/routes.ts: extract route handlers (102 lines)
 - AC1: `adminRoutes` function is under 100 lines
