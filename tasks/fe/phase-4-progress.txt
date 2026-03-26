@@ -66,6 +66,27 @@
 - Learnings: Check existing imports before assuming CDN usage. Vite bundles CSS imports from node_modules into the build output.
 ---
 
+## Iteration 14 - TASK-014: Secure token and sensitive data handling
+- Access token already in memory only (module-level variable in client.ts) — no localStorage/sessionStorage
+- Added `setOnForbiddenOrLocked` callback to API client middleware for 403/423 responses, wired in AuthProvider to call `clearAuth()`
+- Added `useEffect` cleanup on all 4 auth pages (login, register, change-password, reset-password) to `reset()` form on unmount — clears password fields from memory
+- All password creation fields already had `autocomplete="new-password"`, login has `autocomplete="current-password"`
+- Zero console.log in codebase, no sensitive data in URL params (only one-time reset token)
+- Added 5 new tests to client.test.ts for 403/423 callback handling
+- Updated 2 test mocks (auth-context.test.tsx, root-layout.test.tsx) to include `setOnForbiddenOrLocked`
+- 1102 tests pass, typecheck clean, lint clean
+- Learnings: When adding new exports to a module, check all test files that mock that module — they'll break if the mock doesn't include the new export.
+---
+
+## Iteration 15 - TASK-015: OpenAPI spec conformance validation
+- Created `scripts/api-check.js` — standalone Node ESM script that reads bundled OpenAPI spec, scans all source files for client.METHOD() calls, validates endpoints against spec, checks types freshness, reports coverage
+- Script reports: 46 API calls across 94 source files, 41/47 spec endpoints covered (87.2%), 6 uncovered admin/provider endpoints
+- Exit codes: 0 (pass), 1 (spec violations), 2 (stale types warning)
+- 6 tests in `scripts/api-check.test.ts` including stale types detection (modifies types file, restores in afterAll)
+- Added `scripts/**/*.ts` to tsconfig.node.json and vitest include for Node-typed test files outside src/
+- Learnings: Test files using Node APIs (child_process, fs) must be under tsconfig.node.json (which has `types: ["node"]`), not tsconfig.app.json (browser types only). Place them in scripts/ directory.
+---
+
 ## Learnings
 - Run vitest from `apps/web/`, not monorepo root
 - Follow existing page patterns (sub-components for skeleton/error/empty/card)
@@ -83,3 +104,4 @@
 - Vite code-splitting via React.lazy works well out of the box
 - staleTime tiers: lists 60s, details 30s, search 30s, tracking 5s, templates 5m
 - Bundle target: 303.5KB gzipped (258KB excl. leaflet), well under 500KB
+- When adding new exports to a module, update all test mocks for that module

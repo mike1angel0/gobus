@@ -70,16 +70,8 @@
 ### TASK-014: Secure token and sensitive data handling ✅
 - [x] Access token in memory only, 403/423 middleware callback for auth cleanup, password fields cleared on unmount (login/register/change-password/reset-password), autocomplete="new-password" on creation fields, 5 new auth cleanup tests, 1102 tests pass, typecheck passes
 
-### TASK-015: OpenAPI spec conformance validation for frontend
-**Description:** Create `npm run api:check` script that: (1) Reads the bundled OpenAPI spec from `../../spec/dist/openapi.json`. (2) Compares all API calls in the codebase (grep for `client.GET`, `client.POST`, etc.) against spec paths — flags any calls to endpoints NOT in the spec. (3) Verifies the generated types are up-to-date with the spec (compare checksums). (4) Reports any spec paths that have NO corresponding frontend hook (missing implementation). Output a report to stdout.
-
-**Acceptance Criteria:**
-- [ ] `npm run api:check` detects calls to endpoints not in spec
-- [ ] `npm run api:check` detects stale generated types (spec changed but types not regenerated)
-- [ ] `npm run api:check` lists spec endpoints with no frontend hook (coverage report)
-- [ ] Script exits with error code if spec violations found
-- [ ] Script exits with warning if types are stale
-- [ ] Typecheck passes
+### TASK-015: OpenAPI spec conformance validation for frontend ✅
+- [x] `npm run api:check` detects calls to endpoints not in spec, detects stale types, lists coverage report, exits with error/warning codes, 6 tests, typecheck passes
 
 ---
 
