@@ -14,15 +14,7 @@
 
 ### ~~TASK-003: Configure ESLint, Prettier, and quality gates~~ ✅
 
-### TASK-004: Set up Vitest + React Testing Library
-**Description:** Install `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jsdom`, `@vitest/coverage-v8`. Configure `vitest.config.ts` with jsdom environment, path aliases, coverage. Create `src/test/setup.ts` with jest-dom matchers. Create `src/test/helpers.tsx` with `renderWithProviders()` (wraps component in QueryClient + Router + Auth context). Add scripts: `test`, `test:watch`, `test:coverage`.
-
-**Acceptance Criteria:**
-- [ ] Vitest configured with jsdom and path aliases
-- [ ] `renderWithProviders` helper wraps all necessary providers
-- [ ] `npm run test` runs all tests
-- [ ] `npm run test:coverage` produces report (target: 90%)
-- [ ] JSDoc on test helpers
+### ~~TASK-004: Set up Vitest + React Testing Library~~ ✅
 
 ---
 
