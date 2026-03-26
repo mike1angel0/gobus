@@ -171,10 +171,7 @@ export class ProviderService {
       for (const agg of revenueBySchedule) {
         const routeId = scheduleRouteMap.get(agg.scheduleId);
         if (routeId) {
-          routeRevenue.set(
-            routeId,
-            (routeRevenue.get(routeId) ?? 0) + (agg._sum.totalPrice ?? 0),
-          );
+          routeRevenue.set(routeId, (routeRevenue.get(routeId) ?? 0) + (agg._sum.totalPrice ?? 0));
         }
       }
 

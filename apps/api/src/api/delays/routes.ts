@@ -51,23 +51,31 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/delays — report a delay (DRIVER or PROVIDER)
-  app.post('/api/v1/delays', { preHandler: [app.authenticate, noCache] }, async (request, reply) => {
-    if (request.user.role !== 'DRIVER' && request.user.role !== 'PROVIDER') {
-      throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers and providers can report delays');
-    }
+  app.post(
+    '/api/v1/delays',
+    { preHandler: [app.authenticate, noCache] },
+    async (request, reply) => {
+      if (request.user.role !== 'DRIVER' && request.user.role !== 'PROVIDER') {
+        throw new AppError(
+          403,
+          ErrorCodes.FORBIDDEN,
+          'Only drivers and providers can report delays',
+        );
+      }
 
-    const body = strictParse(createDelayBodySchema, request.body);
-    const delay = await delayService.create(
-      {
-        id: request.user.id,
-        role: request.user.role,
-        providerId: request.user.providerId,
-      },
-      body,
-    );
+      const body = strictParse(createDelayBodySchema, request.body);
+      const delay = await delayService.create(
+        {
+          id: request.user.id,
+          role: request.user.role,
+          providerId: request.user.providerId,
+        },
+        body,
+      );
 
-    return reply.status(201).send({ data: serializeDelay(delay) });
-  });
+      return reply.status(201).send({ data: serializeDelay(delay) });
+    },
+  );
 
   // PUT /api/v1/delays/:id — update a delay (PROVIDER only)
   app.put('/api/v1/delays/:id', { preHandler: [app.authenticate, noCache] }, async (request) => {

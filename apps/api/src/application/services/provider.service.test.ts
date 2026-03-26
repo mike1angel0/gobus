@@ -322,12 +322,8 @@ describe('ProviderService', () => {
       ]);
 
       (tx.booking.groupBy as ReturnType<typeof vi.fn>)
-        .mockResolvedValueOnce([
-          { scheduleId: 'sched-1', _sum: { totalPrice: 300 } },
-        ])
-        .mockResolvedValueOnce([
-          { scheduleId: 'sched-1', _count: { id: 3 } },
-        ]);
+        .mockResolvedValueOnce([{ scheduleId: 'sched-1', _sum: { totalPrice: 300 } }])
+        .mockResolvedValueOnce([{ scheduleId: 'sched-1', _count: { id: 3 } }]);
 
       const result = await service.getAnalytics('provider-1');
 

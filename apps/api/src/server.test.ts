@@ -48,13 +48,15 @@ describe('server shutdown', () => {
     originalProcessOn = process.on.bind(process);
 
     // Intercept signal registrations
-    vi.spyOn(process, 'on').mockImplementation((event: string | symbol, listener: (...args: unknown[]) => void) => {
-      if (event === 'SIGINT' || event === 'SIGTERM') {
-        addedListeners.push({ signal: event as string, fn: listener });
-        return process;
-      }
-      return originalProcessOn(event as string, listener);
-    });
+    vi.spyOn(process, 'on').mockImplementation(
+      (event: string | symbol, listener: (...args: unknown[]) => void) => {
+        if (event === 'SIGINT' || event === 'SIGTERM') {
+          addedListeners.push({ signal: event as string, fn: listener });
+          return process;
+        }
+        return originalProcessOn(event as string, listener);
+      },
+    );
 
     processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
   });

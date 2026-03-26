@@ -89,14 +89,18 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // POST /api/v1/bookings — create a new booking
-  app.post('/api/v1/bookings', { preHandler: [app.authenticate, noCache] }, async (request, reply) => {
-    const body = strictParse(createBookingBodySchema, request.body);
-    const booking = await bookingService.create(request.user.id, body);
+  app.post(
+    '/api/v1/bookings',
+    { preHandler: [app.authenticate, noCache] },
+    async (request, reply) => {
+      const body = strictParse(createBookingBodySchema, request.body);
+      const booking = await bookingService.create(request.user.id, body);
 
-    request.audit(AuditActions.BOOKING_CREATED, 'booking', booking.id);
+      request.audit(AuditActions.BOOKING_CREATED, 'booking', booking.id);
 
-    return reply.status(201).send({ data: serializeBookingWithDetails(booking) });
-  });
+      return reply.status(201).send({ data: serializeBookingWithDetails(booking) });
+    },
+  );
 
   // GET /api/v1/bookings/:id — get booking details (ownership enforced)
   app.get(
@@ -111,14 +115,18 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // DELETE /api/v1/bookings/:id — cancel a booking (ownership enforced)
-  app.delete('/api/v1/bookings/:id', { preHandler: [app.authenticate, noCache] }, async (request) => {
-    const { id } = strictParse(idParamSchema, request.params);
-    const booking = await bookingService.cancel(id, request.user.id);
+  app.delete(
+    '/api/v1/bookings/:id',
+    { preHandler: [app.authenticate, noCache] },
+    async (request) => {
+      const { id } = strictParse(idParamSchema, request.params);
+      const booking = await bookingService.cancel(id, request.user.id);
 
-    request.audit(AuditActions.BOOKING_CANCELLED, 'booking', booking.id);
+      request.audit(AuditActions.BOOKING_CANCELLED, 'booking', booking.id);
 
-    return { data: serializeBookingWithDetails(booking) };
-  });
+      return { data: serializeBookingWithDetails(booking) };
+    },
+  );
 }
 
 export default fp(bookingRoutes, {

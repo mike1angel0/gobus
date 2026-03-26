@@ -283,7 +283,12 @@ export class ScheduleService {
       select: { providerId: true, role: true, deletedAt: true },
     });
 
-    if (!driver || driver.role !== 'DRIVER' || driver.providerId !== providerId || driver.deletedAt) {
+    if (
+      !driver ||
+      driver.role !== 'DRIVER' ||
+      driver.providerId !== providerId ||
+      driver.deletedAt
+    ) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Driver not found');
     }
   }

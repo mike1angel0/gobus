@@ -1,11 +1,7 @@
 import { randomBytes, createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import type { User } from '@/generated/prisma/client.js';
-import type {
-  RegisterData,
-  AuthTokenPayload,
-  TokenPair,
-} from '@/domain/auth/auth.types.js';
+import type { RegisterData, AuthTokenPayload, TokenPair } from '@/domain/auth/auth.types.js';
 import type { UserEntity } from '@/domain/users/user.entity.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';

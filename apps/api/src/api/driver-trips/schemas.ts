@@ -87,19 +87,11 @@ export const driverTripPassengerSchema = z.object({
   passengerName: z.string().max(100).describe('Passenger display name'),
   boardingStop: z.string().max(200).describe('Boarding stop name'),
   alightingStop: z.string().max(200).describe('Alighting stop name'),
-  seatLabels: z
-    .array(z.string().max(10))
-    .min(1)
-    .max(10)
-    .describe('Booked seat labels'),
+  seatLabels: z.array(z.string().max(10)).min(1).max(10).describe('Booked seat labels'),
   status: z.enum(['CONFIRMED', 'CANCELLED']).describe('Booking status'),
 });
 
 /** Passenger list response. */
 export const driverTripPassengerListResponseSchema = z.object({
-  data: z
-    .array(driverTripPassengerSchema)
-    .min(0)
-    .max(200)
-    .describe('Passengers for this trip'),
+  data: z.array(driverTripPassengerSchema).min(0).max(200).describe('Passengers for this trip'),
 });

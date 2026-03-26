@@ -31,7 +31,9 @@ let _rootLogger: pino.Logger | undefined;
  * Return the Pino logger configuration object.
  * Used by Fastify which requires a config object, not a Pino instance.
  */
-export function getLoggerConfig(): pino.LoggerOptions & { transport?: pino.TransportSingleOptions } {
+export function getLoggerConfig(): pino.LoggerOptions & {
+  transport?: pino.TransportSingleOptions;
+} {
   const env = getEnv();
   const isTest = env.NODE_ENV === 'test';
   const isDev = env.NODE_ENV === 'development';

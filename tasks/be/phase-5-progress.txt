@@ -96,3 +96,16 @@
 - OpenAPI spec + Zod schemas updated with `deletedAt` field
 - Learnings: After adding a Prisma schema field, must run `npx prisma generate` to update the generated client types before typecheck; existing tests that assert exact select/where params need updating when adding new fields to queries; soft-delete is simpler than archive-and-cascade since it requires no schema restructuring
 ---
+
+## Iteration 15 - TASK-015: Verify and fix integration tests for untested route files
+- All 9 integration test files already existed with substantial tests (270-818 lines each, 215+ tests total)
+- Fixed 3 pre-existing test failures: (1) admin tests missing `deletedAt` field from TASK-014 soft-delete, (2) cache-control and spec-conformance tests missing `$queryRaw` mock for search service (which uses raw SQL since TASK-003)
+- All 968 tests pass (503 unit + 465 integration), coverage 96.88% statements
+- Learnings: When adding new DB fields (like `deletedAt`), grep all integration test files for mocked Prisma responses that may need the new field; search service uses `$queryRaw` (tagged template) not `$queryRawUnsafe` — mocks must match exactly; the spec-conformance driver-trips test failure was caused by search test's 500 error consuming mock state — fixing the root cause (missing $queryRaw mock) fixed both
+---
+
+## Iteration 16 - TASK-016: Phase 5 final quality gates
+- All 11 quality gates pass: typecheck, lint, format:check, unit tests (503), integration tests (465), coverage (96.88%/92.39%/97.32%/97.08%), build, spec:lint, api:validate (66 tests), security:audit (0 leaks, 0 vulns)
+- Fixed Prettier formatting in 17 files (only whitespace changes, no logic changes)
+- Learnings: `npm run spec:lint` and `npm run spec:bundle` must be run from monorepo root, not apps/api; integration test `GET /auth/me` had a transient 405 failure that resolved on re-run (test ordering flakiness); coverage config (`vitest.coverage.config.ts`) combines unit + integration tests — running `vitest run --coverage` alone uses only unit test config and reports lower numbers
+---

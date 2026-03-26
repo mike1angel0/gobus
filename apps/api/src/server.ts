@@ -12,7 +12,13 @@ const HOST = process.env.HOST ?? '0.0.0.0';
  */
 async function shutdown(
   signal: string,
-  app: { log: { info: (obj: unknown, msg?: string) => void; error: (obj: unknown, msg?: string) => void }; close: () => Promise<void> },
+  app: {
+    log: {
+      info: (obj: unknown, msg?: string) => void;
+      error: (obj: unknown, msg?: string) => void;
+    };
+    close: () => Promise<void>;
+  },
 ): Promise<void> {
   app.log.info({ signal }, 'Received shutdown signal, closing server');
   try {

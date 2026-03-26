@@ -37,7 +37,11 @@ export const scheduleSchema = z.object({
     .describe('Days of the week this schedule runs (0=Sunday, 6=Saturday)'),
   basePrice: z.number().min(0).max(100000).describe('Base price for the full route'),
   status: scheduleStatusSchema.describe('Schedule status'),
-  tripDate: z.string().date().max(10).describe('Specific date for this trip instance (ISO 8601 date format)'),
+  tripDate: z
+    .string()
+    .date()
+    .max(10)
+    .describe('Specific date for this trip instance (ISO 8601 date format)'),
   createdAt: z.string().datetime().max(30).describe('Schedule creation timestamp'),
 });
 
@@ -62,7 +66,11 @@ export const scheduleWithDetailsSchema = z.object({
     .describe('Days of the week this schedule runs'),
   basePrice: z.number().min(0).max(100000).describe('Base price for the full route'),
   status: scheduleStatusSchema.describe('Schedule status'),
-  tripDate: z.string().date().max(10).describe('Specific date for this trip instance (ISO 8601 date format)'),
+  tripDate: z
+    .string()
+    .date()
+    .max(10)
+    .describe('Specific date for this trip instance (ISO 8601 date format)'),
   stopTimes: z
     .array(stopTimeSchema)
     .min(0)
@@ -114,7 +122,11 @@ export const createScheduleRequestSchema = z
       .optional()
       .describe('Days of the week this schedule runs (0=Sunday, 6=Saturday)'),
     basePrice: z.number().min(0).max(100000).describe('Base price for the full route'),
-    tripDate: z.string().date().max(10).describe('Specific date for this trip instance (ISO 8601 date format, e.g. 2026-03-25)'),
+    tripDate: z
+      .string()
+      .date()
+      .max(10)
+      .describe('Specific date for this trip instance (ISO 8601 date format, e.g. 2026-03-25)'),
     stopTimes: z
       .array(createStopTimeInputSchema)
       .min(2)

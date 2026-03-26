@@ -62,55 +62,67 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // POST /api/v1/auth/login
-  app.post('/api/v1/auth/login', { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
-    const body = strictParse(loginBodySchema, request.body);
+  app.post(
+    '/api/v1/auth/login',
+    { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } },
+    async (request) => {
+      const body = strictParse(loginBodySchema, request.body);
 
-    try {
-      const { user, tokens } = await authService.login(body, request.ip);
+      try {
+        const { user, tokens } = await authService.login(body, request.ip);
 
-      request.audit(AuditActions.LOGIN_SUCCESS, 'user', user.id);
+        request.audit(AuditActions.LOGIN_SUCCESS, 'user', user.id);
+
+        return {
+          data: {
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+            user: serializeUser(user),
+          },
+        };
+      } catch (err) {
+        if (err instanceof AppError) {
+          if (err.code === ErrorCodes.ACCOUNT_LOCKED) {
+            request.audit(AuditActions.LOGIN_LOCKED, 'user', null, { email: body.email });
+          } else if (err.code === ErrorCodes.AUTH_INVALID_CREDENTIALS) {
+            request.audit(AuditActions.LOGIN_FAILURE, 'user', null, { email: body.email });
+          }
+        }
+        throw err;
+      }
+    },
+  );
+
+  // POST /api/v1/auth/refresh
+  app.post(
+    '/api/v1/auth/refresh',
+    { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } },
+    async (request) => {
+      const body = strictParse(tokenRefreshBodySchema, request.body);
+      const tokens = await authService.refreshToken(body.refreshToken);
 
       return {
         data: {
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,
-          user: serializeUser(user),
         },
       };
-    } catch (err) {
-      if (err instanceof AppError) {
-        if (err.code === ErrorCodes.ACCOUNT_LOCKED) {
-          request.audit(AuditActions.LOGIN_LOCKED, 'user', null, { email: body.email });
-        } else if (err.code === ErrorCodes.AUTH_INVALID_CREDENTIALS) {
-          request.audit(AuditActions.LOGIN_FAILURE, 'user', null, { email: body.email });
-        }
-      }
-      throw err;
-    }
-  });
-
-  // POST /api/v1/auth/refresh
-  app.post('/api/v1/auth/refresh', { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
-    const body = strictParse(tokenRefreshBodySchema, request.body);
-    const tokens = await authService.refreshToken(body.refreshToken);
-
-    return {
-      data: {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-      },
-    };
-  });
+    },
+  );
 
   // POST /api/v1/auth/logout
-  app.post('/api/v1/auth/logout', { preHandler: [app.authenticate, noCache] }, async (request, reply) => {
-    const body = strictParse(logoutBodySchema, request.body);
-    await authService.logout(request.user.id, body.refreshToken);
+  app.post(
+    '/api/v1/auth/logout',
+    { preHandler: [app.authenticate, noCache] },
+    async (request, reply) => {
+      const body = strictParse(logoutBodySchema, request.body);
+      await authService.logout(request.user.id, body.refreshToken);
 
-    request.audit(AuditActions.LOGOUT, 'user', request.user.id);
+      request.audit(AuditActions.LOGOUT, 'user', request.user.id);
 
-    return reply.status(204).send();
-  });
+      return reply.status(204).send();
+    },
+  );
 
   // POST /api/v1/auth/forgot-password
   app.post(
@@ -145,16 +157,20 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // POST /api/v1/auth/change-password
-  app.post('/api/v1/auth/change-password', { preHandler: [app.authenticate, noCache] }, async (request) => {
-    const body = strictParse(changePasswordBodySchema, request.body);
-    await authService.changePassword(request.user.id, body.currentPassword, body.newPassword);
+  app.post(
+    '/api/v1/auth/change-password',
+    { preHandler: [app.authenticate, noCache] },
+    async (request) => {
+      const body = strictParse(changePasswordBodySchema, request.body);
+      await authService.changePassword(request.user.id, body.currentPassword, body.newPassword);
 
-    request.audit(AuditActions.PASSWORD_CHANGE, 'user', request.user.id);
+      request.audit(AuditActions.PASSWORD_CHANGE, 'user', request.user.id);
 
-    return {
-      data: { message: 'Password has been changed successfully.' },
-    };
-  });
+      return {
+        data: { message: 'Password has been changed successfully.' },
+      };
+    },
+  );
 
   // GET /api/v1/auth/me
   app.get(

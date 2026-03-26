@@ -41,7 +41,12 @@ const mockPrisma = {
   delay: { findMany: mockDelayFindMany, count: mockDelayCount },
   driver: { findMany: mockDriverFindMany, count: mockDriverCount },
   provider: { findUnique: mockProviderFindUnique },
-  route: { findMany: mockRouteFindMany, count: mockRouteCount, findUnique: mockRouteFindUnique, delete: mockRouteDelete },
+  route: {
+    findMany: mockRouteFindMany,
+    count: mockRouteCount,
+    findUnique: mockRouteFindUnique,
+    delete: mockRouteDelete,
+  },
   refreshToken: { deleteMany: mockRefreshTokenDeleteMany },
   auditLog: { create: mockAuditLogCreate },
   $queryRawUnsafe: vi.fn().mockResolvedValue([{ '?column?': 1 }]),
