@@ -5,7 +5,6 @@ import { DriverTripService } from '@/application/services/driver-trip.service.js
 import type {
   DriverTrip,
   DriverTripDetail,
-  DriverTripPassenger,
   DriverTripStopTime,
 } from '@/domain/driver-trips/driver-trip.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';

@@ -145,7 +145,6 @@ export class ProviderService {
       totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) / 100 : 0;
 
     // Revenue by route
-    const routeMap = new Map(routes.map((r) => [r.id, r.name]));
     const revenueByRouteAgg = await this.prisma.booking.groupBy({
       by: ['scheduleId'],
       where: {

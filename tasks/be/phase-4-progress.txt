@@ -154,3 +154,77 @@
 
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.
+
+## Validation Rejected - Fixes Needed
+## HARD GATE FAILURES
+
+### 1. TypeScript Typecheck — FAILED (6 errors)
+The `StopTime` Prisma model is missing `lat` and `lng` fields that the code expects:
+
+| File | Error |
+|------|-------|
+| `src/api/plugins/metrics.integration.test.ts:84` | Plugin type mismatch — `metricsPlugin` not assignable as Fastify plugin |
+| `src/application/services/driver-trip.service.ts:205` | `StopTimeRecord` expects `lat`, `lng` but Prisma type doesn't have them |
+| `src/application/services/schedule.service.ts:351-352` | Property `lat`/`lng` does not exist on StopTime select |
+| `src/application/services/search.service.ts:196-197` | Property `lat`/`lng` does not exist on StopTime select |
+
+**Root cause**: The Prisma `StopTime` model lacks `lat` and `lng` columns, but 3 services reference them. A migration is likely missing or the select clauses don't include these fields.
+
+### 2. ESLint — FAILED (2 errors)
+- `src/api/driver-trips/routes.ts:8` — Unused import `DriverTripPassenger` (QA-010 marked as done but not fixed)
+- `src/application/services/provider.service.ts:148` — Unused variable `routeMap` (QA-011 marked as done but not fixed)
+
+### 3. Production Build — FAILED
+Same TypeScript errors as typecheck — `tsc` fails before `tsc-alias` runs.
+
+### 4. Zod-to-Spec Parity — MINOR FAIL
+- `POST /schedules`: `routeId` and `busId` fields in Zod schema have `.max(30)` but **missing `.min(1)`** — allows empty strings for required ID fields.
+
+---
+
+## PASSING GATES
+
+| Gate | Status |
+|------|--------|
+| Unit tests (480 tests, 32 files) | PASS |
+| Integration tests (461 tests, 28 files) | PASS |
+| OpenAPI spec lint (`spec:lint`) | PASS (3 warnings, 0 errors) |
+| npm audit | PASS (0 vulnerabilities) |
+| Gitleaks secrets scan | PASS (no leaks) |
+| RFC 9457 compliance | PASS |
+| Ownership enforcement (BOLA/IDOR) | PASS |
+| Mass assignment (`.strict()`) | PASS |
+| `any` in production code | PASS (only in `generated/prisma/`, not handwritten code) |
+| OpenAPI spec completeness | PASS (all string/number/array fields bounded) |
+| JSDoc on exported functions | PASS (WARN-level, excellent coverage) |
+| Structured logging (`createLogger`) | PASS (WARN-level, all services use it) |
+
+---
+
+## WARNINGS (non-blocking)
+
+1. **QA Batch 2 tasks US-QA-010 and US-QA-011** are documented as completed in the task file but the lint errors they describe still exist.
+2. **Email maxLength inconsistency**: `AdminUser.email` uses 254 while other email fields use 255 (minor).
+3. **Schedule schema ID fields** (`routeId`, `busId`) missing `.min(1)` — low practical risk since DB lookup fails on empty strings, but violates defense-in-depth.
+
+---
+
+## REQUIRED FIXES TO PASS — ALL RESOLVED
+
+1. ~~Add `lat`/`lng` to StopTime model~~ — Fixed by regenerating Prisma client (fields already existed in schema)
+2. ~~Fix metrics integration test~~ — Used `as unknown as FastifyPluginAsync` for dynamic import type
+3. ~~Remove unused import~~ `DriverTripPassenger` — Removed from driver-trips/routes.ts
+4. ~~Remove unused variable~~ `routeMap` — Removed from provider.service.ts
+5. ~~Add `.min(1)`~~ to `routeId` and `busId` — Added in schedules/schemas.ts
+---
+
+## Iteration 30 - Validation Fix: All hard gate failures resolved
+- StopTime lat/lng: Prisma client was stale — `npx prisma generate` resolved all 4 type errors
+- Metrics integration test: Dynamic `import()` returns module namespace, not default export directly. Used `as unknown as FastifyPluginAsync` cast.
+- Removed unused `DriverTripPassenger` import from driver-trips/routes.ts
+- Removed unused `routeMap` variable from provider.service.ts (was created but never read — code uses `routes` directly)
+- Added `.min(1)` to `routeId` and `busId` in createScheduleRequestSchema for defense-in-depth
+- All gates pass: typecheck ✓, lint ✓, build ✓, 480 unit + 461 integration tests ✓, spec:lint ✓
+- Learnings: Always run `npx prisma generate` after pulling changes that might include schema migrations. Dynamic imports in TS test files need type assertions for Fastify plugin registration.
+---
+

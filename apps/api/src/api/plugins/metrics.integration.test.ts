@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest';
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { type FastifyInstance, type FastifyPluginAsync } from 'fastify';
 import pino from 'pino';
 
 const { warnSpy, infoSpy } = vi.hoisted(() => ({
@@ -81,7 +81,7 @@ describe('metrics plugin — slow request logging', () => {
 
     // Register metrics plugin on a standalone instance
     const metricsModule = await import('./metrics.js');
-    await slowApp.register(metricsModule.default);
+    await slowApp.register(metricsModule.default as unknown as FastifyPluginAsync);
 
     // Add a route that simulates slow response time via reply decoration
     slowApp.get('/slow', async (_request, reply) => {
