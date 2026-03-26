@@ -74,5 +74,19 @@ Iterations 1–21 (TASK-001 through US-QA-007, plus fix iteration 17) are summar
 - Learnings: Straightforward extraction — no test changes needed since tests import `buildApp` which delegates internally
 ---
 
+## Iteration 25 - US-QA-011: Refactor scheduleRoutes in schedules/routes.ts
+- Extracted 5 route handlers (handleListSchedules, handleCreateSchedule, handleGetSchedule, handleUpdateSchedule, handleCancelSchedule) using factory pattern (return async handler)
+- `scheduleRoutes` reduced from 113 lines to ~10 lines
+- All 992 tests pass, lint clean, typecheck clean
+- Learnings: Same factory pattern as authRoutes works well — pass service as arg, return async handler
+---
+
+## Iteration 26 - US-QA-012: Refactor adminRoutes in admin/routes.ts
+- Extracted 7 route handlers into factory functions (same pattern as scheduleRoutes/authRoutes)
+- `adminRoutes` reduced from 102 lines to ~10 lines
+- All 992 tests pass (511 unit + 481 integration), lint clean, typecheck clean
+- Learnings: When extracting handlers with `request.audit()`, must import `AuditAction` type — using `string` causes TS error since `audit` param is typed as `AuditAction`
+---
+
 ## Learnings
 See Compacted History section above for deduplicated learnings, plus individual iteration learnings for recent work.

@@ -7,6 +7,7 @@ import type { BusEntity } from '@/domain/buses/bus.entity.js';
 import type { SeatEntity } from '@/domain/buses/bus.entity.js';
 import type { AuditLogEntity } from '@/domain/audit/audit.entity.js';
 import { AuditActions } from '@/domain/audit/audit-actions.js';
+import type { AuditAction } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireAdmin } from '@/api/plugins/role-guard.js';
 import { idParamSchema, strictParse } from '@/shared/schemas.js';
@@ -99,6 +100,82 @@ const auditActionMap = {
   unlock: AuditActions.ACCOUNT_UNLOCKED,
 } as const;
 
+/** Handle GET /api/v1/admin/buses — list all buses (paginated, optional provider filter). */
+function handleListBuses(adminService: AdminService) {
+  return async (request: { query: unknown }) => {
+    const query = strictParse(adminListBusesQuerySchema, request.query);
+    const result = await adminService.listAllBuses(query);
+
+    return { data: result.data.map(serializeBus), meta: result.meta };
+  };
+}
+
+/** Handle GET /api/v1/admin/users — list all users (paginated, optional role/status filter). */
+function handleListUsers(adminService: AdminService) {
+  return async (request: { query: unknown }) => {
+    const query = strictParse(adminListUsersQuerySchema, request.query);
+    const result = await adminService.listUsers(query);
+
+    return { data: result.data.map(serializeUser), meta: result.meta };
+  };
+}
+
+/** Handle PATCH /api/v1/admin/users/:id/status — update user account status. */
+function handleUpdateUserStatus(adminService: AdminService) {
+  return async (request: { params: unknown; body: unknown; audit: (action: AuditAction, resource: string, resourceId: string) => void }) => {
+    const { id } = strictParse(idParamSchema, request.params);
+    const { action } = strictParse(updateUserStatusBodySchema, request.body);
+    const user = await adminService.updateUserStatus(id, action);
+
+    request.audit(auditActionMap[action], 'user', id);
+
+    return { data: serializeUser(user) };
+  };
+}
+
+/** Handle GET /api/v1/admin/audit-logs — list audit logs (paginated, optional filters). */
+function handleListAuditLogs(adminService: AdminService) {
+  return async (request: { query: unknown }) => {
+    const query = strictParse(adminListAuditLogsQuerySchema, request.query);
+    const result = await adminService.listAuditLogs(query);
+
+    return { data: result.data.map(serializeAuditLog), meta: result.meta };
+  };
+}
+
+/** Handle PATCH /api/v1/admin/seats/:id — toggle seat enabled/disabled. */
+function handleToggleSeat(adminService: AdminService) {
+  return async (request: { params: unknown; body: unknown }) => {
+    const { id } = strictParse(idParamSchema, request.params);
+    const { isEnabled } = strictParse(toggleSeatBodySchema, request.body);
+    const seat = await adminService.toggleSeat(id, isEnabled);
+
+    return { data: serializeSeat(seat) };
+  };
+}
+
+/** Handle DELETE /api/v1/admin/users/:id — soft-delete a user account. */
+function handleDeleteUser(adminService: AdminService) {
+  return async (request: { params: unknown; audit: (action: AuditAction, resource: string, resourceId: string) => void }, reply: { status: (code: number) => { send: () => unknown } }) => {
+    const { id } = strictParse(idParamSchema, request.params);
+    await adminService.softDeleteUser(id);
+
+    request.audit(AuditActions.ACCOUNT_DELETED, 'user', id);
+
+    return reply.status(204).send();
+  };
+}
+
+/** Handle DELETE /api/v1/admin/users/:id/sessions — force logout user by revoking all refresh tokens. */
+function handleRevokeSessions(adminService: AdminService) {
+  return async (request: { params: unknown }, reply: { status: (code: number) => { send: () => unknown } }) => {
+    const { id } = strictParse(idParamSchema, request.params);
+    await adminService.revokeAllSessions(id);
+
+    return reply.status(204).send();
+  };
+}
+
 /**
  * Register admin endpoints: user management, audit logs, buses, seats, and sessions.
  * All endpoints require ADMIN role.
@@ -106,104 +183,13 @@ const auditActionMap = {
 async function adminRoutes(app: FastifyInstance): Promise<void> {
   const adminService = new AdminService(getPrisma());
 
-  // GET /api/v1/admin/buses — list all buses (paginated, optional provider filter)
-  app.get(
-    '/api/v1/admin/buses',
-    { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
-    async (request) => {
-      const query = strictParse(adminListBusesQuerySchema, request.query);
-      const result = await adminService.listAllBuses(query);
-
-      return {
-        data: result.data.map(serializeBus),
-        meta: result.meta,
-      };
-    },
-  );
-
-  // GET /api/v1/admin/users — list all users (paginated, optional role/status filter)
-  app.get(
-    '/api/v1/admin/users',
-    { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
-    async (request) => {
-      const query = strictParse(adminListUsersQuerySchema, request.query);
-      const result = await adminService.listUsers(query);
-
-      return {
-        data: result.data.map(serializeUser),
-        meta: result.meta,
-      };
-    },
-  );
-
-  // PATCH /api/v1/admin/users/:id/status — update user account status
-  app.patch(
-    '/api/v1/admin/users/:id/status',
-    { preHandler: [app.authenticate, requireAdmin, noCache] },
-    async (request) => {
-      const { id } = strictParse(idParamSchema, request.params);
-      const { action } = strictParse(updateUserStatusBodySchema, request.body);
-      const user = await adminService.updateUserStatus(id, action);
-
-      request.audit(auditActionMap[action], 'user', id);
-
-      return { data: serializeUser(user) };
-    },
-  );
-
-  // GET /api/v1/admin/audit-logs — list audit logs (paginated, optional filters)
-  app.get(
-    '/api/v1/admin/audit-logs',
-    { preHandler: [app.authenticate, requireAdmin, privateNoCache] },
-    async (request) => {
-      const query = strictParse(adminListAuditLogsQuerySchema, request.query);
-      const result = await adminService.listAuditLogs(query);
-
-      return {
-        data: result.data.map(serializeAuditLog),
-        meta: result.meta,
-      };
-    },
-  );
-
-  // PATCH /api/v1/admin/seats/:id — toggle seat enabled/disabled
-  app.patch(
-    '/api/v1/admin/seats/:id',
-    { preHandler: [app.authenticate, requireAdmin, noCache] },
-    async (request) => {
-      const { id } = strictParse(idParamSchema, request.params);
-      const { isEnabled } = strictParse(toggleSeatBodySchema, request.body);
-      const seat = await adminService.toggleSeat(id, isEnabled);
-
-      return { data: serializeSeat(seat) };
-    },
-  );
-
-  // DELETE /api/v1/admin/users/:id — soft-delete a user account
-  app.delete(
-    '/api/v1/admin/users/:id',
-    { preHandler: [app.authenticate, requireAdmin, noCache] },
-    async (request, reply) => {
-      const { id } = strictParse(idParamSchema, request.params);
-      await adminService.softDeleteUser(id);
-
-      request.audit(AuditActions.ACCOUNT_DELETED, 'user', id);
-
-      return reply.status(204).send();
-    },
-  );
-
-  // DELETE /api/v1/admin/users/:id/sessions — force logout user by revoking all refresh tokens
-  app.delete(
-    '/api/v1/admin/users/:id/sessions',
-    { preHandler: [app.authenticate, requireAdmin, noCache] },
-    async (request, reply) => {
-      const { id } = strictParse(idParamSchema, request.params);
-      await adminService.revokeAllSessions(id);
-
-      return reply.status(204).send();
-    },
-  );
+  app.get('/api/v1/admin/buses', { preHandler: [app.authenticate, requireAdmin, privateNoCache] }, handleListBuses(adminService));
+  app.get('/api/v1/admin/users', { preHandler: [app.authenticate, requireAdmin, privateNoCache] }, handleListUsers(adminService));
+  app.patch('/api/v1/admin/users/:id/status', { preHandler: [app.authenticate, requireAdmin, noCache] }, handleUpdateUserStatus(adminService));
+  app.get('/api/v1/admin/audit-logs', { preHandler: [app.authenticate, requireAdmin, privateNoCache] }, handleListAuditLogs(adminService));
+  app.patch('/api/v1/admin/seats/:id', { preHandler: [app.authenticate, requireAdmin, noCache] }, handleToggleSeat(adminService));
+  app.delete('/api/v1/admin/users/:id', { preHandler: [app.authenticate, requireAdmin, noCache] }, handleDeleteUser(adminService));
+  app.delete('/api/v1/admin/users/:id/sessions', { preHandler: [app.authenticate, requireAdmin, noCache] }, handleRevokeSessions(adminService));
 }
 
 export default fp(adminRoutes, {
