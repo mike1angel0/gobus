@@ -97,9 +97,7 @@
 
 **US-QA-006** | ~~Add tests for bus update with seat layout~~ — DONE: Added 2 unit tests for `updateBus` with seats: transaction branch (deleteMany + create with exact args), price default (0) and BLOCKED type disabling.
 
-**US-QA-007** | Add tests for driver-trip.service getPassengers (lines 221-261 uncovered)
-- AC1: Unit test covers `getPassengers` happy path mapping bookings to DriverTripPassenger
-- AC2: Unit test covers schedule not found and driver mismatch (404)
+**US-QA-007** | ~~Add tests for driver-trip.service getPassengers~~ — DONE: Added 6 unit tests for `getPassengers`: happy path mapping 2 bookings to DriverTripPassenger with exact value assertions, query filter/ordering verification, empty array, 404 schedule not found, 404 driver mismatch, default date.
 
 **US-QA-008** | Add tests for provider routes error branch (lines 45-47 uncovered)
 - AC1: Integration test covers GET /api/v1/providers/me when user has no providerId (403)

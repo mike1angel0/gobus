@@ -68,6 +68,7 @@ describe('DriverTripService', () => {
     };
     booking: {
       count: ReturnType<typeof vi.fn>;
+      findMany: ReturnType<typeof vi.fn>;
     };
   };
 
@@ -80,6 +81,7 @@ describe('DriverTripService', () => {
       },
       booking: {
         count: vi.fn(),
+        findMany: vi.fn(),
       },
     };
     service = new DriverTripService(mockPrisma as never);
@@ -363,6 +365,132 @@ describe('DriverTripService', () => {
           status: 'CONFIRMED',
         },
       });
+    });
+  });
+
+  describe('getPassengers', () => {
+    const BOOKING_DATE = new Date('2026-03-25T10:00:00Z');
+
+    function makeBookingRecord(overrides: Record<string, unknown> = {}) {
+      return {
+        id: 'booking-1',
+        scheduleId: SCHEDULE_ID,
+        tripDate: TRIP_DATE_OBJ,
+        status: 'CONFIRMED' as const,
+        boardingStop: 'Bucharest',
+        alightingStop: 'Cluj',
+        createdAt: BOOKING_DATE,
+        user: { name: 'Ion Popescu' },
+        bookingSeats: [{ seatLabel: 'A1' }, { seatLabel: 'A2' }],
+        ...overrides,
+      };
+    }
+
+    it('should return passengers mapped from confirmed bookings', async () => {
+      mockPrisma.schedule.findUnique.mockResolvedValue({ driverId: DRIVER_ID });
+      const booking1 = makeBookingRecord();
+      const booking2 = makeBookingRecord({
+        id: 'booking-2',
+        boardingStop: 'Pitesti',
+        alightingStop: 'Cluj',
+        createdAt: new Date('2026-03-25T11:00:00Z'),
+        user: { name: 'Maria Ionescu' },
+        bookingSeats: [{ seatLabel: 'B3' }],
+      });
+      mockPrisma.booking.findMany.mockResolvedValue([booking1, booking2]);
+
+      const result = await service.getPassengers(DRIVER_ID, SCHEDULE_ID, TRIP_DATE);
+
+      expect(result).toEqual([
+        {
+          bookingId: 'booking-1',
+          passengerName: 'Ion Popescu',
+          boardingStop: 'Bucharest',
+          alightingStop: 'Cluj',
+          seatLabels: ['A1', 'A2'],
+          status: 'CONFIRMED',
+        },
+        {
+          bookingId: 'booking-2',
+          passengerName: 'Maria Ionescu',
+          boardingStop: 'Pitesti',
+          alightingStop: 'Cluj',
+          seatLabels: ['B3'],
+          status: 'CONFIRMED',
+        },
+      ]);
+    });
+
+    it('should query bookings with correct filters and ordering', async () => {
+      mockPrisma.schedule.findUnique.mockResolvedValue({ driverId: DRIVER_ID });
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      await service.getPassengers(DRIVER_ID, SCHEDULE_ID, TRIP_DATE);
+
+      expect(mockPrisma.booking.findMany).toHaveBeenCalledWith({
+        where: {
+          scheduleId: SCHEDULE_ID,
+          tripDate: TRIP_DATE_OBJ,
+          status: 'CONFIRMED',
+        },
+        include: {
+          user: { select: { name: true } },
+          bookingSeats: { select: { seatLabel: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+    });
+
+    it('should return empty array when no bookings exist', async () => {
+      mockPrisma.schedule.findUnique.mockResolvedValue({ driverId: DRIVER_ID });
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const result = await service.getPassengers(DRIVER_ID, SCHEDULE_ID, TRIP_DATE);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should throw 404 when schedule not found', async () => {
+      mockPrisma.schedule.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.getPassengers(DRIVER_ID, 'nonexistent', TRIP_DATE),
+      ).rejects.toThrow(
+        expect.objectContaining({
+          statusCode: 404,
+          code: ErrorCodes.RESOURCE_NOT_FOUND,
+          detail: 'Schedule not found',
+        }),
+      );
+    });
+
+    it('should throw 404 when driver not assigned to schedule', async () => {
+      mockPrisma.schedule.findUnique.mockResolvedValue({ driverId: 'other-driver' });
+
+      await expect(
+        service.getPassengers(DRIVER_ID, SCHEDULE_ID, TRIP_DATE),
+      ).rejects.toThrow(
+        expect.objectContaining({
+          statusCode: 404,
+          code: ErrorCodes.RESOURCE_NOT_FOUND,
+          detail: 'Schedule not found',
+        }),
+      );
+    });
+
+    it('should default to today when no date provided', async () => {
+      mockPrisma.schedule.findUnique.mockResolvedValue({ driverId: DRIVER_ID });
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+      const today = new Date().toISOString().slice(0, 10);
+      const todayObj = new Date(today);
+
+      await service.getPassengers(DRIVER_ID, SCHEDULE_ID);
+
+      expect(mockPrisma.booking.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ tripDate: todayObj }),
+        }),
+      );
     });
   });
 });

@@ -122,6 +122,18 @@
 - Learnings: The passengers route uses `schedule.findUnique` with only `{ select: { driverId: true } }` for ownership check, then `booking.findMany` for actual data — mock both separately
 ---
 
+## Iteration 20 - US-QA-006: Add tests for bus update with seat layout
+- Added 2 unit tests for `updateBus` with `seats` array: (1) transaction branch with deleteMany + bus.update and exact arg assertions, (2) price defaults to 0 and BLOCKED type sets isEnabled=false
+- Mock pattern: override `$transaction` with `mockImplementation` providing `{ seat: { deleteMany }, bus: { update } }` tx object
+- Learnings: The existing `$transaction` mock only exposed `bus.create` — needed to provide `seat.deleteMany` and `bus.update` on the tx for the update-with-seats branch
+---
+
+## Iteration 21 - US-QA-007: Add unit tests for driver-trip.service getPassengers
+- Added 6 unit tests for `getPassengers`: happy path with 2 passengers (exact mapping assertions), query filter/ordering verification, empty array, 404 schedule not found, 404 driver mismatch, default date
+- Added `booking.findMany` to mock prisma setup (was missing since only `booking.count` existed)
+- Learnings: The `getPassengers` method uses `schedule.findUnique` with `select: { driverId: true }` (minimal select) then `booking.findMany` — mock schedule returns only need `{ driverId }` for this method
+---
+
 ## Iteration 17 - Fix Validation Rejection Items
 - Fixed `createScheduleRequestSchema.driverId` — added `.min(1)` matching OpenAPI `minLength: 1`
 - Added `maximum` to OpenAPI+Zod: `RevenueByRoute.revenue` (100M), `ProviderAnalytics.totalBookings` (INT_MAX), `ProviderAnalytics.totalRevenue` (100M)
