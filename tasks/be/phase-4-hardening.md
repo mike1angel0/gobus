@@ -476,3 +476,64 @@
 **US-QA-011**: Fix unused variable routeMap in provider.service.ts
 - AC1: Remove or use the unused `routeMap` variable in `apps/api/src/application/services/provider.service.ts` line 148
 - AC2: `npm run lint` passes with zero errors
+
+---
+
+### Quality Assurance Batch 3 (Auto-Generated)
+
+**Generated**: 2026-03-26 | **Batch**: 3/3 | **Coverage**: 94.87% stmts / 90.29% branches (target: 90%)
+
+#### QA Summary
+
+| Category | Issues | Stories |
+|----------|--------|---------|
+| API contract compliance | 1 | 1 |
+| Security | 0 | 0 |
+| Type safety | 0 | 0 |
+| Coverage gaps | 3 | 3 |
+| Architecture | 0 | 0 |
+| Test stability | 1 | 1 |
+| JSDoc | 0 | 0 |
+| Spec parity | 0 | 0 |
+
+**Total QA stories: 5**
+
+#### Overall Status
+
+- **Statements**: 94.87% (target 90%) — PASS
+- **Branches**: 90.29% (target 90%) — PASS
+- **Functions**: 95.48% — PASS
+- **Lines**: 95.16% — PASS
+- **Test results**: 940/941 passing (1 failure in spec-conformance, 2 flaky in tracking during coverage runs)
+- **npm audit**: 0 vulnerabilities
+- **ESLint**: 0 errors, 0 warnings
+- **Type safety**: 0 `any` in hand-written production code
+- **Architecture**: 0 domain layer violations
+- **`.strict()` on request schemas**: All applied
+- **RFC 9457 error format**: Fully conformant
+
+#### API Contract Compliance Stories
+
+**US-QA-012**: Fix spec-conformance test: DELETE /api/v1/admin/users/{id}/sessions returns 404 instead of 401
+- AC1: Ensure the `DELETE /api/v1/admin/users/{id}/sessions` endpoint returns 401 for unauthenticated requests (currently returns 404 due to route matching/auth middleware ordering)
+- AC2: All 66 spec-conformance tests pass (`npm run test:coverage` shows 0 failures)
+
+#### Test Stability Stories
+
+**US-QA-013**: Fix flaky tracking integration tests during coverage runs
+- AC1: Fix 2 tracking integration tests (`returns 200 with optional scheduleId and tripDate`, `returns 400 when body is missing required fields`) that fail during `npm run test:coverage` but pass in isolation — likely a test isolation/mock leaking issue
+- AC2: `npm run test:coverage` runs with 0 test failures
+
+#### Coverage Gap Stories
+
+**US-QA-014**: Add unit tests for BusService.update with seat layout transaction
+- AC1: Test `bus.service.ts` update path where `data.seats` is provided — verify the `$transaction` deletes existing seats and creates new ones (covers lines 174-196)
+- AC2: `bus.service.ts` statement coverage ≥ 95%
+
+**US-QA-015**: Add branch coverage for audit.service.ts error handling
+- AC1: Test `audit.service.ts` log method when Prisma `.create()` rejects — verify error is caught and logged (covers lines 79-87, the `.catch()` and outer `catch` branches)
+- AC2: `audit.service.ts` branch coverage ≥ 95%
+
+**US-QA-016**: Add branch coverage for logger.ts debug/error methods
+- AC1: Test `createLogger` debug and error methods are called correctly (covers lines 72-73, 75 — the `data ?? {}` fallback branches for debug, warn, and error)
+- AC2: `logger.ts` branch coverage ≥ 90%
