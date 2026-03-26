@@ -13,8 +13,12 @@ function getBaseUrl(): string {
 /** Callback invoked when the API returns a 401 (unauthorized). */
 export type OnUnauthorizedCallback = () => void;
 
+/** Callback invoked when the API returns a 403 (suspended) or 423 (locked). */
+export type OnForbiddenOrLockedCallback = (status: 403 | 423) => void;
+
 let accessToken: string | null = null;
 let onUnauthorized: OnUnauthorizedCallback | null = null;
+let onForbiddenOrLocked: OnForbiddenOrLockedCallback | null = null;
 
 /**
  * Stores the current access token in memory (never persisted to storage).
@@ -44,33 +48,63 @@ export function setOnUnauthorized(callback: OnUnauthorizedCallback | null): void
 }
 
 /**
+ * Registers a callback that fires when any API request receives a 403 or 423 response.
+ * The auth layer uses this to clear auth state (account suspended or locked).
+ *
+ * @param callback - Function to invoke on 403/423, or `null` to unregister.
+ */
+export function setOnForbiddenOrLocked(callback: OnForbiddenOrLockedCallback | null): void {
+  onForbiddenOrLocked = callback;
+}
+
+/**
+ * Handles outgoing requests by attaching the Bearer token header.
+ *
+ * @param params - Object containing the outgoing Request.
+ * @returns The request with Authorization header if a token is set.
+ */
+export async function handleRequest({ request }: { request: Request }): Promise<Request> {
+  if (accessToken) {
+    request.headers.set('Authorization', `Bearer ${accessToken}`);
+  }
+  return request;
+}
+
+/**
+ * Handles incoming responses by converting errors to {@link ApiError} instances.
+ * Triggers the registered `onUnauthorized` callback for 401 responses.
+ *
+ * @param params - Object containing the incoming Response.
+ * @returns The response if OK, otherwise throws an `ApiError`.
+ */
+export async function handleResponse({ response }: { response: Response }): Promise<Response> {
+  if (response.ok) return response;
+
+  if (response.status === 401 && onUnauthorized) {
+    onUnauthorized();
+  }
+
+  if ((response.status === 403 || response.status === 423) && onForbiddenOrLocked) {
+    onForbiddenOrLocked(response.status as 403 | 423);
+  }
+
+  let body: unknown;
+  try {
+    body = await response.clone().json();
+  } catch {
+    body = await response.clone().text();
+  }
+
+  throw parseApiError(response.status, body);
+}
+
+/**
  * Middleware that attaches the Bearer token to every outgoing request
  * and converts error responses into {@link ApiError} instances.
  */
 const authAndErrorMiddleware: Middleware = {
-  async onRequest({ request }) {
-    if (accessToken) {
-      request.headers.set('Authorization', `Bearer ${accessToken}`);
-    }
-    return request;
-  },
-
-  async onResponse({ response }) {
-    if (response.ok) return response;
-
-    if (response.status === 401 && onUnauthorized) {
-      onUnauthorized();
-    }
-
-    let body: unknown;
-    try {
-      body = await response.clone().json();
-    } catch {
-      body = await response.clone().text();
-    }
-
-    throw parseApiError(response.status, body);
-  },
+  onRequest: handleRequest,
+  onResponse: handleResponse,
 };
 
 /**

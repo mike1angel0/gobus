@@ -8,6 +8,7 @@ vi.mock('@/api/client', () => ({
   setAccessToken: vi.fn(),
   getAccessToken: vi.fn(() => null),
   setOnUnauthorized: vi.fn(),
+  setOnForbiddenOrLocked: vi.fn(),
 }));
 
 const localStorageMock = (() => {

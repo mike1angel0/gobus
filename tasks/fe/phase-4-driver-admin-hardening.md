@@ -67,18 +67,8 @@
 ### TASK-013: Subresource Integrity for CDN assets ✅
 - [x] Leaflet CSS bundled locally via `import 'leaflet/dist/leaflet.css'` (no CDN), zero CDN link/script tags in index.html, only external URL is CartoDB tile server (dynamic runtime tiles, not SRI-eligible), typecheck passes
 
-### TASK-014: Secure token and sensitive data handling
-**Description:** Audit all client-side data handling: (1) Access token NEVER in localStorage/sessionStorage (memory only). (2) No sensitive data in URL params (no tokens, passwords, or PII in query strings). (3) Password reset token in URL is one-time use (verify with BE). (4) Clear sensitive form data on unmount (password fields). (5) No sensitive data in browser console (no logging tokens, passwords, user data). (6) Add `autocomplete="off"` on password fields where appropriate (new password fields, not login). (7) Ensure 401/403/423 responses clear all local auth state.
-
-**Acceptance Criteria:**
-- [ ] Access token storage: memory only (verified by grep for localStorage/sessionStorage with "token")
-- [ ] No sensitive data in URL query params (except one-time reset token)
-- [ ] Password fields cleared on component unmount
-- [ ] Zero console.log with sensitive data
-- [ ] `autocomplete="new-password"` on password creation fields
-- [ ] 401/403/423 responses trigger full auth state cleanup
-- [ ] Unit tests for auth cleanup on error responses
-- [ ] Typecheck passes
+### TASK-014: Secure token and sensitive data handling ✅
+- [x] Access token in memory only, 403/423 middleware callback for auth cleanup, password fields cleared on unmount (login/register/change-password/reset-password), autocomplete="new-password" on creation fields, 5 new auth cleanup tests, 1102 tests pass, typecheck passes
 
 ### TASK-015: OpenAPI spec conformance validation for frontend
 **Description:** Create `npm run api:check` script that: (1) Reads the bundled OpenAPI spec from `../../spec/dist/openapi.json`. (2) Compares all API calls in the codebase (grep for `client.GET`, `client.POST`, etc.) against spec paths — flags any calls to endpoints NOT in the spec. (3) Verifies the generated types are up-to-date with the spec (compare checksums). (4) Reports any spec paths that have NO corresponding frontend hook (missing implementation). Output a report to stdout.

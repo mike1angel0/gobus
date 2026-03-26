@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { apiClient, setAccessToken, setOnUnauthorized } from '@/api/client';
+import { apiClient, setAccessToken, setOnUnauthorized, setOnForbiddenOrLocked } from '@/api/client';
 import { isApiError } from '@/api/errors';
 import { authKeys } from '@/api/keys';
 import {
@@ -203,6 +203,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
     return () => setOnUnauthorized(null);
   }, [refreshTokens]);
+
+  // Register 403/423 handler: clear all auth state (account suspended or locked)
+  useEffect(() => {
+    setOnForbiddenOrLocked(() => {
+      clearAuth();
+    });
+    return () => setOnForbiddenOrLocked(null);
+  }, [clearAuth]);
 
   // On mount: try to restore session from stored refresh token
   useEffect(() => {

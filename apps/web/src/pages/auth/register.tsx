@@ -51,6 +51,7 @@ export default function RegisterPage() {
     handleSubmit,
     setError,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -68,6 +69,14 @@ export default function RegisterPage() {
   const selectedRole = watch('role');
   const passwordValue = watch('password');
   const strength = getPasswordStrength(passwordValue);
+
+  // Clear sensitive password data on unmount
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated && user) {

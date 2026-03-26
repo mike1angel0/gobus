@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -42,6 +42,7 @@ export default function ResetPasswordPage() {
     handleSubmit,
     setError,
     watch,
+    reset: resetForm,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -51,6 +52,14 @@ export default function ResetPasswordPage() {
   const passwordValue = watch('newPassword');
   const strength = getPasswordStrength(passwordValue);
   const cfg = STRENGTH_CONFIG[strength];
+
+  // Clear sensitive password data on unmount
+  useEffect(() => {
+    return () => {
+      resetForm();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!token || tokenExpired) {
     return <TokenErrorView expired={tokenExpired} />;

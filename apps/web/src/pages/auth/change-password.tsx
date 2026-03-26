@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -60,6 +60,14 @@ export default function ChangePasswordPage() {
   const passwordValue = watch('newPassword');
   const strength = getPasswordStrength(passwordValue);
   const cfg = STRENGTH_CONFIG[strength];
+
+  // Clear sensitive password data on unmount
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** Handles form submission: validates and sends change password request. */
   async function onSubmit(data: ChangePasswordFormValues) {

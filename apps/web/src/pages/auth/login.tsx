@@ -31,11 +31,20 @@ export default function LoginPage() {
     register,
     handleSubmit,
     setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
+
+  // Clear sensitive password data on unmount
+  useEffect(() => {
+    return () => {
+      reset();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Redirect when user becomes authenticated (after login succeeds)
   useEffect(() => {
