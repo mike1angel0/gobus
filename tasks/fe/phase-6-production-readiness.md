@@ -8,19 +8,19 @@
 
 ## Nginx & Security
 
-### TASK-001: Add security headers to nginx.conf
+### TASK-001: Add security headers to nginx.conf ✅
 **Description:** `apps/web/nginx.conf` serves the SPA but has zero security headers. Missing: CSP, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security, Referrer-Policy, Permissions-Policy. The API backend has all of these via Helmet, but the frontend nginx does not.
 
 **Acceptance Criteria:**
-- [ ] `Content-Security-Policy` header: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.basemaps.cartocdn.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
-- [ ] `X-Frame-Options: DENY`
-- [ ] `X-Content-Type-Options: nosniff`
-- [ ] `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
-- [ ] `Referrer-Policy: strict-origin-when-cross-origin`
-- [ ] `Permissions-Policy: camera=(), microphone=(), geolocation=(self)`
-- [ ] `X-XSS-Protection: 0` (modern CSP makes this redundant, disable to avoid false positives)
-- [ ] All headers applied with `always` directive
-- [ ] Manual test with `curl -I` verifies all headers present
+- [x] `Content-Security-Policy` header: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.basemaps.cartocdn.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+- [x] `X-Frame-Options: DENY`
+- [x] `X-Content-Type-Options: nosniff`
+- [x] `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+- [x] `Referrer-Policy: strict-origin-when-cross-origin`
+- [x] `Permissions-Policy: camera=(), microphone=(), geolocation=(self)`
+- [x] `X-XSS-Protection: 0` (modern CSP makes this redundant, disable to avoid false positives)
+- [x] All headers applied with `always` directive
+- [x] Manual test with `curl -I` verifies all headers present
 
 ### TASK-002: Add gzip compression to nginx.conf
 **Description:** Nginx serves all responses uncompressed. Text-based assets (JS, CSS, HTML, JSON) benefit significantly from gzip compression.

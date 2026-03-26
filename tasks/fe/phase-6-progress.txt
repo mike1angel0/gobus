@@ -1,0 +1,7 @@
+## Iteration 1 - TASK-001: Add security headers to nginx.conf
+- Added all 7 security headers (CSP, X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy, Permissions-Policy, X-XSS-Protection) to nginx.conf server block
+- All headers use `always` directive
+- Nginx config syntax validated via Docker (upstream resolution error is expected outside docker-compose)
+- No TypeScript code changed, typecheck still passes
+- Learnings: nginx `add_header` in server block applies to all locations unless overridden; the `always` flag ensures headers are sent even on error responses
+---
