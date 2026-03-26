@@ -206,10 +206,10 @@
 **Description:** Create `npm run api:validate` script that: starts the test server, hits all spec-defined endpoints, validates response shapes against OpenAPI schemas using Ajv. This ensures the implementation matches the spec. Can also use `@fastify/swagger`'s built-in response validation in test mode.
 
 **Acceptance Criteria:**
-- [ ] Script validates all ~36 endpoints against OpenAPI spec
-- [ ] Response schema mismatches reported with details
-- [ ] Runs as part of CI/quality gates
-- [ ] Typecheck passes
+- [x] Script validates all ~36 endpoints against OpenAPI spec
+- [x] Response schema mismatches reported with details
+- [x] Runs as part of CI/quality gates
+- [x] Typecheck passes
 
 ---
 

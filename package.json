@@ -8,7 +8,8 @@
   "scripts": {
     "spec:lint": "redocly lint spec/openapi.yaml",
     "spec:bundle": "redocly bundle spec/openapi.yaml -o spec/dist/openapi.json",
-    "spec:preview": "redocly preview-docs spec/openapi.yaml"
+    "spec:preview": "redocly preview-docs spec/openapi.yaml",
+    "api:validate": "npm run spec:bundle && npm run api:validate -w @transio/api"
   },
   "overrides": {
     "hono": ">=4.12.7",
