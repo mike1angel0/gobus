@@ -93,3 +93,20 @@
 - Updated ESLint config: max-lines-per-function off for test files, jsx-a11y/label-has-associated-control off for shadcn UI components
 - Learnings: CardTitle from shadcn uses div not heading — use h1 directly for accessibility. Shadcn CLI fails with "Invalid configuration" on this project — manually create components instead. Always separate exported constants/functions from default component exports to satisfy react-refresh.
 ---
+
+## Iteration 10 - TASK-010: Create register page
+- Created register-schema.ts with Zod validation matching OpenAPI spec (email max 255, name max 100, password min 8/max 128 with uppercase+lowercase+digit pattern, phone max 20, providerName max 200 conditional on PROVIDER role, confirmPassword match)
+- Created register-fields.tsx with extracted RoleToggle, IdentityFields, PasswordFields components to keep main page under complexity limits
+- Created register.tsx with role toggle (PASSENGER/PROVIDER), conditional provider fields, password strength indicator (weak/fair/strong with progressbar), API error mapping (EMAIL_ALREADY_EXISTS → email field, field-level RFC 9457 errors), auto-login after success
+- 48 tests covering rendering, accessibility, password strength indicator, client-side validation (empty form, invalid email, password rules, confirm mismatch, provider without name), form submission (passenger, provider, phone), API errors (409, 400 field errors, generic), redirect
+- Added max-lines: 'off' for test files in ESLint config (test files naturally exceed 500 lines)
+- Learnings: For complex forms, extract field groups into separate components to stay under ESLint complexity/max-lines-per-function limits. React Compiler's react-hooks/incompatible-library warning on watch() is expected — React Hook Form's watch API can't be memoized but it's the standard way to observe field values. Use it.each for repetitive schema validation tests to save lines.
+---
+
+## Iteration 11 - TASK-011: Create forgot password and reset password pages
+- Created forgot-password-schema.ts (email validation matching OpenAPI spec) and forgot-password.tsx (email form, success view with anti-enumeration message, network error handling)
+- Created reset-password-schema.ts (password min 8/max 128 with uppercase+lowercase+digit, confirmPassword match) and reset-password.tsx (reads ?token= from URL, password strength indicator reusing getPasswordStrength from register, API error handling for TOKEN_EXPIRED/INVALID_TOKEN codes, field-level RFC 9457 errors, redirect to login on success)
+- Extracted reset-password-error.tsx (TokenErrorView) to keep main component under ESLint complexity limit of 15
+- 47 tests across both pages covering: rendering, accessibility (semantic headings, labels, aria-invalid, aria-describedby), client-side validation, form submission, success states, API errors (expired/invalid token, field errors, generic errors, network errors), password strength indicator, schema validation
+- Learnings: ApiError constructor takes an ErrorResponse object, not individual args. Extract early-return views into separate components to reduce cyclomatic complexity below ESLint threshold.
+---

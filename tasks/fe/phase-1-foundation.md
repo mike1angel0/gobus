@@ -36,20 +36,7 @@
 
 ### ~~TASK-010: Create register page~~ ✅
 
-### TASK-011: Create forgot password and reset password pages
-**Description:** Create `src/pages/auth/forgot-password.tsx` — email input form, calls `forgotPassword()`, shows success message ("If an account exists, we've sent a reset link") regardless of whether email exists (prevents enumeration). Create `src/pages/auth/reset-password.tsx` — reads token from URL query param, new password + confirm password form with strength validation, calls `resetPassword()`, redirects to login on success.
-
-**Acceptance Criteria:**
-- [ ] Forgot password form with email input
-- [ ] Success message always shown (no email enumeration)
-- [ ] Reset password reads `?token=` from URL
-- [ ] New password + confirm password fields
-- [ ] Password strength validation (same rules as register)
-- [ ] Expired/invalid token shows clear error with link back to forgot-password
-- [ ] Redirects to login on successful reset
-- [ ] Accessible
-- [ ] Component tests for both pages
-- [ ] Typecheck passes
+### ~~TASK-011: Create forgot password and reset password pages~~ ✅
 
 ### TASK-012: Create change password page
 **Description:** Create `src/pages/auth/change-password.tsx` (authenticated). Form: current password, new password, confirm new password. Calls `changePassword()`. Shows success toast and stays on page. Wrong current password shows field-level error.
