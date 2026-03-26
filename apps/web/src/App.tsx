@@ -1,9 +1,7 @@
 import './App.css';
 
-/**
- * Root application component. Serves as a placeholder until routing is configured.
- */
-function App() {
+/** Root application component. Serves as a placeholder until routing is configured. */
+export default function App() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="glass-card p-8 text-center">
@@ -13,5 +11,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

@@ -5,3 +5,24 @@
 - Scripts: dev, build, preview, typecheck all working
 - Learnings: Vite create template uses React 19 (not 18) — fine, backwards compatible. TypeScript 5.9 ships with strict by default in template.
 ---
+
+## Iteration 2 - TASK-002: Configure Tailwind CSS + shadcn/ui
+- Installed Tailwind CSS v3.4, PostCSS, Autoprefixer, tailwindcss-animate
+- Replicated exact color palette from _legacy/tailwind.config.ts (primary, accent, dark)
+- Ported all utility classes from _legacy/src/app/globals.css: .glass, .glass-card, .btn-primary, .btn-accent, .btn-secondary, .input-field
+- Added shadcn/ui CSS variables for dark theme, configured components.json
+- Installed shadcn components: button, input, card, dialog, toast, toaster
+- Created src/lib/utils.ts with cn() helper
+- Learnings: shadcn v4 CLI creates `@/` as a literal directory when path aliases aren't properly resolved. Had to move files manually. Added resolvedPaths to components.json to fix future installs. Also `tailwindcss-animate` should be in regular deps (not dev) since it's imported in tailwind.config.js which is processed at build time.
+---
+
+## Iteration 3 - TASK-003: Configure ESLint, Prettier, and quality gates
+- Installed eslint-plugin-jsx-a11y, eslint-plugin-jsdoc, prettier
+- Configured ESLint flat config with: complexity gates (max-lines: 500, max-lines-per-function: 250, complexity: 15, max-depth: 4), JSDoc on exports, no-explicit-any as error, jsx-a11y recommended
+- Excluded shadcn/ui components and config files from JSDoc requirements (generated code)
+- Configured Prettier: semi, singleQuote, printWidth: 100
+- Added scripts: lint, format:check, format:fix
+- Auto-formatted existing files with Prettier
+- All quality gates pass: lint, format:check, typecheck
+- Learnings: shadcn/ui generated components trigger JSDoc/react-refresh/unused-vars warnings — exclude them via file-specific config overrides rather than disabling rules globally.
+---

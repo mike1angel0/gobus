@@ -12,15 +12,7 @@
 
 ### ~~TASK-002: Configure Tailwind CSS + shadcn/ui — replicate existing design~~ ✅
 
-### TASK-003: Configure ESLint, Prettier, and quality gates
-**Description:** Install and configure: ESLint with TypeScript + React + a11y + complexity rules (max-lines: 500, max-lines-per-function: 250, complexity: 15, max-depth: 4, jsdoc on exports). Prettier (semi, singleQuote, printWidth: 100). Add npm scripts: `lint`, `format:check`, `format:fix`.
-
-**Acceptance Criteria:**
-- [ ] ESLint with complexity and jsdoc rules
-- [ ] eslint-plugin-jsx-a11y for accessibility
-- [ ] Prettier configured
-- [ ] `npm run lint` works
-- [ ] `npm run format:check` works
+### ~~TASK-003: Configure ESLint, Prettier, and quality gates~~ ✅
 
 ### TASK-004: Set up Vitest + React Testing Library
 **Description:** Install `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jsdom`, `@vitest/coverage-v8`. Configure `vitest.config.ts` with jsdom environment, path aliases, coverage. Create `src/test/setup.ts` with jest-dom matchers. Create `src/test/helpers.tsx` with `renderWithProviders()` (wraps component in QueryClient + Router + Auth context). Add scripts: `test`, `test:watch`, `test:coverage`.
