@@ -1,0 +1,7 @@
+## Iteration 1 - TASK-001: Initialize Vite + React + TypeScript strict
+- Scaffolded Vite project with React 19 + TypeScript 5.9.3 strict mode
+- Configured path aliases (@/ → src/) in tsconfig.app.json and vite.config.ts
+- Installed core deps: react-router-dom, @tanstack/react-query, react-hook-form, zod, @hookform/resolvers, date-fns
+- Scripts: dev, build, preview, typecheck all working
+- Learnings: Vite create template uses React 19 (not 18) — fine, backwards compatible. TypeScript 5.9 ships with strict by default in template.
+---

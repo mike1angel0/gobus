@@ -8,16 +8,7 @@
 
 ## Scaffold & Tooling
 
-### TASK-001: Initialize Vite + React + TypeScript strict
-**Description:** In `apps/web/`, scaffold a Vite project with React 18 and TypeScript strict. Configure `tsconfig.json` with strict: true, path aliases (`@/` → `src/`). Install core deps: `react-router-dom` v6, `@tanstack/react-query`, `react-hook-form`, `zod`, `@hookform/resolvers`, `date-fns`. Add npm scripts: `dev`, `build`, `preview`, `typecheck`.
-
-**Acceptance Criteria:**
-- [ ] Vite project with React 18 + TypeScript 5.5+ strict
-- [ ] Path aliases configured in tsconfig + vite.config.ts
-- [ ] All core deps installed
-- [ ] `npm run dev` starts dev server
-- [ ] `npm run build` produces production bundle
-- [ ] `npm run typecheck` passes with zero errors
+### ~~TASK-001: Initialize Vite + React + TypeScript strict~~ ✅
 
 ### TASK-002: Configure Tailwind CSS + shadcn/ui — replicate existing design
 **Description:** Install and configure Tailwind CSS v3.4. **Copy the exact design system from the existing Next.js app** — read `tailwind.config.ts` and `src/app/globals.css` from the project root to replicate: custom colors (primary blue #3B82F6, accent green #10B981, dark slate palette dark-50 through dark-950), glass-morphism effects (backdrop-blur, border opacity), gradient text. Install shadcn/ui with the dark theme. Create `src/components/ui/` directory. Port ALL utility classes from existing `globals.css`: `.glass`, `.glass-card`, `.btn-primary`, `.btn-accent`, `.btn-secondary`, `.input-field`, and any others found. The new app must be visually identical to the existing one.
