@@ -414,29 +414,8 @@
 
 ---
 
-#### US-QA-001 | Refactor auth.service.ts: split into smaller modules
-**Priority**: Low | **Category**: Complexity
+## Completed QA Tasks
 
-`src/application/services/auth.service.ts` is 593 lines (threshold: 500). Extract cohesive concerns into helper modules.
-
-**ACs:**
-- [x] Split auth.service.ts into ≤500 lines by extracting password/token logic into separate helpers
-- [x] All existing tests still pass with no regressions
-
-#### US-QA-002 | Improve branch coverage in metrics plugin
-**Priority**: Low | **Category**: Coverage
-
-`src/api/plugins/metrics.ts` has 81.25% branch coverage (lines 97, 110-113 uncovered). These are the periodic summary logging branches.
-
-**ACs:**
-- [ ] Add unit tests covering the periodic stats logging branches in metrics.ts
-- [ ] Branch coverage for metrics.ts reaches ≥90%
-
-#### US-QA-003 | Improve branch coverage in error-handler plugin
-**Priority**: Low | **Category**: Coverage
-
-`src/api/plugins/error-handler.ts` has 78.78% branch coverage (lines 100-101, 154-160 uncovered). These are edge-case error handling branches.
-
-**ACs:**
-- [ ] Add tests covering uncovered branches in error-handler.ts (Prisma error masking, unknown error types)
-- [ ] Branch coverage for error-handler.ts reaches ≥90%
+**US-QA-001: Refactor auth.service.ts** — Extracted auth helpers to reduce auth.service.ts from 593 to 490 lines.
+**US-QA-002: Metrics plugin coverage** — Added slow request + production periodic summary tests, metrics.ts at 100% branch coverage.
+**US-QA-003: Error-handler plugin coverage** — Added isPrismaError edge case + validation mapping tests, error-handler.ts at 90.9% branch coverage.

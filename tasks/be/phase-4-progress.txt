@@ -137,5 +137,20 @@
 - Learnings: supertest ECONNRESET on oversized payloads — Fastify closes connection before supertest finishes writing. Use `app.inject()` instead for bodyLimit tests. Entity files are pure TS interfaces — 0% coverage is correct, exclude them.
 ---
 
+## Iteration 28 - US-QA-001: Refactor auth.service.ts
+- Extracted constants, timingSafeCompare, validatePasswordStrength, hashToken, toUserEntity, buildFakeRegistrationResponse into auth.helpers.ts (144 lines)
+- auth.service.ts reduced from 593 → 490 lines (under 500 threshold)
+- Used re-exports (`export { timingSafeCompare, JWT_ISSUER, JWT_AUDIENCE } from './auth.helpers.js'`) for backward compatibility
+- Updated auth plugin to import JWT_ISSUER/JWT_AUDIENCE directly from auth.helpers.ts
+- All 41 unit tests pass, 40/41 integration tests pass (1 flaky timing test — pre-existing)
+- Learnings: Re-exporting from the original module preserves backward compatibility for existing consumers without needing to update test imports.
+---
+
+## Iteration 29 - US-QA-002 + US-QA-003: Coverage improvements
+- metrics.ts: Added slow request test (standalone Fastify with 5.1s delay), production periodic summary tests (fake timers, NODE_ENV=production), reset verification. 100% combined branch coverage.
+- error-handler.ts: Exported isPrismaError/httpTitle/mapZodErrors for unit testing, added 14 new tests covering null/undefined/non-object inputs, undefined name fallback, missing required field validation, nested path validation. 90.9% combined branch coverage.
+- Learnings: Can't add routes or hooks after Fastify `app.ready()` — use separate Fastify instances for tests needing custom routes. `throw null` and `throw 'string'` get wrapped by Fastify before reaching error handler. Use `vi.useFakeTimers({ shouldAdvanceTime: true })` for interval-based tests.
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.

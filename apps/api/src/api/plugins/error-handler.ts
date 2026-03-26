@@ -188,3 +188,6 @@ async function errorHandlerPlugin(app: FastifyInstance): Promise<void> {
 export default fp(errorHandlerPlugin, {
   name: 'error-handler',
 });
+
+// Exported for testing
+export { isPrismaError, httpTitle, mapZodErrors };
