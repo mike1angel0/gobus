@@ -188,6 +188,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/provider/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Provider dashboard analytics
+         * @description Returns aggregated analytics data for the authenticated provider including total bookings, revenue, occupancy, and revenue by route. Requires PROVIDER role.
+         */
+        get: operations["getProviderAnalytics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/routes": {
         parameters: {
             query?: never;
@@ -519,7 +539,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List active bus positions for provider's fleet
+         * @description Returns all active GPS positions for buses belonging to the authenticated provider. Requires PROVIDER role.
+         */
+        get: operations["listProviderTracking"];
         put?: never;
         /**
          * Update bus GPS position
@@ -564,6 +588,26 @@ export interface paths {
          * @description Returns detailed information about a specific trip assigned to the authenticated driver. Includes route stops, passengers, and bus info. Requires DRIVER role. Returns 404 if schedule is not assigned to this driver.
          */
         get: operations["getDriverTripDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/driver/trips/{scheduleId}/passengers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get passenger list for a driver's trip
+         * @description Returns the list of confirmed bookings for a specific trip assigned to the authenticated driver. Requires DRIVER role.
+         */
+        get: operations["getDriverTripPassengers"];
         put?: never;
         post?: never;
         delete?: never;
@@ -980,6 +1024,39 @@ export interface components {
         ProviderDataResponse: {
             data: components["schemas"]["Provider"];
         };
+        /** @description Revenue breakdown for a single route */
+        RevenueByRoute: {
+            /** @description Route identifier */
+            routeId: string;
+            /** @description Route name */
+            routeName: string;
+            /**
+             * Format: double
+             * @description Total revenue for this route
+             */
+            revenue: number;
+        };
+        /** @description Dashboard analytics for a provider */
+        ProviderAnalytics: {
+            /** @description Total number of confirmed bookings */
+            totalBookings: number;
+            /**
+             * Format: double
+             * @description Total revenue from confirmed bookings
+             */
+            totalRevenue: number;
+            /**
+             * Format: double
+             * @description Average seat occupancy ratio (0 to 1)
+             */
+            averageOccupancy: number;
+            /** @description Revenue breakdown per route */
+            revenueByRoute: components["schemas"]["RevenueByRoute"][];
+        };
+        /** @description API response envelope wrapping provider analytics data */
+        ProviderAnalyticsDataResponse: {
+            data: components["schemas"]["ProviderAnalytics"];
+        };
         /** @description A transport route */
         Route: {
             /** @description Unique route identifier (cuid) */
@@ -1180,6 +1257,12 @@ export interface components {
             model?: string;
             /** @description Total number of seats */
             capacity?: number;
+            /** @description Number of seat rows (required when updating seats) */
+            rows?: number;
+            /** @description Number of seat columns (required when updating seats) */
+            columns?: number;
+            /** @description Optional full seat layout replacement */
+            seats?: components["schemas"]["CreateSeatInput"][];
         };
         /** @description A predefined bus layout template */
         BusTemplate: {
@@ -1323,6 +1406,16 @@ export interface components {
              * @description Cumulative price from the first stop to this stop
              */
             priceFromStart: number;
+            /**
+             * Format: double
+             * @description Latitude of the stop
+             */
+            lat?: number;
+            /**
+             * Format: double
+             * @description Longitude of the stop
+             */
+            lng?: number;
         };
         /** @description Request body for creating a schedule with stop times */
         CreateScheduleRequest: {
@@ -1380,6 +1473,16 @@ export interface components {
              * @description Cumulative price from the first stop to this stop
              */
             priceFromStart: number;
+            /**
+             * Format: double
+             * @description Latitude of the stop
+             */
+            lat?: number | null;
+            /**
+             * Format: double
+             * @description Longitude of the stop
+             */
+            lng?: number | null;
         };
         /** @description A schedule with its route, bus, driver, and stop times */
         ScheduleWithDetails: {
@@ -1731,6 +1834,11 @@ export interface components {
         BusTrackingDataResponse: {
             data: components["schemas"]["BusTracking"];
         };
+        /** @description List of active bus tracking records for a provider's fleet */
+        BusTrackingListResponse: {
+            /** @description Active tracking records */
+            data: components["schemas"]["BusTracking"][];
+        };
         /** @description Request body for updating bus GPS position */
         TrackingUpdate: {
             /** @description Bus to update tracking for */
@@ -1817,6 +1925,8 @@ export interface components {
             tripDate: string;
             /** @description Name of the route */
             routeName: string;
+            /** @description Assigned bus identifier (needed for tracking updates) */
+            busId: string;
             /** @description License plate of the assigned bus */
             busLicensePlate: string;
             /** @description Model name of the assigned bus */
@@ -1832,6 +1942,29 @@ export interface components {
         /** @description API response envelope wrapping driver trip detail */
         DriverTripDetailDataResponse: {
             data: components["schemas"]["DriverTripDetail"];
+        };
+        /** @description A passenger booking for a driver's trip */
+        DriverTripPassenger: {
+            /** @description Booking identifier */
+            bookingId: string;
+            /** @description Passenger display name */
+            passengerName: string;
+            /** @description Boarding stop name */
+            boardingStop: string;
+            /** @description Alighting stop name */
+            alightingStop: string;
+            /** @description Booked seat labels */
+            seatLabels: string[];
+            /**
+             * @description Booking status
+             * @enum {string}
+             */
+            status: "CONFIRMED" | "CANCELLED";
+        };
+        /** @description List of passengers for a driver's trip */
+        DriverTripPassengerListResponse: {
+            /** @description Passengers for this trip */
+            data: components["schemas"]["DriverTripPassenger"][];
         };
         /**
          * @description Reason for a schedule delay
@@ -2358,6 +2491,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProviderDataResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a provider */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getProviderAnalytics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Analytics data */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderAnalyticsDataResponse"];
                 };
             };
             /** @description Not authenticated */
@@ -3620,6 +3791,44 @@ export interface operations {
             };
         };
     };
+    listProviderTracking: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of active tracking records */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BusTrackingListResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a provider */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     updateTracking: {
         parameters: {
             query?: never;
@@ -3738,6 +3947,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DriverTripDetailDataResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a driver */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Schedule not found or not assigned to this driver */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getDriverTripPassengers: {
+        parameters: {
+            query?: {
+                /** @description Trip date (defaults to today). ISO 8601 date format. */
+                date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Schedule identifier */
+                scheduleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Passenger list for the trip */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverTripPassengerListResponse"];
                 };
             };
             /** @description Not authenticated */

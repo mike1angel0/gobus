@@ -167,6 +167,34 @@ export class BusService {
     if (data.licensePlate !== undefined) updateData.licensePlate = data.licensePlate;
     if (data.model !== undefined) updateData.model = data.model;
     if (data.capacity !== undefined) updateData.capacity = data.capacity;
+    if (data.rows !== undefined) updateData.rows = data.rows;
+    if (data.columns !== undefined) updateData.columns = data.columns;
+
+    if (data.seats) {
+      const updated = await this.prisma.$transaction(async (tx) => {
+        await tx.seat.deleteMany({ where: { busId: id } });
+        return tx.bus.update({
+          where: { id },
+          data: {
+            ...updateData,
+            seats: {
+              create: data.seats!.map((seat) => ({
+                row: seat.row,
+                column: seat.column,
+                label: seat.label,
+                type: seat.type,
+                price: seat.price ?? 0,
+                isEnabled: seat.type !== 'BLOCKED',
+              })),
+            },
+          },
+          include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+        });
+      });
+
+      logger.info('Bus updated with seat layout', { busId: id, providerId });
+      return this.toBusWithSeats(updated);
+    }
 
     const updated = await this.prisma.bus.update({
       where: { id },

@@ -193,6 +193,8 @@ export class SearchService {
       departureTime: st.departureTime,
       orderIndex: st.orderIndex,
       priceFromStart: st.priceFromStart,
+      lat: st.lat,
+      lng: st.lng,
     }));
 
     logger.debug('Trip details retrieved', { scheduleId, tripDate });

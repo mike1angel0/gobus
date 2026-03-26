@@ -33,6 +33,8 @@ paths:
     $ref: paths/auth.yaml#/me
   /api/v1/providers/me:
     $ref: paths/providers.yaml#/me
+  /api/v1/provider/analytics:
+    $ref: paths/providers.yaml#/analytics
   /api/v1/routes:
     $ref: paths/routes.yaml#/list
   /api/v1/routes/{id}:
@@ -67,6 +69,8 @@ paths:
     $ref: paths/driver-trips.yaml#/list
   /api/v1/driver/trips/{scheduleId}:
     $ref: paths/driver-trips.yaml#/detail
+  /api/v1/driver/trips/{scheduleId}/passengers:
+    $ref: paths/driver-trips.yaml#/passengers
   /api/v1/delays:
     $ref: paths/delays.yaml#/list
   /api/v1/delays/{id}:

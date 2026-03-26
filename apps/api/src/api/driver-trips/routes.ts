@@ -5,6 +5,7 @@ import { DriverTripService } from '@/application/services/driver-trip.service.js
 import type {
   DriverTrip,
   DriverTripDetail,
+  DriverTripPassenger,
   DriverTripStopTime,
 } from '@/domain/driver-trips/driver-trip.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
@@ -36,6 +37,8 @@ function serializeStopTime(stop: DriverTripStopTime): Record<string, unknown> {
     departureTime: stop.departureTime.toISOString(),
     orderIndex: stop.orderIndex,
     priceFromStart: stop.priceFromStart,
+    lat: stop.lat,
+    lng: stop.lng,
   };
 }
 
@@ -47,6 +50,7 @@ function serializeDriverTripDetail(detail: DriverTripDetail): Record<string, unk
     arrivalTime: detail.arrivalTime.toISOString(),
     tripDate: detail.tripDate.toISOString(),
     routeName: detail.routeName,
+    busId: detail.busId,
     busLicensePlate: detail.busLicensePlate,
     busModel: detail.busModel,
     status: detail.status,
@@ -88,6 +92,26 @@ async function driverTripRoutes(app: FastifyInstance): Promise<void> {
       const detail = await driverTripService.getTripDetail(request.user.id, scheduleId, query.date);
 
       return { data: serializeDriverTripDetail(detail) };
+    },
+  );
+
+  app.get(
+    '/api/v1/driver/trips/:scheduleId/passengers',
+    { preHandler: [app.authenticate, privateNoCache] },
+    async (request) => {
+      if (request.user.role !== 'DRIVER') {
+        throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can access passenger list');
+      }
+
+      const { scheduleId } = strictParse(scheduleIdParamSchema, request.params);
+      const query = strictParse(listDriverTripsQuerySchema, request.query);
+      const passengers = await driverTripService.getPassengers(
+        request.user.id,
+        scheduleId,
+        query.date,
+      );
+
+      return { data: passengers };
     },
   );
 }

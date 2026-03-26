@@ -84,6 +84,26 @@ export const updateBusRequestSchema = z
       .optional(),
     model: z.string().trim().min(1).max(100).describe('Bus model name').optional(),
     capacity: z.number().int().min(1).max(200).describe('Total number of seats').optional(),
+    rows: z
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .describe('Number of seat rows (required when updating seats)')
+      .optional(),
+    columns: z
+      .number()
+      .int()
+      .min(1)
+      .max(10)
+      .describe('Number of seat columns (required when updating seats)')
+      .optional(),
+    seats: z
+      .array(createSeatInputSchema)
+      .min(1)
+      .max(1000)
+      .describe('Optional full seat layout replacement')
+      .optional(),
   })
   .strict();
 

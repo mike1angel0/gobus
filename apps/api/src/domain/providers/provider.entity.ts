@@ -21,6 +21,28 @@ export interface ProviderEntity {
   updatedAt: Date;
 }
 
+/** Revenue breakdown for a single route. */
+export interface RevenueByRoute {
+  /** Route identifier. */
+  routeId: string;
+  /** Route name. */
+  routeName: string;
+  /** Total revenue for this route. */
+  revenue: number;
+}
+
+/** Dashboard analytics for a provider. */
+export interface ProviderAnalytics {
+  /** Total number of confirmed bookings. */
+  totalBookings: number;
+  /** Total revenue from confirmed bookings. */
+  totalRevenue: number;
+  /** Average seat occupancy ratio (0 to 1). */
+  averageOccupancy: number;
+  /** Revenue breakdown per route. */
+  revenueByRoute: RevenueByRoute[];
+}
+
 /**
  * Data for updating a provider profile. All fields are optional.
  */

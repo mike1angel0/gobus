@@ -56,5 +56,10 @@ export const busTrackingSchema = z.object({
   updatedAt: z.string().datetime().max(30).describe('Last position update timestamp'),
 });
 
+/** Zod schema for BusTrackingListResponse { data: BusTracking[] }. */
+export const busTrackingListResponseSchema = z.object({
+  data: z.array(busTrackingSchema).min(0).max(500).describe('Active tracking records'),
+});
+
 /** Zod schema for BusTrackingDataResponse { data: BusTracking }. */
 export const busTrackingDataResponseSchema = dataResponse(busTrackingSchema);

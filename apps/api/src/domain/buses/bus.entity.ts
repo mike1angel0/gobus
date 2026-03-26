@@ -92,7 +92,7 @@ export interface CreateBusData {
 
 /**
  * Input data for updating a bus. All fields are optional.
- * Matches the OpenAPI UpdateBusRequest schema (no rows/columns/seats — grid is immutable).
+ * Matches the OpenAPI UpdateBusRequest schema.
  */
 export interface UpdateBusData {
   /** Unique license plate number. */
@@ -101,6 +101,12 @@ export interface UpdateBusData {
   model?: string;
   /** Total number of seats. */
   capacity?: number;
+  /** Number of seat rows (required when updating seats). */
+  rows?: number;
+  /** Number of seat columns (required when updating seats). */
+  columns?: number;
+  /** Optional full seat layout replacement. */
+  seats?: CreateSeatData[];
 }
 
 /**

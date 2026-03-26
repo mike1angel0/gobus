@@ -63,7 +63,7 @@ function makeScheduleRecord(overrides: Record<string, unknown> = {}) {
     tripDate: new Date('2026-03-25T00:00:00.000Z'),
     driverId: DRIVER_ID,
     route: { name: 'Bucharest - Brasov' },
-    bus: { licensePlate: 'B-123-ABC', model: 'Mercedes Sprinter', capacity: 50 },
+    bus: { id: 'bus-1', licensePlate: 'B-123-ABC', model: 'Mercedes Sprinter', capacity: 50 },
     stopTimes: [
       {
         id: 'stop-1',
@@ -72,6 +72,8 @@ function makeScheduleRecord(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T08:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'stop-2',
@@ -80,6 +82,8 @@ function makeScheduleRecord(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T09:40:00.000Z'),
         orderIndex: 1,
         priceFromStart: 25,
+        lat: 44.9462,
+        lng: 26.0254,
       },
       {
         id: 'stop-3',
@@ -88,6 +92,8 @@ function makeScheduleRecord(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T12:00:00.000Z'),
         orderIndex: 2,
         priceFromStart: 50,
+        lat: 45.6427,
+        lng: 25.5887,
       },
     ],
     ...overrides,

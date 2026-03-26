@@ -257,6 +257,8 @@ model StopTime {
   departureTime  DateTime
   orderIndex     Int
   priceFromStart Float
+  lat            Float?
+  lng            Float?
 
   schedule       Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
 

@@ -36,6 +36,8 @@ export const driverTripStopTimeSchema = z.object({
   departureTime: z.string().datetime().max(30).describe('Departure time from this stop'),
   orderIndex: z.number().int().min(0).max(100).describe('Order of this stop in the route'),
   priceFromStart: z.number().min(0).max(100000).describe('Cumulative price from the first stop'),
+  lat: z.number().min(-90).max(90).nullable().describe('Latitude of the stop'),
+  lng: z.number().min(-180).max(180).nullable().describe('Longitude of the stop'),
 });
 
 /** Driver trip summary for list endpoint. */
@@ -59,6 +61,7 @@ export const driverTripDetailSchema = z.object({
   arrivalTime: z.string().datetime().max(30).describe('Scheduled arrival time'),
   tripDate: z.string().datetime().max(30).describe('Date of the trip'),
   routeName: z.string().max(200).describe('Name of the route'),
+  busId: z.string().max(30).describe('Assigned bus identifier (needed for tracking updates)'),
   busLicensePlate: z.string().max(20).describe('License plate of the assigned bus'),
   busModel: z.string().max(100).describe('Model of the assigned bus'),
   status: z.enum(['ACTIVE', 'CANCELLED']).describe('Schedule status'),
@@ -77,3 +80,26 @@ export const driverTripDetailSchema = z.object({
 
 /** Driver trip detail data response. */
 export const driverTripDetailDataResponseSchema = dataResponse(driverTripDetailSchema);
+
+/** A passenger booking for a driver's trip. */
+export const driverTripPassengerSchema = z.object({
+  bookingId: z.string().max(30).describe('Booking identifier'),
+  passengerName: z.string().max(100).describe('Passenger display name'),
+  boardingStop: z.string().max(200).describe('Boarding stop name'),
+  alightingStop: z.string().max(200).describe('Alighting stop name'),
+  seatLabels: z
+    .array(z.string().max(10))
+    .min(1)
+    .max(10)
+    .describe('Booked seat labels'),
+  status: z.enum(['CONFIRMED', 'CANCELLED']).describe('Booking status'),
+});
+
+/** Passenger list response. */
+export const driverTripPassengerListResponseSchema = z.object({
+  data: z
+    .array(driverTripPassengerSchema)
+    .min(0)
+    .max(200)
+    .describe('Passengers for this trip'),
+});

@@ -38,6 +38,57 @@ list:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
 
+passengers:
+  get:
+    operationId: getDriverTripPassengers
+    summary: Get passenger list for a driver's trip
+    description: Returns the list of confirmed bookings for a specific trip assigned to the authenticated driver. Requires DRIVER role.
+    tags:
+      - Driver
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: scheduleId
+        in: path
+        required: true
+        description: Schedule identifier
+        schema:
+          type: string
+          maxLength: 30
+      - name: date
+        in: query
+        required: false
+        description: Trip date (defaults to today). ISO 8601 date format.
+        schema:
+          type: string
+          format: date
+          maxLength: 10
+    responses:
+      '200':
+        description: Passenger list for the trip
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/admin.yaml#/DriverTripPassengerListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a driver
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Schedule not found or not assigned to this driver
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
 detail:
   get:
     operationId: getDriverTripDetail

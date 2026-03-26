@@ -51,6 +51,8 @@ function makeScheduleForSearch(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T08:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'st-2',
@@ -59,6 +61,8 @@ function makeScheduleForSearch(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T09:40:00.000Z'),
         orderIndex: 1,
         priceFromStart: 20,
+        lat: 44.8565,
+        lng: 24.8692,
       },
       {
         id: 'st-3',
@@ -67,6 +71,8 @@ function makeScheduleForSearch(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T12:00:00.000Z'),
         orderIndex: 2,
         priceFromStart: 50,
+        lat: 46.7712,
+        lng: 23.6236,
       },
     ],
     route: {
@@ -103,6 +109,8 @@ function makeScheduleForDetail(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T08:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'st-2',
@@ -111,6 +119,8 @@ function makeScheduleForDetail(overrides: Record<string, unknown> = {}) {
         departureTime: new Date('2026-03-25T12:00:00.000Z'),
         orderIndex: 1,
         priceFromStart: 50,
+        lat: 46.7712,
+        lng: 23.6236,
       },
     ],
     route: {

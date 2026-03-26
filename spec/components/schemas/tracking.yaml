@@ -127,6 +127,20 @@ TrackingUpdate:
       maxLength: 10
       description: Date of the current trip
 
+BusTrackingListResponse:
+  type: object
+  description: List of active bus tracking records for a provider's fleet
+  required:
+    - data
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 500
+      description: Active tracking records
+      items:
+        $ref: '#/BusTracking'
+
 BusTrackingDataResponse:
   type: object
   description: API response envelope wrapping bus tracking data

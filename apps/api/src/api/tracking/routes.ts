@@ -57,6 +57,21 @@ async function trackingRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  // GET /api/v1/tracking — list active bus positions for provider's fleet
+  app.get('/api/v1/tracking', { preHandler: [app.authenticate, noCache] }, async (request) => {
+    if (request.user.role !== 'PROVIDER') {
+      throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only providers can list fleet tracking');
+    }
+
+    const providerId = request.user.providerId;
+    if (!providerId) {
+      throw new AppError(403, ErrorCodes.FORBIDDEN, 'No provider associated with this user');
+    }
+
+    const records = await trackingService.getActiveByProvider(providerId);
+    return { data: records.map(serializeTrackingData) };
+  });
+
   // POST /api/v1/tracking — update bus GPS position (DRIVER role)
   app.post('/api/v1/tracking', { preHandler: [app.authenticate] }, async (request) => {
     if (request.user.role !== 'DRIVER') {

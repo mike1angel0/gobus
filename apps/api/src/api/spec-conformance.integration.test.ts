@@ -296,6 +296,8 @@ function makeScheduleWithDetails(overrides = {}) {
         departureTime: new Date('2026-03-25T10:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'st-2',
@@ -304,6 +306,8 @@ function makeScheduleWithDetails(overrides = {}) {
         departureTime: new Date('2026-03-25T14:00:00.000Z'),
         orderIndex: 1,
         priceFromStart: 50,
+        lat: 46.7712,
+        lng: 23.6236,
       },
     ],
     route: { id: 'route-1', name: 'Bucharest - Cluj', providerId: 'prov-1', createdAt: NOW },
@@ -363,6 +367,8 @@ function makeSearchSchedule() {
         departureTime: new Date('2026-03-25T10:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'st-2',
@@ -371,6 +377,8 @@ function makeSearchSchedule() {
         departureTime: new Date('2026-03-25T14:00:00.000Z'),
         orderIndex: 1,
         priceFromStart: 50,
+        lat: 46.7712,
+        lng: 23.6236,
       },
     ],
     route: { name: 'Bucharest - Cluj', provider: { name: 'FlixBus' } },
@@ -401,6 +409,8 @@ function makeTripSchedule() {
         departureTime: new Date('2026-03-25T10:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'st-2',
@@ -409,6 +419,8 @@ function makeTripSchedule() {
         departureTime: new Date('2026-03-25T14:00:00.000Z'),
         orderIndex: 1,
         priceFromStart: 50,
+        lat: 46.7712,
+        lng: 23.6236,
       },
     ],
     route: { name: 'Bucharest - Cluj', provider: { name: 'FlixBus' } },
@@ -507,7 +519,7 @@ function makeDriverTrip(overrides = {}) {
   return {
     ...makeSchedule(overrides),
     route: { name: 'Bucharest - Cluj' },
-    bus: { licensePlate: 'B-123-ABC', model: 'Mercedes Tourismo', capacity: 52 },
+    bus: { id: 'bus-1', licensePlate: 'B-123-ABC', model: 'Mercedes Tourismo', capacity: 52 },
     stopTimes: [
       {
         id: 'st-1',
@@ -516,6 +528,8 @@ function makeDriverTrip(overrides = {}) {
         departureTime: new Date('2026-03-25T10:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'st-2',
@@ -524,6 +538,8 @@ function makeDriverTrip(overrides = {}) {
         departureTime: new Date('2026-03-25T14:00:00.000Z'),
         orderIndex: 1,
         priceFromStart: 50,
+        lat: 46.7712,
+        lng: 23.6236,
       },
     ],
   };

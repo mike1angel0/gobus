@@ -163,6 +163,8 @@ export class ScheduleService {
               departureTime: st.departureTime,
               orderIndex: st.orderIndex,
               priceFromStart: st.priceFromStart,
+              lat: st.lat ?? null,
+              lng: st.lng ?? null,
             })),
           },
         },
@@ -346,6 +348,8 @@ export class ScheduleService {
       departureTime: stopTime.departureTime,
       orderIndex: stopTime.orderIndex,
       priceFromStart: stopTime.priceFromStart,
+      lat: stopTime.lat,
+      lng: stopTime.lng,
     };
   }
 

@@ -36,6 +36,17 @@ async function providerRoutes(app: FastifyInstance): Promise<void> {
       return { data: serializeProvider(provider) };
     },
   );
+
+  // GET /api/v1/provider/analytics
+  app.get(
+    '/api/v1/provider/analytics',
+    { preHandler: [app.authenticate, requireProvider, privateNoCache] },
+    async (request) => {
+      const analytics = await providerService.getAnalytics(request.user.providerId!);
+
+      return { data: analytics };
+    },
+  );
 }
 
 export default fp(providerRoutes, {

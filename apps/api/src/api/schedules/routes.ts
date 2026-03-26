@@ -34,6 +34,8 @@ function serializeStopTime(stopTime: StopTimeEntity): Record<string, unknown> {
     departureTime: stopTime.departureTime.toISOString(),
     orderIndex: stopTime.orderIndex,
     priceFromStart: stopTime.priceFromStart,
+    lat: stopTime.lat,
+    lng: stopTime.lng,
   };
 }
 
@@ -162,6 +164,8 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
           departureTime: new Date(st.departureTime),
           orderIndex: st.orderIndex,
           priceFromStart: st.priceFromStart,
+          lat: st.lat,
+          lng: st.lng,
         })),
       });
 

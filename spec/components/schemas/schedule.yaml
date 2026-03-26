@@ -45,6 +45,22 @@ StopTime:
       minimum: 0
       maximum: 100000
       description: Cumulative price from the first stop to this stop
+    lat:
+      type:
+        - number
+        - 'null'
+      format: double
+      minimum: -90
+      maximum: 90
+      description: Latitude of the stop
+    lng:
+      type:
+        - number
+        - 'null'
+      format: double
+      minimum: -180
+      maximum: 180
+      description: Longitude of the stop
 
 Schedule:
   type: object
@@ -250,6 +266,18 @@ CreateStopTimeInput:
       minimum: 0
       maximum: 100000
       description: Cumulative price from the first stop to this stop
+    lat:
+      type: number
+      format: double
+      minimum: -90
+      maximum: 90
+      description: Latitude of the stop
+    lng:
+      type: number
+      format: double
+      minimum: -180
+      maximum: 180
+      description: Longitude of the stop
 
 CreateScheduleRequest:
   type: object

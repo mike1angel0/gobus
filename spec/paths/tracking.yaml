@@ -37,6 +37,33 @@ byBusId:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
 
 update:
+  get:
+    operationId: listProviderTracking
+    summary: List active bus positions for provider's fleet
+    description: Returns all active GPS positions for buses belonging to the authenticated provider. Requires PROVIDER role.
+    tags:
+      - Tracking
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: List of active tracking records
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/tracking.yaml#/BusTrackingListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
   post:
     operationId: updateTracking
     summary: Update bus GPS position

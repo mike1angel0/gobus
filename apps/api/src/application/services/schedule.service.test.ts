@@ -98,6 +98,8 @@ function makeStopTime(overrides: Record<string, unknown> = {}) {
     departureTime: BASE_DATE,
     orderIndex: 0,
     priceFromStart: 0,
+    lat: null,
+    lng: null,
     scheduleId: SCHEDULE_ID,
     ...overrides,
   };
@@ -325,6 +327,8 @@ describe('ScheduleService', () => {
         departureTime: BASE_DATE,
         orderIndex: 0,
         priceFromStart: 0,
+        lat: null,
+        lng: null,
       });
       expect(result.route).toEqual({
         id: ROUTE_ID,
@@ -455,6 +459,8 @@ describe('ScheduleService', () => {
                 departureTime: BASE_DATE,
                 orderIndex: 0,
                 priceFromStart: 0,
+                lat: null,
+                lng: null,
               },
               {
                 stopName: 'Cluj',
@@ -462,6 +468,8 @@ describe('ScheduleService', () => {
                 departureTime: END_DATE,
                 orderIndex: 1,
                 priceFromStart: 50,
+                lat: null,
+                lng: null,
               },
             ],
           },

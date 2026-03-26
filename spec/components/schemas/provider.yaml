@@ -56,6 +56,69 @@ Provider:
       maxLength: 30
       description: Last update timestamp
 
+RevenueByRoute:
+  type: object
+  description: Revenue breakdown for a single route
+  required:
+    - routeId
+    - routeName
+    - revenue
+  properties:
+    routeId:
+      type: string
+      maxLength: 30
+      description: Route identifier
+    routeName:
+      type: string
+      maxLength: 200
+      description: Route name
+    revenue:
+      type: number
+      format: double
+      minimum: 0
+      description: Total revenue for this route
+
+ProviderAnalytics:
+  type: object
+  description: Dashboard analytics for a provider
+  required:
+    - totalBookings
+    - totalRevenue
+    - averageOccupancy
+    - revenueByRoute
+  properties:
+    totalBookings:
+      type: integer
+      minimum: 0
+      description: Total number of confirmed bookings
+    totalRevenue:
+      type: number
+      format: double
+      minimum: 0
+      description: Total revenue from confirmed bookings
+    averageOccupancy:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: Average seat occupancy ratio (0 to 1)
+    revenueByRoute:
+      type: array
+      minItems: 0
+      maxItems: 100
+      description: Revenue breakdown per route
+      items:
+        $ref: '#/RevenueByRoute'
+
+ProviderAnalyticsDataResponse:
+  type: object
+  description: API response envelope wrapping provider analytics data
+  required:
+    - data
+  properties:
+    data:
+      $ref: '#/ProviderAnalytics'
+
 ProviderDataResponse:
   type: object
   description: API response envelope wrapping provider data

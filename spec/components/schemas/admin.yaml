@@ -226,6 +226,7 @@ DriverTripDetail:
     - arrivalTime
     - tripDate
     - routeName
+    - busId
     - busLicensePlate
     - busModel
     - status
@@ -256,6 +257,10 @@ DriverTripDetail:
       type: string
       maxLength: 200
       description: Name of the route
+    busId:
+      type: string
+      maxLength: 30
+      description: Assigned bus identifier (needed for tracking updates)
     busLicensePlate:
       type: string
       maxLength: 20
@@ -300,6 +305,60 @@ DriverTripListResponse:
         $ref: '#/DriverTrip'
     meta:
       $ref: './common.yaml#/PaginationMeta'
+
+DriverTripPassenger:
+  type: object
+  description: A passenger booking for a driver's trip
+  required:
+    - bookingId
+    - passengerName
+    - boardingStop
+    - alightingStop
+    - seatLabels
+    - status
+  properties:
+    bookingId:
+      type: string
+      maxLength: 30
+      description: Booking identifier
+    passengerName:
+      type: string
+      maxLength: 100
+      description: Passenger display name
+    boardingStop:
+      type: string
+      maxLength: 200
+      description: Boarding stop name
+    alightingStop:
+      type: string
+      maxLength: 200
+      description: Alighting stop name
+    seatLabels:
+      type: array
+      minItems: 1
+      maxItems: 10
+      description: Booked seat labels
+      items:
+        type: string
+        maxLength: 10
+    status:
+      type: string
+      enum: [CONFIRMED, CANCELLED]
+      description: Booking status
+
+DriverTripPassengerListResponse:
+  type: object
+  description: List of passengers for a driver's trip
+  required:
+    - data
+  properties:
+    data:
+      type: array
+      minItems: 0
+      maxItems: 200
+      description: Passengers for this trip
+      items:
+        $ref: '#/DriverTripPassenger'
 
 DriverTripDetailDataResponse:
   type: object

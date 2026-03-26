@@ -18,6 +18,8 @@ export const stopTimeSchema = z.object({
     .min(0)
     .max(100000)
     .describe('Cumulative price from the first stop to this stop'),
+  lat: z.number().min(-90).max(90).nullable().describe('Latitude of the stop'),
+  lng: z.number().min(-180).max(180).nullable().describe('Longitude of the stop'),
 });
 
 /** Zod schema for a Schedule response object matching OpenAPI Schedule schema. */
@@ -88,6 +90,8 @@ export const createStopTimeInputSchema = z
       .min(0)
       .max(100000)
       .describe('Cumulative price from the first stop to this stop'),
+    lat: z.number().min(-90).max(90).optional().describe('Latitude of the stop'),
+    lng: z.number().min(-180).max(180).optional().describe('Longitude of the stop'),
   })
   .strict();
 

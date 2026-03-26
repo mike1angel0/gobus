@@ -45,6 +45,8 @@ function serializeStopTime(st: TripStopTime): Record<string, unknown> {
     departureTime: st.departureTime.toISOString(),
     orderIndex: st.orderIndex,
     priceFromStart: st.priceFromStart,
+    lat: st.lat,
+    lng: st.lng,
   };
 }
 

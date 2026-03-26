@@ -58,6 +58,10 @@ export interface TripStopTime {
   orderIndex: number;
   /** Cumulative price from the first stop to this stop. */
   priceFromStart: number;
+  /** Latitude of the stop. */
+  lat: number | null;
+  /** Longitude of the stop. */
+  lng: number | null;
 }
 
 /** Detailed trip information with seat map and availability. */

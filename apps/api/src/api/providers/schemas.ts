@@ -15,3 +15,25 @@ export const providerSchema = z.object({
 
 /** Zod schema for ProviderDataResponse { data: Provider } matching OpenAPI. */
 export const providerDataResponseSchema = dataResponse(providerSchema);
+
+/** Revenue breakdown for a single route. */
+export const revenueByRouteSchema = z.object({
+  routeId: z.string().max(30).describe('Route identifier'),
+  routeName: z.string().max(200).describe('Route name'),
+  revenue: z.number().min(0).describe('Total revenue for this route'),
+});
+
+/** Dashboard analytics for a provider. */
+export const providerAnalyticsSchema = z.object({
+  totalBookings: z.number().int().min(0).describe('Total number of confirmed bookings'),
+  totalRevenue: z.number().min(0).describe('Total revenue from confirmed bookings'),
+  averageOccupancy: z.number().min(0).max(1).describe('Average seat occupancy ratio (0 to 1)'),
+  revenueByRoute: z
+    .array(revenueByRouteSchema)
+    .min(0)
+    .max(100)
+    .describe('Revenue breakdown per route'),
+});
+
+/** Provider analytics data response. */
+export const providerAnalyticsDataResponseSchema = dataResponse(providerAnalyticsSchema);

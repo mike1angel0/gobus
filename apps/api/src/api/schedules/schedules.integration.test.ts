@@ -137,6 +137,8 @@ function makeDbScheduleWithRelations(
         departureTime: new Date('2024-07-01T08:10:00.000Z'),
         orderIndex: 0,
         priceFromStart: 0,
+        lat: 44.4268,
+        lng: 26.1025,
       },
       {
         id: 'st-2',
@@ -145,6 +147,8 @@ function makeDbScheduleWithRelations(
         departureTime: new Date('2024-07-01T12:00:00.000Z'),
         orderIndex: 1,
         priceFromStart: 50,
+        lat: 46.7712,
+        lng: 23.6236,
       },
     ],
     route: {

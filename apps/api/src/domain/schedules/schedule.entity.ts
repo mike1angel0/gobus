@@ -18,6 +18,10 @@ export interface StopTimeEntity {
   orderIndex: number;
   /** Ticket price from the first stop to this stop. */
   priceFromStart: number;
+  /** Latitude of the stop. */
+  lat: number | null;
+  /** Longitude of the stop. */
+  lng: number | null;
 }
 
 /**
@@ -128,6 +132,10 @@ export interface CreateStopTimeData {
   orderIndex: number;
   /** Ticket price from the first stop to this stop. */
   priceFromStart: number;
+  /** Latitude of the stop. */
+  lat?: number;
+  /** Longitude of the stop. */
+  lng?: number;
 }
 
 /**

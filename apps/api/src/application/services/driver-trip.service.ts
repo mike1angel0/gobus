@@ -2,6 +2,7 @@ import type { PrismaClient, ScheduleStatus } from '@/generated/prisma/client.js'
 import type {
   DriverTrip,
   DriverTripDetail,
+  DriverTripPassenger,
   DriverTripStopTime,
 } from '@/domain/driver-trips/driver-trip.entity.js';
 import type { PaginationMeta } from '@/shared/types.js';
@@ -63,6 +64,8 @@ interface StopTimeRecord {
   departureTime: Date;
   orderIndex: number;
   priceFromStart: number;
+  lat: number | null;
+  lng: number | null;
 }
 
 /** Map a Prisma stop time record to a DriverTripStopTime entity. */
@@ -74,6 +77,8 @@ function toStopTime(record: StopTimeRecord): DriverTripStopTime {
     departureTime: record.departureTime,
     orderIndex: record.orderIndex,
     priceFromStart: record.priceFromStart,
+    lat: record.lat,
+    lng: record.lng,
   };
 }
 
@@ -157,7 +162,7 @@ export class DriverTripService {
       where: { id: scheduleId },
       include: {
         route: { select: { name: true } },
-        bus: { select: { licensePlate: true, model: true, capacity: true } },
+        bus: { select: { id: true, licensePlate: true, model: true, capacity: true } },
         stopTimes: { orderBy: { orderIndex: 'asc' } },
       },
     });
@@ -193,6 +198,7 @@ export class DriverTripService {
       arrivalTime: schedule.arrivalTime,
       tripDate: dateObj,
       routeName: schedule.route.name,
+      busId: schedule.bus.id,
       busLicensePlate: schedule.bus.licensePlate,
       busModel: schedule.bus.model,
       status: schedule.status,
@@ -200,5 +206,60 @@ export class DriverTripService {
       passengerCount,
       totalSeats: schedule.bus.capacity,
     };
+  }
+
+  /**
+   * Retrieve the passenger list for a driver's trip.
+   * Validate that the driver is assigned to the schedule.
+   * Return confirmed bookings with passenger names and seat labels.
+   */
+  async getPassengers(
+    driverId: string,
+    scheduleId: string,
+    date?: string,
+  ): Promise<DriverTripPassenger[]> {
+    const { dateStr, dateObj } = resolveTripDate(date);
+
+    const schedule = await this.prisma.schedule.findUnique({
+      where: { id: scheduleId },
+      select: { driverId: true },
+    });
+
+    if (!schedule) {
+      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Schedule not found');
+    }
+
+    if (schedule.driverId !== driverId) {
+      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Schedule not found');
+    }
+
+    const bookings = await this.prisma.booking.findMany({
+      where: {
+        scheduleId,
+        tripDate: dateObj,
+        status: 'CONFIRMED',
+      },
+      include: {
+        user: { select: { name: true } },
+        bookingSeats: { select: { seatLabel: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    logger.debug('Driver trip passengers retrieved', {
+      driverId,
+      scheduleId,
+      date: dateStr,
+      count: bookings.length,
+    });
+
+    return bookings.map((b) => ({
+      bookingId: b.id,
+      passengerName: b.user.name,
+      boardingStop: b.boardingStop,
+      alightingStop: b.alightingStop,
+      seatLabels: b.bookingSeats.map((bs) => bs.seatLabel),
+      status: b.status,
+    }));
   }
 }

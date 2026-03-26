@@ -449,7 +449,7 @@ describe('Bus Routes', () => {
       const response = await supertest(app.server)
         .put('/api/v1/buses/bus-1')
         .set('Authorization', PROVIDER_AUTH())
-        .send({ model: 'New Model', rows: 20 })
+        .send({ model: 'New Model', hacker: 'injected' })
         .expect(400);
 
       expect(response.body.status).toBe(400);

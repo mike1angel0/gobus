@@ -1,3 +1,32 @@
+analytics:
+  get:
+    operationId: getProviderAnalytics
+    summary: Provider dashboard analytics
+    description: Returns aggregated analytics data for the authenticated provider including total bookings, revenue, occupancy, and revenue by route. Requires PROVIDER role.
+    tags:
+      - Providers
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: Analytics data
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/provider.yaml#/ProviderAnalyticsDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+
 me:
   get:
     operationId: getOwnProvider
