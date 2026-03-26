@@ -18,6 +18,7 @@ const TripDetailPage = lazy(() => import('@/pages/trip/[id]'));
 const MyTripsPage = lazy(() => import('@/pages/my-trips'));
 const PlaceholderPage = lazy(() => import('@/pages/placeholder'));
 const ProviderDashboardPage = lazy(() => import('@/pages/provider/dashboard'));
+const ProviderRoutesPage = lazy(() => import('@/pages/provider/routes'));
 
 /* ---------- Router ---------- */
 
@@ -62,7 +63,7 @@ export const router = createBrowserRouter([
                 element: <RoleGuard allowedRoles={['PROVIDER']} />,
                 children: [
                   { index: true, element: <ProviderDashboardPage /> },
-                  { path: 'routes', element: <PlaceholderPage /> },
+                  { path: 'routes', element: <ProviderRoutesPage /> },
                   { path: 'fleet', element: <PlaceholderPage /> },
                   { path: 'schedules', element: <PlaceholderPage /> },
                   { path: 'drivers', element: <PlaceholderPage /> },

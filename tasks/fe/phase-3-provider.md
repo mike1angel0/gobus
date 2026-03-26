@@ -53,16 +53,16 @@ All use typed API client, proper cache invalidation, toast notifications on muta
 **Description:** Create `src/pages/provider/routes.tsx`. List view with route cards showing: route name, stop count, schedule count. Create route dialog/form: name input, stops builder (add stops from city list, reorder with drag or arrows, set coordinates). Delete with confirmation (warn if schedules exist).
 
 **Acceptance Criteria:**
-- [ ] Route list with cards
-- [ ] Create dialog with form (name + stops builder)
-- [ ] Stops builder: add from city dropdown, reorder, remove
-- [ ] Each stop shows name + coordinates
-- [ ] Minimum 2 stops validation
-- [ ] Delete with confirmation dialog
-- [ ] Mutations update list immediately (optimistic or invalidation)
-- [ ] Loading/empty/error states
-- [ ] Component test for CRUD flow
-- [ ] Typecheck passes
+- [x] Route list with cards
+- [x] Create dialog with form (name + stops builder)
+- [x] Stops builder: add from city dropdown, reorder, remove
+- [x] Each stop shows name + coordinates
+- [x] Minimum 2 stops validation
+- [x] Delete with confirmation dialog
+- [x] Mutations update list immediately (optimistic or invalidation)
+- [x] Loading/empty/error states
+- [x] Component test for CRUD flow
+- [x] Typecheck passes
 
 ---
 

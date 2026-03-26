@@ -1,0 +1,563 @@
+import { useState } from 'react';
+import {
+  Route as RouteIcon,
+  Plus,
+  Trash2,
+  MapPin,
+  AlertCircle,
+  ArrowUp,
+  ArrowDown,
+  X,
+} from 'lucide-react';
+
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { useRoutes, useCreateRoute, useDeleteRoute } from '@/hooks/use-routes';
+import { isApiError } from '@/api/errors';
+import type { components } from '@/api/generated/types';
+
+type Route = components['schemas']['Route'];
+
+/** Maximum route name length per OpenAPI spec. */
+const MAX_NAME_LENGTH = 200;
+/** Maximum stop name length per OpenAPI spec. */
+const MAX_STOP_NAME_LENGTH = 200;
+/** Maximum number of stops per route per OpenAPI spec. */
+const MAX_STOPS = 100;
+
+/** A stop entry in the create route form. */
+interface StopFormEntry {
+  /** Unique key for React rendering. */
+  key: number;
+  /** Stop name. */
+  name: string;
+  /** Latitude coordinate. */
+  lat: string;
+  /** Longitude coordinate. */
+  lng: string;
+}
+
+/** Creates an empty stop entry with a unique key. */
+function createEmptyStop(key: number): StopFormEntry {
+  return { key, name: '', lat: '', lng: '' };
+}
+
+/* ---------- Loading Skeleton ---------- */
+
+/** Skeleton placeholder for the route list while loading. */
+function RouteListSkeleton() {
+  return (
+    <div
+      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      aria-busy="true"
+      aria-label="Loading routes"
+    >
+      {Array.from({ length: 6 }, (_, i) => (
+        <Card key={i}>
+          <CardContent className="p-6">
+            <Skeleton className="mb-3 h-6 w-32" />
+            <Skeleton className="mb-2 h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Error State ---------- */
+
+/** Props for {@link RoutesError}. */
+interface RoutesErrorProps {
+  /** Callback to retry loading. */
+  onRetry: () => void;
+}
+
+/** Error state shown when route list fails to load. */
+function RoutesError({ onRetry }: RoutesErrorProps) {
+  return (
+    <div className="flex flex-col items-center py-16 text-center" role="alert">
+      <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
+      <h2 className="mb-2 text-xl font-semibold">Failed to load routes</h2>
+      <p className="mb-6 max-w-md text-muted-foreground">
+        We couldn&apos;t load your routes. Please try again.
+      </p>
+      <Button onClick={onRetry} variant="outline">
+        Try again
+      </Button>
+    </div>
+  );
+}
+
+/* ---------- Empty State ---------- */
+
+/** Empty state shown when no routes exist. */
+function RoutesEmpty() {
+  return (
+    <div className="flex flex-col items-center py-16 text-center" role="status">
+      <RouteIcon className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
+      <h2 className="mb-2 text-xl font-semibold">No routes yet</h2>
+      <p className="max-w-md text-muted-foreground">
+        Create your first route to start scheduling trips.
+      </p>
+    </div>
+  );
+}
+
+/* ---------- Route Card ---------- */
+
+/** Props for {@link RouteCard}. */
+interface RouteCardProps {
+  /** Route data to display. */
+  route: Route;
+  /** Callback when delete is requested. */
+  onDelete: (id: string) => void;
+  /** Whether a delete operation is in progress. */
+  isDeleting: boolean;
+}
+
+/** Displays a single route card with name and delete action. */
+function RouteCard({ route, onDelete, isDeleting }: RouteCardProps) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  return (
+    <Card>
+      <CardContent className="flex items-start justify-between p-6">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <RouteIcon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+            <h3 className="truncate font-semibold">{route.name}</h3>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">ID: {route.id}</p>
+        </div>
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label={`Delete route ${route.name}`}>
+              <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete route</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete &quot;{route.name}&quot;? This will also delete all
+                associated stops. Schedules using this route may be affected.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                disabled={isDeleting}
+                onClick={() => {
+                  onDelete(route.id);
+                  setConfirmOpen(false);
+                }}
+              >
+                {isDeleting ? 'Deleting…' : 'Delete'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ---------- Stops Builder ---------- */
+
+/** Props for {@link StopsBuilder}. */
+interface StopsBuilderProps {
+  /** Current list of stops. */
+  stops: StopFormEntry[];
+  /** Callback to update the stops list. */
+  onChange: (stops: StopFormEntry[]) => void;
+  /** Validation error for the stops array. */
+  error?: string;
+}
+
+/** Interactive stop list builder for creating routes. */
+function StopsBuilder({ stops, onChange, error }: StopsBuilderProps) {
+  const nextKey = stops.length > 0 ? Math.max(...stops.map((s) => s.key)) + 1 : 0;
+
+  function addStop() {
+    if (stops.length >= MAX_STOPS) return;
+    onChange([...stops, createEmptyStop(nextKey)]);
+  }
+
+  function removeStop(key: number) {
+    onChange(stops.filter((s) => s.key !== key));
+  }
+
+  function updateStop(key: number, field: keyof Omit<StopFormEntry, 'key'>, value: string) {
+    onChange(stops.map((s) => (s.key === key ? { ...s, [field]: value } : s)));
+  }
+
+  function moveStop(index: number, direction: -1 | 1) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= stops.length) return;
+    const updated = [...stops];
+    const temp = updated[index];
+    updated[index] = updated[newIndex];
+    updated[newIndex] = temp;
+    onChange(updated);
+  }
+
+  return (
+    <fieldset className="space-y-3">
+      <legend className="text-sm font-medium">Stops ({stops.length})</legend>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      <ul className="space-y-2" aria-label="Route stops">
+        {stops.map((stop, index) => (
+          <li
+            key={stop.key}
+            className="flex items-start gap-2 rounded-lg border border-border/50 p-3"
+          >
+            <div className="flex shrink-0 flex-col gap-1 pt-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                disabled={index === 0}
+                onClick={() => moveStop(index, -1)}
+                aria-label={`Move stop ${stop.name || index + 1} up`}
+              >
+                <ArrowUp className="h-3 w-3" aria-hidden="true" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                disabled={index === stops.length - 1}
+                onClick={() => moveStop(index, 1)}
+                aria-label={`Move stop ${stop.name || index + 1} down`}
+              >
+                <ArrowDown className="h-3 w-3" aria-hidden="true" />
+              </Button>
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start">
+              <div className="flex-1">
+                <Label htmlFor={`stop-name-${stop.key}`} className="sr-only">
+                  Stop {index + 1} name
+                </Label>
+                <Input
+                  id={`stop-name-${stop.key}`}
+                  placeholder="Stop name"
+                  maxLength={MAX_STOP_NAME_LENGTH}
+                  value={stop.name}
+                  onChange={(e) => updateStop(stop.key, 'name', e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2">
+                <div className="w-24">
+                  <Label htmlFor={`stop-lat-${stop.key}`} className="sr-only">
+                    Stop {index + 1} latitude
+                  </Label>
+                  <Input
+                    id={`stop-lat-${stop.key}`}
+                    placeholder="Lat"
+                    type="number"
+                    step="any"
+                    min={-90}
+                    max={90}
+                    value={stop.lat}
+                    onChange={(e) => updateStop(stop.key, 'lat', e.target.value)}
+                  />
+                </div>
+                <div className="w-24">
+                  <Label htmlFor={`stop-lng-${stop.key}`} className="sr-only">
+                    Stop {index + 1} longitude
+                  </Label>
+                  <Input
+                    id={`stop-lng-${stop.key}`}
+                    placeholder="Lng"
+                    type="number"
+                    step="any"
+                    min={-180}
+                    max={180}
+                    value={stop.lng}
+                    onChange={(e) => updateStop(stop.key, 'lng', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0"
+              onClick={() => removeStop(stop.key)}
+              aria-label={`Remove stop ${stop.name || index + 1}`}
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={addStop}
+        disabled={stops.length >= MAX_STOPS}
+      >
+        <MapPin className="mr-1 h-4 w-4" aria-hidden="true" />
+        Add stop
+      </Button>
+    </fieldset>
+  );
+}
+
+/* ---------- Create Route Dialog ---------- */
+
+/** Props for {@link CreateRouteDialog}. */
+interface CreateRouteDialogProps {
+  /** Children used as the trigger element. */
+  children: React.ReactNode;
+}
+
+/** Dialog form for creating a new route with stops. */
+function CreateRouteDialog({ children }: CreateRouteDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [stops, setStops] = useState<StopFormEntry[]>([createEmptyStop(0), createEmptyStop(1)]);
+  const [errors, setErrors] = useState<{ name?: string; stops?: string }>({});
+  const createRoute = useCreateRoute();
+
+  function resetForm() {
+    setName('');
+    setStops([createEmptyStop(0), createEmptyStop(1)]);
+    setErrors({});
+  }
+
+  function validate(): boolean {
+    const newErrors: { name?: string; stops?: string } = {};
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      newErrors.name = 'Route name is required.';
+    } else if (trimmedName.length > MAX_NAME_LENGTH) {
+      newErrors.name = `Route name must be at most ${MAX_NAME_LENGTH} characters.`;
+    }
+
+    if (stops.length < 2) {
+      newErrors.stops = 'A route must have at least 2 stops.';
+    } else {
+      for (let i = 0; i < stops.length; i++) {
+        const stop = stops[i];
+        if (!stop.name.trim()) {
+          newErrors.stops = `Stop ${i + 1} name is required.`;
+          break;
+        }
+        if (stop.name.trim().length > MAX_STOP_NAME_LENGTH) {
+          newErrors.stops = `Stop ${i + 1} name must be at most ${MAX_STOP_NAME_LENGTH} characters.`;
+          break;
+        }
+        const lat = parseFloat(stop.lat);
+        const lng = parseFloat(stop.lng);
+        if (isNaN(lat) || lat < -90 || lat > 90) {
+          newErrors.stops = `Stop ${i + 1} latitude must be between -90 and 90.`;
+          break;
+        }
+        if (isNaN(lng) || lng < -180 || lng > 180) {
+          newErrors.stops = `Stop ${i + 1} longitude must be between -180 and 180.`;
+          break;
+        }
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+
+    createRoute.mutate(
+      {
+        name: name.trim(),
+        stops: stops.map((stop, index) => ({
+          name: stop.name.trim(),
+          lat: parseFloat(stop.lat),
+          lng: parseFloat(stop.lng),
+          orderIndex: index,
+        })),
+      },
+      {
+        onSuccess: () => {
+          resetForm();
+          setOpen(false);
+        },
+        onError: (error: unknown) => {
+          if (isApiError(error)) {
+            for (const fieldError of error.fieldErrors) {
+              if (fieldError.field === 'name') {
+                setErrors((prev) => ({ ...prev, name: fieldError.message }));
+              } else if (fieldError.field?.startsWith('stops')) {
+                setErrors((prev) => ({ ...prev, stops: fieldError.message }));
+              }
+            }
+          }
+        },
+      },
+    );
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) resetForm();
+      }}
+    >
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Create route</DialogTitle>
+          <DialogDescription>
+            Define a route with at least 2 stops. Stops can be reordered using the arrow buttons.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="route-name">Route name</Label>
+            <Input
+              id="route-name"
+              placeholder="e.g. Bucharest — Cluj"
+              maxLength={MAX_NAME_LENGTH}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? 'route-name-error' : undefined}
+            />
+            {errors.name && (
+              <p id="route-name-error" role="alert" className="text-sm text-destructive">
+                {errors.name}
+              </p>
+            )}
+          </div>
+
+          <StopsBuilder stops={stops} onChange={setStops} error={errors.stops} />
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={createRoute.isPending}>
+              {createRoute.isPending ? 'Creating…' : 'Create route'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ---------- Route List Section ---------- */
+
+/** Props for {@link RouteListSection}. */
+interface RouteListSectionProps {
+  /** Route data. */
+  routes: Route[];
+  /** Callback to delete a route. */
+  onDelete: (id: string) => void;
+  /** Whether a delete mutation is in progress. */
+  isDeleting: boolean;
+}
+
+/** Renders the grid of route cards. */
+function RouteListSection({ routes, onDelete, isDeleting }: RouteListSectionProps) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Routes list">
+      {routes.map((route) => (
+        <RouteCard key={route.id} route={route} onDelete={onDelete} isDeleting={isDeleting} />
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Page ---------- */
+
+/**
+ * Provider route management page.
+ *
+ * Displays a list of the provider's routes with create and delete functionality.
+ * Routes are shown in a responsive grid. Creating a route opens a dialog with
+ * a form including a stops builder that supports add, remove, and reorder.
+ *
+ * @example
+ * ```
+ * // Route: /provider/routes (requires PROVIDER role)
+ * <ProviderRoutesPage />
+ * ```
+ */
+export default function ProviderRoutesPage() {
+  const routesQuery = useRoutes({ page: 1, pageSize: 50 });
+  const deleteRoute = useDeleteRoute();
+
+  const routes = routesQuery.data?.data ?? [];
+  const isLoading = routesQuery.isLoading;
+  const isError = routesQuery.isError && !routesQuery.data;
+
+  function handleDelete(id: string) {
+    deleteRoute.mutate(id);
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-6xl px-4 py-8">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Routes</h1>
+          <p className="mt-1 text-muted-foreground">Manage your transport routes and stops.</p>
+        </div>
+        <CreateRouteDialog>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+            Create route
+          </Button>
+        </CreateRouteDialog>
+      </div>
+
+      <section aria-labelledby="routes-heading">
+        <h2 id="routes-heading" className="sr-only">
+          Routes
+        </h2>
+        {isLoading && <RouteListSkeleton />}
+        {isError && <RoutesError onRetry={() => routesQuery.refetch()} />}
+        {!isLoading && !isError && routes.length === 0 && <RoutesEmpty />}
+        {!isLoading && !isError && routes.length > 0 && (
+          <RouteListSection
+            routes={routes}
+            onDelete={handleDelete}
+            isDeleting={deleteRoute.isPending}
+          />
+        )}
+      </section>
+    </div>
+  );
+}
