@@ -37,6 +37,8 @@ list:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 passengers:
   get:
@@ -88,6 +90,8 @@ passengers:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 detail:
   get:
@@ -139,3 +143,5 @@ detail:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'

@@ -29,6 +29,9 @@ list:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   post:
     operationId: createBus
     summary: Create a new bus with seat layout
@@ -74,6 +77,8 @@ list:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 byId:
   get:
@@ -111,6 +116,9 @@ byId:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   put:
     operationId: updateBus
     summary: Update a bus
@@ -164,6 +172,9 @@ byId:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   delete:
     operationId: deleteBus
     summary: Delete a bus
@@ -195,6 +206,8 @@ byId:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 templates:
   get:
@@ -224,3 +237,5 @@ templates:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'

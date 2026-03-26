@@ -24,14 +24,7 @@
 
 **TASK-006: Fix tripDate format inconsistency across schemas** — Standardized `tripDate` to `format: date` (YYYY-MM-DD) across all OpenAPI schemas, Zod schemas, and route serializers. Updated 8 spec files, 5 Zod schemas, 5 route serializers, and 7 integration tests.
 
-### TASK-007: Document 500 error responses on all endpoints
-**Description:** None of the 43 endpoints in the OpenAPI spec document `500 Internal Server Error`. In production, any endpoint can fail with 5xx. Add a reusable 500 response component and reference it from all endpoints.
-
-**Acceptance Criteria:**
-- [ ] `spec/components/responses/errors.yaml` has `InternalServerError` response referencing `ErrorResponse` schema
-- [ ] All 43 endpoint operations include `'500': $ref: '../responses/errors.yaml#/InternalServerError'`
-- [ ] `npm run spec:lint` passes
-- [ ] Typecheck passes
+**TASK-007: Document 500 error responses on all endpoints** — Added `InternalServerError` response component to `errors.yaml` referencing `ErrorResponse` schema. Added `'500': $ref` to all 50 operations across 12 path files. Bundled spec.
 
 ### TASK-008: Document rate limiting in OpenAPI spec
 **Description:** Rate limiting is implemented but not documented in the spec. Missing: `429 Too Many Requests` response, `X-RateLimit-*` response headers, `Retry-After` header.

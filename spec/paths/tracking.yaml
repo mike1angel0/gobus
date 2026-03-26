@@ -35,6 +35,8 @@ byBusId:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 update:
   get:
@@ -64,6 +66,9 @@ update:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   post:
     operationId: updateTracking
     summary: Update bus GPS position
@@ -103,3 +108,5 @@ update:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'

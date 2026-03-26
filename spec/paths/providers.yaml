@@ -26,6 +26,8 @@ analytics:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 me:
   get:
@@ -55,3 +57,5 @@ me:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'

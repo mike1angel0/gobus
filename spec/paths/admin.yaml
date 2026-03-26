@@ -36,6 +36,8 @@ buses:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 userSessions:
   delete:
@@ -69,6 +71,8 @@ userSessions:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 users:
   get:
@@ -115,6 +119,8 @@ users:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 userStatus:
   patch:
@@ -164,6 +170,8 @@ userStatus:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 auditLogs:
   get:
@@ -226,6 +234,8 @@ auditLogs:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 seatById:
   patch:
@@ -275,3 +285,5 @@ seatById:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'

@@ -40,3 +40,9 @@ TooManyRequests:
     application/json:
       schema:
         $ref: '../schemas/common.yaml#/ErrorResponse'
+InternalServerError:
+  description: Internal server error
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/ErrorResponse'

@@ -31,6 +31,8 @@ register:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 login:
   post:
@@ -71,6 +73,8 @@ login:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 refresh:
   post:
@@ -99,6 +103,8 @@ refresh:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 logout:
   post:
@@ -124,6 +130,8 @@ logout:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 forgot-password:
   post:
@@ -146,6 +154,8 @@ forgot-password:
           application/json:
             schema:
               $ref: '../components/schemas/auth.yaml#/MessageDataResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 reset-password:
   post:
@@ -174,6 +184,8 @@ reset-password:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 change-password:
   post:
@@ -209,6 +221,8 @@ change-password:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 me:
   get:
@@ -232,6 +246,9 @@ me:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   patch:
     operationId: updateProfile
     summary: Update current user profile
@@ -265,3 +282,5 @@ me:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'

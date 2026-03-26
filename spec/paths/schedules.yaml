@@ -60,6 +60,9 @@ list:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   post:
     operationId: createSchedule
     summary: Create a schedule with stop times
@@ -105,6 +108,8 @@ list:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
 
 byId:
   get:
@@ -142,6 +147,9 @@ byId:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   put:
     operationId: updateSchedule
     summary: Update a schedule
@@ -189,6 +197,9 @@ byId:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
   delete:
     operationId: deleteSchedule
     summary: Cancel a schedule
@@ -220,3 +231,5 @@ byId:
           application/json:
             schema:
               $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
