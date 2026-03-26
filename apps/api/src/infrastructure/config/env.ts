@@ -38,6 +38,15 @@ const envSchema = z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
       .default('info')
       .describe('Log level for structured logging'),
+
+    /** Maximum number of connections in the PostgreSQL connection pool */
+    DATABASE_POOL_MAX: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .default(10)
+      .describe('Maximum number of connections in the PostgreSQL connection pool'),
   })
   .refine((data) => data.JWT_SECRET !== data.JWT_REFRESH_SECRET, {
     message: 'JWT_SECRET and JWT_REFRESH_SECRET must be different values',

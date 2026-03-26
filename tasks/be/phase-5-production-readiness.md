@@ -10,19 +10,11 @@
 
 **TASK-001: Fix unhandled promise rejection in server startup** — Added `.catch()` on `start()`, extracted `shutdown()` with try/catch around `app.close()`+`disconnectPrisma()`, `void` signal handlers to properly handle async shutdown. 4 unit tests.
 
+**TASK-002: Configure database connection pooling** — Added `max`, `min`, `idleTimeoutMillis` pool options to PrismaPg adapter. Pool max configurable via `DATABASE_POOL_MAX` env var (default: 10), idle timeout 30s. 5 unit tests.
+
 ---
 
 ## Database & Performance
-
-### TASK-002: Configure database connection pooling
-**Description:** `src/infrastructure/prisma/client.ts` line 14 initializes `PrismaPg` with only a connection string, no pool configuration. In multi-instance deployments this will exhaust PostgreSQL connections. Add explicit pool options.
-
-**Acceptance Criteria:**
-- [ ] `PrismaPg` initialized with `max`, `min`, `idleTimeoutMillis` pool options
-- [ ] Pool size configurable via `DATABASE_POOL_MAX` env var (default: 10)
-- [ ] Idle timeout set to 30 seconds
-- [ ] Env var documented in `.env.example`
-- [ ] Typecheck passes
 
 ### TASK-003: Fix search service in-memory pagination
 **Description:** `src/application/services/search.service.ts` lines 81-141 fetches ALL matching schedules with nested includes (stopTimes, route.provider, bus.seats, bookingSeats, delays), then paginates in JavaScript. On large datasets this will OOM the server.
