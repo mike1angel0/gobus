@@ -36,16 +36,7 @@
 
 ## SEO & Meta Tags
 
-### TASK-005: Add meta tags to index.html
-**Description:** `apps/web/index.html` has only charset, viewport, and title. Public routes (`/`, `/search`, `/trip/:id`) need proper meta tags for search engines and social sharing.
-
-**Acceptance Criteria:**
-- [ ] `<meta name="description" content="...">` with concise app description
-- [ ] Open Graph tags: `og:title`, `og:description`, `og:type`, `og:url`, `og:image`
-- [ ] `<meta name="theme-color" content="...">` matching app theme
-- [ ] `<link rel="canonical" href="...">` pointing to production URL (via env var or hardcoded)
-- [ ] Favicon properly linked (verify existing `/favicon.svg` reference works)
-- [ ] Typecheck passes (no code changes, HTML only)
+### TASK-005: Add meta tags to index.html ✅
 
 ### TASK-006: Add dynamic page titles
 **Description:** All pages show the same `<title>Transio</title>`. Each page should update the document title for better UX and SEO (even without SSR, title updates help browser tabs and history).
