@@ -29,6 +29,7 @@ const DriverDelayPage = lazy(() => import('@/pages/driver/delay'));
 const AdminDashboardPage = lazy(() => import('@/pages/admin/dashboard'));
 const AdminFleetPage = lazy(() => import('@/pages/admin/fleet'));
 const AdminUsersPage = lazy(() => import('@/pages/admin/users'));
+const AdminAuditLogsPage = lazy(() => import('@/pages/admin/audit-logs'));
 const ProfilePage = lazy(() => import('@/pages/profile'));
 const NotFoundPage = lazy(() => import('@/components/error/not-found'));
 
@@ -104,6 +105,7 @@ export const router = createBrowserRouter([
                   { index: true, element: <AdminDashboardPage /> },
                   { path: 'users', element: <AdminUsersPage /> },
                   { path: 'fleet', element: <AdminFleetPage /> },
+                  { path: 'audit-logs', element: <AdminAuditLogsPage /> },
                 ],
               },
             ],

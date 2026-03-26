@@ -29,6 +29,7 @@ export const AUTH_NAV_LINKS: NavLink[] = [
   { label: 'Dashboard', href: '/admin', roles: ['ADMIN'] },
   { label: 'Users', href: '/admin/users', roles: ['ADMIN'] },
   { label: 'Fleet', href: '/admin/fleet', roles: ['ADMIN'] },
+  { label: 'Audit Logs', href: '/admin/audit-logs', roles: ['ADMIN'] },
   { label: 'Profile', href: '/profile', roles: [] },
 ];
 

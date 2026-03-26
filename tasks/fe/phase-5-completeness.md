@@ -120,16 +120,16 @@ Implement `/admin/users` page for managing platform users.
 
 Implement `/admin/audit-logs` page for viewing system audit trail.
 
-- [ ] Create `pages/admin/audit-logs.tsx` with paginated audit log table
-- [ ] Filter bar: userId text input, action dropdown, dateFrom date picker, dateTo date picker
-- [ ] Each row shows: timestamp (formatted), user email/name, action, resource, resourceId, ipAddress
-- [ ] Expandable row detail showing full metadata JSON (if present) and userAgent
-- [ ] Pagination controls
-- [ ] Loading skeleton, error state with retry, empty state
-- [ ] Add "Audit Logs" nav link to ADMIN role in navbar-links.ts
-- [ ] Add `/admin/audit-logs` route in router.tsx
-- [ ] Component tests: render audit log list, filter by date range, filter by action, expandable detail, pagination, loading/error/empty states
-- [ ] Typecheck passes, lint clean
+- [x] Create `pages/admin/audit-logs.tsx` with paginated audit log table
+- [x] Filter bar: userId text input, action dropdown, dateFrom date picker, dateTo date picker
+- [x] Each row shows: timestamp (formatted), user email/name, action, resource, resourceId, ipAddress
+- [x] Expandable row detail showing full metadata JSON (if present) and userAgent
+- [x] Pagination controls
+- [x] Loading skeleton, error state with retry, empty state
+- [x] Add "Audit Logs" nav link to ADMIN role in navbar-links.ts
+- [x] Add `/admin/audit-logs` route in router.tsx
+- [x] Component tests: render audit log list, filter by date range, filter by action, expandable detail, pagination, loading/error/empty states
+- [x] Typecheck passes, lint clean
 
 ---
 
