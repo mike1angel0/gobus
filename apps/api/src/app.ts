@@ -147,17 +147,20 @@ export async function buildApp(options: FastifyServerOptions = {}): Promise<Fast
     await app.register(rateLimitPlugin);
   }
 
-  // Swagger / OpenAPI docs
-  await app.register(swagger, {
-    mode: 'static',
-    specification: {
-      document: loadOpenApiSpec(),
-    },
-  });
+  // Swagger / OpenAPI docs (disabled in production to prevent information disclosure)
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (!isProduction) {
+    await app.register(swagger, {
+      mode: 'static',
+      specification: {
+        document: loadOpenApiSpec(),
+      },
+    });
 
-  await app.register(swaggerUi, {
-    routePrefix: '/docs',
-  });
+    await app.register(swaggerUi, {
+      routePrefix: '/docs',
+    });
+  }
 
   // Plugins
   await app.register(authPlugin);

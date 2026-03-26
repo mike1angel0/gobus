@@ -23,7 +23,9 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:reset": "prisma migrate reset --force",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "security:secrets": "gitleaks detect --source ../.. --config ../../.gitleaks.toml --verbose",
+    "security:audit": "gitleaks detect --source ../.. --config ../../.gitleaks.toml --verbose && npm audit --audit-level=high"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

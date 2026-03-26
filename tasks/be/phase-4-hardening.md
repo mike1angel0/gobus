@@ -339,15 +339,15 @@
 **Description:** (1) Ensure no secrets in git history: add `gitleaks` as devDep, create `npm run security:secrets` script. (2) Error responses never include stack traces, Prisma error details, or SQL in production (`NODE_ENV=production`). (3) Swagger UI disabled in production (only dev/staging). (4) Health endpoint doesn't expose version numbers or internal IPs. (5) Remove seed demo credentials display from any public-facing code. (6) Add `.env.example` with all vars documented but no real values. (7) Verify `npm audit --audit-level=high` passes. (8) Add `npm run security:audit` script that runs both gitleaks + npm audit.
 
 **Acceptance Criteria:**
-- [ ] `gitleaks` installed and `npm run security:secrets` script works
-- [ ] `npm run security:audit` runs gitleaks + npm audit
-- [ ] Error handler: Prisma errors → generic 500 in production (no detail leak)
-- [ ] Swagger UI disabled when NODE_ENV=production
-- [ ] Health endpoint: no version, no internal IPs
-- [ ] `.env.example` complete with comments, no real secrets
-- [ ] `npm audit --audit-level=high` passes (zero high/critical)
-- [ ] Integration test: trigger Prisma error → verify no detail in response body
-- [ ] Typecheck passes
+- [x] `gitleaks` installed and `npm run security:secrets` script works
+- [x] `npm run security:audit` runs gitleaks + npm audit
+- [x] Error handler: Prisma errors → generic 500 in production (no detail leak)
+- [x] Swagger UI disabled when NODE_ENV=production
+- [x] Health endpoint: no version, no internal IPs
+- [x] `.env.example` complete with comments, no real secrets
+- [x] `npm audit --audit-level=high` passes (zero high/critical)
+- [x] Integration test: trigger Prisma error → verify no detail in response body
+- [x] Typecheck passes
 
 ---
 

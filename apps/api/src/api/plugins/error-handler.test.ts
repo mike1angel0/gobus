@@ -39,6 +39,26 @@ describe('error-handler plugin', () => {
       throw new Error('database connection failed');
     });
 
+    // Route that throws a Prisma-like error (simulates PrismaClientKnownRequestError)
+    app.get('/test/prisma-error', () => {
+      const err = new Error(
+        'Invalid `prisma.user.findUnique()` invocation: Unique constraint failed on the fields: (`email`)',
+      );
+      err.name = 'PrismaClientKnownRequestError';
+      (err as unknown as Record<string, unknown>).code = 'P2002';
+      (err as unknown as Record<string, unknown>).meta = { target: ['email'] };
+      throw err;
+    });
+
+    // Route that throws PrismaClientValidationError
+    app.get('/test/prisma-validation-error', () => {
+      const err = new Error(
+        'Argument `where` is missing. SELECT "public"."User"."id" FROM "public"."User"',
+      );
+      err.name = 'PrismaClientValidationError';
+      throw err;
+    });
+
     // Route that throws AppError 423 (locked)
     app.get('/test/locked', () => {
       throw new AppError(423, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'Account is locked');
@@ -193,5 +213,41 @@ describe('error-handler plugin', () => {
       expect(typeof fieldError.field).toBe('string');
       expect(typeof fieldError.message).toBe('string');
     }
+  });
+
+  it('returns safe 500 for PrismaClientKnownRequestError without leaking SQL or schema details', async () => {
+    const response = await app.inject({ method: 'GET', url: '/test/prisma-error' });
+
+    expect(response.statusCode).toBe(500);
+    const body = response.json();
+    expect(body).toEqual({
+      type: 'https://httpstatuses.com/500',
+      title: 'Internal Server Error',
+      status: 500,
+      detail: 'An unexpected error occurred',
+      code: 'INTERNAL_ERROR',
+    });
+    const raw = JSON.stringify(body);
+    expect(raw).not.toContain('prisma');
+    expect(raw).not.toContain('P2002');
+    expect(raw).not.toContain('findUnique');
+    expect(raw).not.toContain('email');
+  });
+
+  it('returns safe 500 for PrismaClientValidationError without leaking SQL', async () => {
+    const response = await app.inject({ method: 'GET', url: '/test/prisma-validation-error' });
+
+    expect(response.statusCode).toBe(500);
+    const body = response.json();
+    expect(body).toEqual({
+      type: 'https://httpstatuses.com/500',
+      title: 'Internal Server Error',
+      status: 500,
+      detail: 'An unexpected error occurred',
+      code: 'INTERNAL_ERROR',
+    });
+    const raw = JSON.stringify(body);
+    expect(raw).not.toContain('SELECT');
+    expect(raw).not.toContain('Argument');
   });
 });

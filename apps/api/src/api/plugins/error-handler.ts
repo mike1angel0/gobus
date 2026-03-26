@@ -93,6 +93,16 @@ function fromUnknownError(): ProblemDetails {
 }
 
 /**
+ * Detect Prisma client errors by constructor name pattern.
+ * Avoids importing Prisma runtime — checks name convention instead.
+ */
+function isPrismaError(error: unknown): boolean {
+  if (error == null || typeof error !== 'object') return false;
+  const name = (error as { name?: string }).name ?? '';
+  return name.startsWith('PrismaClient');
+}
+
+/**
  * Register the global error handler plugin.
  * Converts all errors to RFC 9457 Problem Details format matching
  * the OpenAPI ErrorResponse schema.
@@ -159,6 +169,13 @@ async function errorHandlerPlugin(app: FastifyInstance): Promise<void> {
         errors: fieldErrors,
       };
       return reply.status(400).send(body);
+    }
+
+    // Prisma errors — log full details but return safe 500 (never leak query/schema info)
+    if (isPrismaError(error)) {
+      app.log.error(error, 'Prisma database error');
+      const body = fromUnknownError();
+      return reply.status(body.status).send(body);
     }
 
     // Unknown errors — log and return safe 500

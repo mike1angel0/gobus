@@ -1,0 +1,14 @@
+# Gitleaks configuration
+# https://github.com/gitleaks/gitleaks
+
+title = "Transio Gitleaks Config"
+
+# Allow test files with fake secrets (not real credentials)
+[allowlist]
+  description = "Test files with fake JWT secrets and env examples"
+  paths = [
+    '''\.test\.ts$''',
+    '''\.integration\.test\.ts$''',
+    '''__tests__''',
+    '''\.env\.example$''',
+  ]
