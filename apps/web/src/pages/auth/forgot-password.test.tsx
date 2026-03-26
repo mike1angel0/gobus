@@ -49,10 +49,7 @@ describe('ForgotPasswordPage', () => {
     it('renders sign in link', () => {
       renderPage();
 
-      expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
-        'href',
-        '/auth/login',
-      );
+      expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/auth/login');
     });
 
     it('has proper autocomplete and input type', () => {
@@ -153,9 +150,7 @@ describe('ForgotPasswordPage', () => {
       expect(
         screen.getByRole('heading', { name: 'Check your email', level: 1 }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText(/If an account exists with that email/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/If an account exists with that email/)).toBeInTheDocument();
     });
 
     it('shows success message with back to sign in link', async () => {

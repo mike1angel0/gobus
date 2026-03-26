@@ -14,10 +14,7 @@ export function TokenErrorView({ expired }: TokenErrorProps) {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="glass-card w-full max-w-md">
         <CardContent className="pt-6 text-center">
-          <AlertCircle
-            className="mx-auto mb-4 h-12 w-12 text-destructive"
-            aria-hidden="true"
-          />
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive" aria-hidden="true" />
           <h1 className="mb-2 text-2xl font-semibold">
             {expired ? 'Link expired' : 'Invalid link'}
           </h1>

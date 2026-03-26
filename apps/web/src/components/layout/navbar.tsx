@@ -65,12 +65,7 @@ export function Navbar() {
           {isAuthenticated && user ? (
             <>
               <span className="text-sm text-muted-foreground">{user.name}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSignOut}
-                aria-label="Sign out"
-              >
+              <Button variant="ghost" size="sm" onClick={handleSignOut} aria-label="Sign out">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>

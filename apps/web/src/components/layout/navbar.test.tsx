@@ -6,8 +6,15 @@ import { Navbar } from './navbar';
 
 // Mock useAuth
 const mockLogout = vi.fn();
-let mockUser: { name: string; role: string; id: string; email: string; status: string; createdAt: string; updatedAt: string } | null =
-  null;
+let mockUser: {
+  name: string;
+  role: string;
+  id: string;
+  email: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+} | null = null;
 let mockIsAuthenticated = false;
 
 vi.mock('@/hooks/useAuth', () => ({

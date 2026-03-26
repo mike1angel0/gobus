@@ -30,9 +30,7 @@ describe('HomePage', () => {
     it('renders the hero description', () => {
       renderWithProviders(<HomePage />);
 
-      expect(
-        screen.getByText(/Find and book bus trips across the country/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Find and book bus trips across the country/)).toBeInTheDocument();
     });
 
     it('renders the search form with all fields', () => {

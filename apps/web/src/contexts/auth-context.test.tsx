@@ -168,6 +168,73 @@ describe('AuthProvider', () => {
       expect(result.current.user).toBeNull();
       expect(localStorageMock.getItem('transio_refresh_token')).toBeNull();
     });
+
+    it('clears auth when refresh succeeds but returns no data', async () => {
+      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      mockPost.mockResolvedValueOnce({ data: undefined } as never);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.status).toBe('unauthenticated');
+      });
+
+      expect(result.current.user).toBeNull();
+    });
+
+    it('clears auth when profile fetch returns no data after refresh', async () => {
+      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      mockPost.mockResolvedValueOnce(createRefreshResponse() as never);
+      mockGet.mockResolvedValueOnce({ data: undefined } as never);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.status).toBe('unauthenticated');
+      });
+
+      expect(result.current.user).toBeNull();
+    });
+
+    it('clears auth on 403 (suspended) during session restore', async () => {
+      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      const { ApiError } = await import('@/api/errors');
+      const suspendedError = new ApiError({
+        type: 'about:blank',
+        title: 'Forbidden',
+        status: 403,
+        code: 'ACCOUNT_SUSPENDED',
+      });
+      mockPost.mockRejectedValueOnce(suspendedError);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.status).toBe('unauthenticated');
+      });
+
+      expect(result.current.user).toBeNull();
+    });
+
+    it('clears auth on 423 (locked) during session restore', async () => {
+      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      const { ApiError } = await import('@/api/errors');
+      const lockedError = new ApiError({
+        type: 'about:blank',
+        title: 'Locked',
+        status: 423,
+        code: 'ACCOUNT_LOCKED',
+      });
+      mockPost.mockRejectedValueOnce(lockedError);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+
+      await waitFor(() => {
+        expect(result.current.status).toBe('unauthenticated');
+      });
+
+      expect(result.current.user).toBeNull();
+    });
   });
 
   describe('login', () => {
@@ -204,6 +271,21 @@ describe('AuthProvider', () => {
       expect(mockPost).toHaveBeenCalledWith('/api/v1/auth/login', {
         body: { email: 'user@test.com', password: 'mypassword' },
       });
+    });
+
+    it('throws when login returns no data', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+      await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+      mockPost.mockResolvedValueOnce({ data: undefined } as never);
+
+      await expect(
+        act(async () => {
+          await result.current.login('test@example.com', 'password123');
+        }),
+      ).rejects.toThrow('Login failed: no data returned');
+
+      expect(result.current.status).toBe('unauthenticated');
     });
 
     it('throws on login failure and stays unauthenticated', async () => {
@@ -253,6 +335,26 @@ describe('AuthProvider', () => {
           providerName: 'My Bus Co',
         },
       });
+    });
+
+    it('throws when register returns no data', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
+      await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+
+      mockPost.mockResolvedValueOnce({ data: undefined } as never);
+
+      await expect(
+        act(async () => {
+          await result.current.register({
+            email: 'test@example.com',
+            password: 'StrongPass1',
+            name: 'Test',
+            role: 'PASSENGER',
+          });
+        }),
+      ).rejects.toThrow('Registration failed: no data returned');
+
+      expect(result.current.status).toBe('unauthenticated');
     });
   });
 

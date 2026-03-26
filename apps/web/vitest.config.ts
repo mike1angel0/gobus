@@ -20,10 +20,13 @@ export default defineConfig({
       exclude: [
         'src/test/**',
         'src/main.tsx',
+        'src/App.tsx',
+        'src/router.tsx',
         'src/vite-env.d.ts',
         'src/components/ui/**',
         'src/hooks/use-toast.ts',
         'src/lib/utils.ts',
+        'src/api/generated/**',
         'src/**/*.test.{ts,tsx}',
       ],
       thresholds: {

@@ -45,10 +45,7 @@ export const registerSchema = z
       .min(1, 'Email is required')
       .email('Please enter a valid email address')
       .max(255, 'Email must be at most 255 characters'),
-    name: z
-      .string()
-      .min(1, 'Name is required')
-      .max(100, 'Name must be at most 100 characters'),
+    name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters'),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')
@@ -58,11 +55,7 @@ export const registerSchema = z
       .regex(/\d/, 'Password must contain at least one digit'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
     role: z.enum(['PASSENGER', 'PROVIDER']),
-    phone: z
-      .string()
-      .max(20, 'Phone must be at most 20 characters')
-      .optional()
-      .or(z.literal('')),
+    phone: z.string().max(20, 'Phone must be at most 20 characters').optional().or(z.literal('')),
     providerName: z
       .string()
       .max(200, 'Provider name must be at most 200 characters')

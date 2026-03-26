@@ -51,9 +51,7 @@ describe('ResetPasswordPage', () => {
       renderPage();
 
       expect(screen.getByRole('heading', { name: 'Invalid link', level: 1 })).toBeInTheDocument();
-      expect(
-        screen.getByText(/This password reset link is invalid/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/This password reset link is invalid/)).toBeInTheDocument();
     });
 
     it('shows link to request new reset', () => {
@@ -70,9 +68,7 @@ describe('ResetPasswordPage', () => {
     it('renders the reset password form', () => {
       renderPage('valid-token');
 
-      expect(
-        screen.getByRole('heading', { name: 'Reset password', level: 1 }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Reset password', level: 1 })).toBeInTheDocument();
       expect(screen.getByLabelText('New password')).toBeInTheDocument();
       expect(screen.getByLabelText('Confirm password')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Reset password' })).toBeInTheDocument();
@@ -81,19 +77,13 @@ describe('ResetPasswordPage', () => {
     it('renders sign in link', () => {
       renderPage('valid-token');
 
-      expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
-        'href',
-        '/auth/login',
-      );
+      expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/auth/login');
     });
 
     it('has proper autocomplete attributes', () => {
       renderPage('valid-token');
 
-      expect(screen.getByLabelText('New password')).toHaveAttribute(
-        'autocomplete',
-        'new-password',
-      );
+      expect(screen.getByLabelText('New password')).toHaveAttribute('autocomplete', 'new-password');
       expect(screen.getByLabelText('Confirm password')).toHaveAttribute(
         'autocomplete',
         'new-password',
@@ -188,9 +178,7 @@ describe('ResetPasswordPage', () => {
       await user.click(screen.getByRole('button', { name: 'Reset password' }));
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Password must be at least 8 characters'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument();
         expect(screen.getByText('Please confirm your password')).toBeInTheDocument();
       });
       expect(mockResetPassword).not.toHaveBeenCalled();
@@ -275,15 +263,12 @@ describe('ResetPasswordPage', () => {
       await user.click(screen.getByRole('button', { name: 'Reset password' }));
 
       await waitFor(() => {
-        expect(
-          screen.getByRole('heading', { name: 'Link expired', level: 1 }),
-        ).toBeInTheDocument();
-        expect(
-          screen.getByText(/This password reset link has expired/),
-        ).toBeInTheDocument();
-        expect(
-          screen.getByRole('link', { name: 'Request a new reset link' }),
-        ).toHaveAttribute('href', '/auth/forgot-password');
+        expect(screen.getByRole('heading', { name: 'Link expired', level: 1 })).toBeInTheDocument();
+        expect(screen.getByText(/This password reset link has expired/)).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Request a new reset link' })).toHaveAttribute(
+          'href',
+          '/auth/forgot-password',
+        );
       });
     });
 
@@ -305,9 +290,7 @@ describe('ResetPasswordPage', () => {
       await user.click(screen.getByRole('button', { name: 'Reset password' }));
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/This password reset link has expired/),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/This password reset link has expired/)).toBeInTheDocument();
       });
     });
 

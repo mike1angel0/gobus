@@ -122,11 +122,7 @@ export default function ResetPasswordPage() {
                     aria-label="Password strength"
                   >
                     <div
-                      className={cn(
-                        'h-full rounded-full transition-all',
-                        cfg.color,
-                        cfg.width,
-                      )}
+                      className={cn('h-full rounded-full transition-all', cfg.color, cfg.width)}
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">Strength: {cfg.label}</p>

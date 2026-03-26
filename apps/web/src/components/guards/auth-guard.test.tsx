@@ -46,7 +46,12 @@ describe('AuthGuard', () => {
     renderWithAuth({
       status: 'authenticated',
       isAuthenticated: true,
-      user: { id: '1', email: 'a@b.com', name: 'Test', role: 'PASSENGER' } as AuthContextValue['user'],
+      user: {
+        id: '1',
+        email: 'a@b.com',
+        name: 'Test',
+        role: 'PASSENGER',
+      } as AuthContextValue['user'],
     });
 
     expect(screen.getByText('Protected Content')).toBeInTheDocument();
@@ -100,7 +105,12 @@ describe('AuthGuard', () => {
     renderWithAuth({
       status: 'authenticated',
       isAuthenticated: true,
-      user: { id: '1', email: 'a@b.com', name: 'Test', role: 'PASSENGER' } as AuthContextValue['user'],
+      user: {
+        id: '1',
+        email: 'a@b.com',
+        name: 'Test',
+        role: 'PASSENGER',
+      } as AuthContextValue['user'],
     });
 
     // Guard itself is transparent — just renders outlet content

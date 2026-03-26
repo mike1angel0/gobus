@@ -72,5 +72,30 @@
 - Learnings: When checking CSS class absence, use `className.split(' ')` array check since `toContain('bg-accent')` matches `hover:bg-accent` too. Split mobile menu into separate component to keep navbar under ESLint complexity limits.
 ---
 
+## Iteration 15 - TASK-015: Create app layout and home page
+- Created app-layout.tsx wrapping Navbar + Outlet (in `<main>`) + Toaster in a flex-col min-h-screen container
+- Created home.tsx with hero section (h1 heading, description), search form (origin, destination, date inputs with maxLength matching OpenAPI spec), and 3 feature cards (real-time tracking, secure booking, wide coverage) using glass-morphism design
+- Updated router.tsx to nest all routes inside AppLayout, replaced PlaceholderPage at `/` with HomePage
+- Removed unused eslint-disable directive from router.tsx (react-refresh/only-export-components no longer needed)
+- 16 tests: app-layout (3 tests: renders navbar/outlet/toaster, main element wrapping, flex layout) + home (13 tests: rendering, accessibility, search form submission with params, responsive grid classes)
+- Learnings: When running vitest from the monorepo root, path aliases don't resolve — must run from apps/web. The git working directory may shift during a session; use absolute paths for git commands.
+---
+
+## Iteration 16 - TASK-016: Create CLAUDE.md for frontend
+- Expanded existing apps/web/CLAUDE.md from a minimal stub into comprehensive documentation
+- Documented: tech stack table, quick start (monorepo-aware commands), full project structure, API-first workflow pipeline, React Query hook patterns, form patterns with Zod + RFC 9457 error mapping, component patterns, error handling, naming conventions, code quality rules, ESLint complexity gates, accessibility requirements, testing conventions, quality gate commands, known gotchas
+- All 4 acceptance criteria met: sections documented, API-first workflow explained, pattern examples included, quality commands listed
+- Learnings: CLAUDE.md already existed from TASK-001 scaffold — always check for existing file before creating new one.
+---
+
+## Iteration 17 - TASK-017: Run Phase 1 quality gates
+- All quality gates pass: typecheck (0 errors), lint (0 errors, 3 expected react-hooks/incompatible-library warnings), format (all clean), tests (340 pass), coverage (95.51% stmts / 90.24% branches / 97.08% functions / 96.17% lines), build succeeds
+- Fixed formatting across 16 files via prettier --write
+- Excluded generated types (src/api/generated/**), App.tsx, and router.tsx from coverage (config/entry files like main.tsx)
+- Added tests for: root-layout.tsx, placeholder.tsx, auth-types.ts (decodeJwtPayload, getTokenExpiryMs, getStoredRefreshToken, storeRefreshToken), auth-context.tsx (restore with no data, 403/423 during restore, login/register with no data)
+- Zero `any` types in src/ (excluding test), all exports have JSDoc, all components have accessibility attributes
+- Learnings: openapi-fetch captures fetch reference at module load time — cannot simply override globalThis.fetch in tests. Test middleware indirectly through mocked API client in integration tests instead.
+---
+
 ## Learnings
 See "Key Patterns & Gotchas" in Compacted History above, plus iteration-specific learnings in each iteration entry.

@@ -3,10 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import RegisterPage from '@/pages/auth/register';
-import {
-  registerSchema,
-  getPasswordStrength,
-} from '@/pages/auth/register-schema';
+import { registerSchema, getPasswordStrength } from '@/pages/auth/register-schema';
 import { ApiError } from '@/api/errors';
 
 // Mock useAuth hook
@@ -102,10 +99,7 @@ describe('RegisterPage', () => {
     it('renders sign in link', () => {
       renderRegisterPage();
 
-      expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
-        'href',
-        '/auth/login',
-      );
+      expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/auth/login');
     });
 
     it('does not show provider name field when PASSENGER is selected', () => {
@@ -240,7 +234,10 @@ describe('RegisterPage', () => {
 
       await waitFor(() => {
         const progressbar = screen.getByRole('progressbar');
-        expect(progressbar).toHaveAttribute('aria-label', expect.stringContaining('Password strength'));
+        expect(progressbar).toHaveAttribute(
+          'aria-label',
+          expect.stringContaining('Password strength'),
+        );
       });
     });
   });
@@ -301,9 +298,7 @@ describe('RegisterPage', () => {
       await user.click(screen.getByRole('button', { name: 'Create account' }));
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Password must contain at least one digit'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('Password must contain at least one digit')).toBeInTheDocument();
       });
     });
 
@@ -424,9 +419,7 @@ describe('RegisterPage', () => {
       await user.click(screen.getByRole('button', { name: 'Create account' }));
 
       await waitFor(() => {
-        expect(
-          screen.getByText('An account with this email already exists'),
-        ).toBeInTheDocument();
+        expect(screen.getByText('An account with this email already exists')).toBeInTheDocument();
       });
     });
 
@@ -534,7 +527,9 @@ describe('registerSchema', () => {
   });
 
   it('accepts valid PROVIDER registration with providerName', () => {
-    expect(registerSchema.safeParse({ ...base, role: 'PROVIDER', providerName: 'Acme' }).success).toBe(true);
+    expect(
+      registerSchema.safeParse({ ...base, role: 'PROVIDER', providerName: 'Acme' }).success,
+    ).toBe(true);
   });
 
   const longPw = 'A' + 'a'.repeat(127) + '1';

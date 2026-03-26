@@ -1,6 +1,6 @@
 # Phase 1: Frontend Foundation — Scaffold, API Client, Auth, Shell
 
-**Status**: Pending
+**Status**: Complete
 **Dependencies**: BE Phase 1 (OpenAPI spec designed, auth endpoints available)
 **Goal**: Set up Vite + React frontend with TypeScript strict, generate typed API client from the shared OpenAPI spec, implement auth flow, app shell with role-based navigation, and quality gates.
 
@@ -56,16 +56,4 @@
 
 ### ~~TASK-016: Create CLAUDE.md for frontend~~ ✅
 
-### TASK-017: Run Phase 1 quality gates
-**Description:** Run and fix all checks.
-
-**Acceptance Criteria:**
-- [ ] `npm run typecheck` — zero errors
-- [ ] `npm run lint` — zero errors
-- [ ] `npm run format:check` — passes
-- [ ] `npm run test` — all pass
-- [ ] `npm run test:coverage` ≥ 90%
-- [ ] `npm run build` — succeeds
-- [ ] Zero `any` in src/ (excluding test/)
-- [ ] JSDoc on all exported functions/components/hooks
-- [ ] All components accessible (labels, ARIA, keyboard)
+### ~~TASK-017: Run Phase 1 quality gates~~ ✅

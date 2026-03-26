@@ -8,7 +8,11 @@ import { isApiError } from '@/api/errors';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { getRedirectForRole } from '@/pages/auth/login-schema';
-import { registerSchema, getPasswordStrength, type RegisterFormValues } from '@/pages/auth/register-schema';
+import {
+  registerSchema,
+  getPasswordStrength,
+  type RegisterFormValues,
+} from '@/pages/auth/register-schema';
 import { RoleToggle, IdentityFields, PasswordFields } from '@/pages/auth/register-fields';
 
 /**

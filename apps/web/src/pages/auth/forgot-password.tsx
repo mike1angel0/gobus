@@ -46,19 +46,13 @@ export default function ForgotPasswordPage() {
       <div className="flex min-h-screen items-center justify-center px-4">
         <Card className="glass-card w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <CheckCircle2
-              className="mx-auto mb-4 h-12 w-12 text-green-500"
-              aria-hidden="true"
-            />
+            <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-500" aria-hidden="true" />
             <h1 className="mb-2 text-2xl font-semibold">Check your email</h1>
             <p className="mb-6 text-sm text-muted-foreground">
               If an account exists with that email, we&apos;ve sent a password reset link. Please
               check your inbox and spam folder.
             </p>
-            <Link
-              to="/auth/login"
-              className="text-sm text-primary hover:underline"
-            >
+            <Link to="/auth/login" className="text-sm text-primary hover:underline">
               Back to sign in
             </Link>
           </CardContent>
@@ -71,12 +65,8 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="glass-card w-full max-w-md">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">
-            Forgot password
-          </h1>
-          <CardDescription>
-            Enter your email and we&apos;ll send you a reset link
-          </CardDescription>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">Forgot password</h1>
+          <CardDescription>Enter your email and we&apos;ll send you a reset link</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">

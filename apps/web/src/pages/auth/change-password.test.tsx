@@ -85,10 +85,7 @@ describe('ChangePasswordPage', () => {
         'autocomplete',
         'current-password',
       );
-      expect(screen.getByLabelText('New password')).toHaveAttribute(
-        'autocomplete',
-        'new-password',
-      );
+      expect(screen.getByLabelText('New password')).toHaveAttribute('autocomplete', 'new-password');
       expect(screen.getByLabelText('Confirm new password')).toHaveAttribute(
         'autocomplete',
         'new-password',

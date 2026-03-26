@@ -78,10 +78,7 @@ describe('LoginPage', () => {
       renderLoginPage();
 
       expect(screen.getByLabelText('Email')).toHaveAttribute('autocomplete', 'email');
-      expect(screen.getByLabelText('Password')).toHaveAttribute(
-        'autocomplete',
-        'current-password',
-      );
+      expect(screen.getByLabelText('Password')).toHaveAttribute('autocomplete', 'current-password');
     });
   });
 
