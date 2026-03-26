@@ -22,18 +22,7 @@
 
 ### ~~TASK-005: Set up OpenAPI type generation~~ ✅
 
-### TASK-006: Create typed API client
-**Description:** Install `openapi-fetch`. Create `src/api/client.ts` with typed API client: configures base URL from env (VITE_API_URL), attaches Bearer token from auth context, handles RFC 9457 error responses, auto-redirects to login on 401. Create `src/api/errors.ts` with `ApiError` class and error handling utilities. Create `src/api/hooks.ts` with `useApiClient()` hook that returns configured client.
-
-**Acceptance Criteria:**
-- [ ] Typed client using `openapi-fetch` with generated types
-- [ ] Auth token automatically attached to requests
-- [ ] 401 responses trigger auth redirect
-- [ ] RFC 9457 errors parsed into `ApiError` instances
-- [ ] `useApiClient()` hook returns configured client
-- [ ] Unit tests for error parsing
-- [ ] JSDoc on all exports
-- [ ] Typecheck passes
+### ~~TASK-006: Create typed API client~~ ✅
 
 ### TASK-007: Create React Query configuration and key factories
 **Description:** Create `src/providers/query-provider.tsx` with QueryClient configuration (staleTime: 30s, retry: 1, refetchOnWindowFocus: false). Create `src/api/keys.ts` with query key factories: `authKeys`, `routeKeys`, `busKeys`, `scheduleKeys`, `bookingKeys`, `trackingKeys`, `searchKeys`, `driverKeys`, `delayKeys`, `adminKeys`. Each factory: `.all`, `.lists(filters?)`, `.detail(id)`.
