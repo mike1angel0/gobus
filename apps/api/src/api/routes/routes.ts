@@ -7,7 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { paginationQuerySchema, idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createRouteRequestSchema } from '@/api/routes/schemas.js';
-import { privateNoCache } from '@/api/plugins/cache-control.js';
+import { noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a RouteEntity to a JSON-safe response object.
@@ -74,7 +74,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/routes — create a new route with stops
   app.post(
     '/api/v1/routes',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const body = strictParse(createRouteRequestSchema, request.body);
       const providerId = request.user.providerId!;
@@ -102,7 +102,7 @@ async function routeRoutes(app: FastifyInstance): Promise<void> {
   // DELETE /api/v1/routes/:id — delete a route
   app.delete(
     '/api/v1/routes/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;

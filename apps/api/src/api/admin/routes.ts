@@ -10,7 +10,7 @@ import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireAdmin } from '@/api/plugins/role-guard.js';
 import { idParamSchema, strictParse } from '@/shared/schemas.js';
-import { privateNoCache } from '@/api/plugins/cache-control.js';
+import { noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   adminListBusesQuerySchema,
   toggleSeatBodySchema,
@@ -138,7 +138,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
   // PATCH /api/v1/admin/users/:id/status — update user account status
   app.patch(
     '/api/v1/admin/users/:id/status',
-    { preHandler: [app.authenticate, requireAdmin] },
+    { preHandler: [app.authenticate, requireAdmin, noCache] },
     async (request) => {
       const { id } = strictParse(idParamSchema, request.params);
       const { action } = strictParse(updateUserStatusBodySchema, request.body);
@@ -168,7 +168,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
   // PATCH /api/v1/admin/seats/:id — toggle seat enabled/disabled
   app.patch(
     '/api/v1/admin/seats/:id',
-    { preHandler: [app.authenticate, requireAdmin] },
+    { preHandler: [app.authenticate, requireAdmin, noCache] },
     async (request) => {
       const { id } = strictParse(idParamSchema, request.params);
       const { isEnabled } = strictParse(toggleSeatBodySchema, request.body);
@@ -181,7 +181,7 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
   // DELETE /api/v1/admin/users/:id/sessions — force logout user by revoking all refresh tokens
   app.delete(
     '/api/v1/admin/users/:id/sessions',
-    { preHandler: [app.authenticate, requireAdmin] },
+    { preHandler: [app.authenticate, requireAdmin, noCache] },
     async (request, reply) => {
       const { id } = strictParse(idParamSchema, request.params);
       await adminService.revokeAllSessions(id);

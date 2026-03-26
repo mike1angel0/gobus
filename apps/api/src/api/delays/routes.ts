@@ -7,7 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { idParamSchema, strictParse } from '@/shared/schemas.js';
-import { privateNoCache } from '@/api/plugins/cache-control.js';
+import { noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   listDelaysQuerySchema,
   createDelayBodySchema,
@@ -51,7 +51,7 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/delays — report a delay (DRIVER or PROVIDER)
-  app.post('/api/v1/delays', { preHandler: [app.authenticate] }, async (request, reply) => {
+  app.post('/api/v1/delays', { preHandler: [app.authenticate, noCache] }, async (request, reply) => {
     if (request.user.role !== 'DRIVER' && request.user.role !== 'PROVIDER') {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers and providers can report delays');
     }
@@ -70,7 +70,7 @@ async function delayRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // PUT /api/v1/delays/:id — update a delay (PROVIDER only)
-  app.put('/api/v1/delays/:id', { preHandler: [app.authenticate] }, async (request) => {
+  app.put('/api/v1/delays/:id', { preHandler: [app.authenticate, noCache] }, async (request) => {
     if (request.user.role !== 'PROVIDER') {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only providers can update delays');
     }

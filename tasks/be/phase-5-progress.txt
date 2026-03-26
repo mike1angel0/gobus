@@ -64,3 +64,16 @@
 - Created root `.env.example` with all required/optional docker-compose variables documented
 - Learnings: Docker compose `${VAR?message}` syntax provides clear error messages on missing vars; `apps/api/.env.example` already had good documentation and didn't need changes; this task is infrastructure-only (no code changes, no tests needed)
 ---
+
+## Iteration 11 - TASK-011: Add response compression
+- Installed `@fastify/compress` and registered in `app.ts` with 1KB threshold, Brotli preferred, gzip/deflate fallback
+- Disabled in test environment (same `isTest` guard as helmet/rate-limit)
+- Learnings: Fastify `app.inject()` cannot add routes after `app.ready()` — register test routes before ready; `vi.resetModules()` + `vi.doMock()` needed to re-import `buildApp` with different NODE_ENV; combined multiple assertions (brotli, gzip fallback, threshold) into one test to share the app instance and avoid module re-import complexity
+---
+
+## Iteration 12 - TASK-012: Add cache headers to remaining endpoints
+- All GET endpoints already had appropriate cache headers (privateNoCache, cachePublic, noCache)
+- Added `noCache` preHandler to all 25 mutation endpoints (POST/PUT/PATCH/DELETE) across 10 route files
+- Added 3 integration tests: POST /auth/register, DELETE /routes/:id, PATCH /auth/me
+- Learnings: Pre-existing search integration test failure (mock missing $queryRaw for raw SQL) — not related to this task; the noCache preHandler runs before handler, so even if handler errors out the cache header is set
+---

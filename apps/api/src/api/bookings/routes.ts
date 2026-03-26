@@ -7,7 +7,7 @@ import { AuditActions } from '@/domain/audit/audit-actions.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createBookingBodySchema, listBookingsQuerySchema } from '@/api/bookings/schemas.js';
-import { privateNoCache } from '@/api/plugins/cache-control.js';
+import { noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a BookingWithDetails domain entity to a JSON-safe response object.
@@ -89,7 +89,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // POST /api/v1/bookings — create a new booking
-  app.post('/api/v1/bookings', { preHandler: [app.authenticate] }, async (request, reply) => {
+  app.post('/api/v1/bookings', { preHandler: [app.authenticate, noCache] }, async (request, reply) => {
     const body = strictParse(createBookingBodySchema, request.body);
     const booking = await bookingService.create(request.user.id, body);
 
@@ -111,7 +111,7 @@ async function bookingRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // DELETE /api/v1/bookings/:id — cancel a booking (ownership enforced)
-  app.delete('/api/v1/bookings/:id', { preHandler: [app.authenticate] }, async (request) => {
+  app.delete('/api/v1/bookings/:id', { preHandler: [app.authenticate, noCache] }, async (request) => {
     const { id } = strictParse(idParamSchema, request.params);
     const booking = await bookingService.cancel(id, request.user.id);
 

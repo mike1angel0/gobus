@@ -13,7 +13,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { paginationQuerySchema, idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createBusRequestSchema, updateBusRequestSchema } from '@/api/buses/schemas.js';
-import { cachePublic, privateNoCache } from '@/api/plugins/cache-control.js';
+import { cachePublic, noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a BusEntity to a JSON-safe response object.
@@ -124,7 +124,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/buses — create a new bus with seat layout
   app.post(
     '/api/v1/buses',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const body = strictParse(createBusRequestSchema, request.body);
       const providerId = request.user.providerId!;
@@ -152,7 +152,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   // PUT /api/v1/buses/:id — update a bus
   app.put(
     '/api/v1/buses/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request) => {
       const { id } = strictParse(idParamSchema, request.params);
       const body = strictParse(updateBusRequestSchema, request.body);
@@ -167,7 +167,7 @@ async function busRoutes(app: FastifyInstance): Promise<void> {
   // DELETE /api/v1/buses/:id — delete a bus
   app.delete(
     '/api/v1/buses/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;

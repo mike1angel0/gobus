@@ -7,7 +7,7 @@ import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { paginationQuerySchema, idParamSchema, strictParse } from '@/shared/schemas.js';
 import { createDriverRequestSchema } from '@/api/drivers/schemas.js';
-import { privateNoCache } from '@/api/plugins/cache-control.js';
+import { noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 
 /**
  * Serialize a DriverEntity to a JSON-safe response object.
@@ -48,7 +48,7 @@ async function driverRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/drivers — create a new driver
   app.post(
     '/api/v1/drivers',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const body = strictParse(createDriverRequestSchema, request.body);
       const providerId = request.user.providerId!;
@@ -62,7 +62,7 @@ async function driverRoutes(app: FastifyInstance): Promise<void> {
   // DELETE /api/v1/drivers/:id — delete a driver
   app.delete(
     '/api/v1/drivers/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;

@@ -23,6 +23,10 @@ const mockProviderFindUnique = vi.fn();
 const mockRouteFindMany = vi.fn();
 const mockRouteCount = vi.fn();
 const mockRouteFindUnique = vi.fn();
+const mockRouteDelete = vi.fn();
+const mockUserUpdate = vi.fn();
+const mockRefreshTokenDeleteMany = vi.fn();
+const mockAuditLogCreate = vi.fn();
 
 const mockPrisma = {
   schedule: {
@@ -30,14 +34,16 @@ const mockPrisma = {
     findUnique: mockScheduleFindUnique,
     count: mockScheduleCount,
   },
-  user: { findUnique: mockUserFindUnique },
+  user: { findUnique: mockUserFindUnique, update: mockUserUpdate },
   bus: { findMany: mockBusFindMany, count: mockBusCount },
   booking: { findMany: mockBookingFindMany, count: mockBookingCount },
   busTracking: { findFirst: mockTrackingFindFirst, findUnique: mockTrackingFindFirst },
   delay: { findMany: mockDelayFindMany, count: mockDelayCount },
   driver: { findMany: mockDriverFindMany, count: mockDriverCount },
   provider: { findUnique: mockProviderFindUnique },
-  route: { findMany: mockRouteFindMany, count: mockRouteCount, findUnique: mockRouteFindUnique },
+  route: { findMany: mockRouteFindMany, count: mockRouteCount, findUnique: mockRouteFindUnique, delete: mockRouteDelete },
+  refreshToken: { deleteMany: mockRefreshTokenDeleteMany },
+  auditLog: { create: mockAuditLogCreate },
   $queryRawUnsafe: vi.fn().mockResolvedValue([{ '?column?': 1 }]),
 };
 
@@ -257,6 +263,72 @@ describe('Cache-Control Headers Integration', () => {
         .expect(200);
 
       expect(response.headers['cache-control']).toBe('private, no-cache');
+    });
+  });
+
+  describe('mutation endpoints with noCache (no-store)', () => {
+    it('POST /api/v1/auth/register returns Cache-Control: no-cache, no-store, must-revalidate', async () => {
+      // Will fail validation but cache header is set in preHandler before handler executes
+      const response = await supertest(app.server)
+        .post('/api/v1/auth/register')
+        .send({ email: 'x', password: 'y' });
+
+      expect(response.headers['cache-control']).toBe('no-cache, no-store, must-revalidate');
+    });
+
+    it('DELETE /api/v1/routes/:id returns Cache-Control: no-cache, no-store, must-revalidate', async () => {
+      mockUserFindUnique.mockResolvedValueOnce({
+        id: 'provider-user-1',
+        email: 'provider@test.com',
+        role: 'PROVIDER',
+        status: 'ACTIVE',
+        name: 'Provider',
+        phone: null,
+        avatarUrl: null,
+        providerId: 'prov-1',
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      mockRouteFindUnique.mockResolvedValueOnce({
+        id: 'route-1',
+        providerId: 'prov-1',
+        name: 'Test Route',
+        createdAt: new Date(),
+        schedules: [],
+      });
+      mockRouteDelete.mockResolvedValueOnce({});
+
+      const response = await supertest(app.server)
+        .delete('/api/v1/routes/route-1')
+        .set('Authorization', `Bearer ${providerToken}`);
+
+      expect(response.headers['cache-control']).toBe('no-cache, no-store, must-revalidate');
+    });
+
+    it('PATCH /api/v1/auth/me returns Cache-Control: no-cache, no-store, must-revalidate', async () => {
+      mockUserUpdate.mockResolvedValueOnce({
+        id: 'user-1',
+        email: 'passenger@test.com',
+        role: 'PASSENGER',
+        status: 'ACTIVE',
+        name: 'Updated',
+        phone: null,
+        avatarUrl: null,
+        providerId: null,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const response = await supertest(app.server)
+        .patch('/api/v1/auth/me')
+        .set('Authorization', `Bearer ${passengerToken}`)
+        .send({ name: 'Updated' });
+
+      expect(response.headers['cache-control']).toBe('no-cache, no-store, must-revalidate');
     });
   });
 

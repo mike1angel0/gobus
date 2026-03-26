@@ -38,14 +38,7 @@
 
 **TASK-011: Add response compression** — Installed `@fastify/compress` and registered in `app.ts` with 1KB threshold, Brotli preferred, gzip fallback. Disabled in test environment. 2 unit tests.
 
-### TASK-012: Add cache headers to remaining endpoints
-**Description:** Cache-Control headers are only set on search and tracking endpoints. All other authenticated CRUD endpoints (providers, buses, routes, schedules, drivers, bookings, delays, admin) lack cache directives.
-
-**Acceptance Criteria:**
-- [ ] All authenticated GET endpoints: `private, no-cache` via `privateNoCache()` preHandler
-- [ ] All mutation endpoints (POST/PUT/PATCH/DELETE): `no-store` via `noCache()` preHandler
-- [ ] Verified with integration test or curl
-- [ ] Typecheck passes
+**TASK-012: Add cache headers to remaining endpoints** — All GET endpoints already had `privateNoCache`/`cachePublic`/`noCache`. Added `noCache` preHandler to all 25 mutation endpoints (POST/PUT/PATCH/DELETE) across auth, bookings, buses, routes, drivers, schedules, delays, admin, tracking. 3 integration tests.
 
 ### TASK-013: Clean up unused JWT_REFRESH_SECRET
 **Description:** `JWT_REFRESH_SECRET` is required in env validation (`src/infrastructure/config/env.ts` line 19-22) but never used — refresh tokens are stored as SHA-256 hashes, not signed JWTs. Either use it or remove it.

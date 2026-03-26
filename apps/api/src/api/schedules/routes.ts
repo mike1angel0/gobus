@@ -15,7 +15,7 @@ import type {
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { requireProvider } from '@/api/plugins/role-guard.js';
 import { idParamSchema, strictParse } from '@/shared/schemas.js';
-import { privateNoCache } from '@/api/plugins/cache-control.js';
+import { noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 import {
   scheduleFilterQuerySchema,
   createScheduleRequestSchema,
@@ -144,7 +144,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/schedules — create a new schedule with stop times
   app.post(
     '/api/v1/schedules',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const body = strictParse(createScheduleRequestSchema, request.body);
       const providerId = request.user.providerId!;
@@ -190,7 +190,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
   // PUT /api/v1/schedules/:id — update a schedule
   app.put(
     '/api/v1/schedules/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request) => {
       const { id } = strictParse(idParamSchema, request.params);
       const body = strictParse(updateScheduleRequestSchema, request.body);
@@ -212,7 +212,7 @@ async function scheduleRoutes(app: FastifyInstance): Promise<void> {
   // DELETE /api/v1/schedules/:id — cancel a schedule
   app.delete(
     '/api/v1/schedules/:id',
-    { preHandler: [app.authenticate, requireProvider] },
+    { preHandler: [app.authenticate, requireProvider, noCache] },
     async (request, reply) => {
       const { id } = strictParse(idParamSchema, request.params);
       const providerId = request.user.providerId!;

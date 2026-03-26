@@ -73,7 +73,7 @@ async function trackingRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/tracking — update bus GPS position (DRIVER role)
-  app.post('/api/v1/tracking', { preHandler: [app.authenticate] }, async (request) => {
+  app.post('/api/v1/tracking', { preHandler: [app.authenticate, noCache] }, async (request) => {
     if (request.user.role !== 'DRIVER') {
       throw new AppError(403, ErrorCodes.FORBIDDEN, 'Only drivers can update tracking');
     }

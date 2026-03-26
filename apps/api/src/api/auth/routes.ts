@@ -8,7 +8,7 @@ import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import type { UserEntity } from '@/domain/users/user.entity.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
-import { privateNoCache } from '@/api/plugins/cache-control.js';
+import { noCache, privateNoCache } from '@/api/plugins/cache-control.js';
 import { strictParse } from '@/shared/schemas.js';
 import {
   registerBodySchema,
@@ -44,7 +44,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/auth/register
   app.post(
     '/api/v1/auth/register',
-    { config: { rateLimit: AUTH_RATE_LIMIT } },
+    { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } },
     async (request, reply) => {
       const body = strictParse(registerBodySchema, request.body);
       const { user, tokens } = await authService.register(body);
@@ -62,7 +62,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // POST /api/v1/auth/login
-  app.post('/api/v1/auth/login', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
+  app.post('/api/v1/auth/login', { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = strictParse(loginBodySchema, request.body);
 
     try {
@@ -90,7 +90,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/refresh
-  app.post('/api/v1/auth/refresh', { config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
+  app.post('/api/v1/auth/refresh', { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } }, async (request) => {
     const body = strictParse(tokenRefreshBodySchema, request.body);
     const tokens = await authService.refreshToken(body.refreshToken);
 
@@ -103,7 +103,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /api/v1/auth/logout
-  app.post('/api/v1/auth/logout', { preHandler: [app.authenticate] }, async (request, reply) => {
+  app.post('/api/v1/auth/logout', { preHandler: [app.authenticate, noCache] }, async (request, reply) => {
     const body = strictParse(logoutBodySchema, request.body);
     await authService.logout(request.user.id, body.refreshToken);
 
@@ -115,7 +115,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/auth/forgot-password
   app.post(
     '/api/v1/auth/forgot-password',
-    { config: { rateLimit: AUTH_RATE_LIMIT } },
+    { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } },
     async (request) => {
       const body = strictParse(forgotPasswordBodySchema, request.body);
       await authService.forgotPassword(body.email);
@@ -131,7 +131,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/v1/auth/reset-password
   app.post(
     '/api/v1/auth/reset-password',
-    { config: { rateLimit: AUTH_RATE_LIMIT } },
+    { preHandler: [noCache], config: { rateLimit: AUTH_RATE_LIMIT } },
     async (request) => {
       const body = strictParse(resetPasswordBodySchema, request.body);
       await authService.resetPassword(body.token, body.newPassword);
@@ -145,7 +145,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // POST /api/v1/auth/change-password
-  app.post('/api/v1/auth/change-password', { preHandler: [app.authenticate] }, async (request) => {
+  app.post('/api/v1/auth/change-password', { preHandler: [app.authenticate, noCache] }, async (request) => {
     const body = strictParse(changePasswordBodySchema, request.body);
     await authService.changePassword(request.user.id, body.currentPassword, body.newPassword);
 
@@ -168,7 +168,7 @@ async function authRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // PATCH /api/v1/auth/me
-  app.patch('/api/v1/auth/me', { preHandler: [app.authenticate] }, async (request) => {
+  app.patch('/api/v1/auth/me', { preHandler: [app.authenticate, noCache] }, async (request) => {
     const body = strictParse(updateProfileBodySchema, request.body);
     const user = await authService.updateProfile(request.user.id, body);
 
