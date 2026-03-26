@@ -24,13 +24,7 @@
 
 ### TASK-002: Add gzip compression to nginx.conf ✅
 
-### TASK-003: Add cache-busting for index.html
-**Description:** Nginx serves `index.html` for all SPA routes but has no explicit cache directive for it. Browsers may cache stale HTML that references old JS bundles after deployments.
-
-**Acceptance Criteria:**
-- [ ] `index.html` served with `Cache-Control: no-cache, no-store, must-revalidate`
-- [ ] Hashed assets in `/assets/` retain `expires 1y; add_header Cache-Control "public, immutable"`
-- [ ] Manual test: verify `index.html` has no-cache and `/assets/*.js` has 1-year cache
+### TASK-003: Add cache-busting for index.html ✅
 
 ---
 

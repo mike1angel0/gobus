@@ -12,3 +12,11 @@
 - Typecheck passes, no TS code changes
 - Learnings: gzip directives go in the server block before location blocks; gzip_vary is important for CDN/proxy caching
 ---
+
+## Iteration 3 - TASK-003: Add cache-busting for index.html
+- Added nested `location = /index.html` inside the SPA fallback location with `Cache-Control: no-cache, no-store, must-revalidate`, `Pragma: no-cache`, `Expires: 0`
+- Hashed assets location updated to use `always` directive on Cache-Control
+- Nginx config syntax validated via Docker (upstream resolution error expected outside docker-compose)
+- Typecheck passes, no TS code changes
+- Learnings: nginx supports nested location blocks; exact-match `location =` takes priority for specific paths within a parent location
+---
