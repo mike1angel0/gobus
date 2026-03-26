@@ -420,8 +420,8 @@
 `src/application/services/auth.service.ts` is 593 lines (threshold: 500). Extract cohesive concerns into helper modules.
 
 **ACs:**
-- [ ] Split auth.service.ts into ≤500 lines by extracting password/token logic into separate helpers
-- [ ] All existing tests still pass with no regressions
+- [x] Split auth.service.ts into ≤500 lines by extracting password/token logic into separate helpers
+- [x] All existing tests still pass with no regressions
 
 #### US-QA-002 | Improve branch coverage in metrics plugin
 **Priority**: Low | **Category**: Coverage

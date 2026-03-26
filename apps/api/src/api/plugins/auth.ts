@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import type { AuthTokenPayload } from '@/domain/auth/auth.types.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
-import { JWT_ISSUER, JWT_AUDIENCE } from '@/application/services/auth.service.js';
+import { JWT_ISSUER, JWT_AUDIENCE } from '@/application/services/auth.helpers.js';
 import { getEnv } from '@/infrastructure/config/env.js';
 import { getPrisma } from '@/infrastructure/prisma/client.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';

@@ -1,4 +1,4 @@
-import { randomBytes, createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { PrismaClient, User } from '@/generated/prisma/client.js';
@@ -14,39 +14,25 @@ import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 import { getEnv } from '@/infrastructure/config/env.js';
 import { createLogger } from '@/infrastructure/logger/logger.js';
+import {
+  BCRYPT_ROUNDS,
+  ACCESS_TOKEN_EXPIRY,
+  REFRESH_TOKEN_EXPIRY_DAYS,
+  LOCKOUT_THRESHOLD,
+  LOCKOUT_DURATION_MS,
+  RESET_TOKEN_EXPIRY_MS,
+  JWT_ISSUER,
+  JWT_AUDIENCE,
+  timingSafeCompare,
+  validatePasswordStrength,
+  hashToken,
+  toUserEntity,
+  buildFakeRegistrationResponse,
+} from './auth.helpers.js';
+
+export { timingSafeCompare, JWT_ISSUER, JWT_AUDIENCE } from './auth.helpers.js';
 
 const logger = createLogger('AuthService');
-
-const BCRYPT_ROUNDS = 12;
-const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY_DAYS = 7;
-const LOCKOUT_THRESHOLD = 5;
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
-const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
-
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-/**
- * Compare two strings in constant time to prevent timing attacks.
- * Uses crypto.timingSafeEqual internally, handling unequal-length strings safely.
- */
-export function timingSafeCompare(a: string, b: string): boolean {
-  const bufA = Buffer.from(a, 'utf8');
-  const bufB = Buffer.from(b, 'utf8');
-  if (bufA.length !== bufB.length) {
-    // Compare against a same-length dummy to avoid leaking length info via timing
-    const dummy = Buffer.alloc(bufA.length);
-    timingSafeEqual(bufA, dummy);
-    return false;
-  }
-  return timingSafeEqual(bufA, bufB);
-}
-
-/** JWT issuer claim identifying this service. */
-export const JWT_ISSUER = 'transio-api';
-
-/** JWT audience claim identifying intended recipients. */
-export const JWT_AUDIENCE = 'transio-client';
 
 /**
  * Authentication service handling user registration, login, token management,
@@ -63,7 +49,7 @@ export class AuthService {
    * account enumeration (identical shape, equalized timing via dummy bcrypt).
    */
   async register(data: RegisterData): Promise<{ user: UserEntity; tokens: TokenPair }> {
-    this.validatePasswordStrength(data.password);
+    validatePasswordStrength(data.password);
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email: data.email },
@@ -75,7 +61,7 @@ export class AuthService {
       logger.warn('Registration attempted with existing email', { email: data.email });
 
       // Return fake success response indistinguishable from real registration
-      return this.buildFakeRegistrationResponse(data);
+      return buildFakeRegistrationResponse(data);
     }
 
     const passwordHash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
@@ -116,7 +102,7 @@ export class AuthService {
 
     logger.info('User registered', { userId: user.id, role: user.role });
 
-    return { user: this.toUserEntity(user), tokens };
+    return { user: toUserEntity(user), tokens };
   }
 
   /**
@@ -207,14 +193,14 @@ export class AuthService {
 
     logger.info('User logged in', { userId: user.id, ipAddress });
 
-    return { user: this.toUserEntity(user), tokens };
+    return { user: toUserEntity(user), tokens };
   }
 
   /**
    * Revoke a specific refresh token, logging the user out of that session.
    */
   async logout(userId: string, refreshToken: string): Promise<void> {
-    const tokenHash = this.hashToken(refreshToken);
+    const tokenHash = hashToken(refreshToken);
 
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { token: tokenHash },
@@ -235,7 +221,7 @@ export class AuthService {
    * The old refresh token is revoked and a new one is issued.
    */
   async refreshToken(token: string): Promise<TokenPair> {
-    const tokenHash = this.hashToken(token);
+    const tokenHash = hashToken(token);
 
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { token: tokenHash },
@@ -289,13 +275,13 @@ export class AuthService {
       // Simulate realistic work to equalize timing with the real path
       // (DB write + crypto operations take measurable time)
       randomBytes(32);
-      createHash('sha256').update(randomBytes(32)).digest('hex');
+      hashToken(randomBytes(32).toString('hex'));
       await bcrypt.hash('dummy-timing-equalization', BCRYPT_ROUNDS);
       return;
     }
 
     const rawToken = randomBytes(32).toString('hex');
-    const tokenHash = this.hashToken(rawToken);
+    const tokenHash = hashToken(rawToken);
 
     await this.prisma.passwordResetToken.create({
       data: {
@@ -316,9 +302,9 @@ export class AuthService {
    * marks token as used, and revokes all existing refresh tokens.
    */
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    this.validatePasswordStrength(newPassword);
+    validatePasswordStrength(newPassword);
 
-    const tokenHash = this.hashToken(token);
+    const tokenHash = hashToken(token);
 
     const resetToken = await this.prisma.passwordResetToken.findUnique({
       where: { token: tokenHash },
@@ -379,7 +365,7 @@ export class AuthService {
     currentPassword: string,
     newPassword: string,
   ): Promise<void> {
-    this.validatePasswordStrength(newPassword);
+    validatePasswordStrength(newPassword);
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -437,7 +423,7 @@ export class AuthService {
     });
 
     const refreshTokenRaw = randomBytes(40).toString('hex');
-    const refreshTokenHash = this.hashToken(refreshTokenRaw);
+    const refreshTokenHash = hashToken(refreshTokenRaw);
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRY_DAYS);
@@ -469,7 +455,7 @@ export class AuthService {
       throw new AppError(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'User not found');
     }
 
-    return this.toUserEntity(user);
+    return toUserEntity(user);
   }
 
   /**
@@ -499,95 +485,6 @@ export class AuthService {
 
     logger.info('Profile updated', { userId });
 
-    return this.toUserEntity(updated);
-  }
-
-  /**
-   * Validate that a password meets strength requirements:
-   * min 8 characters, at least one uppercase, one lowercase, one digit.
-   */
-  private validatePasswordStrength(password: string): void {
-    if (!PASSWORD_REGEX.test(password)) {
-      throw new AppError(
-        400,
-        ErrorCodes.VALIDATION_ERROR,
-        'Password must be at least 8 characters and contain uppercase, lowercase, and a digit',
-      );
-    }
-  }
-
-  /**
-   * Hash a token string using SHA-256 for secure storage.
-   */
-  private hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
-  }
-
-  /**
-   * Convert a Prisma User record to a public UserEntity (excludes sensitive fields).
-   */
-  private toUserEntity(user: User): UserEntity {
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      phone: user.phone,
-      avatarUrl: user.avatarUrl,
-      preferences: user.preferences as UserEntity['preferences'],
-      providerId: user.providerId,
-      status: user.status,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-  }
-
-  /**
-   * Build a fake registration response identical in shape to a real one.
-   * Tokens and user ID are fake — any attempt to use them will fail gracefully.
-   * Prevents account enumeration via registration endpoint.
-   */
-  private buildFakeRegistrationResponse(data: RegisterData): {
-    user: UserEntity;
-    tokens: TokenPair;
-  } {
-    const env = getEnv();
-    const fakeUserId = randomUUID();
-    const now = new Date();
-
-    const payload: Omit<AuthTokenPayload, 'iat' | 'exp' | 'nbf'> = {
-      sub: fakeUserId,
-      email: data.email,
-      role: data.role,
-      providerId: null,
-      iss: JWT_ISSUER,
-      aud: JWT_AUDIENCE,
-      jti: randomUUID(),
-    };
-
-    const accessToken = jwt.sign(payload, env.JWT_SECRET, {
-      expiresIn: ACCESS_TOKEN_EXPIRY,
-      notBefore: 0,
-      algorithm: 'HS256',
-    });
-
-    const refreshToken = randomBytes(40).toString('hex');
-
-    return {
-      user: {
-        id: fakeUserId,
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        phone: data.phone ?? null,
-        avatarUrl: null,
-        preferences: null,
-        providerId: null,
-        status: 'ACTIVE',
-        createdAt: now,
-        updatedAt: now,
-      },
-      tokens: { accessToken, refreshToken },
-    };
+    return toUserEntity(updated);
   }
 }
