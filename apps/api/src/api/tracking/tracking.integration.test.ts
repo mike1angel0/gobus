@@ -6,6 +6,7 @@ import { createTestApp, createAuthHeader } from '@/test/helpers.js';
 
 // --- Mock setup ---
 const mockBusTrackingFindUnique = vi.fn();
+const mockBusTrackingFindMany = vi.fn();
 const mockBusTrackingUpsert = vi.fn();
 const mockBusFindUnique = vi.fn();
 const mockScheduleFindFirst = vi.fn();
@@ -14,6 +15,7 @@ const mockUserFindUnique = vi.fn();
 const mockPrisma = {
   busTracking: {
     findUnique: mockBusTrackingFindUnique,
+    findMany: mockBusTrackingFindMany,
     upsert: mockBusTrackingUpsert,
   },
   bus: {
@@ -50,8 +52,16 @@ vi.mock('@/infrastructure/logger/logger.js', () => ({
 
 const DRIVER_ID = 'driver-1';
 const PASSENGER_ID = 'passenger-1';
+const PROVIDER_ID = 'provider-1';
+const PROVIDER_USER_ID = 'provider-user-1';
+const ADMIN_ID = 'admin-1';
 const DRIVER_AUTH = createAuthHeader(DRIVER_ID, 'DRIVER');
 const PASSENGER_AUTH = createAuthHeader(PASSENGER_ID, 'PASSENGER');
+const PROVIDER_AUTH = createAuthHeader(PROVIDER_USER_ID, 'PROVIDER', {
+  providerId: PROVIDER_ID,
+});
+const PROVIDER_NO_ID_AUTH = createAuthHeader('provider-no-id', 'PROVIDER');
+const ADMIN_AUTH = createAuthHeader(ADMIN_ID, 'ADMIN');
 
 function makeTrackingRecord(overrides: Record<string, unknown> = {}) {
   return {
@@ -138,6 +148,103 @@ describe('Tracking Routes', () => {
 
     it('returns 401 without authentication', async () => {
       const response = await supertest(app.server).get('/api/v1/tracking/bus-1').expect(401);
+
+      expect(response.body.status).toBe(401);
+    });
+  });
+
+  // --- GET /api/v1/tracking (fleet list) ---
+  describe('GET /api/v1/tracking', () => {
+    it('returns 200 with fleet tracking data for PROVIDER role', async () => {
+      mockUserFindUnique.mockResolvedValue({
+        id: PROVIDER_USER_ID,
+        status: 'ACTIVE',
+      });
+      const records = [
+        makeTrackingRecord({ id: 'track-1', busId: 'bus-1' }),
+        makeTrackingRecord({ id: 'track-2', busId: 'bus-2' }),
+      ];
+      mockBusTrackingFindMany.mockResolvedValueOnce(records);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/tracking')
+        .set('Authorization', PROVIDER_AUTH)
+        .expect(200);
+
+      expect(response.body.data).toHaveLength(2);
+      expect(response.body.data[0].id).toBe('track-1');
+      expect(response.body.data[0].busId).toBe('bus-1');
+      expect(response.body.data[0].tripDate).toBe('2026-03-25');
+      expect(response.body.data[1].id).toBe('track-2');
+      expect(response.body.data[1].busId).toBe('bus-2');
+      expect(mockBusTrackingFindMany).toHaveBeenCalledWith({
+        where: { isActive: true, bus: { providerId: PROVIDER_ID } },
+      });
+    });
+
+    it('returns 200 with empty array when no active tracking exists', async () => {
+      mockUserFindUnique.mockResolvedValue({
+        id: PROVIDER_USER_ID,
+        status: 'ACTIVE',
+      });
+      mockBusTrackingFindMany.mockResolvedValueOnce([]);
+
+      const response = await supertest(app.server)
+        .get('/api/v1/tracking')
+        .set('Authorization', PROVIDER_AUTH)
+        .expect(200);
+
+      expect(response.body.data).toEqual([]);
+    });
+
+    it('returns 403 for non-PROVIDER role (PASSENGER)', async () => {
+      mockUserFindUnique.mockResolvedValue({
+        id: PASSENGER_ID,
+        status: 'ACTIVE',
+      });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/tracking')
+        .set('Authorization', PASSENGER_AUTH)
+        .expect(403);
+
+      expect(response.body.status).toBe(403);
+      expect(response.body.code).toBe('FORBIDDEN');
+    });
+
+    it('returns 403 for non-PROVIDER role (ADMIN)', async () => {
+      mockUserFindUnique.mockResolvedValue({
+        id: ADMIN_ID,
+        status: 'ACTIVE',
+      });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/tracking')
+        .set('Authorization', ADMIN_AUTH)
+        .expect(403);
+
+      expect(response.body.status).toBe(403);
+      expect(response.body.code).toBe('FORBIDDEN');
+    });
+
+    it('returns 403 when PROVIDER user has no providerId', async () => {
+      mockUserFindUnique.mockResolvedValue({
+        id: 'provider-no-id',
+        status: 'ACTIVE',
+      });
+
+      const response = await supertest(app.server)
+        .get('/api/v1/tracking')
+        .set('Authorization', PROVIDER_NO_ID_AUTH)
+        .expect(403);
+
+      expect(response.body.status).toBe(403);
+      expect(response.body.code).toBe('FORBIDDEN');
+      expect(response.body.detail).toBe('No provider associated with this user');
+    });
+
+    it('returns 401 without authentication', async () => {
+      const response = await supertest(app.server).get('/api/v1/tracking').expect(401);
 
       expect(response.body.status).toBe(401);
     });

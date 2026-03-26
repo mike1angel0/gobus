@@ -91,9 +91,7 @@
 
 #### Coverage Gap Stories
 
-**US-QA-004** | Add tests for tracking fleet list route (lines 62-72 uncovered)
-- AC1: Integration test covers GET /api/v1/tracking happy path (PROVIDER role lists fleet)
-- AC2: Integration test covers 403 for non-PROVIDER and missing providerId
+**US-QA-004** | ~~Add tests for tracking fleet list route~~ — DONE: Added 6 integration tests for GET /api/v1/tracking: PROVIDER happy path (with data and empty), 403 for PASSENGER, 403 for ADMIN, 403 for PROVIDER without providerId, 401 without auth.
 
 **US-QA-005** | Add tests for driver-trips passengers route (lines 101-113 uncovered)
 - AC1: Integration test covers GET /api/v1/driver/trips/:scheduleId/passengers happy path
