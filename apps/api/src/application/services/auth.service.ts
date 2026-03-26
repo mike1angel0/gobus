@@ -123,6 +123,11 @@ export class AuthService {
       throw new AppError(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'Invalid email or password');
     }
 
+    // Soft-deleted users cannot log in (treat as invalid credentials to prevent enumeration)
+    if (user.deletedAt) {
+      throw new AppError(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'Invalid email or password');
+    }
+
     // Check suspended status
     if (user.status === 'SUSPENDED') {
       throw new AppError(403, ErrorCodes.ACCOUNT_SUSPENDED, 'Account is suspended');
@@ -271,7 +276,7 @@ export class AuthService {
       where: { email },
     });
 
-    if (!user) {
+    if (!user || user.deletedAt) {
       // Simulate realistic work to equalize timing with the real path
       // (DB write + crypto operations take measurable time)
       randomBytes(32);

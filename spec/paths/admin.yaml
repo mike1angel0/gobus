@@ -300,3 +300,40 @@ seatById:
       '500':
         $ref: '../components/responses/errors.yaml#/InternalServerError'
 
+userById:
+  delete:
+    operationId: adminSoftDeleteUser
+    summary: Soft-delete a user account (admin)
+    description: Marks a user account as deleted by setting deletedAt timestamp. Revokes all refresh tokens. The user can no longer log in. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '204':
+        description: User soft-deleted successfully
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: User not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+

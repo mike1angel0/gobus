@@ -32,6 +32,8 @@ export interface AdminUserEntity {
   failedLoginAttempts: number;
   /** Account locked until this timestamp. */
   lockedUntil: Date | null;
+  /** Soft-deletion timestamp (null if account is active). */
+  deletedAt: Date | null;
   /** Account creation timestamp. */
   createdAt: Date;
   /** Last update timestamp. */
@@ -152,6 +154,7 @@ export class AdminService {
     const { skip, take } = parsePagination(input.page, input.pageSize);
     const where: Record<string, unknown> = {};
 
+    where.deletedAt = null;
     if (input.role) {
       where.role = input.role;
     }
@@ -176,6 +179,7 @@ export class AdminService {
           status: true,
           failedLoginAttempts: true,
           lockedUntil: true,
+          deletedAt: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -194,7 +198,7 @@ export class AdminService {
   /**
    * Update user account status: suspend, unsuspend, or unlock.
    * Suspending also revokes all active refresh tokens.
-   * Throw RESOURCE_NOT_FOUND if user does not exist.
+   * Throw RESOURCE_NOT_FOUND if user does not exist or is soft-deleted.
    */
   async updateUserStatus(
     userId: string,
@@ -202,10 +206,10 @@ export class AdminService {
   ): Promise<AdminUserEntity> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true },
+      select: { id: true, deletedAt: true },
     });
 
-    if (!user) {
+    if (!user || user.deletedAt) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'User not found');
     }
 
@@ -241,6 +245,7 @@ export class AdminService {
         status: true,
         failedLoginAttempts: true,
         lockedUntil: true,
+        deletedAt: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -253,6 +258,31 @@ export class AdminService {
     logger.info('User status updated', { userId, action, newStatus: updated.status });
 
     return toAdminUserEntity(updated);
+  }
+
+  /**
+   * Soft-delete a user account by setting deletedAt timestamp.
+   * Revoke all active refresh tokens to force logout.
+   * Throw RESOURCE_NOT_FOUND if user does not exist or is already deleted.
+   */
+  async softDeleteUser(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, deletedAt: true },
+    });
+
+    if (!user || user.deletedAt) {
+      throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'User not found');
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { deletedAt: new Date() },
+    });
+
+    await this.revokeAllSessions(userId);
+
+    logger.info('User soft-deleted', { userId });
   }
 
   /**
@@ -387,6 +417,7 @@ function toAdminUserEntity(user: {
   status: string;
   failedLoginAttempts: number;
   lockedUntil: Date | null;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }): AdminUserEntity {
@@ -401,6 +432,7 @@ function toAdminUserEntity(user: {
     status: user.status as AdminUserEntity['status'],
     failedLoginAttempts: user.failedLoginAttempts,
     lockedUntil: user.lockedUntil,
+    deletedAt: user.deletedAt,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };

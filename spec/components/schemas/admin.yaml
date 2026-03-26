@@ -64,6 +64,11 @@ AdminUser:
       format: date-time
       maxLength: 30
       description: Account locked until this timestamp
+    deletedAt:
+      type: ['string', 'null']
+      format: date-time
+      maxLength: 30
+      description: Soft-deletion timestamp (null if account is active)
     createdAt:
       type: string
       format: date-time

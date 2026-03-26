@@ -84,10 +84,10 @@ async function authenticateHandler(request: FastifyRequest, _reply: FastifyReply
   const prisma = getPrisma();
   const user = await prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { id: true, status: true },
+    select: { id: true, status: true, deletedAt: true },
   });
 
-  if (!user) {
+  if (!user || user.deletedAt) {
     throw new AppError(401, ErrorCodes.AUTH_INVALID_CREDENTIALS, 'User not found');
   }
 

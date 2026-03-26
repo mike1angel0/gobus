@@ -79,6 +79,8 @@ paths:
     $ref: paths/admin.yaml#/buses
   /api/v1/admin/users:
     $ref: paths/admin.yaml#/users
+  /api/v1/admin/users/{id}:
+    $ref: paths/admin.yaml#/userById
   /api/v1/admin/users/{id}/status:
     $ref: paths/admin.yaml#/userStatus
   /api/v1/admin/users/{id}/sessions:

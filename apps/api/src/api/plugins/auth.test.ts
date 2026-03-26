@@ -176,6 +176,22 @@ describe('auth plugin', () => {
     expect(body.detail).toBe('Account is locked due to too many failed login attempts');
   });
 
+  it('returns 401 when user is soft-deleted', async () => {
+    mockFindUnique.mockResolvedValueOnce({
+      id: 'user-1',
+      status: 'ACTIVE',
+      deletedAt: new Date('2026-01-20T10:00:00Z'),
+    });
+    const token = signToken(validPayload());
+    const response = await app.inject({
+      method: 'GET',
+      url: '/protected',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json().code).toBe('AUTH_INVALID_CREDENTIALS');
+  });
+
   it('attaches user to request on valid token and ACTIVE status', async () => {
     mockFindUnique.mockResolvedValueOnce({ id: 'user-1', status: 'ACTIVE' });
     const token = signToken(validPayload());
@@ -219,7 +235,7 @@ describe('auth plugin', () => {
     });
     expect(mockFindUnique).toHaveBeenCalledWith({
       where: { id: 'user-42' },
-      select: { id: true, status: true },
+      select: { id: true, status: true, deletedAt: true },
     });
   });
 

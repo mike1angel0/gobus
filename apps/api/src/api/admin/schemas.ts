@@ -143,6 +143,12 @@ export const adminUserSchema = z.object({
     .max(30)
     .nullable()
     .describe('Account locked until this timestamp'),
+  deletedAt: z
+    .string()
+    .datetime()
+    .max(30)
+    .nullable()
+    .describe('Soft-deletion timestamp (null if account is active)'),
   createdAt: z.string().datetime().max(30).describe('Account creation timestamp'),
   updatedAt: z.string().datetime().max(30).describe('Account last update timestamp'),
 });

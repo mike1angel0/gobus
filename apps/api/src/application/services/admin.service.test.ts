@@ -57,6 +57,7 @@ function makeUserRecord(overrides: Record<string, unknown> = {}) {
     status: 'ACTIVE',
     failedLoginAttempts: 0,
     lockedUntil: null,
+    deletedAt: null,
     createdAt: new Date('2026-01-15T10:00:00Z'),
     updatedAt: new Date('2026-01-15T10:00:00Z'),
     ...overrides,
@@ -285,6 +286,7 @@ describe('AdminService', () => {
         status: 'ACTIVE',
         failedLoginAttempts: 0,
         lockedUntil: null,
+        deletedAt: null,
         createdAt: new Date('2026-01-15T10:00:00Z'),
         updatedAt: new Date('2026-01-15T10:00:00Z'),
       });
@@ -298,7 +300,7 @@ describe('AdminService', () => {
       await service.listUsers({ page: 1, pageSize: 20, role: 'ADMIN' });
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { role: 'ADMIN' } }),
+        expect.objectContaining({ where: { deletedAt: null, role: 'ADMIN' } }),
       );
     });
 
@@ -309,7 +311,7 @@ describe('AdminService', () => {
       await service.listUsers({ page: 1, pageSize: 20, status: 'SUSPENDED' });
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { status: 'SUSPENDED' } }),
+        expect.objectContaining({ where: { deletedAt: null, status: 'SUSPENDED' } }),
       );
     });
 
@@ -320,8 +322,24 @@ describe('AdminService', () => {
       await service.listUsers({ page: 1, pageSize: 20, role: 'PASSENGER', status: 'LOCKED' });
 
       expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { role: 'PASSENGER', status: 'LOCKED' } }),
+        expect.objectContaining({
+          where: { deletedAt: null, role: 'PASSENGER', status: 'LOCKED' },
+        }),
       );
+    });
+
+    it('excludes soft-deleted users by default', async () => {
+      mockPrisma.user.findMany.mockResolvedValue([]);
+      mockPrisma.user.count.mockResolvedValue(0);
+
+      await service.listUsers({ page: 1, pageSize: 20 });
+
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { deletedAt: null } }),
+      );
+      expect(mockPrisma.user.count).toHaveBeenCalledWith({
+        where: { deletedAt: null },
+      });
     });
 
     it('applies correct pagination skip/take', async () => {
@@ -413,6 +431,19 @@ describe('AdminService', () => {
         statusCode: 404,
         code: ErrorCodes.RESOURCE_NOT_FOUND,
       });
+    });
+
+    it('throws RESOURCE_NOT_FOUND when user is soft-deleted', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: USER_ID,
+        deletedAt: new Date('2026-01-20T10:00:00Z'),
+      });
+
+      await expect(service.updateUserStatus(USER_ID, 'suspend')).rejects.toMatchObject({
+        statusCode: 404,
+        code: ErrorCodes.RESOURCE_NOT_FOUND,
+      });
+      expect(mockPrisma.user.update).not.toHaveBeenCalled();
     });
   });
 
@@ -507,6 +538,58 @@ describe('AdminService', () => {
         expect.objectContaining({ skip: 40, take: 10 }),
       );
       expect(result.meta).toEqual({ total: 100, page: 5, pageSize: 10, totalPages: 10 });
+    });
+  });
+
+  describe('softDeleteUser', () => {
+    it('sets deletedAt and revokes all sessions for an existing user', async () => {
+      mockPrisma.user.findUnique
+        .mockResolvedValueOnce({ id: USER_ID, deletedAt: null })
+        .mockResolvedValueOnce({ id: USER_ID }); // revokeAllSessions lookup
+      mockPrisma.user.update.mockResolvedValue({});
+      mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 1 });
+
+      await service.softDeleteUser(USER_ID);
+
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: USER_ID },
+        data: { deletedAt: expect.any(Date) },
+      });
+      expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { userId: USER_ID, revokedAt: null },
+        data: { revokedAt: expect.any(Date) },
+      });
+    });
+
+    it('throws RESOURCE_NOT_FOUND when user does not exist', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.softDeleteUser('nonexistent')).rejects.toMatchObject({
+        statusCode: 404,
+        code: ErrorCodes.RESOURCE_NOT_FOUND,
+      });
+      expect(mockPrisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('throws RESOURCE_NOT_FOUND when user is already soft-deleted', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: USER_ID,
+        deletedAt: new Date('2026-01-20T10:00:00Z'),
+      });
+
+      await expect(service.softDeleteUser(USER_ID)).rejects.toMatchObject({
+        statusCode: 404,
+        code: ErrorCodes.RESOURCE_NOT_FOUND,
+      });
+      expect(mockPrisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('does not revoke sessions when user is not found', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.softDeleteUser('nonexistent')).rejects.toThrow();
+
+      expect(mockPrisma.refreshToken.updateMany).not.toHaveBeenCalled();
     });
   });
 

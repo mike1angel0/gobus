@@ -46,7 +46,7 @@ export class DriverService {
   ): Promise<PaginatedDrivers> {
     const { skip, take } = parsePagination(pagination.page, pagination.pageSize);
 
-    const where = { providerId, role: 'DRIVER' as const };
+    const where = { providerId, role: 'DRIVER' as const, deletedAt: null };
 
     const [drivers, total] = await Promise.all([
       this.prisma.user.findMany({
@@ -110,10 +110,10 @@ export class DriverService {
   async delete(id: string, providerId: string): Promise<void> {
     const driver = await this.prisma.user.findUnique({
       where: { id },
-      select: { providerId: true, role: true },
+      select: { providerId: true, role: true, deletedAt: true },
     });
 
-    if (!driver || driver.role !== 'DRIVER' || driver.providerId !== providerId) {
+    if (!driver || driver.role !== 'DRIVER' || driver.providerId !== providerId || driver.deletedAt) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Driver not found');
     }
 

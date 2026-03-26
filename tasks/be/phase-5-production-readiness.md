@@ -46,17 +46,7 @@
 
 ## Data Integrity
 
-### TASK-014: Implement user soft-delete or cascade strategy
-**Description:** `ON DELETE RESTRICT` on Booking→User and Message→User prevents user account deletion. No soft-delete pattern exists. Users who want to delete their accounts cannot.
-
-**Acceptance Criteria:**
-- [ ] Decision: soft-delete (add `deletedAt` column) OR archive-and-cascade
-- [ ] If soft-delete: add `deletedAt DateTime?` to User model, update all queries to exclude soft-deleted users, add admin endpoint to soft-delete users
-- [ ] If archive: create archive table, move user data before cascade delete
-- [ ] Migration created
-- [ ] Auth plugin rejects soft-deleted/archived users
-- [ ] Unit tests for deletion flow
-- [ ] Typecheck passes
+**TASK-014: Implement user soft-delete** — Added `deletedAt DateTime?` to User model with migration. Auth plugin and login reject soft-deleted users (401). Admin DELETE /api/v1/admin/users/:id endpoint sets deletedAt and revokes sessions. All user queries (admin listUsers, driver listing, schedule driver validation) exclude soft-deleted users. OpenAPI spec and Zod schemas updated. 10 new unit tests (softDeleteUser, soft-delete rejection in auth/admin).
 
 ---
 

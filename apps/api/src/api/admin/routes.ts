@@ -68,6 +68,7 @@ function serializeUser(user: AdminUserEntity): Record<string, unknown> {
     status: user.status,
     failedLoginAttempts: user.failedLoginAttempts,
     lockedUntil: user.lockedUntil?.toISOString() ?? null,
+    deletedAt: user.deletedAt?.toISOString() ?? null,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
   };
@@ -175,6 +176,20 @@ async function adminRoutes(app: FastifyInstance): Promise<void> {
       const seat = await adminService.toggleSeat(id, isEnabled);
 
       return { data: serializeSeat(seat) };
+    },
+  );
+
+  // DELETE /api/v1/admin/users/:id — soft-delete a user account
+  app.delete(
+    '/api/v1/admin/users/:id',
+    { preHandler: [app.authenticate, requireAdmin, noCache] },
+    async (request, reply) => {
+      const { id } = strictParse(idParamSchema, request.params);
+      await adminService.softDeleteUser(id);
+
+      request.audit(AuditActions.ACCOUNT_DELETED, 'user', id);
+
+      return reply.status(204).send();
     },
   );
 

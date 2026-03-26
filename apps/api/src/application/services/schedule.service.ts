@@ -280,10 +280,10 @@ export class ScheduleService {
   private async validateDriverOwnership(driverId: string, providerId: string): Promise<void> {
     const driver = await this.prisma.user.findUnique({
       where: { id: driverId },
-      select: { providerId: true, role: true },
+      select: { providerId: true, role: true, deletedAt: true },
     });
 
-    if (!driver || driver.role !== 'DRIVER' || driver.providerId !== providerId) {
+    if (!driver || driver.role !== 'DRIVER' || driver.providerId !== providerId || driver.deletedAt) {
       throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Driver not found');
     }
   }

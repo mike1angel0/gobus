@@ -77,3 +77,22 @@
 - Added 3 integration tests: POST /auth/register, DELETE /routes/:id, PATCH /auth/me
 - Learnings: Pre-existing search integration test failure (mock missing $queryRaw for raw SQL) — not related to this task; the noCache preHandler runs before handler, so even if handler errors out the cache header is set
 ---
+
+## Iteration 13 - TASK-013: Clean up unused JWT_REFRESH_SECRET
+- Decision: remove (refresh tokens use SHA-256 hashes, not signed JWTs)
+- Removed JWT_REFRESH_SECRET from env.ts schema, .refine() validation, .env.example (root + api), docker-compose.yml, test setup, and CLAUDE.md env table
+- Learnings: Simple removal task — grep for all references first, then systematically remove; the .refine() on the Zod schema also needed removal along with the field itself
+---
+
+## Iteration 14 - TASK-014: Implement user soft-delete
+- Decision: soft-delete with `deletedAt DateTime?` column (conventional approach, preserves referential integrity)
+- Added `deletedAt` to User model, migration created, Prisma client regenerated
+- Auth plugin checks `deletedAt` and returns 401 (same as "not found" to prevent enumeration)
+- Auth service login rejects soft-deleted users as invalid credentials
+- Admin service: new `softDeleteUser` method, `listUsers` excludes soft-deleted by default, `updateUserStatus` rejects soft-deleted
+- Driver service: `listByProvider` and `delete` exclude soft-deleted drivers
+- Schedule service: `validateDriverOwnership` excludes soft-deleted drivers
+- New DELETE /api/v1/admin/users/:id endpoint with audit logging
+- OpenAPI spec + Zod schemas updated with `deletedAt` field
+- Learnings: After adding a Prisma schema field, must run `npx prisma generate` to update the generated client types before typecheck; existing tests that assert exact select/where params need updating when adding new fields to queries; soft-delete is simpler than archive-and-cascade since it requires no schema restructuring
+---

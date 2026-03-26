@@ -89,7 +89,7 @@ describe('DriverService', () => {
       expect(result.meta).toEqual({ total: 2, page: 1, pageSize: 20, totalPages: 1 });
       expect(prisma.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { providerId: PROVIDER_ID, role: 'DRIVER' },
+          where: { providerId: PROVIDER_ID, role: 'DRIVER', deletedAt: null },
           skip: 0,
           take: 20,
         }),
