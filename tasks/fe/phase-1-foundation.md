@@ -24,15 +24,7 @@
 
 ### ~~TASK-006: Create typed API client~~ ✅
 
-### TASK-007: Create React Query configuration and key factories
-**Description:** Create `src/providers/query-provider.tsx` with QueryClient configuration (staleTime: 30s, retry: 1, refetchOnWindowFocus: false). Create `src/api/keys.ts` with query key factories: `authKeys`, `routeKeys`, `busKeys`, `scheduleKeys`, `bookingKeys`, `trackingKeys`, `searchKeys`, `driverKeys`, `delayKeys`, `adminKeys`. Each factory: `.all`, `.lists(filters?)`, `.detail(id)`.
-
-**Acceptance Criteria:**
-- [ ] QueryClient configured with sensible defaults
-- [ ] QueryClientProvider wraps app
-- [ ] All query key factories defined with proper structure
-- [ ] JSDoc on key factories
-- [ ] Typecheck passes
+### ~~TASK-007: Create React Query configuration and key factories~~ ✅
 
 ---
 

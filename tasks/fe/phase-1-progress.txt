@@ -48,3 +48,22 @@
 - Added `coverage` to ESLint globalIgnores (was causing spurious warnings)
 - Learnings: openapi-typescript v7 generates clean types including paths, operations, and components interfaces. The bundled spec at `spec/dist/openapi.json` must exist before running api:sync — run `npm run spec:bundle` from root first.
 ---
+
+## Iteration 6 - TASK-006: Create typed API client
+- Installed openapi-fetch, created src/api/client.ts (typed client with auth middleware), src/api/errors.ts (ApiError class, RFC 9457 parsing), src/api/hooks.ts (useApiClient hook)
+- Access token stored in memory only (setAccessToken/getAccessToken), never localStorage
+- Auth middleware auto-attaches Bearer token and fires onUnauthorized callback on 401
+- Error middleware parses RFC 9457 responses into ApiError instances, falls back to generic error for non-conforming responses
+- 28 unit tests covering error parsing, type guards, token management, and hook stability
+- Learnings: openapi-fetch middleware uses onRequest/onResponse pattern. The middleware must clone the response before reading the body (response.clone().json()) since the body stream can only be consumed once. Keep token in module-level variable for simplicity — auth context will call setAccessToken().
+---
+
+## Iteration 7 - TASK-007: Create React Query configuration and key factories
+- Created src/providers/query-client.ts with QueryClient defaults (staleTime: 30s, retry: 1, refetchOnWindowFocus: false, gcTime: 5min)
+- Created src/providers/query-provider.tsx with AppQueryProvider component
+- Created src/api/keys.ts with 11 key factories: authKeys, routeKeys, busKeys, scheduleKeys, bookingKeys, trackingKeys, searchKeys, driverKeys, delayKeys, adminKeys, driverTripKeys
+- Each factory has .all, .lists(filters?), .detail(id) for hierarchical cache invalidation
+- Wired AppQueryProvider into main.tsx wrapping the App
+- 90 tests passing (62 new for keys + provider)
+- Learnings: react-refresh/only-export-components ESLint rule forbids mixing component exports with non-component exports (like QueryClient). Split constants into a separate .ts file and keep only the component in the .tsx file.
+---
