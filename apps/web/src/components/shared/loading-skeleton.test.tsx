@@ -12,9 +12,7 @@ describe('CardGridSkeleton', () => {
   });
 
   it('renders custom count of skeleton cards', () => {
-    const { container } = renderWithProviders(
-      <CardGridSkeleton label="Loading items" count={3} />,
-    );
+    const { container } = renderWithProviders(<CardGridSkeleton label="Loading items" count={3} />);
     const cards = container.querySelectorAll('[class*="animate-pulse"]');
     expect(cards.length).toBe(12); // 3 cards × 4 skeleton lines
   });
@@ -43,9 +41,7 @@ describe('CardListSkeleton', () => {
   });
 
   it('renders custom count of skeleton items', () => {
-    const { container } = renderWithProviders(
-      <CardListSkeleton label="Loading trips" count={5} />,
-    );
+    const { container } = renderWithProviders(<CardListSkeleton label="Loading trips" count={5} />);
     const skeletons = container.querySelectorAll('[class*="animate-pulse"]');
     expect(skeletons.length).toBe(25); // 5 items × 5 skeleton lines
   });

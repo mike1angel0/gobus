@@ -1,73 +1,387 @@
 {
   "dashboard": {
     "title": "Panou de control",
-    "revenue": "Venituri",
-    "occupancy": "Grad de ocupare",
-    "totalBookings": "Total rezervări",
-    "activeRoutes": "Rute active"
+    "heading": "Panou de control",
+    "welcomeBack": "Bine ai revenit, {{name}}",
+    "subtitle": "Iată o prezentare generală a operațiunilor tale de transport.",
+    "error": {
+      "title": "Ceva nu a mers bine",
+      "message": "Nu am putut încărca datele panoului de control. Te rugăm să încerci din nou."
+    },
+    "stats": {
+      "srHeading": "Statistici",
+      "loadingStats": "Se încarcă statisticile panoului de control",
+      "loadingSchedules": "Se încarcă programările viitoare",
+      "routes": "Rute",
+      "buses": "Autobuze",
+      "drivers": "Șoferi",
+      "activeSchedules": "Programări active"
+    },
+    "upcoming": {
+      "title": "Programări viitoare",
+      "viewAll": "Vezi toate",
+      "empty": "Nicio programare viitoare",
+      "createSchedule": "Creează o programare",
+      "recurring": "Recurent"
+    },
+    "quickActions": {
+      "title": "Acțiuni rapide",
+      "createRoute": "Creează rută",
+      "createSchedule": "Creează programare",
+      "addBus": "Adaugă autobuz",
+      "addDriver": "Adaugă șofer"
+    }
   },
   "routes": {
     "title": "Rute",
+    "subtitle": "Gestionează rutele de transport și stațiile.",
     "create": "Creează rută",
-    "edit": "Editează ruta",
-    "name": "Nume rută",
-    "origin": "Origine",
-    "destination": "Destinație",
-    "stops": "Stații",
-    "addStop": "Adaugă stație",
-    "removeStop": "Elimină stație",
-    "estimatedDuration": "Durată estimată",
-    "distanceKm": "Distanță (km)"
+    "loadingLabel": "Se încarcă rutele",
+    "error": {
+      "title": "Nu s-au putut încărca rutele",
+      "message": "Nu am putut încărca rutele tale. Te rugăm să încerci din nou."
+    },
+    "empty": {
+      "title": "Nicio rută încă",
+      "message": "Creează prima ta rută pentru a începe programarea curselor."
+    },
+    "listLabel": "Lista rutelor",
+    "card": {
+      "idLabel": "ID: {{id}}",
+      "deleteLabel": "Șterge ruta {{name}}",
+      "deleteTitle": "Șterge rută",
+      "deleteDescription": "Ești sigur că vrei să ștergi \"{{name}}\"? Aceasta va șterge și toate stațiile asociate. Programările care folosesc această rută pot fi afectate.",
+      "deleting": "Se șterge\u2026",
+      "delete": "Șterge"
+    },
+    "createDialog": {
+      "title": "Creează rută",
+      "description": "Definește o rută cu cel puțin 2 stații. Stațiile pot fi reordonate folosind butoanele cu săgeți.",
+      "nameLabel": "Nume rută",
+      "namePlaceholder": "ex. București \u2014 Cluj",
+      "creating": "Se creează\u2026",
+      "createButton": "Creează rută"
+    },
+    "stops": {
+      "legend": "Stații ({{count}})",
+      "listLabel": "Stațiile rutei",
+      "moveUp": "Mută stația {{name}} în sus",
+      "moveDown": "Mută stația {{name}} în jos",
+      "nameLabel": "Numele stației {{index}}",
+      "namePlaceholder": "Nume stație",
+      "latLabel": "Latitudinea stației {{index}}",
+      "latPlaceholder": "Lat",
+      "lngLabel": "Longitudinea stației {{index}}",
+      "lngPlaceholder": "Lng",
+      "removeLabel": "Elimină stația {{name}}",
+      "addStop": "Adaugă stație"
+    },
+    "validation": {
+      "nameRequired": "Numele rutei este obligatoriu.",
+      "nameMaxLength": "Numele rutei trebuie să aibă cel mult {{max}} caractere.",
+      "minStops": "O rută trebuie să aibă cel puțin 2 stații.",
+      "stopNameRequired": "Numele stației {{index}} este obligatoriu.",
+      "stopNameMaxLength": "Numele stației {{index}} trebuie să aibă cel mult {{max}} caractere.",
+      "stopLatRange": "Latitudinea stației {{index}} trebuie să fie între -90 și 90.",
+      "stopLngRange": "Longitudinea stației {{index}} trebuie să fie între -180 și 180."
+    }
   },
   "fleet": {
     "title": "Flotă",
+    "subtitle": "Gestionează autobuzele și configurațiile locurilor.",
     "create": "Adaugă autobuz",
-    "edit": "Editează autobuz",
-    "licensePlate": "Număr de înmatriculare",
-    "capacity": "Capacitate",
-    "seatMap": "Hartă locuri",
-    "seatMapEditor": "Editor hartă locuri",
-    "rows": "Rânduri",
-    "seatsPerRow": "Locuri pe rând"
+    "loadingLabel": "Se încarcă flota",
+    "error": {
+      "title": "Nu s-a putut încărca flota",
+      "message": "Nu am putut încărca autobuzele tale. Te rugăm să încerci din nou."
+    },
+    "empty": {
+      "title": "Niciun autobuz încă",
+      "message": "Adaugă primul tău autobuz pentru a începe crearea programărilor."
+    },
+    "listLabel": "Lista flotei",
+    "card": {
+      "seatsLayout": "{{seats}} locuri · {{rows}}×{{columns}}",
+      "editLabel": "Editează harta locurilor pentru {{plate}}",
+      "deleteLabel": "Șterge autobuzul {{plate}}",
+      "deleteTitle": "Șterge autobuz",
+      "deleteDescription": "Ești sigur că vrei să ștergi autobuzul \"{{plate}}\"? Programările care referențiază acest autobuz pot fi afectate.",
+      "deleting": "Se șterge\u2026",
+      "delete": "Șterge"
+    },
+    "createDialog": {
+      "title": "Adaugă autobuz",
+      "description": "Adaugă un autobuz nou la flotă. Alege un șablon sau configurează manual.",
+      "licensePlateLabel": "Număr de înmatriculare",
+      "licensePlatePlaceholder": "ex. AB-12-XYZ",
+      "modelLabel": "Model",
+      "modelPlaceholder": "ex. Mercedes Tourismo",
+      "configModeLabel": "Mod de configurare",
+      "template": "Șablon",
+      "manual": "Manual",
+      "creating": "Se creează\u2026",
+      "addBusButton": "Adaugă autobuz"
+    },
+    "templateSelector": {
+      "legend": "Selectează șablon",
+      "loading": "Se încarcă șabloanele",
+      "empty": "Niciun șablon disponibil. Comută la modul manual.",
+      "listLabel": "Șabloane autobuze",
+      "seatsLayout": "{{capacity}} locuri · {{rows}}×{{columns}}"
+    },
+    "manualConfig": {
+      "rowsLabel": "Rânduri",
+      "rowsPlaceholder": "ex. 12",
+      "columnsLabel": "Coloane",
+      "columnsPlaceholder": "ex. 4",
+      "preview": "Previzualizare"
+    },
+    "seatGridPreview": {
+      "label": "{{rows}} rânduri, {{columns}} coloane dispunere locuri",
+      "moreRows": "+{{count}} rânduri în plus"
+    },
+    "validation": {
+      "licensePlateRequired": "Numărul de înmatriculare este obligatoriu.",
+      "licensePlateMaxLength": "Numărul de înmatriculare trebuie să aibă cel mult {{max}} caractere.",
+      "modelRequired": "Modelul este obligatoriu.",
+      "modelMaxLength": "Modelul trebuie să aibă cel mult {{max}} caractere.",
+      "rowsRange": "Rândurile trebuie să fie între 1 și {{max}}.",
+      "columnsRange": "Coloanele trebuie să fie între 1 și {{max}}.",
+      "templateRequired": "Te rugăm să selectezi un șablon.",
+      "licensePlateConflict": "Un autobuz cu acest număr de înmatriculare există deja."
+    },
+    "editDialog": {
+      "title": "Editează harta locurilor",
+      "titleWithPlate": "Editează harta locurilor \u2014 {{plate}}",
+      "description": "Dă clic pe un loc pentru a schimba tipul, sau selectează un tip din bara de instrumente pentru a colora locurile.",
+      "loadingLabel": "Se încarcă harta locurilor",
+      "loadError": "Nu s-au putut încărca detaliile autobuzului. Te rugăm să închizi și să încerci din nou.",
+      "savedTitle": "Dispunerea locurilor salvată local",
+      "savedDescription": "Actualizările dispunerii locurilor vor fi sincronizate când API-ul va suporta aceasta."
+    },
+    "seatMapEditor": {
+      "gridLabel": "Editor hartă locuri",
+      "brushLabel": "Tip pensulă locuri",
+      "cycle": "Ciclare",
+      "seatTypes": {
+        "standard": "Standard",
+        "premium": "Premium",
+        "accessible": "Accesibil",
+        "blocked": "Blocat"
+      },
+      "seatAriaLabel": "Loc {{label}}, {{type}}. Dă clic pentru a schimba tipul.",
+      "seatTooltip": "{{label}} · {{type}}",
+      "countSummary": "Sumar număr locuri",
+      "total": "{{count}} total",
+      "saving": "Se salvează\u2026",
+      "saveChanges": "Salvează modificările"
+    }
   },
   "schedules": {
     "title": "Programări",
+    "subtitle": "Gestionează programările curselor, atribuie șoferi și urmărește rezervările.",
     "create": "Creează programare",
-    "route": "Rută",
-    "bus": "Autobuz",
-    "departureTime": "Ora de plecare",
-    "price": "Preț",
-    "status": "Status",
-    "active": "Activ",
-    "inactive": "Inactiv",
-    "suspended": "Suspendat",
-    "daysOfWeek": "Zile de operare",
-    "days": {
-      "monday": "Luni",
-      "tuesday": "Marți",
-      "wednesday": "Miercuri",
-      "thursday": "Joi",
-      "friday": "Vineri",
-      "saturday": "Sâmbătă",
-      "sunday": "Duminică"
+    "loadingLabel": "Se încarcă programările",
+    "error": {
+      "title": "Nu s-au putut încărca programările",
+      "message": "Nu am putut încărca programările tale. Te rugăm să încerci din nou."
+    },
+    "empty": {
+      "title": "Nicio programare încă",
+      "message": "Creează prima ta programare pentru a începe să oferi curse."
+    },
+    "listLabel": "Lista programărilor",
+    "card": {
+      "bus": "Autobuz",
+      "times": "Ore",
+      "tripDate": "Data cursei",
+      "price": "Preț",
+      "days": "Zile",
+      "driver": "Șofer",
+      "assigned": "Atribuit",
+      "unassigned": "Neatribuit",
+      "unassign": "Dezatribuie",
+      "assign": "Atribuie",
+      "cancel": "Anulează",
+      "unassignLabel": "Dezatribuie șoferul de la programarea {{route}}",
+      "assignLabel": "Atribuie șofer la programarea {{route}}",
+      "cancelLabel": "Anulează programarea {{route}}"
+    },
+    "cancelDialog": {
+      "title": "Anulează programare",
+      "description": "Ești sigur că vrei să anulezi această programare pentru \"{{route}}\" din {{date}}? Această acțiune nu poate fi anulată.",
+      "keep": "Păstrează programarea",
+      "cancelling": "Se anulează\u2026",
+      "cancelButton": "Anulează programarea"
+    },
+    "driverDialog": {
+      "changeTitle": "Schimbă șoferul",
+      "assignTitle": "Atribuie șofer",
+      "changeDescription": "Selectează un alt șofer sau dezatribuie șoferul curent.",
+      "assignDescription": "Selectează un șofer pentru a-l atribui acestei programări.",
+      "driverLabel": "Șofer",
+      "noDriver": "Fără șofer (dezatribuie)",
+      "saving": "Se salvează\u2026",
+      "save": "Salvează"
     },
     "filter": {
-      "route": "Filtrează după rută",
-      "status": "Filtrează după status",
-      "all": "Toate"
+      "label": "Filtre programări",
+      "route": "Rută",
+      "allRoutes": "Toate rutele",
+      "bus": "Autobuz",
+      "allBuses": "Toate autobuzele",
+      "status": "Status",
+      "allStatuses": "Toate statusurile",
+      "active": "Activ",
+      "cancelled": "Anulat",
+      "from": "De la",
+      "to": "Până la"
+    },
+    "days": {
+      "sun": "Dum",
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mie",
+      "thu": "Joi",
+      "fri": "Vin",
+      "sat": "Sâm"
+    },
+    "createDialog": {
+      "title": "Creează programare",
+      "description": "Creează o programare nouă selectând o rută, un autobuz și setând orele de plecare.",
+      "routeLabel": "Rută",
+      "routePlaceholder": "Selectează o rută",
+      "busLabel": "Autobuz",
+      "busPlaceholder": "Selectează un autobuz",
+      "busOption": "{{plate}} \u2014 {{model}} ({{capacity}} locuri)",
+      "driverLabel": "Șofer (opțional)",
+      "driverPlaceholder": "Niciun șofer atribuit",
+      "tripDateLabel": "Data cursei",
+      "departureLabel": "Ora de plecare",
+      "arrivalLabel": "Ora de sosire",
+      "basePriceLabel": "Preț de bază",
+      "basePricePlaceholder": "ex. 25.00",
+      "daysOfWeekLegend": "Zile ale săptămânii (opțional)",
+      "daysOfWeekLabel": "Zile ale săptămânii",
+      "stopTimesLabel": "Ore stații ({{count}} stații)",
+      "stopTimesDescription": "Orele stațiilor vor fi calculate automat prin distribuirea uniformă a timpului de călătorie pe stațiile rutei.",
+      "stopTimesListLabel": "Stațiile rutei",
+      "creating": "Se creează\u2026",
+      "createButton": "Creează programare"
+    },
+    "validation": {
+      "routeRequired": "Ruta este obligatorie.",
+      "busRequired": "Autobuzul este obligatoriu.",
+      "departureRequired": "Ora de plecare este obligatorie.",
+      "arrivalRequired": "Ora de sosire este obligatorie.",
+      "arrivalAfterDeparture": "Ora de sosire trebuie să fie după ora de plecare.",
+      "basePriceRequired": "Prețul de bază este obligatoriu.",
+      "basePriceRange": "Prețul de bază trebuie să fie între 0 și {{max}}.",
+      "tripDateRequired": "Data cursei este obligatorie.",
+      "minStops": "Ruta selectată trebuie să aibă cel puțin 2 stații.",
+      "notFound": "Ruta, autobuzul sau șoferul referențiat nu a fost găsit."
     }
   },
   "drivers": {
     "title": "Șoferi",
-    "create": "Adaugă șofer",
-    "driverList": "Lista șoferilor",
-    "assignment": "Atribuire",
-    "licenseNumber": "Număr permis"
+    "subtitle": "Gestionează conturile șoferilor și atribuirile.",
+    "create": "Creează șofer",
+    "loadingLabel": "Se încarcă șoferii",
+    "error": {
+      "title": "Nu s-au putut încărca șoferii",
+      "message": "Nu am putut încărca șoferii tăi. Te rugăm să încerci din nou."
+    },
+    "empty": {
+      "title": "Niciun șofer încă",
+      "message": "Creează primul tău cont de șofer pentru a-i atribui programărilor."
+    },
+    "listLabel": "Lista șoferilor",
+    "card": {
+      "schedulesAssigned_one": "{{count}} programare atribuită",
+      "schedulesAssigned_few": "{{count}} programări atribuite",
+      "schedulesAssigned_other": "{{count}} de programări atribuite",
+      "deleteLabel": "Șterge șoferul {{name}}",
+      "deleteTitle": "Șterge șofer",
+      "deleteDescription": "Ești sigur că vrei să ștergi \"{{name}}\"?",
+      "deleteDescriptionWithSchedules_one": "Acest șofer este atribuit la {{count}} programare. Va fi dezatribuit.",
+      "deleteDescriptionWithSchedules_few": "Acest șofer este atribuit la {{count}} programări. Va fi dezatribuit.",
+      "deleteDescriptionWithSchedules_other": "Acest șofer este atribuit la {{count}} de programări. Va fi dezatribuit.",
+      "deleting": "Se șterge...",
+      "delete": "Șterge"
+    },
+    "createDialog": {
+      "title": "Creează șofer",
+      "description": "Adaugă un cont de șofer nou. Șoferul va folosi aceste credențiale pentru a se autentifica.",
+      "nameLabel": "Nume",
+      "namePlaceholder": "ex. Ion Popescu",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ex. ion@exemplu.com",
+      "passwordLabel": "Parolă",
+      "passwordPlaceholder": "Min. 8 caractere",
+      "passwordHelper": "Trebuie să conțină cel puțin 1 literă mare, 1 literă mică și 1 cifră.",
+      "phoneLabel": "Telefon",
+      "phoneOptional": "(opțional)",
+      "phonePlaceholder": "ex. +40 712 345 678",
+      "creating": "Se creează...",
+      "createButton": "Creează șofer"
+    },
+    "validation": {
+      "nameRequired": "Numele este obligatoriu.",
+      "nameMaxLength": "Numele trebuie să aibă cel mult {{max}} caractere.",
+      "emailRequired": "Email-ul este obligatoriu.",
+      "emailMaxLength": "Email-ul trebuie să aibă cel mult {{max}} caractere.",
+      "emailInvalid": "Te rugăm să introduci o adresă de email validă.",
+      "passwordRequired": "Parola este obligatorie.",
+      "passwordMinLength": "Parola trebuie să aibă cel puțin {{min}} caractere.",
+      "passwordMaxLength": "Parola trebuie să aibă cel mult {{max}} caractere.",
+      "passwordPattern": "Parola trebuie să conțină cel puțin 1 literă mare, 1 literă mică și 1 cifră.",
+      "phoneMaxLength": "Telefonul trebuie să aibă cel mult {{max}} caractere.",
+      "emailConflict": "Un utilizator cu această adresă de email există deja."
+    }
   },
   "analytics": {
     "title": "Statistici",
-    "revenueByRoute": "Venituri pe rută",
+    "loadingStats": "Se încarcă statisticile",
+    "loadingRevenue": "Se încarcă veniturile pe rută",
+    "error": {
+      "title": "Statistici indisponibile",
+      "message": "Nu am putut încărca datele analitice. Te rugăm să încerci din nou."
+    },
     "totalBookings": "Total rezervări",
-    "occupancyRate": "Rată de ocupare"
+    "totalRevenue": "Venit total",
+    "avgOccupancy": "Ocupare medie",
+    "revenueByRoute": "Venituri pe rută",
+    "revenueEmpty": "Niciun venit încă",
+    "revenueBreakdownLabel": "Defalcarea veniturilor pe rută",
+    "revenueLabel": "Venitul rutei {{route}}"
+  },
+  "tracking": {
+    "title": "Urmărire în timp real",
+    "loadingLabel": "Se încarcă urmărirea",
+    "error": {
+      "title": "Nu s-au putut încărca datele de urmărire",
+      "message": "Nu am putut încărca datele de urmărire a flotei. Te rugăm să încerci din nou."
+    },
+    "sidebarLabel": "Bară laterală urmărire flotă",
+    "sidebarTitle": "Urmărire flotă",
+    "reportDelay": "Raportează întârziere",
+    "activeDelays": "Întârzieri active"
+  },
+  "profile": {
+    "title": "Profil furnizor",
+    "loadingLabel": "Se încarcă profilul furnizorului",
+    "error": {
+      "title": "Nu s-a putut încărca profilul",
+      "message": "Nu am putut încărca profilul furnizorului. Te rugăm să încerci din nou."
+    },
+    "pendingApproval": "Contul tău de furnizor este în așteptarea aprobării",
+    "cardTitle": "Profil furnizor",
+    "companyName": "Nume companie",
+    "contactEmail": "Email de contact",
+    "contactPhone": "Telefon de contact",
+    "registered": "Înregistrat"
+  },
+  "common": {
+    "cancel": "Anulează"
   }
 }

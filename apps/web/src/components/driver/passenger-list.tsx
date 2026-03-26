@@ -1,4 +1,5 @@
 import { AlertCircle, UserCheck, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,8 +27,9 @@ export interface PassengerListProps {
 
 /** Skeleton placeholder shown while passenger data loads. */
 function PassengerListSkeleton() {
+  const { t } = useTranslation('driver');
   return (
-    <div className="space-y-3" aria-busy="true" aria-label="Loading passengers">
+    <div className="space-y-3" aria-busy="true" aria-label={t('passengers.loadingLabel')}>
       {Array.from({ length: 3 }, (_, i) => (
         <div key={i} className="flex items-center gap-3">
           <Skeleton className="h-8 w-8 rounded-full" />
@@ -52,12 +54,13 @@ interface PassengerListErrorProps {
 
 /** Error state shown when passenger data fails to load. */
 function PassengerListError({ onRetry }: PassengerListErrorProps) {
+  const { t } = useTranslation('driver');
   return (
     <div className="flex flex-col items-center py-6 text-center" role="alert">
       <AlertCircle className="mb-2 h-10 w-10 text-destructive" aria-hidden="true" />
-      <p className="mb-3 text-sm text-muted-foreground">Failed to load passenger list</p>
+      <p className="mb-3 text-sm text-muted-foreground">{t('passengers.error')}</p>
       <Button onClick={onRetry} variant="outline" size="sm">
-        Try again
+        {t('passengers.retry')}
       </Button>
     </div>
   );
@@ -67,10 +70,11 @@ function PassengerListError({ onRetry }: PassengerListErrorProps) {
 
 /** Empty state when no passengers are booked. */
 function PassengerListEmpty() {
+  const { t } = useTranslation('driver');
   return (
     <div className="flex flex-col items-center py-6 text-center">
       <Users className="mb-2 h-10 w-10 text-muted-foreground" aria-hidden="true" />
-      <p className="text-sm text-muted-foreground">No passengers booked for this trip</p>
+      <p className="text-sm text-muted-foreground">{t('passengers.empty')}</p>
     </div>
   );
 }
@@ -85,6 +89,7 @@ interface PassengerRowProps {
 
 /** Single passenger row displaying name, stops, seats, and status. */
 function PassengerRow({ passenger }: PassengerRowProps) {
+  const { t } = useTranslation('driver');
   const isCancelled = passenger.status === 'CANCELLED';
 
   return (
@@ -94,7 +99,9 @@ function PassengerRow({ passenger }: PassengerRowProps) {
         aria-hidden="true"
       />
       <div className="min-w-0 flex-1">
-        <p className={`text-sm font-medium ${isCancelled ? 'text-muted-foreground line-through' : ''}`}>
+        <p
+          className={`text-sm font-medium ${isCancelled ? 'text-muted-foreground line-through' : ''}`}
+        >
           {passenger.passengerName}
         </p>
         <p className="text-xs text-muted-foreground">
@@ -102,15 +109,12 @@ function PassengerRow({ passenger }: PassengerRowProps) {
         </p>
         {passenger.seatLabels.length > 0 && (
           <p className="text-xs text-muted-foreground">
-            Seats: {passenger.seatLabels.join(', ')}
+            {t('passengers.seats', { seats: passenger.seatLabels.join(', ') })}
           </p>
         )}
       </div>
-      <Badge
-        variant={isCancelled ? 'destructive' : 'default'}
-        className="shrink-0"
-      >
-        {passenger.status}
+      <Badge variant={isCancelled ? 'destructive' : 'default'} className="shrink-0">
+        {t(`passengers.status.${passenger.status}`)}
       </Badge>
     </li>
   );
@@ -131,13 +135,19 @@ interface PassengerListContentProps {
 }
 
 /** Resolves which content to show based on loading/error/data state. */
-function PassengerListContent({ passengers, isLoading, isError, onRetry }: PassengerListContentProps) {
+function PassengerListContent({
+  passengers,
+  isLoading,
+  isError,
+  onRetry,
+}: PassengerListContentProps) {
+  const { t } = useTranslation('driver');
   if (isLoading) return <PassengerListSkeleton />;
   if (isError) return <PassengerListError onRetry={onRetry} />;
   if (!passengers || passengers.length === 0) return <PassengerListEmpty />;
 
   return (
-    <ul className="space-y-1" aria-label="Passenger list">
+    <ul className="space-y-1" aria-label={t('passengers.listLabel')}>
       {passengers.map((passenger) => (
         <PassengerRow key={passenger.bookingId} passenger={passenger} />
       ))}
@@ -174,6 +184,7 @@ export function PassengerList({
   isError,
   onRetry,
 }: PassengerListProps) {
+  const { t } = useTranslation('driver');
   const showCount = !isLoading && !isError && !!passengers;
   const confirmedCount = passengers?.filter((p) => p.status === 'CONFIRMED').length ?? 0;
 
@@ -182,10 +193,10 @@ export function PassengerList({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Users className="h-5 w-5" aria-hidden="true" />
-          Passengers
+          {t('passengers.title')}
           {showCount && (
             <span className="text-sm font-normal text-muted-foreground">
-              ({confirmedCount} / {totalSeats})
+              {t('passengers.count', { confirmed: confirmedCount, total: totalSeats })}
             </span>
           )}
         </CardTitle>

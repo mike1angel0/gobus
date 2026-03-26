@@ -7,12 +7,49 @@
     "speed": "Viteză",
     "lastUpdate": "Ultima actualizare",
     "activeDelays": "Întârzieri active",
-    "noDelays": "Fără întârzieri"
+    "noDelays": "Fără întârzieri",
+    "loadingLabel": "Se încarcă lista de autobuze",
+    "selectBusLabel": "Selectează autobuzul {{licensePlate}}",
+    "stopLabel": "Stația {{stopIndex}}",
+    "speedValue": "{{speed}} km/h",
+    "noTrackingData": "Fără date de urmărire",
+    "emptyTitle": "Niciun autobuz în flotă",
+    "listLabel": "Lista de urmărire autobuze",
+    "active": "Activ"
   },
   "delays": {
     "title": "Întârzieri",
     "reportDelay": "Raportează întârziere",
     "minutes": "{{count}} minut întârziere",
     "minutes_other": "{{count}} minute întârziere"
+  },
+  "reportDialog": {
+    "title": "Raportează întârziere",
+    "description": "Raportează o întârziere pentru un program activ.",
+    "scheduleLabel": "Program",
+    "schedulePlaceholder": "Selectează programul...",
+    "minutesLabel": "Întârziere (minute)",
+    "minutesPlaceholder": "15",
+    "reasonLabel": "Motiv",
+    "reasonPlaceholder": "Selectează motivul...",
+    "tripDateLabel": "Data cursei",
+    "noteLabel": "Notă (opțional)",
+    "notePlaceholder": "Detalii suplimentare...",
+    "cancel": "Anulează",
+    "reporting": "Se raportează...",
+    "report": "Raportează întârziere",
+    "reasons": {
+      "TRAFFIC": "Trafic",
+      "MECHANICAL": "Mecanic",
+      "WEATHER": "Vreme",
+      "OTHER": "Altele"
+    }
+  },
+  "activeDelays": {
+    "loadingLabel": "Se încarcă întârzierile",
+    "emptyTitle": "Nicio întârziere activă",
+    "listLabel": "Întârzieri active",
+    "delayLabel": "+{{minutes}} min — {{reason}}",
+    "deactivateLabel": "Dezactivează întârzierea de {{minutes}} minute"
   }
 }

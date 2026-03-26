@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Dialog,
@@ -31,6 +32,7 @@ export interface EditBusDialogProps {
  * because the API does not yet support seat layout updates (see SPEC_GAPS.md).
  */
 export function EditBusDialog({ busId, onClose }: EditBusDialogProps) {
+  const { t } = useTranslation('provider');
   const busQuery = useBusDetail(busId);
   const updateBus = useUpdateBus();
   const { toast } = useToast();
@@ -42,26 +44,37 @@ export function EditBusDialog({ busId, onClose }: EditBusDialogProps) {
       // When the spec is updated to support seat layout changes, wire this up.
       // For now, show a toast indicating the limitation.
       toast({
-        title: 'Seat layout saved locally',
-        description: 'Seat layout updates will be synced when the API supports it.',
+        title: t('fleet.editDialog.savedTitle'),
+        description: t('fleet.editDialog.savedDescription'),
       });
       onClose();
     },
-    [toast, onClose],
+    [toast, onClose, t],
   );
 
   return (
-    <Dialog open onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
+    <Dialog
+      open
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit seat map{bus ? ` — ${bus.licensePlate}` : ''}</DialogTitle>
-          <DialogDescription>
-            Click a seat to cycle its type, or select a type from the toolbar to paint seats.
-          </DialogDescription>
+          <DialogTitle>
+            {bus
+              ? t('fleet.editDialog.titleWithPlate', { plate: bus.licensePlate })
+              : t('fleet.editDialog.title')}
+          </DialogTitle>
+          <DialogDescription>{t('fleet.editDialog.description')}</DialogDescription>
         </DialogHeader>
 
         {busQuery.isLoading && (
-          <div aria-busy="true" aria-label="Loading seat map" className="space-y-2">
+          <div
+            aria-busy="true"
+            aria-label={t('fleet.editDialog.loadingLabel')}
+            className="space-y-2"
+          >
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-40 w-64" />
             <Skeleton className="h-6 w-48" />
@@ -70,7 +83,7 @@ export function EditBusDialog({ busId, onClose }: EditBusDialogProps) {
 
         {busQuery.isError && (
           <p role="alert" className="text-sm text-destructive">
-            Failed to load bus details. Please close and try again.
+            {t('fleet.editDialog.loadError')}
           </p>
         )}
 

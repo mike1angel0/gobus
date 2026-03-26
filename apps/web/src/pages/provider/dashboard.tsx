@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Route, Bus, Users, Calendar, Plus, Clock, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -65,12 +66,14 @@ function StatCard({ icon, label, value, isLoading, href }: StatCardProps) {
 interface ScheduleItemProps {
   /** Schedule data to display. */
   schedule: Schedule;
+  /** Label for recurring schedules without a specific trip date. */
+  recurringLabel: string;
 }
 
 /**
  * A single upcoming schedule row showing departure time, route info, and price.
  */
-function ScheduleItem({ schedule }: ScheduleItemProps) {
+function ScheduleItem({ schedule, recurringLabel }: ScheduleItemProps) {
   const departure = new Date(schedule.departureTime);
   const arrival = new Date(schedule.arrivalTime);
 
@@ -88,7 +91,7 @@ function ScheduleItem({ schedule }: ScheduleItemProps) {
       <div className="text-right">
         <p className="font-semibold">${schedule.basePrice.toFixed(2)}</p>
         <p className="text-xs text-muted-foreground">
-          {schedule.tripDate ? format(new Date(schedule.tripDate), 'MMM d') : 'Recurring'}
+          {schedule.tripDate ? format(new Date(schedule.tripDate), 'MMM d') : recurringLabel}
         </p>
       </div>
     </li>
@@ -96,13 +99,9 @@ function ScheduleItem({ schedule }: ScheduleItemProps) {
 }
 
 /** Renders skeleton placeholders for the stats grid. */
-function StatsSkeleton() {
+function StatsSkeleton({ label }: { label: string }) {
   return (
-    <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-      aria-busy="true"
-      aria-label="Loading dashboard statistics"
-    >
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-busy="true" aria-label={label}>
       {Array.from({ length: 4 }, (_, i) => (
         <Card key={i}>
           <CardContent className="flex items-center gap-4 p-6">
@@ -119,9 +118,9 @@ function StatsSkeleton() {
 }
 
 /** Renders skeleton placeholders for the upcoming schedules list. */
-function SchedulesSkeleton() {
+function SchedulesSkeleton({ label }: { label: string }) {
   return (
-    <div aria-busy="true" aria-label="Loading upcoming schedules">
+    <div aria-busy="true" aria-label={label}>
       <ul className="space-y-3">
         {Array.from({ length: 3 }, (_, i) => (
           <li key={i} className="flex items-center gap-4 rounded-lg border border-border/50 p-4">
@@ -161,17 +160,21 @@ interface StatsSectionProps {
   showSkeleton: boolean;
   /** Stat card configurations. */
   stats: StatConfig[];
+  /** Screen-reader heading text. */
+  srHeading: string;
+  /** Loading aria-label. */
+  loadingLabel: string;
 }
 
 /** Renders the stats grid or loading skeleton. */
-function StatsSection({ showSkeleton, stats }: StatsSectionProps) {
+function StatsSection({ showSkeleton, stats, srHeading, loadingLabel }: StatsSectionProps) {
   return (
     <section aria-labelledby="stats-heading" className="mb-8">
       <h2 id="stats-heading" className="sr-only">
-        Statistics
+        {srHeading}
       </h2>
       {showSkeleton ? (
-        <StatsSkeleton />
+        <StatsSkeleton label={loadingLabel} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
@@ -193,35 +196,42 @@ interface UpcomingSchedulesSectionProps {
 
 /** Renders the upcoming schedules card with list, empty, or loading state. */
 function UpcomingSchedulesSection({ isLoading, schedules }: UpcomingSchedulesSectionProps) {
+  const { t } = useTranslation('provider');
+
   return (
     <section aria-labelledby="upcoming-heading" className="lg:col-span-2">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Upcoming schedules</CardTitle>
+          <CardTitle>{t('dashboard.upcoming.title')}</CardTitle>
           <Button variant="ghost" size="sm" asChild>
             <Link to="/provider/schedules">
-              View all <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
+              {t('dashboard.upcoming.viewAll')}{' '}
+              <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
             </Link>
           </Button>
         </CardHeader>
         <CardContent>
           <h2 id="upcoming-heading" className="sr-only">
-            Upcoming schedules
+            {t('dashboard.upcoming.title')}
           </h2>
           {isLoading ? (
-            <SchedulesSkeleton />
+            <SchedulesSkeleton label={t('dashboard.stats.loadingSchedules')} />
           ) : schedules.length === 0 ? (
             <div className="flex flex-col items-center py-8 text-center" role="status">
               <Calendar className="mb-3 h-10 w-10 text-muted-foreground" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">No upcoming schedules</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.upcoming.empty')}</p>
               <Button variant="outline" size="sm" className="mt-4" asChild>
-                <Link to="/provider/schedules">Create a schedule</Link>
+                <Link to="/provider/schedules">{t('dashboard.upcoming.createSchedule')}</Link>
               </Button>
             </div>
           ) : (
-            <ul className="space-y-3" aria-label="Upcoming schedules">
+            <ul className="space-y-3" aria-label={t('dashboard.upcoming.title')}>
               {schedules.map((schedule) => (
-                <ScheduleItem key={schedule.id} schedule={schedule} />
+                <ScheduleItem
+                  key={schedule.id}
+                  schedule={schedule}
+                  recurringLabel={t('dashboard.upcoming.recurring')}
+                />
               ))}
             </ul>
           )}
@@ -231,28 +241,29 @@ function UpcomingSchedulesSection({ isLoading, schedules }: UpcomingSchedulesSec
   );
 }
 
-/** Quick action link configuration. */
-const QUICK_ACTIONS = [
-  { href: '/provider/routes', label: 'Create route' },
-  { href: '/provider/schedules', label: 'Create schedule' },
-  { href: '/provider/fleet', label: 'Add bus' },
-  { href: '/provider/drivers', label: 'Add driver' },
-] as const;
-
 /** Renders the quick actions sidebar card. */
 function QuickActionsSection() {
+  const { t } = useTranslation('provider');
+
+  const quickActions = [
+    { href: '/provider/routes', label: t('dashboard.quickActions.createRoute') },
+    { href: '/provider/schedules', label: t('dashboard.quickActions.createSchedule') },
+    { href: '/provider/fleet', label: t('dashboard.quickActions.addBus') },
+    { href: '/provider/drivers', label: t('dashboard.quickActions.addDriver') },
+  ];
+
   return (
     <section aria-labelledby="actions-heading">
       <Card>
         <CardHeader>
-          <CardTitle>Quick actions</CardTitle>
+          <CardTitle>{t('dashboard.quickActions.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <h2 id="actions-heading" className="sr-only">
-            Quick actions
+            {t('dashboard.quickActions.title')}
           </h2>
           <div className="space-y-3">
-            {QUICK_ACTIONS.map((action) => (
+            {quickActions.map((action) => (
               <Button key={action.href} className="w-full justify-start" variant="outline" asChild>
                 <Link to={action.href}>
                   <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -293,7 +304,7 @@ interface DashboardData {
 }
 
 /** Fetches all dashboard data and builds stat card configs. */
-function useDashboardData(): DashboardData {
+function useDashboardData(t: (key: string) => string): DashboardData {
   const routesQuery = useRoutes({ page: 1, pageSize: 1 });
   const busesQuery = useBuses({ page: 1, pageSize: 1 });
   const driversQuery = useDrivers({ page: 1, pageSize: 1 });
@@ -309,28 +320,28 @@ function useDashboardData(): DashboardData {
   const stats: StatConfig[] = [
     {
       icon: <Route className="h-6 w-6 text-primary" aria-hidden="true" />,
-      label: 'Routes',
+      label: t('dashboard.stats.routes'),
       value: routesQuery.data?.meta?.total,
       isLoading: routesQuery.isLoading,
       href: '/provider/routes',
     },
     {
       icon: <Bus className="h-6 w-6 text-primary" aria-hidden="true" />,
-      label: 'Buses',
+      label: t('dashboard.stats.buses'),
       value: busesQuery.data?.meta?.total,
       isLoading: busesQuery.isLoading,
       href: '/provider/fleet',
     },
     {
       icon: <Users className="h-6 w-6 text-primary" aria-hidden="true" />,
-      label: 'Drivers',
+      label: t('dashboard.stats.drivers'),
       value: driversQuery.data?.meta?.total,
       isLoading: driversQuery.isLoading,
       href: '/provider/drivers',
     },
     {
       icon: <Calendar className="h-6 w-6 text-primary" aria-hidden="true" />,
-      label: 'Active schedules',
+      label: t('dashboard.stats.activeSchedules'),
       value: schedulesQuery.data?.meta?.total,
       isLoading: schedulesQuery.isLoading,
       href: '/provider/schedules',
@@ -366,35 +377,41 @@ function useDashboardData(): DashboardData {
  * ```
  */
 export default function ProviderDashboardPage() {
-  usePageTitle('Dashboard');
+  const { t } = useTranslation('provider');
+  usePageTitle(t('dashboard.title'));
   const { user } = useAuth();
-  const dashboard = useDashboardData();
+  const dashboard = useDashboardData(t);
 
   if (dashboard.isFullError) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-8">
-        <h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
+        <h1 className="mb-6 text-2xl font-bold">{t('dashboard.heading')}</h1>
         <PageError
-          title="Something went wrong"
-          message="We couldn't load your dashboard data. Please try again."
+          title={t('dashboard.error.title')}
+          message={t('dashboard.error.message')}
           onRetry={dashboard.retry}
         />
       </div>
     );
   }
 
-  const heading = user?.name ? `Welcome back, ${user.name}` : 'Dashboard';
+  const heading = user?.name
+    ? t('dashboard.welcomeBack', { name: user.name })
+    : t('dashboard.heading');
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">{heading}</h1>
-        <p className="mt-1 text-muted-foreground">
-          Here&apos;s an overview of your transport operations.
-        </p>
+        <p className="mt-1 text-muted-foreground">{t('dashboard.subtitle')}</p>
       </div>
 
-      <StatsSection showSkeleton={dashboard.showStatsSkeleton} stats={dashboard.stats} />
+      <StatsSection
+        showSkeleton={dashboard.showStatsSkeleton}
+        stats={dashboard.stats}
+        srHeading={t('dashboard.stats.srHeading')}
+        loadingLabel={t('dashboard.stats.loadingStats')}
+      />
 
       <AnalyticsSection
         data={dashboard.analytics.data?.data}

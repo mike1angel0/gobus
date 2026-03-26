@@ -32,7 +32,11 @@ vi.mock('@/hooks/use-delays', () => ({
 }));
 
 vi.mock('@/components/maps/live-map', () => ({
-  LiveMap: ({ stops, busPosition, className }: {
+  LiveMap: ({
+    stops,
+    busPosition,
+    className,
+  }: {
     stops: Array<{ name: string; lat: number; lng: number }>;
     busPosition?: { lat: number; lng: number; heading: number };
     className?: string;
@@ -78,7 +82,10 @@ function trackingLoaded(data: unknown[] = []) {
 /** Returns a loaded schedules state. */
 function schedulesLoaded(schedules: unknown[] = []) {
   return {
-    data: { data: schedules, meta: { total: schedules.length, page: 1, pageSize: 100, totalPages: 1 } },
+    data: {
+      data: schedules,
+      meta: { total: schedules.length, page: 1, pageSize: 100, totalPages: 1 },
+    },
     isLoading: false,
     isError: false,
     refetch: vi.fn(),

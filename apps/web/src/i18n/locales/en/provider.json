@@ -1,73 +1,385 @@
 {
   "dashboard": {
     "title": "Dashboard",
-    "revenue": "Revenue",
-    "occupancy": "Occupancy",
-    "totalBookings": "Total bookings",
-    "activeRoutes": "Active routes"
+    "heading": "Dashboard",
+    "welcomeBack": "Welcome back, {{name}}",
+    "subtitle": "Here's an overview of your transport operations.",
+    "error": {
+      "title": "Something went wrong",
+      "message": "We couldn't load your dashboard data. Please try again."
+    },
+    "stats": {
+      "srHeading": "Statistics",
+      "loadingStats": "Loading dashboard statistics",
+      "loadingSchedules": "Loading upcoming schedules",
+      "routes": "Routes",
+      "buses": "Buses",
+      "drivers": "Drivers",
+      "activeSchedules": "Active schedules"
+    },
+    "upcoming": {
+      "title": "Upcoming schedules",
+      "viewAll": "View all",
+      "empty": "No upcoming schedules",
+      "createSchedule": "Create a schedule",
+      "recurring": "Recurring"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "createRoute": "Create route",
+      "createSchedule": "Create schedule",
+      "addBus": "Add bus",
+      "addDriver": "Add driver"
+    }
   },
   "routes": {
     "title": "Routes",
+    "subtitle": "Manage your transport routes and stops.",
     "create": "Create route",
-    "edit": "Edit route",
-    "name": "Route name",
-    "origin": "Origin",
-    "destination": "Destination",
-    "stops": "Stops",
-    "addStop": "Add stop",
-    "removeStop": "Remove stop",
-    "estimatedDuration": "Estimated duration",
-    "distanceKm": "Distance (km)"
+    "loadingLabel": "Loading routes",
+    "error": {
+      "title": "Failed to load routes",
+      "message": "We couldn't load your routes. Please try again."
+    },
+    "empty": {
+      "title": "No routes yet",
+      "message": "Create your first route to start scheduling trips."
+    },
+    "listLabel": "Routes list",
+    "card": {
+      "idLabel": "ID: {{id}}",
+      "deleteLabel": "Delete route {{name}}",
+      "deleteTitle": "Delete route",
+      "deleteDescription": "Are you sure you want to delete \"{{name}}\"? This will also delete all associated stops. Schedules using this route may be affected.",
+      "deleting": "Deleting\u2026",
+      "delete": "Delete"
+    },
+    "createDialog": {
+      "title": "Create route",
+      "description": "Define a route with at least 2 stops. Stops can be reordered using the arrow buttons.",
+      "nameLabel": "Route name",
+      "namePlaceholder": "e.g. Bucharest \u2014 Cluj",
+      "creating": "Creating\u2026",
+      "createButton": "Create route"
+    },
+    "stops": {
+      "legend": "Stops ({{count}})",
+      "listLabel": "Route stops",
+      "moveUp": "Move stop {{name}} up",
+      "moveDown": "Move stop {{name}} down",
+      "nameLabel": "Stop {{index}} name",
+      "namePlaceholder": "Stop name",
+      "latLabel": "Stop {{index}} latitude",
+      "latPlaceholder": "Lat",
+      "lngLabel": "Stop {{index}} longitude",
+      "lngPlaceholder": "Lng",
+      "removeLabel": "Remove stop {{name}}",
+      "addStop": "Add stop"
+    },
+    "validation": {
+      "nameRequired": "Route name is required.",
+      "nameMaxLength": "Route name must be at most {{max}} characters.",
+      "minStops": "A route must have at least 2 stops.",
+      "stopNameRequired": "Stop {{index}} name is required.",
+      "stopNameMaxLength": "Stop {{index}} name must be at most {{max}} characters.",
+      "stopLatRange": "Stop {{index}} latitude must be between -90 and 90.",
+      "stopLngRange": "Stop {{index}} longitude must be between -180 and 180."
+    }
   },
   "fleet": {
     "title": "Fleet",
+    "subtitle": "Manage your buses and seat configurations.",
     "create": "Add bus",
-    "edit": "Edit bus",
-    "licensePlate": "License plate",
-    "capacity": "Capacity",
-    "seatMap": "Seat map",
-    "seatMapEditor": "Seat map editor",
-    "rows": "Rows",
-    "seatsPerRow": "Seats per row"
+    "loadingLabel": "Loading fleet",
+    "error": {
+      "title": "Failed to load fleet",
+      "message": "We couldn't load your buses. Please try again."
+    },
+    "empty": {
+      "title": "No buses yet",
+      "message": "Add your first bus to start creating schedules."
+    },
+    "listLabel": "Fleet list",
+    "card": {
+      "seatsLayout": "{{seats}} seats \u00b7 {{rows}}\u00d7{{columns}}",
+      "editLabel": "Edit seat map for {{plate}}",
+      "deleteLabel": "Delete bus {{plate}}",
+      "deleteTitle": "Delete bus",
+      "deleteDescription": "Are you sure you want to delete bus \"{{plate}}\"? Schedules referencing this bus may be affected.",
+      "deleting": "Deleting\u2026",
+      "delete": "Delete"
+    },
+    "createDialog": {
+      "title": "Add bus",
+      "description": "Add a new bus to your fleet. Choose a template or configure manually.",
+      "licensePlateLabel": "License plate",
+      "licensePlatePlaceholder": "e.g. AB-12-XYZ",
+      "modelLabel": "Model",
+      "modelPlaceholder": "e.g. Mercedes Tourismo",
+      "configModeLabel": "Configuration mode",
+      "template": "Template",
+      "manual": "Manual",
+      "creating": "Creating\u2026",
+      "addBusButton": "Add bus"
+    },
+    "templateSelector": {
+      "legend": "Select template",
+      "loading": "Loading templates",
+      "empty": "No templates available. Switch to manual mode.",
+      "listLabel": "Bus templates",
+      "seatsLayout": "{{capacity}} seats \u00b7 {{rows}}\u00d7{{columns}}"
+    },
+    "manualConfig": {
+      "rowsLabel": "Rows",
+      "rowsPlaceholder": "e.g. 12",
+      "columnsLabel": "Columns",
+      "columnsPlaceholder": "e.g. 4",
+      "preview": "Preview"
+    },
+    "seatGridPreview": {
+      "label": "{{rows}} rows, {{columns}} columns seat layout",
+      "moreRows": "+{{count}} more rows"
+    },
+    "validation": {
+      "licensePlateRequired": "License plate is required.",
+      "licensePlateMaxLength": "License plate must be at most {{max}} characters.",
+      "modelRequired": "Model is required.",
+      "modelMaxLength": "Model must be at most {{max}} characters.",
+      "rowsRange": "Rows must be between 1 and {{max}}.",
+      "columnsRange": "Columns must be between 1 and {{max}}.",
+      "templateRequired": "Please select a template.",
+      "licensePlateConflict": "A bus with this license plate already exists."
+    },
+    "editDialog": {
+      "title": "Edit seat map",
+      "titleWithPlate": "Edit seat map \u2014 {{plate}}",
+      "description": "Click a seat to cycle its type, or select a type from the toolbar to paint seats.",
+      "loadingLabel": "Loading seat map",
+      "loadError": "Failed to load bus details. Please close and try again.",
+      "savedTitle": "Seat layout saved locally",
+      "savedDescription": "Seat layout updates will be synced when the API supports it."
+    },
+    "seatMapEditor": {
+      "gridLabel": "Seat map editor",
+      "brushLabel": "Seat type brush",
+      "cycle": "Cycle",
+      "seatTypes": {
+        "standard": "Standard",
+        "premium": "Premium",
+        "accessible": "Accessible",
+        "blocked": "Blocked"
+      },
+      "seatAriaLabel": "Seat {{label}}, {{type}}. Click to change type.",
+      "seatTooltip": "{{label}} \u00b7 {{type}}",
+      "countSummary": "Seat count summary",
+      "total": "{{count}} total",
+      "saving": "Saving\u2026",
+      "saveChanges": "Save changes"
+    }
   },
   "schedules": {
     "title": "Schedules",
+    "subtitle": "Manage your trip schedules, assign drivers, and track bookings.",
     "create": "Create schedule",
-    "route": "Route",
-    "bus": "Bus",
-    "departureTime": "Departure time",
-    "price": "Price",
-    "status": "Status",
-    "active": "Active",
-    "inactive": "Inactive",
-    "suspended": "Suspended",
-    "daysOfWeek": "Days of operation",
-    "days": {
-      "monday": "Monday",
-      "tuesday": "Tuesday",
-      "wednesday": "Wednesday",
-      "thursday": "Thursday",
-      "friday": "Friday",
-      "saturday": "Saturday",
-      "sunday": "Sunday"
+    "loadingLabel": "Loading schedules",
+    "error": {
+      "title": "Failed to load schedules",
+      "message": "We couldn't load your schedules. Please try again."
+    },
+    "empty": {
+      "title": "No schedules yet",
+      "message": "Create your first schedule to start offering trips."
+    },
+    "listLabel": "Schedules list",
+    "card": {
+      "bus": "Bus",
+      "times": "Times",
+      "tripDate": "Trip date",
+      "price": "Price",
+      "days": "Days",
+      "driver": "Driver",
+      "assigned": "Assigned",
+      "unassigned": "Unassigned",
+      "unassign": "Unassign",
+      "assign": "Assign",
+      "cancel": "Cancel",
+      "unassignLabel": "Unassign driver from schedule {{route}}",
+      "assignLabel": "Assign driver to schedule {{route}}",
+      "cancelLabel": "Cancel schedule {{route}}"
+    },
+    "cancelDialog": {
+      "title": "Cancel schedule",
+      "description": "Are you sure you want to cancel this schedule for \"{{route}}\" on {{date}}? This action cannot be undone.",
+      "keep": "Keep schedule",
+      "cancelling": "Cancelling\u2026",
+      "cancelButton": "Cancel schedule"
+    },
+    "driverDialog": {
+      "changeTitle": "Change driver",
+      "assignTitle": "Assign driver",
+      "changeDescription": "Select a different driver or unassign the current one.",
+      "assignDescription": "Select a driver to assign to this schedule.",
+      "driverLabel": "Driver",
+      "noDriver": "No driver (unassign)",
+      "saving": "Saving\u2026",
+      "save": "Save"
     },
     "filter": {
-      "route": "Filter by route",
-      "status": "Filter by status",
-      "all": "All"
+      "label": "Schedule filters",
+      "route": "Route",
+      "allRoutes": "All routes",
+      "bus": "Bus",
+      "allBuses": "All buses",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "active": "Active",
+      "cancelled": "Cancelled",
+      "from": "From",
+      "to": "To"
+    },
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "createDialog": {
+      "title": "Create schedule",
+      "description": "Create a new schedule by selecting a route, bus, and setting departure times.",
+      "routeLabel": "Route",
+      "routePlaceholder": "Select a route",
+      "busLabel": "Bus",
+      "busPlaceholder": "Select a bus",
+      "busOption": "{{plate}} \u2014 {{model}} ({{capacity}} seats)",
+      "driverLabel": "Driver (optional)",
+      "driverPlaceholder": "No driver assigned",
+      "tripDateLabel": "Trip date",
+      "departureLabel": "Departure time",
+      "arrivalLabel": "Arrival time",
+      "basePriceLabel": "Base price",
+      "basePricePlaceholder": "e.g. 25.00",
+      "daysOfWeekLegend": "Days of week (optional)",
+      "daysOfWeekLabel": "Days of week",
+      "stopTimesLabel": "Stop times ({{count}} stops)",
+      "stopTimesDescription": "Stop times will be auto-calculated by evenly distributing the travel time across the route stops.",
+      "stopTimesListLabel": "Route stops",
+      "creating": "Creating\u2026",
+      "createButton": "Create schedule"
+    },
+    "validation": {
+      "routeRequired": "Route is required.",
+      "busRequired": "Bus is required.",
+      "departureRequired": "Departure time is required.",
+      "arrivalRequired": "Arrival time is required.",
+      "arrivalAfterDeparture": "Arrival time must be after departure time.",
+      "basePriceRequired": "Base price is required.",
+      "basePriceRange": "Base price must be between 0 and {{max}}.",
+      "tripDateRequired": "Trip date is required.",
+      "minStops": "Selected route must have at least 2 stops.",
+      "notFound": "Referenced route, bus, or driver not found."
     }
   },
   "drivers": {
     "title": "Drivers",
-    "create": "Add driver",
-    "driverList": "Driver list",
-    "assignment": "Assignment",
-    "licenseNumber": "License number"
+    "subtitle": "Manage your driver accounts and assignments.",
+    "create": "Create driver",
+    "loadingLabel": "Loading drivers",
+    "error": {
+      "title": "Failed to load drivers",
+      "message": "We couldn't load your drivers. Please try again."
+    },
+    "empty": {
+      "title": "No drivers yet",
+      "message": "Create your first driver account to assign them to schedules."
+    },
+    "listLabel": "Drivers list",
+    "card": {
+      "schedulesAssigned_one": "{{count}} schedule assigned",
+      "schedulesAssigned_other": "{{count}} schedules assigned",
+      "deleteLabel": "Delete driver {{name}}",
+      "deleteTitle": "Delete driver",
+      "deleteDescription": "Are you sure you want to delete \"{{name}}\"?",
+      "deleteDescriptionWithSchedules_one": "This driver is assigned to {{count}} schedule. They will be unassigned.",
+      "deleteDescriptionWithSchedules_other": "This driver is assigned to {{count}} schedules. They will be unassigned.",
+      "deleting": "Deleting...",
+      "delete": "Delete"
+    },
+    "createDialog": {
+      "title": "Create driver",
+      "description": "Add a new driver account. The driver will use these credentials to log in.",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. John Smith",
+      "emailLabel": "Email",
+      "emailPlaceholder": "e.g. john@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Min. 8 characters",
+      "passwordHelper": "Must contain at least 1 uppercase, 1 lowercase, and 1 digit.",
+      "phoneLabel": "Phone",
+      "phoneOptional": "(optional)",
+      "phonePlaceholder": "e.g. +40 712 345 678",
+      "creating": "Creating...",
+      "createButton": "Create driver"
+    },
+    "validation": {
+      "nameRequired": "Name is required.",
+      "nameMaxLength": "Name must be at most {{max}} characters.",
+      "emailRequired": "Email is required.",
+      "emailMaxLength": "Email must be at most {{max}} characters.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordMinLength": "Password must be at least {{min}} characters.",
+      "passwordMaxLength": "Password must be at most {{max}} characters.",
+      "passwordPattern": "Password must contain at least 1 uppercase, 1 lowercase, and 1 digit.",
+      "phoneMaxLength": "Phone must be at most {{max}} characters.",
+      "emailConflict": "A user with this email address already exists."
+    }
   },
   "analytics": {
     "title": "Analytics",
-    "revenueByRoute": "Revenue by route",
+    "loadingStats": "Loading analytics",
+    "loadingRevenue": "Loading revenue by route",
+    "error": {
+      "title": "Analytics unavailable",
+      "message": "We couldn't load your analytics data. Please try again."
+    },
     "totalBookings": "Total bookings",
-    "occupancyRate": "Occupancy rate"
+    "totalRevenue": "Total revenue",
+    "avgOccupancy": "Avg. occupancy",
+    "revenueByRoute": "Revenue by route",
+    "revenueEmpty": "No revenue data yet",
+    "revenueBreakdownLabel": "Revenue by route breakdown",
+    "revenueLabel": "{{route}} revenue"
+  },
+  "tracking": {
+    "title": "Live Tracking",
+    "loadingLabel": "Loading tracking",
+    "error": {
+      "title": "Failed to load tracking data",
+      "message": "We couldn't load your fleet tracking data. Please try again."
+    },
+    "sidebarLabel": "Fleet tracking sidebar",
+    "sidebarTitle": "Fleet tracking",
+    "reportDelay": "Report delay",
+    "activeDelays": "Active delays"
+  },
+  "profile": {
+    "title": "Provider Profile",
+    "loadingLabel": "Loading provider profile",
+    "error": {
+      "title": "Failed to load profile",
+      "message": "We couldn't load your provider profile. Please try again."
+    },
+    "pendingApproval": "Your provider account is pending approval",
+    "cardTitle": "Provider Profile",
+    "companyName": "Company name",
+    "contactEmail": "Contact email",
+    "contactPhone": "Contact phone",
+    "registered": "Registered"
+  },
+  "common": {
+    "cancel": "Cancel"
   }
 }

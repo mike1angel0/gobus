@@ -1,35 +1,160 @@
 {
   "users": {
-    "title": "User management",
-    "roleFilter": "Filter by role",
-    "statusFilter": "Filter by status",
+    "title": "User Management",
+    "subtitle": "View and manage all platform users, including status changes and session control.",
+    "heading": "User list",
+    "loadingLabel": "Loading users",
+    "filtersLabel": "User filters",
+    "roleLabel": "Role",
+    "statusLabel": "Status",
+    "allRoles": "All roles",
+    "allStatuses": "All statuses",
+    "providerPrefix": "Provider: {{id}}",
+    "roles": {
+      "PASSENGER": "Passenger",
+      "PROVIDER": "Provider",
+      "DRIVER": "Driver",
+      "ADMIN": "Admin"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "LOCKED": "Locked"
+    },
     "actions": {
       "suspend": "Suspend",
       "unsuspend": "Unsuspend",
       "unlock": "Unlock",
-      "forceLogout": "Force logout"
+      "forceLogout": "Force logout",
+      "logout": "Logout"
     },
-    "confirmSuspend": "Are you sure you want to suspend this user?",
-    "confirmUnsuspend": "Are you sure you want to unsuspend this user?",
-    "confirmUnlock": "Are you sure you want to unlock this user?",
-    "confirmForceLogout": "Are you sure you want to force logout this user?"
+    "tooltips": {
+      "suspendUser": "Suspend user",
+      "unsuspendUser": "Unsuspend user",
+      "unlockUser": "Unlock user",
+      "forceLogoutUser": "Force logout",
+      "cannotSuspendSelf": "Cannot suspend yourself",
+      "cannotUnsuspendSelf": "Cannot unsuspend yourself",
+      "cannotUnlockSelf": "Cannot unlock yourself",
+      "cannotForceLogoutSelf": "Cannot force logout yourself"
+    },
+    "confirm": {
+      "suspendTitle": "Suspend user?",
+      "suspendDescription": "This will prevent the user from logging in until unsuspended.",
+      "unsuspendTitle": "Unsuspend user?",
+      "unsuspendDescription": "This will reactivate the user account.",
+      "unlockTitle": "Unlock user?",
+      "unlockDescription": "This will remove the lock and allow the user to log in again.",
+      "forceLogoutTitle": "Force logout?",
+      "forceLogoutDescription": "This will revoke all active sessions for this user.",
+      "appliesTo": "This applies to <strong>{{name}}</strong> ({{email}}).",
+      "cancel": "Cancel",
+      "processing": "Processing..."
+    },
+    "error": {
+      "title": "Failed to load users",
+      "message": "We couldn't load the user list. Please try again."
+    },
+    "empty": {
+      "title": "No users found",
+      "message": "No users match the selected filters."
+    }
   },
   "auditLogs": {
-    "title": "Audit logs",
-    "actionFilter": "Filter by action",
-    "dateRange": "Date range",
-    "expandDetail": "Details",
-    "noLogs": "No events recorded"
+    "title": "Audit Logs",
+    "subtitle": "View the system audit trail including user actions, resource changes, and security events.",
+    "heading": "Audit log list",
+    "loadingLabel": "Loading audit logs",
+    "filtersLabel": "Audit log filters",
+    "userIdLabel": "User ID",
+    "userIdPlaceholder": "Filter by user ID",
+    "actionLabel": "Action",
+    "allActions": "All actions",
+    "fromLabel": "From",
+    "toLabel": "To",
+    "userPrefix": "User: {{id}}",
+    "ipPrefix": "IP: {{ip}}",
+    "userAgentLabel": "User Agent:",
+    "metadataLabel": "Metadata:",
+    "error": {
+      "title": "Failed to load audit logs",
+      "message": "We couldn't load the audit log. Please try again."
+    },
+    "empty": {
+      "title": "No audit logs found",
+      "message": "No audit logs match the selected filters."
+    }
   },
   "fleet": {
-    "title": "Fleet management",
-    "seatToggle": "Seat toggle"
+    "title": "Fleet Management",
+    "subtitle": "View all buses and manage seat availability across providers.",
+    "heading": "Admin Fleet",
+    "loadingLabel": "Loading fleet",
+    "loadingSeats": "Loading seats",
+    "providerPrefix": "Provider: {{id}}",
+    "seatStats": "{{enabled}} enabled · {{disabled}} disabled",
+    "collapse": "Collapse",
+    "manageSeats": "Manage seats",
+    "seatTypes": {
+      "STANDARD": "Standard",
+      "PREMIUM": "Premium",
+      "DISABLED_ACCESSIBLE": "Accessible",
+      "BLOCKED": "Disabled"
+    },
+    "seatGrid": {
+      "label": "Seat toggle grid",
+      "emptyCell": "Empty",
+      "seatLabel": "Seat {{label}}, {{type}}, {{state}}. Click to {{action}}.",
+      "enabled": "enabled",
+      "disabled": "disabled",
+      "enable": "enable",
+      "disable": "disable"
+    },
+    "error": {
+      "title": "Failed to load fleet",
+      "message": "We couldn't load the buses. Please try again.",
+      "seats": "Failed to load seats."
+    },
+    "empty": {
+      "title": "No buses found",
+      "message": "No buses have been registered by any provider yet.",
+      "seats": "No seats configured."
+    }
   },
   "dashboard": {
-    "title": "Admin dashboard",
-    "totalUsers": "Total users",
-    "activeProviders": "Active providers",
-    "totalBuses": "Total buses",
-    "recentActivity": "Recent activity"
+    "title": "Admin Dashboard",
+    "subtitle": "Platform overview and administration.",
+    "welcome": "Welcome, {{name}}",
+    "loadingStats": "Loading dashboard statistics",
+    "loadingActivity": "Loading recent activity",
+    "statsHeading": "Statistics",
+    "stats": {
+      "totalUsers": "Total Users",
+      "providers": "Providers",
+      "totalBuses": "Total Buses",
+      "auditEvents": "Audit Events"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "manageUsers": "Manage Users",
+      "manageFleet": "Manage Fleet",
+      "viewAuditLogs": "View Audit Logs"
+    },
+    "recentActivity": {
+      "title": "Recent activity",
+      "listLabel": "Recent audit log entries",
+      "viewAll": "View all",
+      "empty": "No recent activity",
+      "unknownUser": "Unknown user"
+    },
+    "error": {
+      "title": "Failed to load dashboard",
+      "message": "We couldn't load the dashboard data. Please try again."
+    }
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{totalPages}}"
   }
 }

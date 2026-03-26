@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Building2, Mail, Phone } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,10 +21,12 @@ function formatDate(iso: string): string {
  * Loading skeleton displayed while the provider profile is being fetched.
  */
 function ProfileSkeleton() {
+  const { t } = useTranslation('provider');
+
   return (
     <div
       className="mx-auto max-w-2xl px-4 py-8"
-      aria-label="Loading provider profile"
+      aria-label={t('profile.loadingLabel')}
       aria-busy="true"
     >
       <Card>
@@ -57,7 +60,8 @@ function ProfileSkeleton() {
  * ```
  */
 export default function ProviderProfilePage() {
-  usePageTitle('Provider Profile');
+  const { t } = useTranslation('provider');
+  usePageTitle(t('profile.title'));
   const { data, isLoading, isError, refetch } = useProviderProfile();
 
   if (isLoading) {
@@ -68,8 +72,8 @@ export default function ProviderProfilePage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
         <PageError
-          title="Failed to load profile"
-          message="We couldn't load your provider profile. Please try again."
+          title={t('profile.error.title')}
+          message={t('profile.error.message')}
           onRetry={() => void refetch()}
         />
       </div>
@@ -86,14 +90,14 @@ export default function ProviderProfilePage() {
           className="mb-6 flex items-center gap-3 rounded-md border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-200"
         >
           <AlertTriangle className="h-5 w-5 shrink-0" aria-hidden="true" />
-          <p>Your provider account is pending approval</p>
+          <p>{t('profile.pendingApproval')}</p>
         </div>
       )}
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Provider Profile</span>
+            <span>{t('profile.cardTitle')}</span>
             <Badge variant={provider.status === 'APPROVED' ? 'default' : 'secondary'}>
               {provider.status}
             </Badge>
@@ -117,7 +121,7 @@ export default function ProviderProfilePage() {
                 </div>
               )}
               <div>
-                <dt className="sr-only">Company name</dt>
+                <dt className="sr-only">{t('profile.companyName')}</dt>
                 <dd className="text-lg font-semibold">{provider.name}</dd>
               </div>
             </div>
@@ -125,7 +129,7 @@ export default function ProviderProfilePage() {
             {provider.contactEmail && (
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <dt className="sr-only">Contact email</dt>
+                <dt className="sr-only">{t('profile.contactEmail')}</dt>
                 <dd>{provider.contactEmail}</dd>
               </div>
             )}
@@ -133,13 +137,15 @@ export default function ProviderProfilePage() {
             {provider.contactPhone && (
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                <dt className="sr-only">Contact phone</dt>
+                <dt className="sr-only">{t('profile.contactPhone')}</dt>
                 <dd>{provider.contactPhone}</dd>
               </div>
             )}
 
             <div>
-              <dt className="text-sm font-medium text-muted-foreground">Registered</dt>
+              <dt className="text-sm font-medium text-muted-foreground">
+                {t('profile.registered')}
+              </dt>
               <dd className="mt-1">{formatDate(provider.createdAt)}</dd>
             </div>
           </dl>

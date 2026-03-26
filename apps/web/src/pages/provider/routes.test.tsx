@@ -1,8 +1,9 @@
-import { screen, within } from '@testing-library/react';
+import { screen, within, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ProviderRoutesPage from './routes';
 import { renderWithProviders } from '@/test/helpers';
+import { ApiError } from '@/api/errors';
 
 /* ---------- Mocks ---------- */
 
@@ -294,6 +295,175 @@ describe('ProviderRoutesPage', () => {
       const reorderedNames = screen.getAllByPlaceholderText('Stop name');
       expect(reorderedNames[0]).toHaveValue('Second');
       expect(reorderedNames[1]).toHaveValue('First');
+    });
+  });
+
+  describe('validation - coordinates', () => {
+    it('shows error for empty stop name', async () => {
+      const user = userEvent.setup();
+      mockRoutes.mockReturnValue(loadedState([]));
+
+      renderWithProviders(<ProviderRoutesPage />);
+
+      await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await user.type(screen.getByLabelText('Route name'), 'Test Route');
+
+      // Only fill second stop but not first
+      const stopNames = screen.getAllByPlaceholderText('Stop name');
+      const lats = screen.getAllByPlaceholderText('Lat');
+      const lngs = screen.getAllByPlaceholderText('Lng');
+
+      // Leave stopNames[0] empty
+      fireEvent.change(lats[0], { target: { value: '50' } });
+      fireEvent.change(lngs[0], { target: { value: '14' } });
+      await user.type(stopNames[1], 'B');
+      fireEvent.change(lats[1], { target: { value: '51' } });
+      fireEvent.change(lngs[1], { target: { value: '15' } });
+
+      await user.click(screen.getByRole('button', { name: 'Create route' }));
+
+      expect(screen.getByText(/name is required/)).toBeInTheDocument();
+    });
+  });
+
+  describe('create route - error handling', () => {
+    it('handles API field errors for name', async () => {
+      const user = userEvent.setup();
+      const mutateFn = vi.fn();
+      mockRoutes.mockReturnValue(loadedState([]));
+      mockCreateRoute.mockReturnValue({ mutate: mutateFn, isPending: false });
+
+      renderWithProviders(<ProviderRoutesPage />);
+
+      await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await user.type(screen.getByLabelText('Route name'), 'Test');
+
+      const stopNames = screen.getAllByPlaceholderText('Stop name');
+      const lats = screen.getAllByPlaceholderText('Lat');
+      const lngs = screen.getAllByPlaceholderText('Lng');
+
+      await user.type(stopNames[0], 'A');
+      await user.type(lats[0], '50');
+      await user.type(lngs[0], '14');
+      await user.type(stopNames[1], 'B');
+      await user.type(lats[1], '51');
+      await user.type(lngs[1], '15');
+
+      await user.click(screen.getByRole('button', { name: 'Create route' }));
+
+      const onError = mutateFn.mock.calls[0][1].onError;
+      onError(
+        new ApiError({
+          type: 'about:blank',
+          title: 'Bad Request',
+          status: 400,
+          errors: [{ field: 'name', message: 'Route name already exists' }],
+        }),
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Route name already exists')).toBeInTheDocument();
+      });
+    });
+
+    it('handles API field errors for stops', async () => {
+      const user = userEvent.setup();
+      const mutateFn = vi.fn();
+      mockRoutes.mockReturnValue(loadedState([]));
+      mockCreateRoute.mockReturnValue({ mutate: mutateFn, isPending: false });
+
+      renderWithProviders(<ProviderRoutesPage />);
+
+      await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await user.type(screen.getByLabelText('Route name'), 'Test');
+
+      const stopNames = screen.getAllByPlaceholderText('Stop name');
+      const lats = screen.getAllByPlaceholderText('Lat');
+      const lngs = screen.getAllByPlaceholderText('Lng');
+
+      await user.type(stopNames[0], 'A');
+      await user.type(lats[0], '50');
+      await user.type(lngs[0], '14');
+      await user.type(stopNames[1], 'B');
+      await user.type(lats[1], '51');
+      await user.type(lngs[1], '15');
+
+      await user.click(screen.getByRole('button', { name: 'Create route' }));
+
+      const onError = mutateFn.mock.calls[0][1].onError;
+      onError(
+        new ApiError({
+          type: 'about:blank',
+          title: 'Bad Request',
+          status: 400,
+          errors: [{ field: 'stops[0].lat', message: 'Invalid coordinate' }],
+        }),
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Invalid coordinate')).toBeInTheDocument();
+      });
+    });
+
+    it('ignores non-API errors in mutation handler', async () => {
+      const user = userEvent.setup();
+      const mutateFn = vi.fn();
+      mockRoutes.mockReturnValue(loadedState([]));
+      mockCreateRoute.mockReturnValue({ mutate: mutateFn, isPending: false });
+
+      renderWithProviders(<ProviderRoutesPage />);
+
+      await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await user.type(screen.getByLabelText('Route name'), 'Test');
+
+      const stopNames = screen.getAllByPlaceholderText('Stop name');
+      const lats = screen.getAllByPlaceholderText('Lat');
+      const lngs = screen.getAllByPlaceholderText('Lng');
+
+      await user.type(stopNames[0], 'A');
+      await user.type(lats[0], '50');
+      await user.type(lngs[0], '14');
+      await user.type(stopNames[1], 'B');
+      await user.type(lats[1], '51');
+      await user.type(lngs[1], '15');
+
+      await user.click(screen.getByRole('button', { name: 'Create route' }));
+
+      const onError = mutateFn.mock.calls[0][1].onError;
+      // Non-API error should not throw
+      onError(new Error('Network failure'));
+    });
+
+    it('closes dialog on successful creation', async () => {
+      const user = userEvent.setup();
+      const mutateFn = vi.fn();
+      mockRoutes.mockReturnValue(loadedState([]));
+      mockCreateRoute.mockReturnValue({ mutate: mutateFn, isPending: false });
+
+      renderWithProviders(<ProviderRoutesPage />);
+
+      await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await user.type(screen.getByLabelText('Route name'), 'Test');
+
+      const stopNames = screen.getAllByPlaceholderText('Stop name');
+      const lats = screen.getAllByPlaceholderText('Lat');
+      const lngs = screen.getAllByPlaceholderText('Lng');
+
+      await user.type(stopNames[0], 'A');
+      await user.type(lats[0], '50');
+      await user.type(lngs[0], '14');
+      await user.type(stopNames[1], 'B');
+      await user.type(lats[1], '51');
+      await user.type(lngs[1], '15');
+
+      await user.click(screen.getByRole('button', { name: 'Create route' }));
+
+      const onSuccess = mutateFn.mock.calls[0][1].onSuccess;
+      onSuccess();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
     });
   });
 

@@ -11,7 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { createLoginSchema, getRedirectForRole, type LoginFormValues } from '@/pages/auth/login-schema';
+import {
+  createLoginSchema,
+  getRedirectForRole,
+  type LoginFormValues,
+} from '@/pages/auth/login-schema';
 import { usePageTitle } from '@/hooks/use-page-title';
 
 /**

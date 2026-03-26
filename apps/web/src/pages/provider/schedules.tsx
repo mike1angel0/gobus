@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Calendar, Plus, UserPlus, UserMinus, XCircle } from 'lucide-react';
 
@@ -28,9 +29,6 @@ import type { components } from '@/api/generated/types';
 
 type Schedule = components['schemas']['Schedule'];
 type ScheduleStatus = components['schemas']['ScheduleStatus'];
-
-/** Day labels for displaying daysOfWeek values. */
-const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
 /** Shared CSS class for select elements styled to match Input. */
 const SELECT_CLASS =
@@ -63,13 +61,25 @@ function ScheduleCard({
   onCancel,
   isCancelling,
 }: ScheduleCardProps) {
+  const { t } = useTranslation('provider');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const isCancelled = schedule.status === 'CANCELLED';
   const depTime = format(new Date(schedule.departureTime), 'HH:mm');
   const arrTime = format(new Date(schedule.arrivalTime), 'HH:mm');
   const tripDateStr = format(new Date(schedule.tripDate), 'MMM d, yyyy');
+
+  const dayShort = [
+    t('schedules.days.sun'),
+    t('schedules.days.mon'),
+    t('schedules.days.tue'),
+    t('schedules.days.wed'),
+    t('schedules.days.thu'),
+    t('schedules.days.fri'),
+    t('schedules.days.sat'),
+  ];
+
   const daysStr = schedule.daysOfWeek?.length
-    ? schedule.daysOfWeek.map((d) => DAY_SHORT[d]).join(', ')
+    ? schedule.daysOfWeek.map((d) => dayShort[d]).join(', ')
     : null;
 
   return (
@@ -93,32 +103,34 @@ function ScheduleCard({
 
         <dl className="space-y-1 text-sm text-muted-foreground">
           <div className="flex justify-between">
-            <dt>Bus</dt>
+            <dt>{t('schedules.card.bus')}</dt>
             <dd>{busPlate || schedule.busId}</dd>
           </div>
           <div className="flex justify-between">
-            <dt>Times</dt>
+            <dt>{t('schedules.card.times')}</dt>
             <dd>
               {depTime} → {arrTime}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt>Trip date</dt>
+            <dt>{t('schedules.card.tripDate')}</dt>
             <dd>{tripDateStr}</dd>
           </div>
           <div className="flex justify-between">
-            <dt>Price</dt>
+            <dt>{t('schedules.card.price')}</dt>
             <dd>${schedule.basePrice.toFixed(2)}</dd>
           </div>
           {daysStr && (
             <div className="flex justify-between">
-              <dt>Days</dt>
+              <dt>{t('schedules.card.days')}</dt>
               <dd>{daysStr}</dd>
             </div>
           )}
           <div className="flex justify-between">
-            <dt>Driver</dt>
-            <dd>{schedule.driverId ? 'Assigned' : 'Unassigned'}</dd>
+            <dt>{t('schedules.card.driver')}</dt>
+            <dd>
+              {schedule.driverId ? t('schedules.card.assigned') : t('schedules.card.unassigned')}
+            </dd>
           </div>
         </dl>
 
@@ -164,6 +176,8 @@ function ScheduleCardActions({
   onCancel,
   isCancelling,
 }: ScheduleCardActionsProps) {
+  const { t } = useTranslation('provider');
+
   return (
     <div className="mt-4 flex gap-2">
       <Button
@@ -172,19 +186,19 @@ function ScheduleCardActions({
         onClick={() => onDriverAction(schedule.id)}
         aria-label={
           schedule.driverId
-            ? `Unassign driver from schedule ${routeName}`
-            : `Assign driver to schedule ${routeName}`
+            ? t('schedules.card.unassignLabel', { route: routeName })
+            : t('schedules.card.assignLabel', { route: routeName })
         }
       >
         {schedule.driverId ? (
           <>
             <UserMinus className="mr-1 h-3 w-3" aria-hidden="true" />
-            Unassign
+            {t('schedules.card.unassign')}
           </>
         ) : (
           <>
             <UserPlus className="mr-1 h-3 w-3" aria-hidden="true" />
-            Assign
+            {t('schedules.card.assign')}
           </>
         )}
       </Button>
@@ -194,22 +208,21 @@ function ScheduleCardActions({
           size="sm"
           className="text-destructive"
           onClick={() => setConfirmOpen(true)}
-          aria-label={`Cancel schedule ${routeName}`}
+          aria-label={t('schedules.card.cancelLabel', { route: routeName })}
         >
           <XCircle className="mr-1 h-3 w-3" aria-hidden="true" />
-          Cancel
+          {t('schedules.card.cancel')}
         </Button>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Cancel schedule</DialogTitle>
+            <DialogTitle>{t('schedules.cancelDialog.title')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel this schedule for &quot;{routeName}&quot; on{' '}
-              {tripDateStr}? This action cannot be undone.
+              {t('schedules.cancelDialog.description', { route: routeName, date: tripDateStr })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Keep schedule</Button>
+              <Button variant="outline">{t('schedules.cancelDialog.keep')}</Button>
             </DialogClose>
             <Button
               variant="destructive"
@@ -219,7 +232,9 @@ function ScheduleCardActions({
                 setConfirmOpen(false);
               }}
             >
-              {isCancelling ? 'Cancelling…' : 'Cancel schedule'}
+              {isCancelling
+                ? t('schedules.cancelDialog.cancelling')
+                : t('schedules.cancelDialog.cancelButton')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -249,6 +264,7 @@ function DriverAssignDialog({
   drivers,
   onClose,
 }: DriverAssignDialogProps) {
+  const { t } = useTranslation('provider');
   const [selectedDriverId, setSelectedDriverId] = useState(currentDriverId ?? '');
   const updateSchedule = useUpdateSchedule();
 
@@ -268,22 +284,26 @@ function DriverAssignDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{currentDriverId ? 'Change driver' : 'Assign driver'}</DialogTitle>
+          <DialogTitle>
+            {currentDriverId
+              ? t('schedules.driverDialog.changeTitle')
+              : t('schedules.driverDialog.assignTitle')}
+          </DialogTitle>
           <DialogDescription>
             {currentDriverId
-              ? 'Select a different driver or unassign the current one.'
-              : 'Select a driver to assign to this schedule.'}
+              ? t('schedules.driverDialog.changeDescription')
+              : t('schedules.driverDialog.assignDescription')}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <Label htmlFor="assign-driver">Driver</Label>
+          <Label htmlFor="assign-driver">{t('schedules.driverDialog.driverLabel')}</Label>
           <select
             id="assign-driver"
             className={SELECT_CLASS}
             value={selectedDriverId}
             onChange={(e) => setSelectedDriverId(e.target.value)}
           >
-            <option value="">No driver (unassign)</option>
+            <option value="">{t('schedules.driverDialog.noDriver')}</option>
             {drivers.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
@@ -293,10 +313,12 @@ function DriverAssignDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={updateSchedule.isPending}>
-            {updateSchedule.isPending ? 'Saving…' : 'Save'}
+            {updateSchedule.isPending
+              ? t('schedules.driverDialog.saving')
+              : t('schedules.driverDialog.save')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -360,12 +382,14 @@ function ScheduleListContent({
   onCancel,
   isCancelling,
 }: ScheduleListContentProps) {
-  if (isLoading) return <CardGridSkeleton label="Loading schedules" />;
+  const { t } = useTranslation('provider');
+
+  if (isLoading) return <CardGridSkeleton label={t('schedules.loadingLabel')} />;
   if (isError) {
     return (
       <PageError
-        title="Failed to load schedules"
-        message="We couldn't load your schedules. Please try again."
+        title={t('schedules.error.title')}
+        message={t('schedules.error.message')}
         onRetry={onRetry}
       />
     );
@@ -374,14 +398,14 @@ function ScheduleListContent({
     return (
       <EmptyState
         icon={Calendar}
-        title="No schedules yet"
-        message="Create your first schedule to start offering trips."
+        title={t('schedules.empty.title')}
+        message={t('schedules.empty.message')}
       />
     );
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Schedules list">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label={t('schedules.listLabel')}>
       {schedules.map((schedule) => (
         <ScheduleCard
           key={schedule.id}
@@ -444,7 +468,8 @@ function useSchedulesPageData(filters: FilterState) {
  * ```
  */
 export default function ProviderSchedulesPage() {
-  usePageTitle('Schedules');
+  const { t } = useTranslation('provider');
+  usePageTitle(t('schedules.title'));
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [driverDialogScheduleId, setDriverDialogScheduleId] = useState<string | null>(null);
 
@@ -466,15 +491,13 @@ export default function ProviderSchedulesPage() {
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Schedules</h1>
-          <p className="mt-1 text-muted-foreground">
-            Manage your trip schedules, assign drivers, and track bookings.
-          </p>
+          <h1 className="text-2xl font-bold">{t('schedules.title')}</h1>
+          <p className="mt-1 text-muted-foreground">{t('schedules.subtitle')}</p>
         </div>
         <CreateScheduleDialog>
           <Button>
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Create schedule
+            {t('schedules.create')}
           </Button>
         </CreateScheduleDialog>
       </div>
@@ -496,7 +519,7 @@ export default function ProviderSchedulesPage() {
 
       <section aria-labelledby="schedules-heading">
         <h2 id="schedules-heading" className="sr-only">
-          Schedules
+          {t('schedules.title')}
         </h2>
         <ScheduleListContent
           isLoading={isLoading}

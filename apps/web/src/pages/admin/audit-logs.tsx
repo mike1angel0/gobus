@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { FileText, ChevronDown, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -77,17 +78,22 @@ function AuditLogFilterBar({
   onDateFromChange,
   onDateToChange,
 }: AuditLogFilterBarProps) {
+  const { t } = useTranslation('admin');
   return (
-    <div className="mb-6 flex flex-wrap gap-4" role="group" aria-label="Audit log filters">
+    <div
+      className="mb-6 flex flex-wrap gap-4"
+      role="group"
+      aria-label={t('auditLogs.filtersLabel')}
+    >
       <div className="flex items-center gap-2">
         <label htmlFor="userId-filter" className="text-sm font-medium">
-          User ID
+          {t('auditLogs.userIdLabel')}
         </label>
         <input
           id="userId-filter"
           type="text"
           className="rounded-md border bg-background px-3 py-1.5 text-sm"
-          placeholder="Filter by user ID"
+          placeholder={t('auditLogs.userIdPlaceholder')}
           value={userId}
           onChange={(e) => onUserIdChange(e.target.value)}
           maxLength={30}
@@ -95,7 +101,7 @@ function AuditLogFilterBar({
       </div>
       <div className="flex items-center gap-2">
         <label htmlFor="action-filter" className="text-sm font-medium">
-          Action
+          {t('auditLogs.actionLabel')}
         </label>
         <select
           id="action-filter"
@@ -103,7 +109,7 @@ function AuditLogFilterBar({
           value={action}
           onChange={(e) => onActionChange(e.target.value)}
         >
-          <option value="">All actions</option>
+          <option value="">{t('auditLogs.allActions')}</option>
           {ACTION_OPTIONS.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
@@ -113,7 +119,7 @@ function AuditLogFilterBar({
       </div>
       <div className="flex items-center gap-2">
         <label htmlFor="dateFrom-filter" className="text-sm font-medium">
-          From
+          {t('auditLogs.fromLabel')}
         </label>
         <input
           id="dateFrom-filter"
@@ -125,7 +131,7 @@ function AuditLogFilterBar({
       </div>
       <div className="flex items-center gap-2">
         <label htmlFor="dateTo-filter" className="text-sm font-medium">
-          To
+          {t('auditLogs.toLabel')}
         </label>
         <input
           id="dateTo-filter"
@@ -143,8 +149,9 @@ function AuditLogFilterBar({
 
 /** Skeleton placeholder for the audit log list while loading. */
 function AuditLogSkeleton() {
+  const { t } = useTranslation('admin');
   return (
-    <div className="space-y-4" aria-busy="true" aria-label="Loading audit logs">
+    <div className="space-y-4" aria-busy="true" aria-label={t('auditLogs.loadingLabel')}>
       {Array.from({ length: 5 }, (_, i) => (
         <Card key={i}>
           <CardContent className="flex items-center gap-4 p-4">
@@ -191,6 +198,7 @@ function formatTimestamp(iso: string): string {
  * When expanded, shows metadata JSON and userAgent.
  */
 function AuditLogRow({ log, isExpanded, onToggle }: AuditLogRowProps) {
+  const { t } = useTranslation('admin');
   const hasDetail = log.metadata || log.userAgent;
   const ExpandIcon = isExpanded ? ChevronDown : ChevronRight;
 
@@ -222,12 +230,12 @@ function AuditLogRow({ log, isExpanded, onToggle }: AuditLogRowProps) {
           </span>
           {log.userId && (
             <span className="hidden text-xs text-muted-foreground sm:block">
-              User: {log.userId}
+              {t('auditLogs.userPrefix', { id: log.userId })}
             </span>
           )}
           {log.ipAddress && (
             <span className="hidden text-xs text-muted-foreground md:block">
-              IP: {log.ipAddress}
+              {t('auditLogs.ipPrefix', { ip: log.ipAddress })}
             </span>
           )}
         </button>
@@ -235,13 +243,13 @@ function AuditLogRow({ log, isExpanded, onToggle }: AuditLogRowProps) {
           <div className="border-t bg-muted/30 px-4 py-3" data-testid="audit-log-detail">
             {log.userAgent && (
               <p className="mb-2 text-sm">
-                <span className="font-medium">User Agent:</span>{' '}
+                <span className="font-medium">{t('auditLogs.userAgentLabel')}</span>{' '}
                 <span className="text-muted-foreground">{log.userAgent}</span>
               </p>
             )}
             {log.metadata && Object.keys(log.metadata).length > 0 && (
               <div>
-                <p className="mb-1 text-sm font-medium">Metadata:</p>
+                <p className="mb-1 text-sm font-medium">{t('auditLogs.metadataLabel')}</p>
                 <pre className="overflow-x-auto rounded bg-muted p-2 text-xs">
                   {JSON.stringify(log.metadata, null, 2)}
                 </pre>
@@ -268,6 +276,7 @@ interface AuditLogPaginationProps {
 
 /** Pagination controls for the audit log list. */
 function AuditLogPagination({ page, totalPages, onPageChange }: AuditLogPaginationProps) {
+  const { t } = useTranslation('admin');
   return (
     <nav className="mt-8 flex items-center justify-center gap-4" aria-label="Audit log pagination">
       <Button
@@ -276,10 +285,10 @@ function AuditLogPagination({ page, totalPages, onPageChange }: AuditLogPaginati
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
       >
-        Previous
+        {t('pagination.previous')}
       </Button>
       <span className="text-sm text-muted-foreground">
-        Page {page} of {totalPages}
+        {t('pagination.pageOf', { page, totalPages })}
       </span>
       <Button
         variant="outline"
@@ -287,7 +296,7 @@ function AuditLogPagination({ page, totalPages, onPageChange }: AuditLogPaginati
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
       >
-        Next
+        {t('pagination.next')}
       </Button>
     </nav>
   );
@@ -320,12 +329,13 @@ function AuditLogListContent({
   onRetry,
   onToggle,
 }: AuditLogListContentProps) {
+  const { t } = useTranslation('admin');
   if (isLoading) return <AuditLogSkeleton />;
   if (isError) {
     return (
       <PageError
-        title="Failed to load audit logs"
-        message="We couldn't load the audit log. Please try again."
+        title={t('auditLogs.error.title')}
+        message={t('auditLogs.error.message')}
         onRetry={onRetry}
       />
     );
@@ -334,8 +344,8 @@ function AuditLogListContent({
     return (
       <EmptyState
         icon={FileText}
-        title="No audit logs found"
-        message="No audit logs match the selected filters."
+        title={t('auditLogs.empty.title')}
+        message={t('auditLogs.empty.message')}
       />
     );
   }
@@ -369,7 +379,8 @@ function AuditLogListContent({
  * ```
  */
 export default function AdminAuditLogsPage() {
-  usePageTitle('Audit Logs');
+  const { t } = useTranslation('admin');
+  usePageTitle(t('auditLogs.title'));
   const [page, setPage] = useState(1);
   const [userIdFilter, setUserIdFilter] = useState('');
   const [actionFilter, setActionFilter] = useState('');
@@ -424,10 +435,8 @@ export default function AdminAuditLogsPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">Audit Logs</h1>
-        <p className="mt-1 text-muted-foreground">
-          View the system audit trail including user actions, resource changes, and security events.
-        </p>
+        <h1 className="text-2xl font-bold">{t('auditLogs.title')}</h1>
+        <p className="mt-1 text-muted-foreground">{t('auditLogs.subtitle')}</p>
       </div>
 
       <AuditLogFilterBar
@@ -443,7 +452,7 @@ export default function AdminAuditLogsPage() {
 
       <section aria-labelledby="audit-logs-heading">
         <h2 id="audit-logs-heading" className="sr-only">
-          Audit log list
+          {t('auditLogs.heading')}
         </h2>
         <AuditLogListContent
           isLoading={auditLogsQuery.isLoading}

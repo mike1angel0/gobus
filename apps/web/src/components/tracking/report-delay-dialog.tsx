@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { z } from 'zod';
 import { AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,6 +62,7 @@ const SELECT_CLASS =
  * ```
  */
 export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProps) {
+  const { t } = useTranslation('tracking');
   const [open, setOpen] = useState(false);
   const createDelay = useCreateDelay();
 
@@ -122,12 +124,12 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Report delay</DialogTitle>
-          <DialogDescription>Report a delay for an active schedule.</DialogDescription>
+          <DialogTitle>{t('reportDialog.title')}</DialogTitle>
+          <DialogDescription>{t('reportDialog.description')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div>
-            <Label htmlFor="delay-schedule">Schedule</Label>
+            <Label htmlFor="delay-schedule">{t('reportDialog.scheduleLabel')}</Label>
             <select
               id="delay-schedule"
               className={SELECT_CLASS}
@@ -135,7 +137,7 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
               onChange={(e) => setScheduleId(e.target.value)}
               aria-describedby={errors.scheduleId ? 'delay-schedule-error' : undefined}
             >
-              <option value="">Select schedule...</option>
+              <option value="">{t('reportDialog.schedulePlaceholder')}</option>
               {schedules.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.label}
@@ -150,7 +152,7 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
           </div>
 
           <div>
-            <Label htmlFor="delay-minutes">Delay (minutes)</Label>
+            <Label htmlFor="delay-minutes">{t('reportDialog.minutesLabel')}</Label>
             <Input
               id="delay-minutes"
               type="number"
@@ -158,7 +160,7 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
               max={1440}
               value={offsetMinutes}
               onChange={(e) => setOffsetMinutes(e.target.value)}
-              placeholder="15"
+              placeholder={t('reportDialog.minutesPlaceholder')}
               aria-describedby={errors.offsetMinutes ? 'delay-minutes-error' : undefined}
             />
             {errors.offsetMinutes && (
@@ -169,7 +171,7 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
           </div>
 
           <div>
-            <Label htmlFor="delay-reason">Reason</Label>
+            <Label htmlFor="delay-reason">{t('reportDialog.reasonLabel')}</Label>
             <select
               id="delay-reason"
               className={SELECT_CLASS}
@@ -177,10 +179,10 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
               onChange={(e) => setReason(e.target.value)}
               aria-describedby={errors.reason ? 'delay-reason-error' : undefined}
             >
-              <option value="">Select reason...</option>
+              <option value="">{t('reportDialog.reasonPlaceholder')}</option>
               {DELAY_REASONS.map((r) => (
                 <option key={r} value={r}>
-                  {r.charAt(0) + r.slice(1).toLowerCase()}
+                  {t(`reportDialog.reasons.${r}`)}
                 </option>
               ))}
             </select>
@@ -192,7 +194,7 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
           </div>
 
           <div>
-            <Label htmlFor="delay-trip-date">Trip date</Label>
+            <Label htmlFor="delay-trip-date">{t('reportDialog.tripDateLabel')}</Label>
             <Input
               id="delay-trip-date"
               type="date"
@@ -208,12 +210,12 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
           </div>
 
           <div>
-            <Label htmlFor="delay-note">Note (optional)</Label>
+            <Label htmlFor="delay-note">{t('reportDialog.noteLabel')}</Label>
             <Input
               id="delay-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Additional details..."
+              placeholder={t('reportDialog.notePlaceholder')}
               maxLength={500}
               aria-describedby={errors.note ? 'delay-note-error' : undefined}
             />
@@ -227,12 +229,12 @@ export function ReportDelayDialog({ schedules, children }: ReportDelayDialogProp
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Cancel
+                {t('reportDialog.cancel')}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={createDelay.isPending}>
               <AlertTriangle className="mr-2 h-4 w-4" aria-hidden="true" />
-              {createDelay.isPending ? 'Reporting...' : 'Report delay'}
+              {createDelay.isPending ? t('reportDialog.reporting') : t('reportDialog.report')}
             </Button>
           </DialogFooter>
         </form>

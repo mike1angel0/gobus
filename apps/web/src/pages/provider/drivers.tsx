@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Users, Plus, Trash2, Mail, Phone, Calendar } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,6 +38,7 @@ interface DriverCardProps {
 
 /** Displays a single driver card with info and delete action. */
 function DriverCard({ driver, onDelete, isDeleting }: DriverCardProps) {
+  const { t } = useTranslation('provider');
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
@@ -61,36 +63,39 @@ function DriverCard({ driver, onDelete, isDeleting }: DriverCardProps) {
             <p className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span>
-                {driver.assignedScheduleCount}{' '}
-                {driver.assignedScheduleCount === 1 ? 'schedule' : 'schedules'} assigned
+                {t('drivers.card.schedulesAssigned', { count: driver.assignedScheduleCount })}
               </span>
             </p>
           </div>
         </div>
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={`Delete driver ${driver.name}`}>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={t('drivers.card.deleteLabel', { name: driver.name })}
+            >
               <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Delete driver</DialogTitle>
+              <DialogTitle>{t('drivers.card.deleteTitle')}</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete &quot;{driver.name}&quot;?
+                {t('drivers.card.deleteDescription', { name: driver.name })}
                 {driver.assignedScheduleCount > 0 && (
                   <>
                     {' '}
-                    This driver is assigned to {driver.assignedScheduleCount}{' '}
-                    {driver.assignedScheduleCount === 1 ? 'schedule' : 'schedules'}. They will be
-                    unassigned.
+                    {t('drivers.card.deleteDescriptionWithSchedules', {
+                      count: driver.assignedScheduleCount,
+                    })}
                   </>
                 )}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline">{t('common.cancel')}</Button>
               </DialogClose>
               <Button
                 variant="destructive"
@@ -100,7 +105,7 @@ function DriverCard({ driver, onDelete, isDeleting }: DriverCardProps) {
                   setConfirmOpen(false);
                 }}
               >
-                {isDeleting ? 'Deleting...' : 'Delete'}
+                {isDeleting ? t('drivers.card.deleting') : t('drivers.card.delete')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -124,8 +129,10 @@ interface DriverListSectionProps {
 
 /** Renders the grid of driver cards. */
 function DriverListSection({ drivers, onDelete, isDeleting }: DriverListSectionProps) {
+  const { t } = useTranslation('provider');
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Drivers list">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label={t('drivers.listLabel')}>
       {drivers.map((driver) => (
         <DriverCard key={driver.id} driver={driver} onDelete={onDelete} isDeleting={isDeleting} />
       ))}
@@ -150,7 +157,8 @@ function DriverListSection({ drivers, onDelete, isDeleting }: DriverListSectionP
  * ```
  */
 export default function ProviderDriversPage() {
-  usePageTitle('Drivers');
+  const { t } = useTranslation('provider');
+  usePageTitle(t('drivers.title'));
   const driversQuery = useDrivers({ page: 1, pageSize: 50 });
   const deleteDriver = useDeleteDriver();
 
@@ -166,34 +174,34 @@ export default function ProviderDriversPage() {
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Drivers</h1>
-          <p className="mt-1 text-muted-foreground">Manage your driver accounts and assignments.</p>
+          <h1 className="text-2xl font-bold">{t('drivers.title')}</h1>
+          <p className="mt-1 text-muted-foreground">{t('drivers.subtitle')}</p>
         </div>
         <CreateDriverDialog>
           <Button>
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Create driver
+            {t('drivers.create')}
           </Button>
         </CreateDriverDialog>
       </div>
 
       <section aria-labelledby="drivers-heading">
         <h2 id="drivers-heading" className="sr-only">
-          Drivers
+          {t('drivers.title')}
         </h2>
-        {isLoading && <CardGridSkeleton label="Loading drivers" />}
+        {isLoading && <CardGridSkeleton label={t('drivers.loadingLabel')} />}
         {isError && (
           <PageError
-            title="Failed to load drivers"
-            message="We couldn't load your drivers. Please try again."
+            title={t('drivers.error.title')}
+            message={t('drivers.error.message')}
             onRetry={() => driversQuery.refetch()}
           />
         )}
         {!isLoading && !isError && drivers.length === 0 && (
           <EmptyState
             icon={Users}
-            title="No drivers yet"
-            message="Create your first driver account to assign them to schedules."
+            title={t('drivers.empty.title')}
+            message={t('drivers.empty.message')}
           />
         )}
         {!isLoading && !isError && drivers.length > 0 && (

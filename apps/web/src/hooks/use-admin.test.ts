@@ -161,9 +161,7 @@ describe('useToggleSeat', () => {
       params: { path: { id: 'seat_1' } },
       body: { isEnabled: false },
     });
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Seat disabled' }),
-    );
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Seat disabled' }));
   });
 
   it('enables a seat and shows success toast', async () => {

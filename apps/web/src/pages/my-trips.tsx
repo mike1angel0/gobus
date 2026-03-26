@@ -103,7 +103,9 @@ function BookingList({ bookings, variant }: BookingListProps) {
   return (
     <ol
       className="space-y-4"
-      aria-label={variant === 'upcoming' ? t('myTrips.upcomingAriaLabel') : t('myTrips.pastAriaLabel')}
+      aria-label={
+        variant === 'upcoming' ? t('myTrips.upcomingAriaLabel') : t('myTrips.pastAriaLabel')
+      }
     >
       {bookings.map((booking) => (
         <li key={booking.id}>
@@ -152,13 +154,7 @@ function MyTripsContent({
   }
 
   if (isError && upcoming.length === 0 && past.length === 0) {
-    return (
-      <PageError
-        title={t('error.title')}
-        message={t('error.message')}
-        onRetry={onRetry}
-      />
-    );
+    return <PageError title={t('error.title')} message={t('error.message')} onRetry={onRetry} />;
   }
 
   if (upcoming.length === 0 && past.length === 0) {

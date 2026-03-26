@@ -700,6 +700,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Soft-delete a user account (admin)
+         * @description Marks a user account as deleted by setting deletedAt timestamp. Revokes all refresh tokens. The user can no longer log in. Requires ADMIN role.
+         */
+        delete: operations["adminSoftDeleteUser"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/users/{id}/status": {
         parameters: {
             query?: never;
@@ -1370,8 +1390,8 @@ export interface components {
             basePrice: number;
             status: components["schemas"]["ScheduleStatus"];
             /**
-             * Format: date-time
-             * @description Specific date for this trip instance
+             * Format: date
+             * @description Specific date for this trip instance (ISO 8601 date format)
              */
             tripDate: string;
             /**
@@ -1443,8 +1463,8 @@ export interface components {
              */
             basePrice: number;
             /**
-             * Format: date-time
-             * @description Specific date for this trip instance
+             * Format: date
+             * @description Specific date for this trip instance (ISO 8601 date format, e.g. 2026-03-25)
              */
             tripDate: string;
             /** @description Ordered stop times (minimum 2 for a valid schedule) */
@@ -1513,8 +1533,8 @@ export interface components {
             basePrice: number;
             status: components["schemas"]["ScheduleStatus"];
             /**
-             * Format: date-time
-             * @description Specific date for this trip instance
+             * Format: date
+             * @description Specific date for this trip instance (ISO 8601 date format)
              */
             tripDate: string;
             /** @description Ordered stop times for this schedule */
@@ -1681,8 +1701,8 @@ export interface components {
             /** @description Name of the alighting stop */
             alightingStop: string;
             /**
-             * Format: date-time
-             * @description Date of the trip
+             * Format: date
+             * @description Date of the trip (ISO 8601 date format)
              */
             tripDate: string;
             /** @description Labels of booked seats */
@@ -1735,8 +1755,8 @@ export interface components {
             /** @description Name of the alighting stop */
             alightingStop: string;
             /**
-             * Format: date-time
-             * @description Date of the trip
+             * Format: date
+             * @description Date of the trip (ISO 8601 date format)
              */
             tripDate: string;
             /** @description Labels of booked seats */
@@ -1820,8 +1840,8 @@ export interface components {
             /** @description Whether the bus is actively transmitting position */
             isActive: boolean;
             /**
-             * Format: date-time
-             * @description Date of the current trip
+             * Format: date
+             * @description Date of the current trip (ISO 8601 date format)
              */
             tripDate?: string | null;
             /**
@@ -1888,8 +1908,8 @@ export interface components {
              */
             arrivalTime: string;
             /**
-             * Format: date-time
-             * @description Date of this trip
+             * Format: date
+             * @description Date of this trip (ISO 8601 date format)
              */
             tripDate: string;
             /** @description Name of the route */
@@ -1919,8 +1939,8 @@ export interface components {
              */
             arrivalTime: string;
             /**
-             * Format: date-time
-             * @description Date of this trip
+             * Format: date
+             * @description Date of this trip (ISO 8601 date format)
              */
             tripDate: string;
             /** @description Name of the route */
@@ -1983,8 +2003,8 @@ export interface components {
             /** @description Optional free-text note about the delay */
             note?: string | null;
             /**
-             * Format: date-time
-             * @description Date of the affected trip
+             * Format: date
+             * @description Date of the affected trip (ISO 8601 date format)
              */
             tripDate: string;
             /** @description Whether the delay is currently active */
@@ -2066,6 +2086,11 @@ export interface components {
             lockedUntil?: string | null;
             /**
              * Format: date-time
+             * @description Soft-deletion timestamp (null if account is active)
+             */
+            deletedAt?: string | null;
+            /**
+             * Format: date-time
              * @description Account creation timestamp
              */
             createdAt: string;
@@ -2133,7 +2158,34 @@ export interface components {
             data: components["schemas"]["Seat"];
         };
     };
-    responses: never;
+    responses: {
+        /** @description Rate limit exceeded */
+        TooManyRequests: {
+            headers: {
+                /** @description Maximum number of requests allowed in the time window */
+                "X-RateLimit-Limit"?: number;
+                /** @description Number of requests remaining in the current time window */
+                "X-RateLimit-Remaining"?: number;
+                /** @description Unix timestamp (seconds) when the rate limit resets */
+                "X-RateLimit-Reset"?: number;
+                /** @description Seconds to wait before retrying */
+                "Retry-After"?: number;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+        /** @description Internal server error */
+        InternalServerError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorResponse"];
+            };
+        };
+    };
     parameters: {
         /** @description Page number (1-based) */
         PageParam: number;
@@ -2188,6 +2240,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     login: {
@@ -2239,6 +2293,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     refreshToken: {
@@ -2272,6 +2328,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     logout: {
@@ -2303,6 +2361,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     forgotPassword: {
@@ -2327,6 +2387,8 @@ export interface operations {
                     "application/json": components["schemas"]["MessageDataResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     resetPassword: {
@@ -2360,6 +2422,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     changePassword: {
@@ -2402,6 +2466,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getProfile: {
@@ -2431,6 +2497,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     updateProfile: {
@@ -2473,6 +2541,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getOwnProvider: {
@@ -2511,6 +2581,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getProviderAnalytics: {
@@ -2549,6 +2621,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listRoutes: {
@@ -2592,6 +2666,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     createRoute: {
@@ -2616,7 +2692,7 @@ export interface operations {
                     "application/json": components["schemas"]["RouteWithStopsDataResponse"];
                 };
             };
-            /** @description Validation error */
+            /** @description Validation error (invalid stop ordering, duplicate stop names, fewer than 2 stops) */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2643,6 +2719,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getRoute: {
@@ -2693,6 +2771,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     deleteRoute: {
@@ -2741,6 +2821,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listBuses: {
@@ -2784,6 +2866,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     createBus: {
@@ -2844,6 +2928,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getBus: {
@@ -2894,6 +2980,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     updateBus: {
@@ -2966,6 +3054,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     deleteBus: {
@@ -3014,6 +3104,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listBusTemplates: {
@@ -3052,6 +3144,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listDrivers: {
@@ -3095,6 +3189,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     createDriver: {
@@ -3155,6 +3251,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     deleteDriver: {
@@ -3203,6 +3301,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listSchedules: {
@@ -3256,6 +3356,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     createSchedule: {
@@ -3316,6 +3418,17 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description Schedule overlap (bus already assigned to another schedule at the same time) or bus unavailability conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getSchedule: {
@@ -3366,6 +3479,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     updateSchedule: {
@@ -3429,6 +3544,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     deleteSchedule: {
@@ -3477,6 +3594,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     searchTrips: {
@@ -3517,6 +3636,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getTripDetails: {
@@ -3561,6 +3682,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listBookings: {
@@ -3597,6 +3720,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     createBooking: {
@@ -3657,6 +3782,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getBooking: {
@@ -3698,6 +3825,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     cancelBooking: {
@@ -3748,6 +3877,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getBusTracking: {
@@ -3789,6 +3920,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listProviderTracking: {
@@ -3827,6 +3960,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     updateTracking: {
@@ -3878,6 +4013,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listDriverTrips: {
@@ -3923,6 +4060,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getDriverTripDetail: {
@@ -3976,6 +4115,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     getDriverTripPassengers: {
@@ -4029,6 +4170,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     listDelays: {
@@ -4067,6 +4210,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     createDelay: {
@@ -4118,6 +4263,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     updateDelay: {
@@ -4181,6 +4328,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     adminListBuses: {
@@ -4226,6 +4375,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     adminListUsers: {
@@ -4273,6 +4424,58 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    adminSoftDeleteUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Resource identifier (cuid) */
+                id: components["parameters"]["IdParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User soft-deleted successfully */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     adminUpdateUserStatus: {
@@ -4336,6 +4539,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     adminForceLogout: {
@@ -4384,6 +4589,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     adminListAuditLogs: {
@@ -4435,6 +4642,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
     adminToggleSeat: {
@@ -4498,6 +4707,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
         };
     };
 }

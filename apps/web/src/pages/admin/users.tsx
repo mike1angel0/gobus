@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Users, ShieldOff, ShieldCheck, Unlock, LogOut } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,18 +27,8 @@ type Status = AdminUser['status'];
 
 const PAGE_SIZE = 20;
 
-const ROLE_OPTIONS: { label: string; value: Role }[] = [
-  { label: 'Passenger', value: 'PASSENGER' },
-  { label: 'Provider', value: 'PROVIDER' },
-  { label: 'Driver', value: 'DRIVER' },
-  { label: 'Admin', value: 'ADMIN' },
-];
-
-const STATUS_OPTIONS: { label: string; value: Status }[] = [
-  { label: 'Active', value: 'ACTIVE' },
-  { label: 'Suspended', value: 'SUSPENDED' },
-  { label: 'Locked', value: 'LOCKED' },
-];
+const ROLES: Role[] = ['PASSENGER', 'PROVIDER', 'DRIVER', 'ADMIN'];
+const STATUSES: Status[] = ['ACTIVE', 'SUSPENDED', 'LOCKED'];
 
 /** Maps user status to badge variant. */
 function getStatusVariant(status: Status): 'default' | 'destructive' | 'secondary' {
@@ -73,32 +64,33 @@ interface ConfirmAction {
   type: 'suspend' | 'unsuspend' | 'unlock' | 'force-logout';
 }
 
-const ACTION_CONFIG: Record<
+/** Maps action type to i18n key prefix. */
+const ACTION_KEY_MAP: Record<
   ConfirmAction['type'],
-  { title: string; description: string; buttonLabel: string; destructive: boolean }
+  { titleKey: string; descKey: string; buttonKey: string; destructive: boolean }
 > = {
   suspend: {
-    title: 'Suspend user?',
-    description: 'This will prevent the user from logging in until unsuspended.',
-    buttonLabel: 'Suspend',
+    titleKey: 'users.confirm.suspendTitle',
+    descKey: 'users.confirm.suspendDescription',
+    buttonKey: 'users.actions.suspend',
     destructive: true,
   },
   unsuspend: {
-    title: 'Unsuspend user?',
-    description: 'This will reactivate the user account.',
-    buttonLabel: 'Unsuspend',
+    titleKey: 'users.confirm.unsuspendTitle',
+    descKey: 'users.confirm.unsuspendDescription',
+    buttonKey: 'users.actions.unsuspend',
     destructive: false,
   },
   unlock: {
-    title: 'Unlock user?',
-    description: 'This will remove the lock and allow the user to log in again.',
-    buttonLabel: 'Unlock',
+    titleKey: 'users.confirm.unlockTitle',
+    descKey: 'users.confirm.unlockDescription',
+    buttonKey: 'users.actions.unlock',
     destructive: false,
   },
   'force-logout': {
-    title: 'Force logout?',
-    description: 'This will revoke all active sessions for this user.',
-    buttonLabel: 'Force logout',
+    titleKey: 'users.confirm.forceLogoutTitle',
+    descKey: 'users.confirm.forceLogoutDescription',
+    buttonKey: 'users.actions.forceLogout',
     destructive: true,
   },
 };
@@ -121,29 +113,30 @@ interface UserConfirmDialogProps {
  * Shows a warning with the target user's name and a description of what the action will do.
  */
 function UserConfirmDialog({ action, isPending, onConfirm, onCancel }: UserConfirmDialogProps) {
+  const { t } = useTranslation('admin');
   if (!action) return null;
-  const config = ACTION_CONFIG[action.type];
+  const config = ACTION_KEY_MAP[action.type];
 
   return (
     <Dialog open onOpenChange={(open) => !open && onCancel()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{config.title}</DialogTitle>
+          <DialogTitle>{t(config.titleKey)}</DialogTitle>
           <DialogDescription>
-            {config.description} This applies to <strong>{action.user.name}</strong> (
-            {action.user.email}).
+            {t(config.descKey)}{' '}
+            {t('users.confirm.appliesTo', { name: action.user.name, email: action.user.email })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel} disabled={isPending}>
-            Cancel
+            {t('users.confirm.cancel')}
           </Button>
           <Button
             variant={config.destructive ? 'destructive' : 'default'}
             onClick={onConfirm}
             disabled={isPending}
           >
-            {isPending ? 'Processing...' : config.buttonLabel}
+            {isPending ? t('users.confirm.processing') : t(config.buttonKey)}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -169,11 +162,12 @@ interface UserFilterBarProps {
  * Filter bar with role and status dropdowns for the admin user list.
  */
 function UserFilterBar({ role, status, onRoleChange, onStatusChange }: UserFilterBarProps) {
+  const { t } = useTranslation('admin');
   return (
-    <div className="mb-6 flex flex-wrap gap-4" role="group" aria-label="User filters">
+    <div className="mb-6 flex flex-wrap gap-4" role="group" aria-label={t('users.filtersLabel')}>
       <div className="flex items-center gap-2">
         <label htmlFor="role-filter" className="text-sm font-medium">
-          Role
+          {t('users.roleLabel')}
         </label>
         <select
           id="role-filter"
@@ -181,17 +175,17 @@ function UserFilterBar({ role, status, onRoleChange, onStatusChange }: UserFilte
           value={role}
           onChange={(e) => onRoleChange(e.target.value as Role | '')}
         >
-          <option value="">All roles</option>
-          {ROLE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
+          <option value="">{t('users.allRoles')}</option>
+          {ROLES.map((r) => (
+            <option key={r} value={r}>
+              {t(`users.roles.${r}`)}
             </option>
           ))}
         </select>
       </div>
       <div className="flex items-center gap-2">
         <label htmlFor="status-filter" className="text-sm font-medium">
-          Status
+          {t('users.statusLabel')}
         </label>
         <select
           id="status-filter"
@@ -199,10 +193,10 @@ function UserFilterBar({ role, status, onRoleChange, onStatusChange }: UserFilte
           value={status}
           onChange={(e) => onStatusChange(e.target.value as Status | '')}
         >
-          <option value="">All statuses</option>
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
+          <option value="">{t('users.allStatuses')}</option>
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {t(`users.statuses.${s}`)}
             </option>
           ))}
         </select>
@@ -215,8 +209,9 @@ function UserFilterBar({ role, status, onRoleChange, onStatusChange }: UserFilte
 
 /** Skeleton placeholder for the user list while loading. */
 function UserListSkeleton() {
+  const { t } = useTranslation('admin');
   return (
-    <div className="space-y-4" aria-busy="true" aria-label="Loading users">
+    <div className="space-y-4" aria-busy="true" aria-label={t('users.loadingLabel')}>
       {Array.from({ length: 5 }, (_, i) => (
         <Card key={i}>
           <CardContent className="flex items-center gap-4 p-4">
@@ -250,6 +245,7 @@ interface UserRowProps {
  * Disables action buttons for the current admin's own row.
  */
 function UserRow({ user, isSelf, onAction }: UserRowProps) {
+  const { t } = useTranslation('admin');
   return (
     <Card>
       <CardContent className="flex flex-wrap items-center gap-3 p-4">
@@ -257,11 +253,13 @@ function UserRow({ user, isSelf, onAction }: UserRowProps) {
           <p className="truncate font-medium">{user.name}</p>
           <p className="truncate text-sm text-muted-foreground">{user.email}</p>
           {user.providerId && (
-            <p className="text-xs text-muted-foreground">Provider: {user.providerId}</p>
+            <p className="text-xs text-muted-foreground">
+              {t('users.providerPrefix', { id: user.providerId })}
+            </p>
           )}
         </div>
-        <Badge variant={getRoleVariant(user.role)}>{user.role}</Badge>
-        <Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
+        <Badge variant={getRoleVariant(user.role)}>{t(`users.roles.${user.role}`)}</Badge>
+        <Badge variant={getStatusVariant(user.status)}>{t(`users.statuses.${user.status}`)}</Badge>
         <time className="hidden text-xs text-muted-foreground sm:block" dateTime={user.createdAt}>
           {new Date(user.createdAt).toLocaleDateString()}
         </time>
@@ -289,6 +287,7 @@ interface UserActionsProps {
  * All buttons are disabled when targeting the current admin's own account.
  */
 function UserActions({ user, isSelf, onAction }: UserActionsProps) {
+  const { t } = useTranslation('admin');
   return (
     <div className="flex gap-1">
       {user.status === 'ACTIVE' && (
@@ -296,12 +295,12 @@ function UserActions({ user, isSelf, onAction }: UserActionsProps) {
           variant="ghost"
           size="sm"
           disabled={isSelf}
-          title={isSelf ? 'Cannot suspend yourself' : 'Suspend user'}
-          aria-label={`Suspend ${user.name}`}
+          title={isSelf ? t('users.tooltips.cannotSuspendSelf') : t('users.tooltips.suspendUser')}
+          aria-label={`${t('users.actions.suspend')} ${user.name}`}
           onClick={() => onAction({ user, type: 'suspend' })}
         >
           <ShieldOff className="mr-1 h-4 w-4" aria-hidden="true" />
-          Suspend
+          {t('users.actions.suspend')}
         </Button>
       )}
       {user.status === 'SUSPENDED' && (
@@ -309,12 +308,14 @@ function UserActions({ user, isSelf, onAction }: UserActionsProps) {
           variant="ghost"
           size="sm"
           disabled={isSelf}
-          title={isSelf ? 'Cannot unsuspend yourself' : 'Unsuspend user'}
-          aria-label={`Unsuspend ${user.name}`}
+          title={
+            isSelf ? t('users.tooltips.cannotUnsuspendSelf') : t('users.tooltips.unsuspendUser')
+          }
+          aria-label={`${t('users.actions.unsuspend')} ${user.name}`}
           onClick={() => onAction({ user, type: 'unsuspend' })}
         >
           <ShieldCheck className="mr-1 h-4 w-4" aria-hidden="true" />
-          Unsuspend
+          {t('users.actions.unsuspend')}
         </Button>
       )}
       {user.status === 'LOCKED' && (
@@ -322,24 +323,26 @@ function UserActions({ user, isSelf, onAction }: UserActionsProps) {
           variant="ghost"
           size="sm"
           disabled={isSelf}
-          title={isSelf ? 'Cannot unlock yourself' : 'Unlock user'}
-          aria-label={`Unlock ${user.name}`}
+          title={isSelf ? t('users.tooltips.cannotUnlockSelf') : t('users.tooltips.unlockUser')}
+          aria-label={`${t('users.actions.unlock')} ${user.name}`}
           onClick={() => onAction({ user, type: 'unlock' })}
         >
           <Unlock className="mr-1 h-4 w-4" aria-hidden="true" />
-          Unlock
+          {t('users.actions.unlock')}
         </Button>
       )}
       <Button
         variant="ghost"
         size="sm"
         disabled={isSelf}
-        title={isSelf ? 'Cannot force logout yourself' : 'Force logout'}
-        aria-label={`Force logout ${user.name}`}
+        title={
+          isSelf ? t('users.tooltips.cannotForceLogoutSelf') : t('users.tooltips.forceLogoutUser')
+        }
+        aria-label={`${t('users.actions.forceLogout')} ${user.name}`}
         onClick={() => onAction({ user, type: 'force-logout' })}
       >
         <LogOut className="mr-1 h-4 w-4" aria-hidden="true" />
-        Logout
+        {t('users.actions.logout')}
       </Button>
     </div>
   );
@@ -359,6 +362,7 @@ interface UserPaginationProps {
 
 /** Pagination controls for the user list. */
 function UserPagination({ page, totalPages, onPageChange }: UserPaginationProps) {
+  const { t } = useTranslation('admin');
   return (
     <nav className="mt-8 flex items-center justify-center gap-4" aria-label="User list pagination">
       <Button
@@ -367,10 +371,10 @@ function UserPagination({ page, totalPages, onPageChange }: UserPaginationProps)
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
       >
-        Previous
+        {t('pagination.previous')}
       </Button>
       <span className="text-sm text-muted-foreground">
-        Page {page} of {totalPages}
+        {t('pagination.pageOf', { page, totalPages })}
       </span>
       <Button
         variant="outline"
@@ -378,7 +382,7 @@ function UserPagination({ page, totalPages, onPageChange }: UserPaginationProps)
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
       >
-        Next
+        {t('pagination.next')}
       </Button>
     </nav>
   );
@@ -411,23 +415,20 @@ function UserListContent({
   onRetry,
   onAction,
 }: UserListContentProps) {
+  const { t } = useTranslation('admin');
   if (isLoading) return <UserListSkeleton />;
   if (isError) {
     return (
       <PageError
-        title="Failed to load users"
-        message="We couldn't load the user list. Please try again."
+        title={t('users.error.title')}
+        message={t('users.error.message')}
         onRetry={onRetry}
       />
     );
   }
   if (users.length === 0) {
     return (
-      <EmptyState
-        icon={Users}
-        title="No users found"
-        message="No users match the selected filters."
-      />
+      <EmptyState icon={Users} title={t('users.empty.title')} message={t('users.empty.message')} />
     );
   }
   return (
@@ -456,7 +457,8 @@ function UserListContent({
  * ```
  */
 export default function AdminUsersPage() {
-  usePageTitle('User Management');
+  const { t } = useTranslation('admin');
+  usePageTitle(t('users.title'));
   const { user: currentUser } = useAuth();
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState<Role | ''>('');
@@ -505,10 +507,8 @@ export default function AdminUsersPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">User Management</h1>
-        <p className="mt-1 text-muted-foreground">
-          View and manage all platform users, including status changes and session control.
-        </p>
+        <h1 className="text-2xl font-bold">{t('users.title')}</h1>
+        <p className="mt-1 text-muted-foreground">{t('users.subtitle')}</p>
       </div>
 
       <UserFilterBar
@@ -520,7 +520,7 @@ export default function AdminUsersPage() {
 
       <section aria-labelledby="admin-users-heading">
         <h2 id="admin-users-heading" className="sr-only">
-          User list
+          {t('users.heading')}
         </h2>
         <UserListContent
           isLoading={usersQuery.isLoading}

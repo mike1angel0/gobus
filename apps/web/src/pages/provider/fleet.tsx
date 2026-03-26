@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bus as BusIcon, Plus, Trash2, Pencil } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +41,7 @@ interface BusCardProps {
 
 /** Displays a single bus card with plate, model, capacity, and seat grid preview. */
 function BusCard({ bus, onDelete, isDeleting, onEdit }: BusCardProps) {
+  const { t } = useTranslation('provider');
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
@@ -52,7 +54,11 @@ function BusCard({ bus, onDelete, isDeleting, onEdit }: BusCardProps) {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{bus.model}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {bus.capacity} seats · {bus.rows}×{bus.columns}
+            {t('fleet.card.seatsLayout', {
+              seats: bus.capacity,
+              rows: bus.rows,
+              columns: bus.columns,
+            })}
           </p>
           <div className="mt-2">
             <SeatGridPreview rows={bus.rows} columns={bus.columns} seats={[]} />
@@ -62,28 +68,31 @@ function BusCard({ bus, onDelete, isDeleting, onEdit }: BusCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`Edit seat map for ${bus.licensePlate}`}
+            aria-label={t('fleet.card.editLabel', { plate: bus.licensePlate })}
             onClick={() => onEdit(bus.id)}
           >
             <Pencil className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           </Button>
           <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label={`Delete bus ${bus.licensePlate}`}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t('fleet.card.deleteLabel', { plate: bus.licensePlate })}
+              >
                 <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Delete bus</DialogTitle>
+                <DialogTitle>{t('fleet.card.deleteTitle')}</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to delete bus &quot;{bus.licensePlate}&quot;? Schedules
-                  referencing this bus may be affected.
+                  {t('fleet.card.deleteDescription', { plate: bus.licensePlate })}
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
+                  <Button variant="outline">{t('common.cancel')}</Button>
                 </DialogClose>
                 <Button
                   variant="destructive"
@@ -93,7 +102,7 @@ function BusCard({ bus, onDelete, isDeleting, onEdit }: BusCardProps) {
                     setConfirmOpen(false);
                   }}
                 >
-                  {isDeleting ? 'Deleting…' : 'Delete'}
+                  {isDeleting ? t('fleet.card.deleting') : t('fleet.card.delete')}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -120,8 +129,10 @@ interface BusListSectionProps {
 
 /** Renders the grid of bus cards. */
 function BusListSection({ buses, onDelete, isDeleting, onEdit }: BusListSectionProps) {
+  const { t } = useTranslation('provider');
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Fleet list">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label={t('fleet.listLabel')}>
       {buses.map((bus) => (
         <BusCard
           key={bus.id}
@@ -151,7 +162,8 @@ function BusListSection({ buses, onDelete, isDeleting, onEdit }: BusListSectionP
  * ```
  */
 export default function ProviderFleetPage() {
-  usePageTitle('Fleet');
+  const { t } = useTranslation('provider');
+  usePageTitle(t('fleet.title'));
   const busesQuery = useBuses({ page: 1, pageSize: 50 });
   const deleteBus = useDeleteBus();
   const [editingBusId, setEditingBusId] = useState<string | null>(null);
@@ -168,34 +180,34 @@ export default function ProviderFleetPage() {
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Fleet</h1>
-          <p className="mt-1 text-muted-foreground">Manage your buses and seat configurations.</p>
+          <h1 className="text-2xl font-bold">{t('fleet.title')}</h1>
+          <p className="mt-1 text-muted-foreground">{t('fleet.subtitle')}</p>
         </div>
         <CreateBusDialog>
           <Button>
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add bus
+            {t('fleet.create')}
           </Button>
         </CreateBusDialog>
       </div>
 
       <section aria-labelledby="fleet-heading">
         <h2 id="fleet-heading" className="sr-only">
-          Fleet
+          {t('fleet.title')}
         </h2>
-        {isLoading && <CardGridSkeleton label="Loading fleet" />}
+        {isLoading && <CardGridSkeleton label={t('fleet.loadingLabel')} />}
         {isError && (
           <PageError
-            title="Failed to load fleet"
-            message="We couldn't load your buses. Please try again."
+            title={t('fleet.error.title')}
+            message={t('fleet.error.message')}
             onRetry={() => busesQuery.refetch()}
           />
         )}
         {!isLoading && !isError && buses.length === 0 && (
           <EmptyState
             icon={BusIcon}
-            title="No buses yet"
-            message="Add your first bus to start creating schedules."
+            title={t('fleet.empty.title')}
+            message={t('fleet.empty.message')}
           />
         )}
         {!isLoading && !isError && buses.length > 0 && (

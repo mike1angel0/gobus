@@ -28,16 +28,12 @@ describe('EmptyState', () => {
   });
 
   it('does not render CTA when action is omitted', () => {
-    renderWithProviders(
-      <EmptyState icon={Calendar} title="No items" message="Nothing here." />,
-    );
+    renderWithProviders(<EmptyState icon={Calendar} title="No items" message="Nothing here." />);
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('has accessible status role', () => {
-    renderWithProviders(
-      <EmptyState icon={Calendar} title="Empty" message="Nothing." />,
-    );
+    renderWithProviders(<EmptyState icon={Calendar} title="Empty" message="Nothing." />);
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 

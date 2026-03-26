@@ -196,21 +196,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   /** Update the current user's profile via PATCH /api/v1/auth/me. */
-  const updateProfile = useCallback(
-    async (profileData: ProfileUpdate): Promise<User> => {
-      const { data } = await apiClient.PATCH('/api/v1/auth/me', {
-        body: profileData,
-      });
+  const updateProfile = useCallback(async (profileData: ProfileUpdate): Promise<User> => {
+    const { data } = await apiClient.PATCH('/api/v1/auth/me', {
+      body: profileData,
+    });
 
-      if (!data) {
-        throw new Error('Profile update failed: no data returned');
-      }
+    if (!data) {
+      throw new Error('Profile update failed: no data returned');
+    }
 
-      setUser(data.data);
-      return data.data;
-    },
-    [],
-  );
+    setUser(data.data);
+    return data.data;
+  }, []);
 
   // Register 401 handler: attempt refresh, if that fails, clear auth
   useEffect(() => {

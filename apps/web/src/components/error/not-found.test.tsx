@@ -42,9 +42,7 @@ describe('NotFound', () => {
   it('renders Romanian translations when language is ro', async () => {
     await i18n.changeLanguage('ro');
     renderWithProviders(<NotFound />);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Pagina nu a fost găsită',
-    );
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Pagina nu a fost găsită');
     expect(
       screen.getByText('Pagina pe care o cauți nu există sau a fost mutată.'),
     ).toBeInTheDocument();

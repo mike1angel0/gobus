@@ -1,35 +1,160 @@
 {
   "users": {
     "title": "Gestionare utilizatori",
-    "roleFilter": "Filtrează după rol",
-    "statusFilter": "Filtrează după status",
+    "subtitle": "Vizualizează și gestionează toți utilizatorii platformei, inclusiv schimbări de status și controlul sesiunilor.",
+    "heading": "Lista utilizatorilor",
+    "loadingLabel": "Se încarcă utilizatorii",
+    "filtersLabel": "Filtre utilizatori",
+    "roleLabel": "Rol",
+    "statusLabel": "Status",
+    "allRoles": "Toate rolurile",
+    "allStatuses": "Toate statusurile",
+    "providerPrefix": "Operator: {{id}}",
+    "roles": {
+      "PASSENGER": "Pasager",
+      "PROVIDER": "Operator",
+      "DRIVER": "Șofer",
+      "ADMIN": "Administrator"
+    },
+    "statuses": {
+      "ACTIVE": "Activ",
+      "SUSPENDED": "Suspendat",
+      "LOCKED": "Blocat"
+    },
     "actions": {
       "suspend": "Suspendă",
       "unsuspend": "Reactivează",
       "unlock": "Deblochează",
-      "forceLogout": "Deconectare forțată"
+      "forceLogout": "Deconectare forțată",
+      "logout": "Deconectare"
     },
-    "confirmSuspend": "Ești sigur că vrei să suspendezi acest utilizator?",
-    "confirmUnsuspend": "Ești sigur că vrei să reactivezi acest utilizator?",
-    "confirmUnlock": "Ești sigur că vrei să deblochezi acest utilizator?",
-    "confirmForceLogout": "Ești sigur că vrei să deconectezi forțat acest utilizator?"
+    "tooltips": {
+      "suspendUser": "Suspendă utilizatorul",
+      "unsuspendUser": "Reactivează utilizatorul",
+      "unlockUser": "Deblochează utilizatorul",
+      "forceLogoutUser": "Deconectare forțată",
+      "cannotSuspendSelf": "Nu te poți suspenda pe tine",
+      "cannotUnsuspendSelf": "Nu te poți reactiva pe tine",
+      "cannotUnlockSelf": "Nu te poți debloca pe tine",
+      "cannotForceLogoutSelf": "Nu te poți deconecta forțat pe tine"
+    },
+    "confirm": {
+      "suspendTitle": "Suspendă utilizatorul?",
+      "suspendDescription": "Acest lucru va împiedica utilizatorul să se conecteze până la reactivare.",
+      "unsuspendTitle": "Reactivează utilizatorul?",
+      "unsuspendDescription": "Acest lucru va reactiva contul utilizatorului.",
+      "unlockTitle": "Deblochează utilizatorul?",
+      "unlockDescription": "Acest lucru va elimina blocarea și va permite utilizatorului să se conecteze din nou.",
+      "forceLogoutTitle": "Deconectare forțată?",
+      "forceLogoutDescription": "Acest lucru va revoca toate sesiunile active ale utilizatorului.",
+      "appliesTo": "Se aplică pentru <strong>{{name}}</strong> ({{email}}).",
+      "cancel": "Anulează",
+      "processing": "Se procesează..."
+    },
+    "error": {
+      "title": "Nu s-au putut încărca utilizatorii",
+      "message": "Nu am putut încărca lista de utilizatori. Te rugăm să încerci din nou."
+    },
+    "empty": {
+      "title": "Niciun utilizator găsit",
+      "message": "Niciun utilizator nu corespunde filtrelor selectate."
+    }
   },
   "auditLogs": {
     "title": "Jurnal de audit",
-    "actionFilter": "Filtrează după acțiune",
-    "dateRange": "Interval de date",
-    "expandDetail": "Detalii",
-    "noLogs": "Niciun eveniment înregistrat"
+    "subtitle": "Vizualizează jurnalul de audit al sistemului, inclusiv acțiunile utilizatorilor, modificările resurselor și evenimentele de securitate.",
+    "heading": "Lista jurnalului de audit",
+    "loadingLabel": "Se încarcă jurnalul de audit",
+    "filtersLabel": "Filtre jurnal de audit",
+    "userIdLabel": "ID Utilizator",
+    "userIdPlaceholder": "Filtrează după ID utilizator",
+    "actionLabel": "Acțiune",
+    "allActions": "Toate acțiunile",
+    "fromLabel": "De la",
+    "toLabel": "Până la",
+    "userPrefix": "Utilizator: {{id}}",
+    "ipPrefix": "IP: {{ip}}",
+    "userAgentLabel": "Agent utilizator:",
+    "metadataLabel": "Metadate:",
+    "error": {
+      "title": "Nu s-a putut încărca jurnalul de audit",
+      "message": "Nu am putut încărca jurnalul de audit. Te rugăm să încerci din nou."
+    },
+    "empty": {
+      "title": "Niciun eveniment de audit găsit",
+      "message": "Niciun eveniment de audit nu corespunde filtrelor selectate."
+    }
   },
   "fleet": {
     "title": "Gestionare flotă",
-    "seatToggle": "Comutare loc"
+    "subtitle": "Vizualizează toate autobuzele și gestionează disponibilitatea locurilor pe operatori.",
+    "heading": "Flotă admin",
+    "loadingLabel": "Se încarcă flota",
+    "loadingSeats": "Se încarcă locurile",
+    "providerPrefix": "Operator: {{id}}",
+    "seatStats": "{{enabled}} activate · {{disabled}} dezactivate",
+    "collapse": "Restrânge",
+    "manageSeats": "Gestionează locuri",
+    "seatTypes": {
+      "STANDARD": "Standard",
+      "PREMIUM": "Premium",
+      "DISABLED_ACCESSIBLE": "Accesibil",
+      "BLOCKED": "Dezactivat"
+    },
+    "seatGrid": {
+      "label": "Grilă comutare locuri",
+      "emptyCell": "Gol",
+      "seatLabel": "Loc {{label}}, {{type}}, {{state}}. Click pentru a {{action}}.",
+      "enabled": "activat",
+      "disabled": "dezactivat",
+      "enable": "activa",
+      "disable": "dezactiva"
+    },
+    "error": {
+      "title": "Nu s-a putut încărca flota",
+      "message": "Nu am putut încărca autobuzele. Te rugăm să încerci din nou.",
+      "seats": "Nu s-au putut încărca locurile."
+    },
+    "empty": {
+      "title": "Niciun autobuz găsit",
+      "message": "Niciun autobuz nu a fost înregistrat de vreun operator încă.",
+      "seats": "Niciun loc configurat."
+    }
   },
   "dashboard": {
     "title": "Panou de control admin",
-    "totalUsers": "Total utilizatori",
-    "activeProviders": "Operatori activi",
-    "totalBuses": "Total autobuze",
-    "recentActivity": "Activitate recentă"
+    "subtitle": "Prezentare generală a platformei și administrare.",
+    "welcome": "Bun venit, {{name}}",
+    "loadingStats": "Se încarcă statisticile",
+    "loadingActivity": "Se încarcă activitatea recentă",
+    "statsHeading": "Statistici",
+    "stats": {
+      "totalUsers": "Total utilizatori",
+      "providers": "Operatori",
+      "totalBuses": "Total autobuze",
+      "auditEvents": "Evenimente audit"
+    },
+    "quickActions": {
+      "title": "Acțiuni rapide",
+      "manageUsers": "Gestionare utilizatori",
+      "manageFleet": "Gestionare flotă",
+      "viewAuditLogs": "Vizualizare jurnal audit"
+    },
+    "recentActivity": {
+      "title": "Activitate recentă",
+      "listLabel": "Evenimente recente din jurnalul de audit",
+      "viewAll": "Vizualizează tot",
+      "empty": "Nicio activitate recentă",
+      "unknownUser": "Utilizator necunoscut"
+    },
+    "error": {
+      "title": "Nu s-a putut încărca panoul de control",
+      "message": "Nu am putut încărca datele panoului de control. Te rugăm să încerci din nou."
+    }
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Următor",
+    "pageOf": "Pagina {{page}} din {{totalPages}}"
   }
 }

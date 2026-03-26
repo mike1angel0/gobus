@@ -26,7 +26,11 @@ export function RoleToggle({
   return (
     <fieldset>
       <legend className="mb-2 text-sm font-medium">{t('register.role.legend')}</legend>
-      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t('register.role.ariaLabel')}>
+      <div
+        className="grid grid-cols-2 gap-2"
+        role="radiogroup"
+        aria-label={t('register.role.ariaLabel')}
+      >
         <label
           className={cn(
             'flex cursor-pointer items-center justify-center rounded-md border p-3 text-sm font-medium transition-colors',
@@ -208,7 +212,8 @@ export function PasswordFields({
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              {t('passwordStrength.label')} <span data-testid="strength-label">{strengthLabel}</span>
+              {t('passwordStrength.label')}{' '}
+              <span data-testid="strength-label">{strengthLabel}</span>
             </p>
           </div>
         )}

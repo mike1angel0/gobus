@@ -7,7 +7,6 @@ import type { components } from '@/api/generated/types';
 
 type Seat = components['schemas']['Seat'];
 
-
 /* ---------- Helpers ---------- */
 
 /** Creates a mock seat with defaults. */
@@ -355,7 +354,9 @@ describe('SeatMapEditor', () => {
 
       expect(screen.getByLabelText('Seat 1A, Standard. Click to change type.')).toBeInTheDocument();
       expect(screen.getByLabelText('Seat 1B, Premium. Click to change type.')).toBeInTheDocument();
-      expect(screen.getByLabelText('Seat 2A, Accessible. Click to change type.')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Seat 2A, Accessible. Click to change type.'),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Seat 2B, Blocked. Click to change type.')).toBeInTheDocument();
     });
 

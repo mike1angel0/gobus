@@ -56,13 +56,7 @@ function SearchContent({ hasParams, isLoading, isError, results, onRetry }: Sear
   const { t } = useTranslation('search');
 
   if (!hasParams) {
-    return (
-      <EmptyState
-        icon={SearchX}
-        title={t('empty.title')}
-        message={t('empty.message')}
-      />
-    );
+    return <EmptyState icon={SearchX} title={t('empty.title')} message={t('empty.message')} />;
   }
 
   if (isLoading) {
@@ -70,13 +64,7 @@ function SearchContent({ hasParams, isLoading, isError, results, onRetry }: Sear
   }
 
   if (isError) {
-    return (
-      <PageError
-        title={t('error.title')}
-        message={t('error.message')}
-        onRetry={onRetry}
-      />
-    );
+    return <PageError title={t('error.title')} message={t('error.message')} onRetry={onRetry} />;
   }
 
   if (results.length === 0) {

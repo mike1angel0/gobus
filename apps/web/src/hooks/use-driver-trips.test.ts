@@ -237,10 +237,9 @@ describe('useDriverTripPassengers', () => {
   it('fetches passengers by scheduleId and date', async () => {
     mockGet.mockResolvedValueOnce({ data: mockPassengersResponse });
 
-    const { result } = renderHook(
-      () => useDriverTripPassengers('sched_1', '2026-04-01'),
-      { wrapper: createWrapper() },
-    );
+    const { result } = renderHook(() => useDriverTripPassengers('sched_1', '2026-04-01'), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 

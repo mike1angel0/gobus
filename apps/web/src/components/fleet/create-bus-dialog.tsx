@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { LayoutGrid, FileText } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +56,8 @@ interface SeatGridPreviewProps {
 
 /** Mini visual preview of a seat grid layout. */
 export function SeatGridPreview({ rows, columns, seats }: SeatGridPreviewProps) {
+  const { t } = useTranslation('provider');
+
   const seatMap = useMemo(() => {
     const map = new Map<string, SeatType>();
     for (const seat of seats) {
@@ -65,7 +69,7 @@ export function SeatGridPreview({ rows, columns, seats }: SeatGridPreviewProps) 
   const visibleRows = Math.min(rows, 8);
 
   return (
-    <div aria-label={`${rows} rows, ${columns} columns seat layout`} className="space-y-0.5">
+    <div aria-label={t('fleet.seatGridPreview.label', { rows, columns })} className="space-y-0.5">
       {Array.from({ length: visibleRows }, (_, r) => (
         <div key={r} className="flex gap-0.5">
           {Array.from({ length: columns }, (_, c) => {
@@ -81,7 +85,9 @@ export function SeatGridPreview({ rows, columns, seats }: SeatGridPreviewProps) 
         </div>
       ))}
       {rows > 8 && (
-        <p className="text-[10px] text-muted-foreground">+{rows - 8} more rows</p>
+        <p className="text-[10px] text-muted-foreground">
+          {t('fleet.seatGridPreview.moreRows', { count: rows - 8 })}
+        </p>
       )}
     </div>
   );
@@ -120,18 +126,26 @@ interface TemplateCardProps {
 
 /** Visual card for a bus template with seat grid preview. */
 function TemplateCard({ template, isSelected, onSelect }: TemplateCardProps) {
+  const { t } = useTranslation('provider');
+
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={isSelected}
       className={`w-full rounded-lg border p-3 text-left transition-colors ${
-        isSelected ? 'border-primary bg-primary/5 ring-2 ring-primary' : 'border-border hover:border-primary/50'
+        isSelected
+          ? 'border-primary bg-primary/5 ring-2 ring-primary'
+          : 'border-border hover:border-primary/50'
       }`}
     >
       <p className="text-sm font-medium">{template.name}</p>
       <p className="text-xs text-muted-foreground">
-        {template.capacity} seats · {template.rows}×{template.columns}
+        {t('fleet.templateSelector.seatsLayout', {
+          capacity: template.capacity,
+          rows: template.rows,
+          columns: template.columns,
+        })}
       </p>
       <div className="mt-2">
         <SeatGridPreview rows={template.rows} columns={template.columns} seats={template.seats} />
@@ -154,25 +168,31 @@ interface TemplateSelectorProps {
 
 /** Template selector fieldset with loading/empty states. */
 function TemplateSelector({ selectedId, onSelect, error }: TemplateSelectorProps) {
+  const { t } = useTranslation('provider');
   const templatesQuery = useBusTemplates();
   const templates = templatesQuery.data?.data ?? [];
 
   return (
     <fieldset className="space-y-3">
-      <legend className="text-sm font-medium">Select template</legend>
+      <legend className="text-sm font-medium">{t('fleet.templateSelector.legend')}</legend>
       {templatesQuery.isLoading && (
-        <div aria-busy="true" aria-label="Loading templates" className="space-y-2">
+        <div
+          aria-busy="true"
+          aria-label={t('fleet.templateSelector.loading')}
+          className="space-y-2"
+        >
           <Skeleton className="h-20 w-full" />
           <Skeleton className="h-20 w-full" />
         </div>
       )}
       {!templatesQuery.isLoading && templates.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No templates available. Switch to manual mode.
-        </p>
+        <p className="text-sm text-muted-foreground">{t('fleet.templateSelector.empty')}</p>
       )}
       {!templatesQuery.isLoading && templates.length > 0 && (
-        <div className="grid gap-2 sm:grid-cols-2" aria-label="Bus templates">
+        <div
+          className="grid gap-2 sm:grid-cols-2"
+          aria-label={t('fleet.templateSelector.listLabel')}
+        >
           {templates.map((template) => (
             <TemplateCard
               key={template.id}
@@ -219,18 +239,19 @@ function ManualConfig({
   rowsError,
   columnsError,
 }: ManualConfigProps) {
+  const { t } = useTranslation('provider');
   const showPreview = rowsStr && columnsStr && !rowsError && !columnsError;
 
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
-        <Label htmlFor="bus-rows">Rows</Label>
+        <Label htmlFor="bus-rows">{t('fleet.manualConfig.rowsLabel')}</Label>
         <Input
           id="bus-rows"
           type="number"
           min={1}
           max={MAX_ROWS}
-          placeholder="e.g. 12"
+          placeholder={t('fleet.manualConfig.rowsPlaceholder')}
           value={rowsStr}
           onChange={(e) => onRowsChange(e.target.value)}
           aria-invalid={!!rowsError}
@@ -243,13 +264,13 @@ function ManualConfig({
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="bus-columns">Columns</Label>
+        <Label htmlFor="bus-columns">{t('fleet.manualConfig.columnsLabel')}</Label>
         <Input
           id="bus-columns"
           type="number"
           min={1}
           max={MAX_COLUMNS}
-          placeholder="e.g. 4"
+          placeholder={t('fleet.manualConfig.columnsPlaceholder')}
           value={columnsStr}
           onChange={(e) => onColumnsChange(e.target.value)}
           aria-invalid={!!columnsError}
@@ -263,7 +284,7 @@ function ManualConfig({
       </div>
       {showPreview && (
         <div className="col-span-2">
-          <p className="mb-1 text-xs text-muted-foreground">Preview</p>
+          <p className="mb-1 text-xs text-muted-foreground">{t('fleet.manualConfig.preview')}</p>
           <SeatGridPreview
             rows={parseInt(rowsStr, 10) || 0}
             columns={parseInt(columnsStr, 10) || 0}
@@ -297,34 +318,37 @@ function validateForm(
   rowsStr: string,
   columnsStr: string,
   hasTemplate: boolean,
+  t: TFunction,
 ): CreateBusErrors {
   const errors: CreateBusErrors = {};
   const plate = licensePlate.trim();
   const mdl = model.trim();
 
   if (!plate) {
-    errors.licensePlate = 'License plate is required.';
+    errors.licensePlate = t('fleet.validation.licensePlateRequired');
   } else if (plate.length > MAX_LICENSE_PLATE_LENGTH) {
-    errors.licensePlate = `License plate must be at most ${MAX_LICENSE_PLATE_LENGTH} characters.`;
+    errors.licensePlate = t('fleet.validation.licensePlateMaxLength', {
+      max: MAX_LICENSE_PLATE_LENGTH,
+    });
   }
 
   if (!mdl) {
-    errors.model = 'Model is required.';
+    errors.model = t('fleet.validation.modelRequired');
   } else if (mdl.length > MAX_MODEL_LENGTH) {
-    errors.model = `Model must be at most ${MAX_MODEL_LENGTH} characters.`;
+    errors.model = t('fleet.validation.modelMaxLength', { max: MAX_MODEL_LENGTH });
   }
 
   if (mode === 'manual') {
     const rows = parseInt(rowsStr, 10);
     const columns = parseInt(columnsStr, 10);
     if (isNaN(rows) || rows < 1 || rows > MAX_ROWS) {
-      errors.rows = `Rows must be between 1 and ${MAX_ROWS}.`;
+      errors.rows = t('fleet.validation.rowsRange', { max: MAX_ROWS });
     }
     if (isNaN(columns) || columns < 1 || columns > MAX_COLUMNS) {
-      errors.columns = `Columns must be between 1 and ${MAX_COLUMNS}.`;
+      errors.columns = t('fleet.validation.columnsRange', { max: MAX_COLUMNS });
     }
   } else if (!hasTemplate) {
-    errors.rows = 'Please select a template.';
+    errors.rows = t('fleet.validation.templateRequired');
   }
 
   return errors;
@@ -345,6 +369,7 @@ interface CreateBusDialogProps {
  * rows and columns. Both modes require license plate and model inputs.
  */
 export function CreateBusDialog({ children }: CreateBusDialogProps) {
+  const { t } = useTranslation('provider');
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<'template' | 'manual'>('template');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
@@ -356,7 +381,7 @@ export function CreateBusDialog({ children }: CreateBusDialogProps) {
   const createBus = useCreateBus();
   const templatesQuery = useBusTemplates();
   const templates = templatesQuery.data?.data ?? [];
-  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId) ?? null;
+  const selectedTemplate = templates.find((tmpl) => tmpl.id === selectedTemplateId) ?? null;
 
   function resetForm() {
     setMode('template');
@@ -370,7 +395,15 @@ export function CreateBusDialog({ children }: CreateBusDialogProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const formErrors = validateForm(licensePlate, model, mode, rowsStr, columnsStr, !!selectedTemplate);
+    const formErrors = validateForm(
+      licensePlate,
+      model,
+      mode,
+      rowsStr,
+      columnsStr,
+      !!selectedTemplate,
+      t,
+    );
     setErrors(formErrors);
     if (Object.keys(formErrors).length > 0) return;
 
@@ -379,13 +412,26 @@ export function CreateBusDialog({ children }: CreateBusDialogProps) {
     const seats = mode === 'template' ? selectedTemplate!.seats : generateSeats(rows, columns);
 
     createBus.mutate(
-      { licensePlate: licensePlate.trim(), model: model.trim(), capacity: seats.length, rows, columns, seats },
       {
-        onSuccess: () => { resetForm(); setOpen(false); },
+        licensePlate: licensePlate.trim(),
+        model: model.trim(),
+        capacity: seats.length,
+        rows,
+        columns,
+        seats,
+      },
+      {
+        onSuccess: () => {
+          resetForm();
+          setOpen(false);
+        },
         onError: (error: unknown) => {
           if (!isApiError(error)) return;
           if (error.status === 409) {
-            setErrors((prev) => ({ ...prev, licensePlate: 'A bus with this license plate already exists.' }));
+            setErrors((prev) => ({
+              ...prev,
+              licensePlate: t('fleet.validation.licensePlateConflict'),
+            }));
             return;
           }
           for (const fe of error.fieldErrors) {
@@ -399,21 +445,25 @@ export function CreateBusDialog({ children }: CreateBusDialogProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) resetForm(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) resetForm();
+      }}
+    >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Add bus</DialogTitle>
-          <DialogDescription>
-            Add a new bus to your fleet. Choose a template or configure manually.
-          </DialogDescription>
+          <DialogTitle>{t('fleet.createDialog.title')}</DialogTitle>
+          <DialogDescription>{t('fleet.createDialog.description')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="bus-license-plate">License plate</Label>
+            <Label htmlFor="bus-license-plate">{t('fleet.createDialog.licensePlateLabel')}</Label>
             <Input
               id="bus-license-plate"
-              placeholder="e.g. AB-12-XYZ"
+              placeholder={t('fleet.createDialog.licensePlatePlaceholder')}
               maxLength={MAX_LICENSE_PLATE_LENGTH}
               value={licensePlate}
               onChange={(e) => setLicensePlate(e.target.value)}
@@ -421,15 +471,17 @@ export function CreateBusDialog({ children }: CreateBusDialogProps) {
               aria-describedby={errors.licensePlate ? 'license-plate-error' : undefined}
             />
             {errors.licensePlate && (
-              <p id="license-plate-error" role="alert" className="text-sm text-destructive">{errors.licensePlate}</p>
+              <p id="license-plate-error" role="alert" className="text-sm text-destructive">
+                {errors.licensePlate}
+              </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bus-model">Model</Label>
+            <Label htmlFor="bus-model">{t('fleet.createDialog.modelLabel')}</Label>
             <Input
               id="bus-model"
-              placeholder="e.g. Mercedes Tourismo"
+              placeholder={t('fleet.createDialog.modelPlaceholder')}
               maxLength={MAX_MODEL_LENGTH}
               value={model}
               onChange={(e) => setModel(e.target.value)}
@@ -437,18 +489,38 @@ export function CreateBusDialog({ children }: CreateBusDialogProps) {
               aria-describedby={errors.model ? 'model-error' : undefined}
             />
             {errors.model && (
-              <p id="model-error" role="alert" className="text-sm text-destructive">{errors.model}</p>
+              <p id="model-error" role="alert" className="text-sm text-destructive">
+                {errors.model}
+              </p>
             )}
           </div>
 
-          <div className="flex gap-2" role="radiogroup" aria-label="Configuration mode">
-            <Button type="button" variant={mode === 'template' ? 'default' : 'outline'} size="sm" role="radio" aria-checked={mode === 'template'} onClick={() => setMode('template')}>
+          <div
+            className="flex gap-2"
+            role="radiogroup"
+            aria-label={t('fleet.createDialog.configModeLabel')}
+          >
+            <Button
+              type="button"
+              variant={mode === 'template' ? 'default' : 'outline'}
+              size="sm"
+              role="radio"
+              aria-checked={mode === 'template'}
+              onClick={() => setMode('template')}
+            >
               <LayoutGrid className="mr-1 h-4 w-4" aria-hidden="true" />
-              Template
+              {t('fleet.createDialog.template')}
             </Button>
-            <Button type="button" variant={mode === 'manual' ? 'default' : 'outline'} size="sm" role="radio" aria-checked={mode === 'manual'} onClick={() => setMode('manual')}>
+            <Button
+              type="button"
+              variant={mode === 'manual' ? 'default' : 'outline'}
+              size="sm"
+              role="radio"
+              aria-checked={mode === 'manual'}
+              onClick={() => setMode('manual')}
+            >
               <FileText className="mr-1 h-4 w-4" aria-hidden="true" />
-              Manual
+              {t('fleet.createDialog.manual')}
             </Button>
           </div>
 
@@ -473,10 +545,14 @@ export function CreateBusDialog({ children }: CreateBusDialogProps) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">
+                {t('common.cancel')}
+              </Button>
             </DialogClose>
             <Button type="submit" disabled={createBus.isPending}>
-              {createBus.isPending ? 'Creating…' : 'Add bus'}
+              {createBus.isPending
+                ? t('fleet.createDialog.creating')
+                : t('fleet.createDialog.addBusButton')}
             </Button>
           </DialogFooter>
         </form>

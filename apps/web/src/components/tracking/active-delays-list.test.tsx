@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import { ActiveDelaysList } from './active-delays-list';
 import { renderWithProviders } from '@/test/helpers';
 import type { components } from '@/api/generated/types';
@@ -32,6 +33,7 @@ function makeDelay(overrides: Partial<Delay> = {}): Delay {
 }
 
 beforeEach(() => {
+  i18n.changeLanguage('en');
   vi.clearAllMocks();
   mutateFn.mockReset();
   mockUpdateDelay.mockReturnValue({ mutate: mutateFn, isPending: false });

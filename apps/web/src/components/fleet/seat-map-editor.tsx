@@ -203,7 +203,12 @@ export const SeatMapEditor = memo(function SeatMapEditor({
       <BrushToolbar activeBrush={brushType} onBrushChange={setBrushType} />
 
       <TooltipProvider delayDuration={200}>
-        <div ref={gridRef} role="grid" aria-label={t('fleet.seatMapEditor.gridLabel')} className="inline-block">
+        <div
+          ref={gridRef}
+          role="grid"
+          aria-label={t('fleet.seatMapEditor.gridLabel')}
+          className="inline-block"
+        >
           {rowArray.map((row) => (
             <div key={row} role="row" className="flex">
               {colArray.map((col) => {
@@ -259,7 +264,11 @@ function BrushToolbar({ activeBrush, onBrushChange }: BrushToolbarProps) {
   const { t } = useTranslation('provider');
 
   return (
-    <div role="radiogroup" aria-label={t('fleet.seatMapEditor.brushLabel')} className="flex flex-wrap gap-2">
+    <div
+      role="radiogroup"
+      aria-label={t('fleet.seatMapEditor.brushLabel')}
+      className="flex flex-wrap gap-2"
+    >
       <Button
         type="button"
         variant={activeBrush === null ? 'default' : 'outline'}
@@ -317,7 +326,10 @@ const EditorSeatCell = memo(function EditorSeatCell({
   const { t } = useTranslation('provider');
   const icon = SEAT_TYPE_ICONS[seat.type];
   const translatedType = getSeatTypeLabel(seat.type, t);
-  const ariaLabel = t('fleet.seatMapEditor.seatAriaLabel', { label: seat.label, type: translatedType });
+  const ariaLabel = t('fleet.seatMapEditor.seatAriaLabel', {
+    label: seat.label,
+    type: translatedType,
+  });
 
   return (
     <Tooltip>
@@ -341,9 +353,7 @@ const EditorSeatCell = memo(function EditorSeatCell({
         </button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>
-          {t('fleet.seatMapEditor.seatTooltip', { label: seat.label, type: translatedType })}
-        </p>
+        <p>{t('fleet.seatMapEditor.seatTooltip', { label: seat.label, type: translatedType })}</p>
       </TooltipContent>
     </Tooltip>
   );
@@ -365,7 +375,10 @@ function SeatCountSummary({ counts }: SeatCountSummaryProps) {
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
 
   return (
-    <div aria-label={t('fleet.seatMapEditor.countSummary')} className="flex flex-wrap gap-4 text-sm">
+    <div
+      aria-label={t('fleet.seatMapEditor.countSummary')}
+      className="flex flex-wrap gap-4 text-sm"
+    >
       <span className="font-medium">{t('fleet.seatMapEditor.total', { count: total })}</span>
       {SEAT_TYPE_CYCLE.map((type) => (
         <span key={type} className="text-muted-foreground">

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Radio } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -123,11 +124,13 @@ function TrackingMapSection({ busPositions, selectedBusId }: TrackingMapSectionP
 
 /** Skeleton placeholder for the tracking page while loading. */
 function TrackingLoadingSkeleton() {
+  const { t } = useTranslation('provider');
+
   return (
     <div
       className="flex h-full flex-col lg:flex-row"
       aria-busy="true"
-      aria-label="Loading tracking"
+      aria-label={t('tracking.loadingLabel')}
     >
       <div className="h-64 w-full lg:h-full lg:flex-1">
         <Skeleton className="h-full w-full" />
@@ -151,6 +154,7 @@ interface TrackingContentProps {
 
 /** Main content of the tracking page with map and sidebar. */
 function TrackingContent({ data }: TrackingContentProps) {
+  const { t } = useTranslation('provider');
   const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
   const { trackedBuses, scheduleOptions } = data;
 
@@ -191,17 +195,17 @@ function TrackingContent({ data }: TrackingContentProps) {
       {/* Sidebar - scrollable on desktop, bottom sheet style on mobile */}
       <aside
         className="flex w-full flex-col gap-4 overflow-y-auto border-t p-4 lg:w-80 lg:border-l lg:border-t-0"
-        aria-label="Fleet tracking sidebar"
+        aria-label={t('tracking.sidebarLabel')}
       >
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-lg font-semibold">
             <Radio className="h-5 w-5 text-primary" aria-hidden="true" />
-            Fleet tracking
+            {t('tracking.sidebarTitle')}
           </h2>
           <ReportDelayDialog schedules={scheduleOptions}>
             <Button variant="outline" size="sm">
               <AlertTriangle className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              Report delay
+              {t('tracking.reportDelay')}
             </Button>
           </ReportDelayDialog>
         </div>
@@ -216,7 +220,7 @@ function TrackingContent({ data }: TrackingContentProps) {
         {/* Active delays section */}
         {selectedTracking?.scheduleId && (
           <div>
-            <h3 className="mb-2 text-sm font-medium">Active delays</h3>
+            <h3 className="mb-2 text-sm font-medium">{t('tracking.activeDelays')}</h3>
             <ActiveDelaysList delays={delays} isLoading={delaysQuery.isLoading} />
           </div>
         )}
@@ -242,7 +246,8 @@ function TrackingContent({ data }: TrackingContentProps) {
  * ```
  */
 export default function ProviderTrackingPage() {
-  usePageTitle('Live Tracking');
+  const { t } = useTranslation('provider');
+  usePageTitle(t('tracking.title'));
   const data = useTrackingPageData();
 
   if (data.isLoading) {
@@ -252,8 +257,8 @@ export default function ProviderTrackingPage() {
   if (data.isError) {
     return (
       <PageError
-        title="Failed to load tracking data"
-        message="We couldn't load your fleet tracking data. Please try again."
+        title={t('tracking.error.title')}
+        message={t('tracking.error.message')}
         onRetry={data.refetch}
       />
     );

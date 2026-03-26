@@ -79,7 +79,6 @@ describe('CreateDriverDialog', () => {
       expect(mockMutate).not.toHaveBeenCalled();
     });
 
-
     it('shows error when email is empty', async () => {
       const user = await renderOpenDialog();
       await user.type(screen.getByLabelText('Name'), 'John');
@@ -115,9 +114,7 @@ describe('CreateDriverDialog', () => {
       await user.type(screen.getByLabelText('Password'), 'Short1');
       await user.click(screen.getByRole('button', { name: 'Create driver' }));
 
-      expect(
-        screen.getByText('Password must be at least 8 characters.'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Password must be at least 8 characters.')).toBeInTheDocument();
     });
 
     it('shows error when password lacks required characters', async () => {
@@ -128,9 +125,7 @@ describe('CreateDriverDialog', () => {
       await user.click(screen.getByRole('button', { name: 'Create driver' }));
 
       expect(
-        screen.getByText(
-          'Password must contain at least 1 uppercase, 1 lowercase, and 1 digit.',
-        ),
+        screen.getByText('Password must contain at least 1 uppercase, 1 lowercase, and 1 digit.'),
       ).toBeInTheDocument();
     });
 
@@ -140,9 +135,7 @@ describe('CreateDriverDialog', () => {
       await user.type(screen.getByLabelText(/Phone/), '1'.repeat(21));
       await user.click(screen.getByRole('button', { name: 'Create driver' }));
 
-      expect(
-        screen.getByText('Phone must be at most 20 characters.'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Phone must be at most 20 characters.')).toBeInTheDocument();
     });
   });
 
@@ -178,16 +171,18 @@ describe('CreateDriverDialog', () => {
     });
 
     it('handles 409 conflict error with field message', async () => {
-      mockMutate.mockImplementation((_data: unknown, options: { onError: (e: unknown) => void }) => {
-        options.onError(
-          new ApiError({
-            type: 'about:blank',
-            title: 'Conflict',
-            status: 409,
-            code: 'DUPLICATE_EMAIL',
-          }),
-        );
-      });
+      mockMutate.mockImplementation(
+        (_data: unknown, options: { onError: (e: unknown) => void }) => {
+          options.onError(
+            new ApiError({
+              type: 'about:blank',
+              title: 'Conflict',
+              status: 409,
+              code: 'DUPLICATE_EMAIL',
+            }),
+          );
+        },
+      );
 
       const user = await renderOpenDialog();
       await fillValidForm(user);
@@ -201,15 +196,17 @@ describe('CreateDriverDialog', () => {
     });
 
     it('handles API field errors', async () => {
-      mockMutate.mockImplementation((_data: unknown, options: { onError: (e: unknown) => void }) => {
-        const err = new ApiError({
-          type: 'about:blank',
-          title: 'Validation Error',
-          status: 400,
-          errors: [{ field: 'email', message: 'Email domain is blocked' }],
-        });
-        options.onError(err);
-      });
+      mockMutate.mockImplementation(
+        (_data: unknown, options: { onError: (e: unknown) => void }) => {
+          const err = new ApiError({
+            type: 'about:blank',
+            title: 'Validation Error',
+            status: 400,
+            errors: [{ field: 'email', message: 'Email domain is blocked' }],
+          });
+          options.onError(err);
+        },
+      );
 
       const user = await renderOpenDialog();
       await fillValidForm(user);
@@ -221,9 +218,11 @@ describe('CreateDriverDialog', () => {
     });
 
     it('ignores non-API errors in onError handler', async () => {
-      mockMutate.mockImplementation((_data: unknown, options: { onError: (e: unknown) => void }) => {
-        options.onError(new Error('Network failure'));
-      });
+      mockMutate.mockImplementation(
+        (_data: unknown, options: { onError: (e: unknown) => void }) => {
+          options.onError(new Error('Network failure'));
+        },
+      );
 
       const user = await renderOpenDialog();
       await fillValidForm(user);
@@ -249,7 +248,9 @@ describe('CreateDriverDialog', () => {
     it('has dialog description', async () => {
       await renderOpenDialog();
       expect(
-        screen.getByText('Add a new driver account. The driver will use these credentials to log in.'),
+        screen.getByText(
+          'Add a new driver account. The driver will use these credentials to log in.',
+        ),
       ).toBeInTheDocument();
     });
   });

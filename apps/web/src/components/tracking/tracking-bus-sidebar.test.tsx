@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import { TrackingBusSidebar } from './tracking-bus-sidebar';
 import { renderWithProviders } from '@/test/helpers';
 import type { TrackedBus } from './tracking-bus-sidebar';
@@ -41,6 +42,10 @@ function makeTracking(
 /* ---------- Tests ---------- */
 
 describe('TrackingBusSidebar', () => {
+  beforeEach(() => {
+    i18n.changeLanguage('en');
+  });
+
   it('renders loading skeleton', () => {
     renderWithProviders(
       <TrackingBusSidebar
@@ -194,9 +199,7 @@ describe('TrackingBusSidebar', () => {
   });
 
   it('has aria-live region for real-time updates', () => {
-    const trackedBuses: TrackedBus[] = [
-      { bus: makeBus(), tracking: makeTracking() },
-    ];
+    const trackedBuses: TrackedBus[] = [{ bus: makeBus(), tracking: makeTracking() }];
 
     renderWithProviders(
       <TrackingBusSidebar

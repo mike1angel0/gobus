@@ -304,9 +304,7 @@ describe('ProviderSchedulesPage', () => {
       await user.selectOptions(screen.getByLabelText('Bus'), 'bus_1');
 
       const lastCall = mockSchedules.mock.calls[mockSchedules.mock.calls.length - 1];
-      expect(lastCall[0]).toEqual(
-        expect.objectContaining({ routeId: 'route_1', busId: 'bus_1' }),
-      );
+      expect(lastCall[0]).toEqual(expect.objectContaining({ routeId: 'route_1', busId: 'bus_1' }));
     });
 
     it('passes date range filters to useSchedules hook', async () => {

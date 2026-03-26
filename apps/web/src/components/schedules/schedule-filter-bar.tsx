@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -51,58 +53,72 @@ export function ScheduleFilterBar({
   onFromDateChange,
   onToDateChange,
 }: ScheduleFilterBarProps) {
+  const { t } = useTranslation('provider');
+
   return (
     <div
       className="mb-6 flex flex-wrap items-end gap-3"
       role="search"
-      aria-label="Schedule filters"
+      aria-label={t('schedules.filter.label')}
     >
       <div className="space-y-1">
-        <Label htmlFor="filter-route" className="text-xs">Route</Label>
+        <Label htmlFor="filter-route" className="text-xs">
+          {t('schedules.filter.route')}
+        </Label>
         <select
           id="filter-route"
           className={SELECT_CLASS}
           value={routeId}
           onChange={(e) => onRouteChange(e.target.value)}
         >
-          <option value="">All routes</option>
+          <option value="">{t('schedules.filter.allRoutes')}</option>
           {routes.map((r) => (
-            <option key={r.id} value={r.id}>{r.name}</option>
+            <option key={r.id} value={r.id}>
+              {r.name}
+            </option>
           ))}
         </select>
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="filter-bus" className="text-xs">Bus</Label>
+        <Label htmlFor="filter-bus" className="text-xs">
+          {t('schedules.filter.bus')}
+        </Label>
         <select
           id="filter-bus"
           className={SELECT_CLASS}
           value={busId}
           onChange={(e) => onBusChange(e.target.value)}
         >
-          <option value="">All buses</option>
+          <option value="">{t('schedules.filter.allBuses')}</option>
           {buses.map((b) => (
-            <option key={b.id} value={b.id}>{b.licensePlate}</option>
+            <option key={b.id} value={b.id}>
+              {b.licensePlate}
+            </option>
           ))}
         </select>
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="filter-status" className="text-xs">Status</Label>
+        <Label htmlFor="filter-status" className="text-xs">
+          {t('schedules.filter.status')}
+        </Label>
         <select
           id="filter-status"
           className={SELECT_CLASS}
           value={status}
           onChange={(e) => onStatusChange(e.target.value)}
         >
-          <option value="">All statuses</option>
-          <option value="ACTIVE">Active</option>
-          <option value="CANCELLED">Cancelled</option>
+          <option value="">{t('schedules.filter.allStatuses')}</option>
+          <option value="ACTIVE">{t('schedules.filter.active')}</option>
+          <option value="CANCELLED">{t('schedules.filter.cancelled')}</option>
         </select>
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="filter-from-date" className="text-xs">From</Label>
+        <Label htmlFor="filter-from-date" className="text-xs">
+          {t('schedules.filter.from')}
+        </Label>
         <Input
           id="filter-from-date"
           type="date"
@@ -113,7 +129,9 @@ export function ScheduleFilterBar({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="filter-to-date" className="text-xs">To</Label>
+        <Label htmlFor="filter-to-date" className="text-xs">
+          {t('schedules.filter.to')}
+        </Label>
         <Input
           id="filter-to-date"
           type="date"

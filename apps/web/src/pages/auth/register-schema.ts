@@ -42,10 +42,7 @@ export function createRegisterSchema(t: TFunction) {
         .min(1, t('validation.emailRequired'))
         .email(t('validation.emailInvalid'))
         .max(255, t('validation.emailMaxLength')),
-      name: z
-        .string()
-        .min(1, t('validation.nameRequired'))
-        .max(100, t('validation.nameMaxLength')),
+      name: z.string().min(1, t('validation.nameRequired')).max(100, t('validation.nameMaxLength')),
       password: z
         .string()
         .min(8, t('validation.passwordMinLength'))
@@ -55,11 +52,7 @@ export function createRegisterSchema(t: TFunction) {
         .regex(/\d/, t('validation.passwordDigit')),
       confirmPassword: z.string().min(1, t('validation.confirmPasswordRequired')),
       role: z.enum(['PASSENGER', 'PROVIDER']),
-      phone: z
-        .string()
-        .max(20, t('validation.phoneMaxLength'))
-        .optional()
-        .or(z.literal('')),
+      phone: z.string().max(20, t('validation.phoneMaxLength')).optional().or(z.literal('')),
       providerName: z
         .string()
         .max(200, t('validation.providerNameMaxLength'))

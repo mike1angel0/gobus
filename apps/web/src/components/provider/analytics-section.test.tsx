@@ -23,7 +23,12 @@ describe('AnalyticsSection', () => {
   describe('loaded state', () => {
     it('renders total bookings', () => {
       renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       expect(screen.getByText('142')).toBeInTheDocument();
@@ -32,7 +37,12 @@ describe('AnalyticsSection', () => {
 
     it('renders total revenue formatted as currency', () => {
       renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       expect(screen.getByText('$15,230.50')).toBeInTheDocument();
@@ -41,7 +51,12 @@ describe('AnalyticsSection', () => {
 
     it('renders average occupancy as percentage', () => {
       renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       expect(screen.getByText('73.0%')).toBeInTheDocument();
@@ -50,7 +65,12 @@ describe('AnalyticsSection', () => {
 
     it('renders revenue-by-route breakdown', () => {
       renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       expect(screen.getByText('NYC - Boston')).toBeInTheDocument();
@@ -61,7 +81,12 @@ describe('AnalyticsSection', () => {
 
     it('renders revenue bars with correct aria attributes', () => {
       renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       const meters = screen.getAllByRole('meter');
@@ -78,7 +103,12 @@ describe('AnalyticsSection', () => {
     it('renders empty state when revenueByRoute is empty', () => {
       const emptyAnalytics = { ...mockAnalytics, revenueByRoute: [] };
       renderWithProviders(
-        <AnalyticsSection data={emptyAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={emptyAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       expect(screen.getByText('No revenue data yet')).toBeInTheDocument();
@@ -124,7 +154,12 @@ describe('AnalyticsSection', () => {
   describe('accessibility', () => {
     it('has proper heading for analytics section', () => {
       renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       expect(screen.getByRole('heading', { name: 'Analytics' })).toBeInTheDocument();
@@ -132,7 +167,12 @@ describe('AnalyticsSection', () => {
 
     it('icons have aria-hidden attribute', () => {
       const { container } = renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       const svgs = container.querySelectorAll('svg');
@@ -143,7 +183,12 @@ describe('AnalyticsSection', () => {
 
     it('has section with aria-labelledby', () => {
       renderWithProviders(
-        <AnalyticsSection data={mockAnalytics} isLoading={false} isError={false} onRetry={vi.fn()} />,
+        <AnalyticsSection
+          data={mockAnalytics}
+          isLoading={false}
+          isError={false}
+          onRetry={vi.fn()}
+        />,
       );
 
       expect(screen.getByLabelText('Analytics')).toBeInTheDocument();

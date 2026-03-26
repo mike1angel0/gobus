@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import i18n from '@/i18n/config';
 import { renderWithProviders } from '@/test/helpers';
 import { PassengerList, type PassengerListProps } from './passenger-list';
 import type { components } from '@/api/generated/types';
@@ -33,6 +34,10 @@ function renderPassengerList(overrides: Partial<PassengerListProps> = {}) {
 }
 
 describe('PassengerList', () => {
+  beforeEach(() => {
+    i18n.changeLanguage('en');
+  });
+
   describe('loading state', () => {
     it('renders loading skeleton when isLoading is true', () => {
       renderPassengerList({ isLoading: true });
@@ -87,7 +92,7 @@ describe('PassengerList', () => {
       expect(screen.getByText('Alice Smith')).toBeInTheDocument();
       expect(screen.getByText('Bucharest North → Cluj Central')).toBeInTheDocument();
       expect(screen.getByText('Seats: 1A, 1B')).toBeInTheDocument();
-      expect(screen.getByText('CONFIRMED')).toBeInTheDocument();
+      expect(screen.getByText('Confirmed')).toBeInTheDocument();
     });
 
     it('renders multiple passengers', () => {
@@ -111,7 +116,7 @@ describe('PassengerList', () => {
       const passenger = createPassenger({ status: 'CANCELLED' });
       renderPassengerList({ passengers: [passenger] });
 
-      expect(screen.getByText('CANCELLED')).toBeInTheDocument();
+      expect(screen.getByText('Cancelled')).toBeInTheDocument();
     });
 
     it('hides seats line when seatLabels is empty', () => {

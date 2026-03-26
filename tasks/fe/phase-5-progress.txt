@@ -86,3 +86,10 @@
 - Enhanced navbar tests from 32 to 38 tests: added per-role profile link verification, admin href assertions, cross-role isolation checks, getLinksForRole unit tests
 - Learnings: When tasks are completed incrementally across prior iterations, TASK-009 type "wiring" tasks become verification + test enhancement tasks. Always check what was already done before implementing.
 ---
+
+## Iteration 10 - TASK-010 & TASK-011: Quality gates and pre-existing fixes
+- All quality gates pass: typecheck (0 errors), lint (0 errors, 1 known warning), format (fixed 3 files), tests (1266 pass, 73 files), build (success), api:check (96.1% coverage)
+- Coverage improved from 82.89% branches to 90.12% by adding 47 targeted tests
+- Biggest coverage gains from: schedule-filter-bar tests (new file, 50%→100%), create-driver-dialog tests (new file, 71%→~95%), hook error branch tests (12 hooks got `detail ?? title` fallback tests)
+- Learnings: maxLength on HTML input elements prevents typing past the limit, so testing validation of "too long" values requires either paste() or direct DOM manipulation. Focus on uncovered branches in hooks (ternary error messages) for easy coverage wins.
+---

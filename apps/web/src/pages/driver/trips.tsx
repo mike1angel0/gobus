@@ -69,7 +69,12 @@ function TripCard({ trip, onSelect }: TripCardProps) {
       className="cursor-pointer transition-shadow hover:shadow-md"
       role="button"
       tabIndex={0}
-      aria-label={t('trips.tripLabel', { route: trip.routeName, depTime, arrTime, status: statusLabel })}
+      aria-label={t('trips.tripLabel', {
+        route: trip.routeName,
+        depTime,
+        arrTime,
+        status: statusLabel,
+      })}
       onClick={() => onSelect(trip.scheduleId)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

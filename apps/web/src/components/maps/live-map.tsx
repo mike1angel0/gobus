@@ -136,7 +136,13 @@ const BusMarker = memo(function BusMarker({ position }: { position: BusPosition 
  * />
  * ```
  */
-export const LiveMap = memo(function LiveMap({ stops, busPosition, center, zoom, className }: LiveMapProps) {
+export const LiveMap = memo(function LiveMap({
+  stops,
+  busPosition,
+  center,
+  zoom,
+  className,
+}: LiveMapProps) {
   const mapCenter = center ?? DEFAULT_CENTER;
   const mapZoom = zoom ?? DEFAULT_ZOOM;
   const stopIcon = useMemo(() => createStopIcon(), []);

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,9 +27,6 @@ type Stop = components['schemas']['Stop'];
 
 /** Maximum base price per OpenAPI spec. */
 const MAX_BASE_PRICE = 100000;
-
-/** Days of week labels indexed 0=Sunday through 6=Saturday. */
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
 /** Known form error field names. */
 const KNOWN_FIELDS = ['routeId', 'busId', 'departureTime', 'arrivalTime', 'basePrice', 'tripDate'];
@@ -75,30 +74,30 @@ const SELECT_CLASS =
 /* ---------- Validation ---------- */
 
 /** Validates the create schedule form. Returns errors object (empty = valid). */
-function validateForm(form: FormState, stopCount: number): FormErrors {
+function validateForm(form: FormState, stopCount: number, t: TFunction): FormErrors {
   const errs: FormErrors = {};
 
-  if (!form.routeId) errs.routeId = 'Route is required.';
-  if (!form.busId) errs.busId = 'Bus is required.';
-  if (!form.departureTime) errs.departureTime = 'Departure time is required.';
-  if (!form.arrivalTime) errs.arrivalTime = 'Arrival time is required.';
+  if (!form.routeId) errs.routeId = t('schedules.validation.routeRequired');
+  if (!form.busId) errs.busId = t('schedules.validation.busRequired');
+  if (!form.departureTime) errs.departureTime = t('schedules.validation.departureRequired');
+  if (!form.arrivalTime) errs.arrivalTime = t('schedules.validation.arrivalRequired');
 
   if (form.departureTime && form.arrivalTime) {
     if (new Date(form.arrivalTime) <= new Date(form.departureTime)) {
-      errs.arrivalTime = 'Arrival time must be after departure time.';
+      errs.arrivalTime = t('schedules.validation.arrivalAfterDeparture');
     }
   }
 
   const price = parseFloat(form.basePrice);
   if (!form.basePrice || isNaN(price)) {
-    errs.basePrice = 'Base price is required.';
+    errs.basePrice = t('schedules.validation.basePriceRequired');
   } else if (price < 0 || price > MAX_BASE_PRICE) {
-    errs.basePrice = `Base price must be between 0 and ${MAX_BASE_PRICE}.`;
+    errs.basePrice = t('schedules.validation.basePriceRange', { max: MAX_BASE_PRICE });
   }
 
-  if (!form.tripDate) errs.tripDate = 'Trip date is required.';
+  if (!form.tripDate) errs.tripDate = t('schedules.validation.tripDateRequired');
   if (form.routeId && stopCount < 2) {
-    errs.stopTimes = 'Selected route must have at least 2 stops.';
+    errs.stopTimes = t('schedules.validation.minStops');
   }
 
   return errs;
@@ -123,10 +122,14 @@ function buildStopTimes(stops: Stop[], depDate: Date, arrDate: Date, price: numb
 }
 
 /** Handles mutation error by mapping API errors to form fields. */
-function handleMutationError(error: unknown, setErrors: React.Dispatch<React.SetStateAction<FormErrors>>) {
+function handleMutationError(
+  error: unknown,
+  setErrors: React.Dispatch<React.SetStateAction<FormErrors>>,
+  t: TFunction,
+) {
   if (!isApiError(error)) return;
   if (error.status === 404) {
-    setErrors((prev) => ({ ...prev, general: 'Referenced route, bus, or driver not found.' }));
+    setErrors((prev) => ({ ...prev, general: t('schedules.validation.notFound') }));
     return;
   }
   for (const fe of error.fieldErrors) {
@@ -170,7 +173,16 @@ interface SelectFieldProps {
 }
 
 /** Reusable select field with label and error display. */
-function SelectField({ label, id, value, onChange, error, errorId, options, placeholder }: SelectFieldProps) {
+function SelectField({
+  label,
+  id,
+  value,
+  onChange,
+  error,
+  errorId,
+  options,
+  placeholder,
+}: SelectFieldProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
@@ -184,11 +196,15 @@ function SelectField({ label, id, value, onChange, error, errorId, options, plac
       >
         <option value="">{placeholder}</option>
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
         ))}
       </select>
       {error && (
-        <p id={errorId} role="alert" className="text-sm text-destructive">{error}</p>
+        <p id={errorId} role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -202,11 +218,29 @@ interface DaysOfWeekSelectorProps {
 
 /** Multi-toggle day of week selector. */
 function DaysOfWeekSelector({ selected, onToggle }: DaysOfWeekSelectorProps) {
+  const { t } = useTranslation('provider');
+
+  const dayLabels = [
+    t('schedules.days.sun'),
+    t('schedules.days.mon'),
+    t('schedules.days.tue'),
+    t('schedules.days.wed'),
+    t('schedules.days.thu'),
+    t('schedules.days.fri'),
+    t('schedules.days.sat'),
+  ];
+
   return (
     <fieldset className="space-y-2">
-      <legend className="text-sm font-medium">Days of week (optional)</legend>
-      <div className="flex flex-wrap gap-1" role="group" aria-label="Days of week">
-        {DAY_LABELS.map((label, index) => (
+      <legend className="text-sm font-medium">
+        {t('schedules.createDialog.daysOfWeekLegend')}
+      </legend>
+      <div
+        className="flex flex-wrap gap-1"
+        role="group"
+        aria-label={t('schedules.createDialog.daysOfWeekLabel')}
+      >
+        {dayLabels.map((label, index) => (
           <Button
             key={index}
             type="button"
@@ -232,15 +266,22 @@ interface StopTimesPreviewProps {
 
 /** Shows a preview of stop times that will be auto-calculated. */
 function StopTimesPreview({ stops, error }: StopTimesPreviewProps) {
+  const { t } = useTranslation('provider');
+
   return (
     <>
       {stops.length > 0 && (
         <div className="rounded-md border border-border/50 p-3">
-          <p className="mb-1 text-sm font-medium">Stop times ({stops.length} stops)</p>
-          <p className="text-xs text-muted-foreground">
-            Stop times will be auto-calculated by evenly distributing the travel time across the route stops.
+          <p className="mb-1 text-sm font-medium">
+            {t('schedules.createDialog.stopTimesLabel', { count: stops.length })}
           </p>
-          <ul className="mt-2 space-y-1" aria-label="Route stops">
+          <p className="text-xs text-muted-foreground">
+            {t('schedules.createDialog.stopTimesDescription')}
+          </p>
+          <ul
+            className="mt-2 space-y-1"
+            aria-label={t('schedules.createDialog.stopTimesListLabel')}
+          >
             {stops.map((stop, i) => (
               <li key={stop.id ?? i} className="text-xs text-muted-foreground">
                 {i + 1}. {stop.name}
@@ -250,7 +291,9 @@ function StopTimesPreview({ stops, error }: StopTimesPreviewProps) {
         </div>
       )}
       {error && (
-        <p role="alert" className="text-sm text-destructive">{error}</p>
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
       )}
     </>
   );
@@ -272,7 +315,9 @@ function InputField({ label, id, error, errorId, children }: InputFieldProps) {
       <Label htmlFor={id}>{label}</Label>
       {children}
       {error && (
-        <p id={errorId} role="alert" className="text-sm text-destructive">{error}</p>
+        <p id={errorId} role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -307,6 +352,7 @@ function useCreateScheduleData(routeId: string) {
  * and stop times auto-populated from the selected route.
  */
 export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
+  const { t } = useTranslation('provider');
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -333,53 +379,87 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const formErrors = validateForm(form, routeStops.length);
+    const formErrors = validateForm(form, routeStops.length, t);
     setErrors(formErrors);
     if (Object.keys(formErrors).length > 0) return;
 
     createSchedule.mutate(buildRequestBody(form, routeStops), {
-      onSuccess: () => { resetForm(); setOpen(false); },
-      onError: (error: unknown) => handleMutationError(error, setErrors),
+      onSuccess: () => {
+        resetForm();
+        setOpen(false);
+      },
+      onError: (error: unknown) => handleMutationError(error, setErrors, t),
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) resetForm(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) resetForm();
+      }}
+    >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Create schedule</DialogTitle>
-          <DialogDescription>
-            Create a new schedule by selecting a route, bus, and setting departure times.
-          </DialogDescription>
+          <DialogTitle>{t('schedules.createDialog.title')}</DialogTitle>
+          <DialogDescription>{t('schedules.createDialog.description')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {errors.general && (
-            <p role="alert" className="text-sm text-destructive">{errors.general}</p>
+            <p role="alert" className="text-sm text-destructive">
+              {errors.general}
+            </p>
           )}
 
           <SelectField
-            label="Route" id="schedule-route" value={form.routeId}
-            onChange={(v) => updateField('routeId', v)} error={errors.routeId}
-            errorId="route-error" placeholder="Select a route"
+            label={t('schedules.createDialog.routeLabel')}
+            id="schedule-route"
+            value={form.routeId}
+            onChange={(v) => updateField('routeId', v)}
+            error={errors.routeId}
+            errorId="route-error"
+            placeholder={t('schedules.createDialog.routePlaceholder')}
             options={routes.map((r) => ({ value: r.id, label: r.name }))}
           />
           <SelectField
-            label="Bus" id="schedule-bus" value={form.busId}
-            onChange={(v) => updateField('busId', v)} error={errors.busId}
-            errorId="bus-error" placeholder="Select a bus"
-            options={buses.map((b) => ({ value: b.id, label: `${b.licensePlate} — ${b.model} (${b.capacity} seats)` }))}
+            label={t('schedules.createDialog.busLabel')}
+            id="schedule-bus"
+            value={form.busId}
+            onChange={(v) => updateField('busId', v)}
+            error={errors.busId}
+            errorId="bus-error"
+            placeholder={t('schedules.createDialog.busPlaceholder')}
+            options={buses.map((b) => ({
+              value: b.id,
+              label: t('schedules.createDialog.busOption', {
+                plate: b.licensePlate,
+                model: b.model,
+                capacity: b.capacity,
+              }),
+            }))}
           />
           <SelectField
-            label="Driver (optional)" id="schedule-driver" value={form.driverId}
-            onChange={(v) => updateField('driverId', v)} errorId="driver-error"
-            placeholder="No driver assigned"
+            label={t('schedules.createDialog.driverLabel')}
+            id="schedule-driver"
+            value={form.driverId}
+            onChange={(v) => updateField('driverId', v)}
+            errorId="driver-error"
+            placeholder={t('schedules.createDialog.driverPlaceholder')}
             options={drivers.map((d) => ({ value: d.id, label: d.name }))}
           />
 
-          <InputField label="Trip date" id="schedule-trip-date" error={errors.tripDate} errorId="trip-date-error">
+          <InputField
+            label={t('schedules.createDialog.tripDateLabel')}
+            id="schedule-trip-date"
+            error={errors.tripDate}
+            errorId="trip-date-error"
+          >
             <Input
-              id="schedule-trip-date" type="date" value={form.tripDate}
+              id="schedule-trip-date"
+              type="date"
+              value={form.tripDate}
               onChange={(e) => updateField('tripDate', e.target.value)}
               min={format(new Date(), 'yyyy-MM-dd')}
               aria-invalid={!!errors.tripDate}
@@ -388,17 +468,31 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
           </InputField>
 
           <div className="grid grid-cols-2 gap-4">
-            <InputField label="Departure time" id="schedule-departure" error={errors.departureTime} errorId="departure-error">
+            <InputField
+              label={t('schedules.createDialog.departureLabel')}
+              id="schedule-departure"
+              error={errors.departureTime}
+              errorId="departure-error"
+            >
               <Input
-                id="schedule-departure" type="datetime-local" value={form.departureTime}
+                id="schedule-departure"
+                type="datetime-local"
+                value={form.departureTime}
                 onChange={(e) => updateField('departureTime', e.target.value)}
                 aria-invalid={!!errors.departureTime}
                 aria-describedby={errors.departureTime ? 'departure-error' : undefined}
               />
             </InputField>
-            <InputField label="Arrival time" id="schedule-arrival" error={errors.arrivalTime} errorId="arrival-error">
+            <InputField
+              label={t('schedules.createDialog.arrivalLabel')}
+              id="schedule-arrival"
+              error={errors.arrivalTime}
+              errorId="arrival-error"
+            >
               <Input
-                id="schedule-arrival" type="datetime-local" value={form.arrivalTime}
+                id="schedule-arrival"
+                type="datetime-local"
+                value={form.arrivalTime}
                 onChange={(e) => updateField('arrivalTime', e.target.value)}
                 aria-invalid={!!errors.arrivalTime}
                 aria-describedby={errors.arrivalTime ? 'arrival-error' : undefined}
@@ -406,10 +500,20 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
             </InputField>
           </div>
 
-          <InputField label="Base price" id="schedule-price" error={errors.basePrice} errorId="price-error">
+          <InputField
+            label={t('schedules.createDialog.basePriceLabel')}
+            id="schedule-price"
+            error={errors.basePrice}
+            errorId="price-error"
+          >
             <Input
-              id="schedule-price" type="number" step="0.01" min={0} max={MAX_BASE_PRICE}
-              placeholder="e.g. 25.00" value={form.basePrice}
+              id="schedule-price"
+              type="number"
+              step="0.01"
+              min={0}
+              max={MAX_BASE_PRICE}
+              placeholder={t('schedules.createDialog.basePricePlaceholder')}
+              value={form.basePrice}
               onChange={(e) => updateField('basePrice', e.target.value)}
               aria-invalid={!!errors.basePrice}
               aria-describedby={errors.basePrice ? 'price-error' : undefined}
@@ -422,10 +526,14 @@ export function CreateScheduleDialog({ children }: CreateScheduleDialogProps) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">
+                {t('common.cancel')}
+              </Button>
             </DialogClose>
             <Button type="submit" disabled={createSchedule.isPending}>
-              {createSchedule.isPending ? 'Creating…' : 'Create schedule'}
+              {createSchedule.isPending
+                ? t('schedules.createDialog.creating')
+                : t('schedules.createDialog.createButton')}
             </Button>
           </DialogFooter>
         </form>

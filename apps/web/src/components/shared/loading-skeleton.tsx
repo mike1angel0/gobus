@@ -24,11 +24,7 @@ export interface CardGridSkeletonProps {
  */
 export function CardGridSkeleton({ count = 6, label }: CardGridSkeletonProps) {
   return (
-    <div
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-      aria-busy="true"
-      aria-label={label}
-    >
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label={label}>
       {Array.from({ length: count }, (_, i) => (
         <Card key={i}>
           <CardContent className="p-6">

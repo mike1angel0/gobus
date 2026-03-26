@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +49,7 @@ function validateForm(
   email: string,
   password: string,
   phone: string,
+  t: TFunction,
 ): CreateDriverErrors {
   const errors: CreateDriverErrors = {};
   const trimmedName = name.trim();
@@ -54,31 +57,31 @@ function validateForm(
   const trimmedPhone = phone.trim();
 
   if (!trimmedName) {
-    errors.name = 'Name is required.';
+    errors.name = t('drivers.validation.nameRequired');
   } else if (trimmedName.length > MAX_NAME_LENGTH) {
-    errors.name = `Name must be at most ${MAX_NAME_LENGTH} characters.`;
+    errors.name = t('drivers.validation.nameMaxLength', { max: MAX_NAME_LENGTH });
   }
 
   if (!trimmedEmail) {
-    errors.email = 'Email is required.';
+    errors.email = t('drivers.validation.emailRequired');
   } else if (trimmedEmail.length > MAX_EMAIL_LENGTH) {
-    errors.email = `Email must be at most ${MAX_EMAIL_LENGTH} characters.`;
+    errors.email = t('drivers.validation.emailMaxLength', { max: MAX_EMAIL_LENGTH });
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-    errors.email = 'Please enter a valid email address.';
+    errors.email = t('drivers.validation.emailInvalid');
   }
 
   if (!password) {
-    errors.password = 'Password is required.';
+    errors.password = t('drivers.validation.passwordRequired');
   } else if (password.length < MIN_PASSWORD_LENGTH) {
-    errors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+    errors.password = t('drivers.validation.passwordMinLength', { min: MIN_PASSWORD_LENGTH });
   } else if (password.length > MAX_PASSWORD_LENGTH) {
-    errors.password = `Password must be at most ${MAX_PASSWORD_LENGTH} characters.`;
+    errors.password = t('drivers.validation.passwordMaxLength', { max: MAX_PASSWORD_LENGTH });
   } else if (!PASSWORD_PATTERN.test(password)) {
-    errors.password = 'Password must contain at least 1 uppercase, 1 lowercase, and 1 digit.';
+    errors.password = t('drivers.validation.passwordPattern');
   }
 
   if (trimmedPhone && trimmedPhone.length > MAX_PHONE_LENGTH) {
-    errors.phone = `Phone must be at most ${MAX_PHONE_LENGTH} characters.`;
+    errors.phone = t('drivers.validation.phoneMaxLength', { max: MAX_PHONE_LENGTH });
   }
 
   return errors;
@@ -98,6 +101,7 @@ interface CreateDriverDialogProps {
  * a field-level message.
  */
 export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
+  const { t } = useTranslation('provider');
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -116,7 +120,7 @@ export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const formErrors = validateForm(name, email, password, phone);
+    const formErrors = validateForm(name, email, password, phone, t);
     setErrors(formErrors);
     if (Object.keys(formErrors).length > 0) return;
 
@@ -139,12 +143,17 @@ export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
           if (error.status === 409) {
             setErrors((prev) => ({
               ...prev,
-              email: 'A user with this email address already exists.',
+              email: t('drivers.validation.emailConflict'),
             }));
             return;
           }
           for (const fe of error.fieldErrors) {
-            if (fe.field === 'name' || fe.field === 'email' || fe.field === 'password' || fe.field === 'phone') {
+            if (
+              fe.field === 'name' ||
+              fe.field === 'email' ||
+              fe.field === 'password' ||
+              fe.field === 'phone'
+            ) {
               setErrors((prev) => ({ ...prev, [fe.field!]: fe.message }));
             }
           }
@@ -164,17 +173,15 @@ export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create driver</DialogTitle>
-          <DialogDescription>
-            Add a new driver account. The driver will use these credentials to log in.
-          </DialogDescription>
+          <DialogTitle>{t('drivers.createDialog.title')}</DialogTitle>
+          <DialogDescription>{t('drivers.createDialog.description')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="driver-name">Name</Label>
+            <Label htmlFor="driver-name">{t('drivers.createDialog.nameLabel')}</Label>
             <Input
               id="driver-name"
-              placeholder="e.g. John Smith"
+              placeholder={t('drivers.createDialog.namePlaceholder')}
               maxLength={MAX_NAME_LENGTH}
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -189,11 +196,11 @@ export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="driver-email">Email</Label>
+            <Label htmlFor="driver-email">{t('drivers.createDialog.emailLabel')}</Label>
             <Input
               id="driver-email"
               type="email"
-              placeholder="e.g. john@example.com"
+              placeholder={t('drivers.createDialog.emailPlaceholder')}
               maxLength={MAX_EMAIL_LENGTH}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -208,11 +215,11 @@ export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="driver-password">Password</Label>
+            <Label htmlFor="driver-password">{t('drivers.createDialog.passwordLabel')}</Label>
             <Input
               id="driver-password"
               type="password"
-              placeholder="Min. 8 characters"
+              placeholder={t('drivers.createDialog.passwordPlaceholder')}
               maxLength={MAX_PASSWORD_LENGTH}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -225,18 +232,21 @@ export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              Must contain at least 1 uppercase, 1 lowercase, and 1 digit.
+              {t('drivers.createDialog.passwordHelper')}
             </p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="driver-phone">
-              Phone <span className="text-muted-foreground">(optional)</span>
+              {t('drivers.createDialog.phoneLabel')}{' '}
+              <span className="text-muted-foreground">
+                {t('drivers.createDialog.phoneOptional')}
+              </span>
             </Label>
             <Input
               id="driver-phone"
               type="tel"
-              placeholder="e.g. +40 712 345 678"
+              placeholder={t('drivers.createDialog.phonePlaceholder')}
               maxLength={MAX_PHONE_LENGTH}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -253,11 +263,13 @@ export function CreateDriverDialog({ children }: CreateDriverDialogProps) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Cancel
+                {t('common.cancel')}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={createDriver.isPending}>
-              {createDriver.isPending ? 'Creating...' : 'Create driver'}
+              {createDriver.isPending
+                ? t('drivers.createDialog.creating')
+                : t('drivers.createDialog.createButton')}
             </Button>
           </DialogFooter>
         </form>

@@ -62,7 +62,7 @@ describe('api-check script', () => {
   it('lists uncovered spec endpoints', async () => {
     const result = await runScript();
     expect(result.stdout).toContain('Spec endpoints with NO frontend hook');
-    expect(result.stdout).toContain('GET /api/v1/admin/users');
+    expect(result.stdout).toContain('DELETE /api/v1/admin/users/{id}');
   });
 
   describe('stale types detection', () => {

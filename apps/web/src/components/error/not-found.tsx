@@ -14,9 +14,7 @@ export function NotFound() {
     <div className="flex flex-col items-center py-16 text-center" role="alert">
       <FileQuestion className="mb-4 h-16 w-16 text-muted-foreground" aria-hidden="true" />
       <h1 className="mb-2 text-3xl font-bold">{t('errors.pageNotFound')}</h1>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        {t('errors.pageNotFoundDescription')}
-      </p>
+      <p className="mb-6 max-w-md text-muted-foreground">{t('errors.pageNotFoundDescription')}</p>
       <Button asChild>
         <Link to="/">{t('errors.goHome')}</Link>
       </Button>

@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Bus as BusIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,8 +20,9 @@ type Seat = components['schemas']['Seat'];
 
 /** Skeleton placeholder for the admin fleet list while loading. */
 function AdminFleetSkeleton() {
+  const { t } = useTranslation('admin');
   return (
-    <div className="space-y-6" aria-busy="true" aria-label="Loading fleet">
+    <div className="space-y-6" aria-busy="true" aria-label={t('fleet.loadingLabel')}>
       {Array.from({ length: 3 }, (_, i) => (
         <div key={i} className="space-y-3">
           <Skeleton className="h-6 w-40" />
@@ -80,6 +82,7 @@ const SEAT_TYPE_ICONS: Record<string, string> = {
  * Disabled seats are visually distinct (red tint + strikethrough label).
  */
 function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
+  const { t } = useTranslation('admin');
   const busQuery = useBusDetail(busId);
   const toggleSeat = useToggleSeat();
   const bus = busQuery.data?.data;
@@ -96,7 +99,7 @@ function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
 
   if (busQuery.isLoading) {
     return (
-      <div aria-busy="true" aria-label="Loading seats" className="space-y-2 py-2">
+      <div aria-busy="true" aria-label={t('fleet.loadingSeats')} className="space-y-2 py-2">
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-24 w-48" />
       </div>
@@ -106,13 +109,13 @@ function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
   if (busQuery.isError) {
     return (
       <p role="alert" className="py-2 text-sm text-destructive">
-        Failed to load seats.
+        {t('fleet.error.seats')}
       </p>
     );
   }
 
   if (!bus?.seats || bus.seats.length === 0) {
-    return <p className="py-2 text-sm text-muted-foreground">No seats configured.</p>;
+    return <p className="py-2 text-sm text-muted-foreground">{t('fleet.empty.seats')}</p>;
   }
 
   const disabledCount = bus.seats.filter((s) => !s.isEnabled).length;
@@ -121,15 +124,13 @@ function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
   return (
     <div className="space-y-3 py-2">
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
-        <span>
-          {enabledCount} enabled · {disabledCount} disabled
-        </span>
+        <span>{t('fleet.seatStats', { enabled: enabledCount, disabled: disabledCount })}</span>
       </div>
       <div
         className="inline-grid gap-1"
         style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
         role="grid"
-        aria-label="Seat toggle grid"
+        aria-label={t('fleet.seatGrid.label')}
       >
         {Array.from({ length: rows }, (_, r) =>
           Array.from({ length: columns }, (_, c) => {
@@ -140,7 +141,7 @@ function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
                   key={`${r}-${c}`}
                   className="h-8 w-8 rounded border border-dashed border-gray-300"
                   role="gridcell"
-                  aria-label="Empty"
+                  aria-label={t('fleet.seatGrid.emptyCell')}
                 />
               );
             }
@@ -152,7 +153,14 @@ function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
                 key={seat.id}
                 role="gridcell"
                 className={`flex h-8 w-8 items-center justify-center rounded border text-xs font-medium transition-colors ${colorClass} ${!seat.isEnabled ? 'line-through opacity-70' : ''}`}
-                aria-label={`Seat ${seat.label}, ${seat.type.toLowerCase()}, ${seat.isEnabled ? 'enabled' : 'disabled'}. Click to ${seat.isEnabled ? 'disable' : 'enable'}.`}
+                aria-label={t('fleet.seatGrid.seatLabel', {
+                  label: seat.label,
+                  type: t(`fleet.seatTypes.${seat.type}`).toLowerCase(),
+                  state: seat.isEnabled
+                    ? t('fleet.seatGrid.enabled')
+                    : t('fleet.seatGrid.disabled'),
+                  action: seat.isEnabled ? t('fleet.seatGrid.disable') : t('fleet.seatGrid.enable'),
+                })}
                 onClick={() => toggleSeat.mutate({ id: seat.id, isEnabled: !seat.isEnabled })}
                 disabled={toggleSeat.isPending}
               >
@@ -168,28 +176,28 @@ function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
             className="inline-block h-3 w-3 rounded border border-green-500 bg-green-200"
             aria-hidden="true"
           />
-          Standard
+          {t('fleet.seatTypes.STANDARD')}
         </span>
         <span className="flex items-center gap-1">
           <span
             className="inline-block h-3 w-3 rounded border border-amber-500 bg-amber-200"
             aria-hidden="true"
           />
-          Premium
+          {t('fleet.seatTypes.PREMIUM')}
         </span>
         <span className="flex items-center gap-1">
           <span
             className="inline-block h-3 w-3 rounded border border-blue-500 bg-blue-200"
             aria-hidden="true"
           />
-          Accessible
+          {t('fleet.seatTypes.DISABLED_ACCESSIBLE')}
         </span>
         <span className="flex items-center gap-1">
           <span
             className="inline-block h-3 w-3 rounded border border-red-400 bg-red-100"
             aria-hidden="true"
           />
-          Disabled
+          {t('fleet.seatTypes.BLOCKED')}
         </span>
       </div>
     </div>
@@ -210,6 +218,7 @@ interface AdminBusCardProps {
 
 /** Displays a single bus card with admin seat management controls. */
 function AdminBusCard({ bus, isExpanded, onToggle }: AdminBusCardProps) {
+  const { t } = useTranslation('admin');
   return (
     <Card>
       <CardContent className="p-6">
@@ -234,17 +243,17 @@ function AdminBusCard({ bus, isExpanded, onToggle }: AdminBusCardProps) {
             size="sm"
             onClick={onToggle}
             aria-expanded={isExpanded}
-            aria-label={`${isExpanded ? 'Collapse' : 'Manage'} seats for ${bus.licensePlate}`}
+            aria-label={`${isExpanded ? t('fleet.collapse') : t('fleet.manageSeats')} ${bus.licensePlate}`}
           >
             {isExpanded ? (
               <>
                 <ChevronUp className="mr-1 h-4 w-4" aria-hidden="true" />
-                Collapse
+                {t('fleet.collapse')}
               </>
             ) : (
               <>
                 <ChevronDown className="mr-1 h-4 w-4" aria-hidden="true" />
-                Manage seats
+                {t('fleet.manageSeats')}
               </>
             )}
           </Button>
@@ -271,9 +280,12 @@ interface ProviderGroupProps {
 
 /** Renders a group of buses belonging to a single provider. */
 function ProviderGroup({ providerId, buses, expandedBuses, onToggleBus }: ProviderGroupProps) {
+  const { t } = useTranslation('admin');
   return (
     <div>
-      <h3 className="mb-3 text-lg font-semibold text-muted-foreground">Provider: {providerId}</h3>
+      <h3 className="mb-3 text-lg font-semibold text-muted-foreground">
+        {t('fleet.providerPrefix', { id: providerId })}
+      </h3>
       <div
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
         aria-label={`Buses for provider ${providerId}`}
@@ -347,6 +359,7 @@ interface FleetPaginationProps {
 
 /** Pagination controls for the fleet list. */
 function FleetPagination({ page, totalPages, onPageChange }: FleetPaginationProps) {
+  const { t } = useTranslation('admin');
   return (
     <nav className="mt-8 flex items-center justify-center gap-4" aria-label="Fleet pagination">
       <Button
@@ -355,10 +368,10 @@ function FleetPagination({ page, totalPages, onPageChange }: FleetPaginationProp
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
       >
-        Previous
+        {t('pagination.previous')}
       </Button>
       <span className="text-sm text-muted-foreground">
-        Page {page} of {totalPages}
+        {t('pagination.pageOf', { page, totalPages })}
       </span>
       <Button
         variant="outline"
@@ -366,7 +379,7 @@ function FleetPagination({ page, totalPages, onPageChange }: FleetPaginationProp
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
       >
-        Next
+        {t('pagination.next')}
       </Button>
     </nav>
   );
@@ -399,12 +412,13 @@ function FleetContent({
   expandedBuses,
   onToggleBus,
 }: FleetContentProps) {
+  const { t } = useTranslation('admin');
   if (isLoading) return <AdminFleetSkeleton />;
   if (isError) {
     return (
       <PageError
-        title="Failed to load fleet"
-        message="We couldn't load the buses. Please try again."
+        title={t('fleet.error.title')}
+        message={t('fleet.error.message')}
         onRetry={onRetry}
       />
     );
@@ -413,8 +427,8 @@ function FleetContent({
     return (
       <EmptyState
         icon={BusIcon}
-        title="No buses found"
-        message="No buses have been registered by any provider yet."
+        title={t('fleet.empty.title')}
+        message={t('fleet.empty.message')}
       />
     );
   }
@@ -437,7 +451,8 @@ function FleetContent({
  * ```
  */
 export default function AdminFleetPage() {
-  usePageTitle('Fleet Management');
+  const { t } = useTranslation('admin');
+  usePageTitle(t('fleet.title'));
   const [page, setPage] = useState(1);
   const busesQuery = useAdminBuses({ page, pageSize: 20 });
   const [expandedBuses, setExpandedBuses] = useState<Set<string>>(new Set());
@@ -462,15 +477,13 @@ export default function AdminFleetPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">Fleet Management</h1>
-        <p className="mt-1 text-muted-foreground">
-          View all buses and manage seat availability across providers.
-        </p>
+        <h1 className="text-2xl font-bold">{t('fleet.title')}</h1>
+        <p className="mt-1 text-muted-foreground">{t('fleet.subtitle')}</p>
       </div>
 
       <section aria-labelledby="admin-fleet-heading">
         <h2 id="admin-fleet-heading" className="sr-only">
-          Admin Fleet
+          {t('fleet.heading')}
         </h2>
         <FleetContent
           isLoading={busesQuery.isLoading}

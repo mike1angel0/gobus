@@ -7,12 +7,49 @@
     "speed": "Speed",
     "lastUpdate": "Last update",
     "activeDelays": "Active delays",
-    "noDelays": "No delays"
+    "noDelays": "No delays",
+    "loadingLabel": "Loading bus list",
+    "selectBusLabel": "Select bus {{licensePlate}}",
+    "stopLabel": "Stop {{stopIndex}}",
+    "speedValue": "{{speed}} km/h",
+    "noTrackingData": "No tracking data",
+    "emptyTitle": "No buses in your fleet",
+    "listLabel": "Bus tracking list",
+    "active": "Active"
   },
   "delays": {
     "title": "Delays",
     "reportDelay": "Report delay",
     "minutes": "{{count}} minute delay",
     "minutes_other": "{{count}} minutes delay"
+  },
+  "reportDialog": {
+    "title": "Report delay",
+    "description": "Report a delay for an active schedule.",
+    "scheduleLabel": "Schedule",
+    "schedulePlaceholder": "Select schedule...",
+    "minutesLabel": "Delay (minutes)",
+    "minutesPlaceholder": "15",
+    "reasonLabel": "Reason",
+    "reasonPlaceholder": "Select reason...",
+    "tripDateLabel": "Trip date",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "Additional details...",
+    "cancel": "Cancel",
+    "reporting": "Reporting...",
+    "report": "Report delay",
+    "reasons": {
+      "TRAFFIC": "Traffic",
+      "MECHANICAL": "Mechanical",
+      "WEATHER": "Weather",
+      "OTHER": "Other"
+    }
+  },
+  "activeDelays": {
+    "loadingLabel": "Loading delays",
+    "emptyTitle": "No active delays",
+    "listLabel": "Active delays",
+    "delayLabel": "+{{minutes}} min — {{reason}}",
+    "deactivateLabel": "Deactivate delay of {{minutes}} minutes"
   }
 }

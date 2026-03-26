@@ -1,4 +1,5 @@
 import { BarChart3, DollarSign, TrendingUp, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -37,11 +38,13 @@ function formatPercent(value: number): string {
 
 /** Skeleton loader for the analytics stat cards. */
 function AnalyticsStatsSkeleton() {
+  const { t } = useTranslation('provider');
+
   return (
     <div
       className="grid gap-4 sm:grid-cols-3"
       aria-busy="true"
-      aria-label="Loading analytics"
+      aria-label={t('analytics.loadingStats')}
     >
       {Array.from({ length: 3 }, (_, i) => (
         <Card key={i}>
@@ -60,8 +63,10 @@ function AnalyticsStatsSkeleton() {
 
 /** Skeleton loader for the revenue-by-route table. */
 function RevenueTableSkeleton() {
+  const { t } = useTranslation('provider');
+
   return (
-    <div aria-busy="true" aria-label="Loading revenue by route">
+    <div aria-busy="true" aria-label={t('analytics.loadingRevenue')}>
       {Array.from({ length: 3 }, (_, i) => (
         <div key={i} className="flex items-center justify-between border-b border-border/50 py-3">
           <Skeleton className="h-4 w-40" />
@@ -82,6 +87,7 @@ interface RevenueBarProps {
 
 /** A single row in the revenue-by-route breakdown with a proportional bar. */
 function RevenueBar({ route, maxRevenue }: RevenueBarProps) {
+  const { t } = useTranslation('provider');
   const widthPercent = maxRevenue > 0 ? (route.revenue / maxRevenue) * 100 : 0;
 
   return (
@@ -90,16 +96,14 @@ function RevenueBar({ route, maxRevenue }: RevenueBarProps) {
         <span className="truncate font-medium" title={route.routeName}>
           {route.routeName}
         </span>
-        <span className="ml-4 shrink-0 text-muted-foreground">
-          {formatCurrency(route.revenue)}
-        </span>
+        <span className="ml-4 shrink-0 text-muted-foreground">{formatCurrency(route.revenue)}</span>
       </div>
       <div className="h-2 w-full rounded-full bg-muted">
         <div
           className="h-2 rounded-full bg-primary"
           style={{ width: `${widthPercent}%` }}
           role="meter"
-          aria-label={`${route.routeName} revenue`}
+          aria-label={t('analytics.revenueLabel', { route: route.routeName })}
           aria-valuenow={route.revenue}
           aria-valuemin={0}
           aria-valuemax={maxRevenue}
@@ -117,15 +121,17 @@ function RevenueBar({ route, maxRevenue }: RevenueBarProps) {
  * Handles loading, error, and empty states.
  */
 export function AnalyticsSection({ data, isLoading, isError, onRetry }: AnalyticsSectionProps) {
+  const { t } = useTranslation('provider');
+
   if (isError) {
     return (
       <section aria-labelledby="analytics-heading" className="mb-8">
         <h2 id="analytics-heading" className="mb-4 text-lg font-semibold">
-          Analytics
+          {t('analytics.title')}
         </h2>
         <PageError
-          title="Analytics unavailable"
-          message="We couldn't load your analytics data. Please try again."
+          title={t('analytics.error.title')}
+          message={t('analytics.error.message')}
           onRetry={onRetry}
         />
       </section>
@@ -135,7 +141,7 @@ export function AnalyticsSection({ data, isLoading, isError, onRetry }: Analytic
   return (
     <section aria-labelledby="analytics-heading" className="mb-8">
       <h2 id="analytics-heading" className="mb-4 text-lg font-semibold">
-        Analytics
+        {t('analytics.title')}
       </h2>
 
       {isLoading ? (
@@ -149,7 +155,7 @@ export function AnalyticsSection({ data, isLoading, isError, onRetry }: Analytic
               </div>
               <div className="min-w-0">
                 <p className="text-3xl font-bold">{data?.totalBookings ?? 0}</p>
-                <p className="text-sm text-muted-foreground">Total bookings</p>
+                <p className="text-sm text-muted-foreground">{t('analytics.totalBookings')}</p>
               </div>
             </CardContent>
           </Card>
@@ -161,7 +167,7 @@ export function AnalyticsSection({ data, isLoading, isError, onRetry }: Analytic
               </div>
               <div className="min-w-0">
                 <p className="text-3xl font-bold">{formatCurrency(data?.totalRevenue ?? 0)}</p>
-                <p className="text-sm text-muted-foreground">Total revenue</p>
+                <p className="text-sm text-muted-foreground">{t('analytics.totalRevenue')}</p>
               </div>
             </CardContent>
           </Card>
@@ -173,7 +179,7 @@ export function AnalyticsSection({ data, isLoading, isError, onRetry }: Analytic
               </div>
               <div className="min-w-0">
                 <p className="text-3xl font-bold">{formatPercent(data?.averageOccupancy ?? 0)}</p>
-                <p className="text-sm text-muted-foreground">Avg. occupancy</p>
+                <p className="text-sm text-muted-foreground">{t('analytics.avgOccupancy')}</p>
               </div>
             </CardContent>
           </Card>
@@ -184,7 +190,7 @@ export function AnalyticsSection({ data, isLoading, isError, onRetry }: Analytic
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" aria-hidden="true" />
-            Revenue by route
+            {t('analytics.revenueByRoute')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -192,14 +198,11 @@ export function AnalyticsSection({ data, isLoading, isError, onRetry }: Analytic
             <RevenueTableSkeleton />
           ) : !data?.revenueByRoute || data.revenueByRoute.length === 0 ? (
             <div className="flex flex-col items-center py-6 text-center" role="status">
-              <BarChart3
-                className="mb-2 h-8 w-8 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <p className="text-sm text-muted-foreground">No revenue data yet</p>
+              <BarChart3 className="mb-2 h-8 w-8 text-muted-foreground" aria-hidden="true" />
+              <p className="text-sm text-muted-foreground">{t('analytics.revenueEmpty')}</p>
             </div>
           ) : (
-            <div aria-label="Revenue by route breakdown">
+            <div aria-label={t('analytics.revenueBreakdownLabel')}>
               {(() => {
                 const maxRevenue = Math.max(...data.revenueByRoute.map((r) => r.revenue));
                 return data.revenueByRoute.map((route) => (

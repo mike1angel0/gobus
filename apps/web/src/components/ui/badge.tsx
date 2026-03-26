@@ -22,8 +22,7 @@ const badgeVariants = cva(
 
 /** Props for the {@link Badge} component. */
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 
 /**
  * Inline badge for labelling and status indicators.

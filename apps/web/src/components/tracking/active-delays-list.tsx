@@ -1,4 +1,5 @@
 import { AlertTriangle, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,8 +19,9 @@ export interface ActiveDelaysListProps {
 
 /** Skeleton placeholder for the delays list. */
 function DelaysListSkeleton() {
+  const { t } = useTranslation('tracking');
   return (
-    <div className="space-y-2" aria-busy="true" aria-label="Loading delays">
+    <div className="space-y-2" aria-busy="true" aria-label={t('activeDelays.loadingLabel')}>
       {Array.from({ length: 2 }, (_, i) => (
         <Card key={i}>
           <CardContent className="p-3">
@@ -44,6 +46,7 @@ function DelaysListSkeleton() {
  * ```
  */
 export function ActiveDelaysList({ delays, isLoading }: ActiveDelaysListProps) {
+  const { t } = useTranslation('tracking');
   const updateDelay = useUpdateDelay();
 
   if (isLoading) {
@@ -55,13 +58,18 @@ export function ActiveDelaysList({ delays, isLoading }: ActiveDelaysListProps) {
   if (activeDelays.length === 0) {
     return (
       <p className="py-4 text-center text-sm text-muted-foreground" role="status">
-        No active delays
+        {t('activeDelays.emptyTitle')}
       </p>
     );
   }
 
   return (
-    <div className="space-y-2" role="list" aria-label="Active delays" aria-live="polite">
+    <div
+      className="space-y-2"
+      role="list"
+      aria-label={t('activeDelays.listLabel')}
+      aria-live="polite"
+    >
       {activeDelays.map((delay) => (
         <Card key={delay.id} role="listitem">
           <CardContent className="flex items-center justify-between p-3">
@@ -69,8 +77,10 @@ export function ActiveDelaysList({ delays, isLoading }: ActiveDelaysListProps) {
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-yellow-500" aria-hidden="true" />
                 <span className="text-sm font-medium">
-                  +{delay.offsetMinutes} min —{' '}
-                  {delay.reason.charAt(0) + delay.reason.slice(1).toLowerCase()}
+                  {t('activeDelays.delayLabel', {
+                    minutes: delay.offsetMinutes,
+                    reason: t(`reportDialog.reasons.${delay.reason}`),
+                  })}
                 </span>
               </div>
               {delay.note && (
@@ -80,7 +90,7 @@ export function ActiveDelaysList({ delays, isLoading }: ActiveDelaysListProps) {
             <Button
               variant="ghost"
               size="icon"
-              aria-label={`Deactivate delay of ${delay.offsetMinutes} minutes`}
+              aria-label={t('activeDelays.deactivateLabel', { minutes: delay.offsetMinutes })}
               disabled={updateDelay.isPending}
               onClick={() => updateDelay.mutate({ id: delay.id, body: { active: false } })}
             >

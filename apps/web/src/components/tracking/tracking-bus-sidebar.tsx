@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
 import { Bus, MapPin, Gauge, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,8 +32,9 @@ export interface TrackingBusSidebarProps {
 
 /** Skeleton placeholder for the bus sidebar while loading. */
 function SidebarSkeleton() {
+  const { t } = useTranslation('tracking');
   return (
-    <div className="space-y-3" aria-busy="true" aria-label="Loading bus list">
+    <div className="space-y-3" aria-busy="true" aria-label={t('busSidebar.loadingLabel')}>
       {Array.from({ length: 4 }, (_, i) => (
         <Card key={i}>
           <CardContent className="p-4">
@@ -68,6 +70,7 @@ interface BusCardProps {
 
 /** A single bus card in the sidebar showing real-time info. */
 function BusCard({ trackedBus, isSelected, onSelect }: BusCardProps) {
+  const { t } = useTranslation('tracking');
   const { bus, tracking } = trackedBus;
 
   return (
@@ -77,7 +80,7 @@ function BusCard({ trackedBus, isSelected, onSelect }: BusCardProps) {
           variant="ghost"
           className="h-auto w-full justify-start p-0 text-left"
           onClick={onSelect}
-          aria-label={`Select bus ${bus.licensePlate}`}
+          aria-label={t('busSidebar.selectBusLabel', { licensePlate: bus.licensePlate })}
           aria-pressed={isSelected}
         >
           <div className="w-full space-y-2">
@@ -87,7 +90,7 @@ function BusCard({ trackedBus, isSelected, onSelect }: BusCardProps) {
               {tracking?.isActive && (
                 <span
                   className="ml-auto inline-flex h-2 w-2 rounded-full bg-green-500"
-                  aria-label="Active"
+                  aria-label={t('busSidebar.active')}
                 />
               )}
             </div>
@@ -97,11 +100,11 @@ function BusCard({ trackedBus, isSelected, onSelect }: BusCardProps) {
                 <>
                   <p className="flex items-center gap-1">
                     <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
-                    Stop {tracking.currentStopIndex + 1}
+                    {t('busSidebar.stopLabel', { stopIndex: tracking.currentStopIndex + 1 })}
                   </p>
                   <p className="flex items-center gap-1">
                     <Gauge className="h-3 w-3 shrink-0" aria-hidden="true" />
-                    {tracking.speed.toFixed(0)} km/h
+                    {t('busSidebar.speedValue', { speed: tracking.speed.toFixed(0) })}
                   </p>
                   <p className="flex items-center gap-1">
                     <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />
@@ -109,7 +112,7 @@ function BusCard({ trackedBus, isSelected, onSelect }: BusCardProps) {
                   </p>
                 </>
               ) : (
-                <p className="italic">No tracking data</p>
+                <p className="italic">{t('busSidebar.noTrackingData')}</p>
               )}
             </div>
           </div>
@@ -142,6 +145,8 @@ export function TrackingBusSidebar({
   onSelectBus,
   isLoading,
 }: TrackingBusSidebarProps) {
+  const { t } = useTranslation('tracking');
+
   if (isLoading) {
     return <SidebarSkeleton />;
   }
@@ -150,13 +155,18 @@ export function TrackingBusSidebar({
     return (
       <div className="flex flex-col items-center py-8 text-center" role="status">
         <Bus className="mb-3 h-10 w-10 text-muted-foreground" aria-hidden="true" />
-        <p className="text-sm text-muted-foreground">No buses in your fleet</p>
+        <p className="text-sm text-muted-foreground">{t('busSidebar.emptyTitle')}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3" role="list" aria-label="Bus tracking list" aria-live="polite">
+    <div
+      className="space-y-3"
+      role="list"
+      aria-label={t('busSidebar.listLabel')}
+      aria-live="polite"
+    >
       {trackedBuses.map((tb) => (
         <div key={tb.bus.id} role="listitem">
           <BusCard

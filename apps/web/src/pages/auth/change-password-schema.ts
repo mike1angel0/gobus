@@ -17,10 +17,7 @@ export function createChangePasswordSchema(t: TFunction) {
         .string()
         .min(8, t('validation.passwordMinLength'))
         .max(128, t('validation.passwordMaxLength'))
-        .regex(
-          /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+/,
-          t('validation.passwordCombined'),
-        ),
+        .regex(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+/, t('validation.passwordCombined')),
       confirmPassword: z.string(),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {

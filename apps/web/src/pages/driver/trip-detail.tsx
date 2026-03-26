@@ -67,9 +67,7 @@ function TripDetailError({ onRetry }: TripDetailErrorProps) {
     <div className="flex flex-col items-center py-16 text-center" role="alert">
       <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
       <h2 className="mb-2 text-xl font-semibold">{t('tripDetail.errorTitle')}</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        {t('tripDetail.errorMessage')}
-      </p>
+      <p className="mb-6 max-w-md text-muted-foreground">{t('tripDetail.errorMessage')}</p>
       <Button onClick={onRetry} variant="outline">
         {t('tripDetail.tryAgain')}
       </Button>
@@ -123,9 +121,15 @@ function StopProgressTracker({
                 aria-current={isCurrent ? 'step' : undefined}
               >
                 {isPassed ? (
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" aria-label={t('tripDetail.passed')} />
+                  <CheckCircle2
+                    className="h-5 w-5 shrink-0 text-green-600"
+                    aria-label={t('tripDetail.passed')}
+                  />
                 ) : isCurrent ? (
-                  <Navigation className="h-5 w-5 shrink-0 text-primary" aria-label={t('tripDetail.currentStop')} />
+                  <Navigation
+                    className="h-5 w-5 shrink-0 text-primary"
+                    aria-label={t('tripDetail.currentStop')}
+                  />
                 ) : (
                   <Circle
                     className="h-5 w-5 shrink-0 text-muted-foreground"
@@ -148,7 +152,9 @@ function StopProgressTracker({
             className="mt-4 w-full"
             onClick={onAdvance}
             disabled={isAdvancing}
-            aria-label={t('tripDetail.arrivedAt', { stop: sortedStops[currentStopIndex + 1]?.stopName ?? '' })}
+            aria-label={t('tripDetail.arrivedAt', {
+              stop: sortedStops[currentStopIndex + 1]?.stopName ?? '',
+            })}
           >
             <MapPin className="mr-2 h-4 w-4" aria-hidden="true" />
             {isAdvancing ? t('tripDetail.updating') : t('tripDetail.arrivedAtNext')}
@@ -156,7 +162,9 @@ function StopProgressTracker({
         )}
 
         {isLastStop && (
-          <p className="mt-4 text-center text-sm text-muted-foreground">{t('tripDetail.allStopsCompleted')}</p>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            {t('tripDetail.allStopsCompleted')}
+          </p>
         )}
       </CardContent>
     </Card>
@@ -202,7 +210,9 @@ function LocationSharingToggle({ isSharing, onToggle, permission }: LocationShar
           variant={isSharing ? 'destructive' : 'default'}
           onClick={onToggle}
           disabled={isDisabled}
-          aria-label={isSharing ? t('tripDetail.stopSharingLabel') : t('tripDetail.startSharingLabel')}
+          aria-label={
+            isSharing ? t('tripDetail.stopSharingLabel') : t('tripDetail.startSharingLabel')
+          }
         >
           <Navigation className="mr-2 h-4 w-4" aria-hidden="true" />
           {isSharing ? t('tripDetail.stopSharing') : t('tripDetail.startSharing')}
@@ -521,7 +531,9 @@ export default function DriverTripDetailPage() {
     setCurrentStopIndex((prev) => prev + 1);
     toast({
       title: t('tripDetail.stopUpdated'),
-      description: t('tripDetail.arrivedAt', { stop: sortedStops[currentStopIndex + 1]?.stopName ?? '' }),
+      description: t('tripDetail.arrivedAt', {
+        stop: sortedStops[currentStopIndex + 1]?.stopName ?? '',
+      }),
     });
     setIsAdvancing(false);
   }, [trip, currentStopIndex, toast, t]);
@@ -556,7 +568,12 @@ export default function DriverTripDetailPage() {
     <div className="mx-auto w-full max-w-lg px-4 py-6">
       {/* Back button */}
       <div className="mb-4">
-        <Button variant="ghost" size="sm" onClick={handleBack} aria-label={t('tripDetail.backLabel')}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBack}
+          aria-label={t('tripDetail.backLabel')}
+        >
           <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
           {t('tripDetail.back')}
         </Button>

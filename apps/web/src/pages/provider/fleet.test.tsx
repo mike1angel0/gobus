@@ -205,7 +205,9 @@ describe('ProviderFleetPage', () => {
       await user.click(screen.getByRole('button', { name: /Add bus/ }));
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Add bus', { selector: '[class*="font-semibold"]' })).toBeInTheDocument();
+      expect(
+        screen.getByText('Add bus', { selector: '[class*="font-semibold"]' }),
+      ).toBeInTheDocument();
     });
 
     it('has license plate and model inputs', async () => {
@@ -228,8 +230,14 @@ describe('ProviderFleetPage', () => {
 
       await user.click(screen.getByRole('button', { name: /Add bus/ }));
 
-      expect(screen.getByRole('radio', { name: /Template/ })).toHaveAttribute('aria-checked', 'true');
-      expect(screen.getByRole('radio', { name: /Manual/ })).toHaveAttribute('aria-checked', 'false');
+      expect(screen.getByRole('radio', { name: /Template/ })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      );
+      expect(screen.getByRole('radio', { name: /Manual/ })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      );
     });
 
     it('shows template cards when templates are loaded', async () => {
@@ -455,7 +463,9 @@ describe('ProviderFleetPage', () => {
 
       expect(screen.getByText('Delete bus')).toBeInTheDocument();
       expect(screen.getByText(/Are you sure you want to delete/)).toBeInTheDocument();
-      expect(screen.getByText(/Schedules referencing this bus may be affected/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Schedules referencing this bus may be affected/),
+      ).toBeInTheDocument();
     });
 
     it('calls delete mutation on confirm', async () => {

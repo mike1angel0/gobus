@@ -113,9 +113,7 @@ function ErrorState({ onRetry }: ErrorStateProps) {
     <div className="flex flex-col items-center py-16 text-center" role="alert">
       <AlertCircle className="mb-4 h-16 w-16 text-destructive" aria-hidden="true" />
       <h2 className="mb-2 text-xl font-semibold">{t('tripDetail.error.title')}</h2>
-      <p className="mb-6 max-w-md text-muted-foreground">
-        {t('tripDetail.error.message')}
-      </p>
+      <p className="mb-6 max-w-md text-muted-foreground">{t('tripDetail.error.message')}</p>
       <Button onClick={onRetry} variant="outline">
         {t('tripDetail.error.retry')}
       </Button>
@@ -328,7 +326,11 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
 
         {/* Price Summary */}
         {totalPrice !== null && selectedSeatIds.length > 0 && (
-          <div className="rounded-md bg-muted p-4" aria-label={t('tripDetail.booking.priceSummary')} role="region">
+          <div
+            className="rounded-md bg-muted p-4"
+            aria-label={t('tripDetail.booking.priceSummary')}
+            role="region"
+          >
             <div className="flex items-center justify-between text-sm">
               <span>
                 {t('tripDetail.booking.seatCount', { count: selectedSeatIds.length })} ×{' '}
@@ -350,7 +352,9 @@ function BookingForm({ trip, selectedSeatIds, onSelectionChange }: BookingFormPr
           size="lg"
           aria-label={t('tripDetail.booking.confirmAriaLabel')}
         >
-          {createBooking.isPending ? t('tripDetail.booking.confirming') : t('tripDetail.booking.confirm')}
+          {createBooking.isPending
+            ? t('tripDetail.booking.confirming')
+            : t('tripDetail.booking.confirm')}
         </Button>
       </CardContent>
     </Card>

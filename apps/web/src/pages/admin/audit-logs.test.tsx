@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import AdminAuditLogsPage from './audit-logs';
 import { renderWithProviders } from '@/test/helpers';
 
@@ -53,6 +54,7 @@ function errorState() {
 
 describe('AdminAuditLogsPage', () => {
   beforeEach(() => {
+    i18n.changeLanguage('en');
     mockAuditLogs.mockReset();
   });
 
@@ -102,7 +104,12 @@ describe('AdminAuditLogsPage', () => {
   describe('audit log list', () => {
     it('renders log rows with timestamp, action badge, resource, and IP', () => {
       const logs = [
-        createLog({ id: 'log-1', action: 'PROFILE_UPDATE', resource: 'session', ipAddress: '10.0.0.1' }),
+        createLog({
+          id: 'log-1',
+          action: 'PROFILE_UPDATE',
+          resource: 'session',
+          ipAddress: '10.0.0.1',
+        }),
         createLog({ id: 'log-2', action: 'USER_SUSPEND', resource: 'user', resourceId: 'u-42' }),
       ];
       mockAuditLogs.mockReturnValue(loadedState(logs));
@@ -113,23 +120,19 @@ describe('AdminAuditLogsPage', () => {
       expect(screen.getAllByText('PROFILE_UPDATE').length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText('USER_SUSPEND').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('session')).toBeInTheDocument();
-      expect(screen.getByText('IP: 10.0.0.1')).toBeInTheDocument();
+      expect(screen.getByText(/IP:.*10\.0\.0\.1/)).toBeInTheDocument();
     });
 
     it('shows userId on log row', () => {
-      mockAuditLogs.mockReturnValue(
-        loadedState([createLog({ userId: 'user-xyz' })]),
-      );
+      mockAuditLogs.mockReturnValue(loadedState([createLog({ userId: 'user-xyz' })]));
 
       renderWithProviders(<AdminAuditLogsPage />);
 
-      expect(screen.getByText('User: user-xyz')).toBeInTheDocument();
+      expect(screen.getByText(/User:.*user-xyz/)).toBeInTheDocument();
     });
 
     it('shows resourceId in parentheses', () => {
-      mockAuditLogs.mockReturnValue(
-        loadedState([createLog({ resourceId: 'res-99' })]),
-      );
+      mockAuditLogs.mockReturnValue(loadedState([createLog({ resourceId: 'res-99' })]));
 
       renderWithProviders(<AdminAuditLogsPage />);
 
@@ -166,9 +169,7 @@ describe('AdminAuditLogsPage', () => {
 
     it('collapses detail on second click', async () => {
       const user = userEvent.setup();
-      mockAuditLogs.mockReturnValue(
-        loadedState([createLog({ id: 'log-1', userAgent: 'Agent' })]),
-      );
+      mockAuditLogs.mockReturnValue(loadedState([createLog({ id: 'log-1', userAgent: 'Agent' })]));
 
       renderWithProviders(<AdminAuditLogsPage />);
 
@@ -182,9 +183,7 @@ describe('AdminAuditLogsPage', () => {
 
     it('disables expand button when no detail data', () => {
       mockAuditLogs.mockReturnValue(
-        loadedState([
-          createLog({ id: 'log-1', userAgent: null, metadata: null }),
-        ]),
+        loadedState([createLog({ id: 'log-1', userAgent: null, metadata: null })]),
       );
 
       renderWithProviders(<AdminAuditLogsPage />);
@@ -303,9 +302,7 @@ describe('AdminAuditLogsPage', () => {
       renderWithProviders(<AdminAuditLogsPage />);
       await user.click(screen.getByRole('button', { name: 'Next' }));
 
-      expect(mockAuditLogs).toHaveBeenCalledWith(
-        expect.objectContaining({ page: 2 }),
-      );
+      expect(mockAuditLogs).toHaveBeenCalledWith(expect.objectContaining({ page: 2 }));
     });
   });
 
@@ -315,12 +312,8 @@ describe('AdminAuditLogsPage', () => {
 
       renderWithProviders(<AdminAuditLogsPage />);
 
-      expect(
-        screen.getByRole('heading', { level: 1, name: 'Audit Logs' }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('heading', { level: 2, name: 'Audit log list' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1, name: 'Audit Logs' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Audit log list' })).toBeInTheDocument();
     });
 
     it('filter group has aria-label', () => {
@@ -343,9 +336,7 @@ describe('AdminAuditLogsPage', () => {
     });
 
     it('row buttons have aria-expanded attribute', () => {
-      mockAuditLogs.mockReturnValue(
-        loadedState([createLog({ userAgent: 'Agent' })]),
-      );
+      mockAuditLogs.mockReturnValue(loadedState([createLog({ userAgent: 'Agent' })]));
 
       renderWithProviders(<AdminAuditLogsPage />);
 
@@ -354,9 +345,7 @@ describe('AdminAuditLogsPage', () => {
     });
 
     it('icons have aria-hidden', () => {
-      mockAuditLogs.mockReturnValue(
-        loadedState([createLog({ userAgent: 'Agent' })]),
-      );
+      mockAuditLogs.mockReturnValue(loadedState([createLog({ userAgent: 'Agent' })]));
 
       const { container } = renderWithProviders(<AdminAuditLogsPage />);
 

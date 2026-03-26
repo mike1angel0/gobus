@@ -50,11 +50,7 @@ function errorState() {
 }
 
 /** Creates a mock driver. */
-function createMockDriver(
-  id: string,
-  name: string,
-  overrides: Record<string, unknown> = {},
-) {
+function createMockDriver(id: string, name: string, overrides: Record<string, unknown> = {}) {
   return {
     id,
     name,
@@ -112,9 +108,7 @@ describe('ProviderDriversPage', () => {
     });
 
     it('shows phone when available', () => {
-      const drivers = [
-        createMockDriver('drv_1', 'John Smith', { phone: '+40 712 345 678' }),
-      ];
+      const drivers = [createMockDriver('drv_1', 'John Smith', { phone: '+40 712 345 678' })];
       mockDrivers.mockReturnValue(loadedState(drivers));
 
       renderWithProviders(<ProviderDriversPage />);
@@ -123,9 +117,7 @@ describe('ProviderDriversPage', () => {
     });
 
     it('shows assigned schedule count', () => {
-      const drivers = [
-        createMockDriver('drv_1', 'John Smith', { assignedScheduleCount: 3 }),
-      ];
+      const drivers = [createMockDriver('drv_1', 'John Smith', { assignedScheduleCount: 3 })];
       mockDrivers.mockReturnValue(loadedState(drivers));
 
       renderWithProviders(<ProviderDriversPage />);
@@ -134,9 +126,7 @@ describe('ProviderDriversPage', () => {
     });
 
     it('uses singular "schedule" for count of 1', () => {
-      const drivers = [
-        createMockDriver('drv_1', 'John Smith', { assignedScheduleCount: 1 }),
-      ];
+      const drivers = [createMockDriver('drv_1', 'John Smith', { assignedScheduleCount: 1 })];
       mockDrivers.mockReturnValue(loadedState(drivers));
 
       renderWithProviders(<ProviderDriversPage />);
@@ -196,7 +186,9 @@ describe('ProviderDriversPage', () => {
       await user.click(screen.getByRole('button', { name: /Create driver/ }));
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Create driver', { selector: '[class*="font-semibold"]' })).toBeInTheDocument();
+      expect(
+        screen.getByText('Create driver', { selector: '[class*="font-semibold"]' }),
+      ).toBeInTheDocument();
     });
 
     it('has name, email, password, and phone inputs', async () => {

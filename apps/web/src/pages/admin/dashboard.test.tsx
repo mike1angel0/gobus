@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import AdminDashboardPage from './dashboard';
 import { renderWithProviders } from '@/test/helpers';
 
@@ -92,6 +93,7 @@ function setupLoadedDashboard(
 
 describe('AdminDashboardPage', () => {
   beforeEach(() => {
+    i18n.changeLanguage('en');
     mockAdminUsers.mockReset();
     mockAdminBuses.mockReset();
     mockAuditLogs.mockReset();

@@ -156,9 +156,7 @@ function CancelDialog({ bookingId, orderId }: CancelDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('cancel.title')}</DialogTitle>
-          <DialogDescription>
-            {t('cancel.description', { orderId })}
-          </DialogDescription>
+          <DialogDescription>{t('cancel.description', { orderId })}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
@@ -215,8 +213,12 @@ export function BookingCard({ booking, variant }: BookingCardProps) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          <span>{t('card.seats')} {booking.seatLabels.join(', ')}</span>
-          <span>{t('card.order')} {booking.orderId}</span>
+          <span>
+            {t('card.seats')} {booking.seatLabels.join(', ')}
+          </span>
+          <span>
+            {t('card.order')} {booking.orderId}
+          </span>
         </div>
 
         <div className="mt-3 flex items-center justify-between">

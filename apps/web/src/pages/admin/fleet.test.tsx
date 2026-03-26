@@ -1,6 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import i18n from '@/i18n/config';
 import AdminFleetPage from './fleet';
 import { renderWithProviders } from '@/test/helpers';
 
@@ -122,6 +123,7 @@ function idleMutation() {
 
 describe('AdminFleetPage', () => {
   beforeEach(() => {
+    i18n.changeLanguage('en');
     mockAdminBuses.mockReset();
     mockToggleSeat.mockReset();
     mockBusDetail.mockReset();
@@ -209,8 +211,8 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      expect(screen.getByText('Provider: prov_alpha')).toBeInTheDocument();
-      expect(screen.getByText('Provider: prov_beta')).toBeInTheDocument();
+      expect(screen.getByText(/Provider:.*prov_alpha/)).toBeInTheDocument();
+      expect(screen.getByText(/Provider:.*prov_beta/)).toBeInTheDocument();
 
       // Alpha provider group should have 2 buses
       const alphaGroup = screen.getByLabelText('Buses for provider prov_alpha');
@@ -245,7 +247,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      const manageBtn = screen.getByRole('button', { name: /Manage seats for AB-123/ });
+      const manageBtn = screen.getByRole('button', { name: /Manage seats.*AB-123/ });
       await user.click(manageBtn);
 
       expect(screen.getByRole('grid', { name: 'Seat toggle grid' })).toBeInTheDocument();
@@ -259,7 +261,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
 
       expect(screen.getByLabelText('Loading seats')).toHaveAttribute('aria-busy', 'true');
     });
@@ -272,7 +274,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
 
       expect(screen.getByText('Failed to load seats.')).toBeInTheDocument();
     });
@@ -289,7 +291,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
 
       expect(
         screen.getByRole('gridcell', { name: /Seat 1A.*enabled.*Click to disable/ }),
@@ -314,7 +316,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
 
       expect(screen.getByText('2 enabled · 1 disabled')).toBeInTheDocument();
     });
@@ -330,7 +332,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
       await user.click(
         screen.getByRole('gridcell', { name: /Seat 1A.*enabled.*Click to disable/ }),
       );
@@ -349,7 +351,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
       await user.click(
         screen.getByRole('gridcell', { name: /Seat 1A.*disabled.*Click to enable/ }),
       );
@@ -367,11 +369,11 @@ describe('AdminFleetPage', () => {
       renderWithProviders(<AdminFleetPage />);
 
       // Expand
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
       expect(screen.getByRole('grid', { name: 'Seat toggle grid' })).toBeInTheDocument();
 
       // Collapse
-      await user.click(screen.getByRole('button', { name: /Collapse seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Collapse.*AB-123/ }));
       expect(screen.queryByRole('grid', { name: 'Seat toggle grid' })).not.toBeInTheDocument();
     });
 
@@ -388,7 +390,7 @@ describe('AdminFleetPage', () => {
       expect(screen.getByLabelText('12 rows, 4 columns seat layout')).toBeInTheDocument();
 
       // Expand
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
 
       // Preview hidden when expanded
       expect(screen.queryByLabelText('12 rows, 4 columns seat layout')).not.toBeInTheDocument();
@@ -491,7 +493,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      const btn = screen.getByRole('button', { name: /Manage seats for AB-123/ });
+      const btn = screen.getByRole('button', { name: /Manage seats.*AB-123/ });
       expect(btn).toHaveAttribute('aria-expanded', 'false');
     });
 
@@ -504,7 +506,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
 
       expect(
         screen.getByRole('gridcell', { name: /Seat 1A, premium, enabled/ }),
@@ -528,7 +530,7 @@ describe('AdminFleetPage', () => {
 
       renderWithProviders(<AdminFleetPage />);
 
-      await user.click(screen.getByRole('button', { name: /Manage seats for AB-123/ }));
+      await user.click(screen.getByRole('button', { name: /Manage seats.*AB-123/ }));
 
       expect(mockBusDetail).toHaveBeenCalledWith('bus_1');
     });

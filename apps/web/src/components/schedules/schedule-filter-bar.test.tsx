@@ -106,7 +106,13 @@ describe('ScheduleFilterBar', () => {
   it('reflects controlled filter values', () => {
     renderWithI18n(
       <ScheduleFilterBar
-        {...defaultProps({ routeId: 'r2', busId: 'b2', status: 'CANCELLED', fromDate: '2025-03-01', toDate: '2025-03-31' })}
+        {...defaultProps({
+          routeId: 'r2',
+          busId: 'b2',
+          status: 'CANCELLED',
+          fromDate: '2025-03-01',
+          toDate: '2025-03-31',
+        })}
       />,
     );
     expect(screen.getByLabelText('Route')).toHaveValue('r2');
