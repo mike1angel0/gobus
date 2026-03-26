@@ -259,16 +259,16 @@
 - Dates: `format: date-time` or `format: date`
 
 **Acceptance Criteria:**
-- [ ] Every string field has maxLength
-- [ ] Every number field has minimum and maximum
-- [ ] Every array field has minItems and maxItems
-- [ ] Every enum is exhaustive (no open-ended strings)
-- [ ] Password field has minLength + pattern
-- [ ] Email field has format + maxLength
-- [ ] Coordinate fields bounded (-90/90 lat, -180/180 lng)
-- [ ] Price fields bounded (0-99999)
-- [ ] `spec:lint` passes
-- [ ] All Zod schemas in BE updated to match these limits exactly
+- [x] Every string field has maxLength
+- [x] Every number field has minimum and maximum
+- [x] Every array field has minItems and maxItems
+- [x] Every enum is exhaustive (no open-ended strings)
+- [x] Password field has minLength + pattern
+- [x] Email field has format + maxLength
+- [x] Coordinate fields bounded (-90/90 lat, -180/180 lng)
+- [x] Price fields bounded (0-99999)
+- [x] `spec:lint` passes
+- [x] All Zod schemas in BE updated to match these limits exactly
 
 ### TASK-021: XSS and injection prevention
 **Description:** Even though Prisma prevents SQL injection and React auto-escapes JSX, add defense-in-depth: (1) Create a Fastify plugin `sanitize-input.ts` that strips HTML tags from all string inputs using a lightweight sanitizer (e.g., `xss` or `sanitize-html` library — allowlist approach, strip everything by default). (2) Add Content-Security-Policy header that blocks inline scripts. (3) Validate all URL fields (avatarUrl, provider logo) against an allowlist of URL schemes (only https:). (4) Ensure no endpoint returns user-controlled data in HTTP headers (header injection). (5) Add `X-Content-Type-Options: nosniff` to prevent MIME sniffing.
