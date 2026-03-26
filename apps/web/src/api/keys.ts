@@ -124,7 +124,7 @@ export const adminKeys = {
 export const driverTripKeys = {
   all: ['driver-trips'] as const,
   /** Matches driver trip list queries. */
-  lists: (filters?: { status?: string; page?: number; pageSize?: number }) =>
+  lists: (filters?: { date?: string; page?: number; pageSize?: number }) =>
     filters ? (['driver-trips', 'list', filters] as const) : (['driver-trips', 'list'] as const),
   /** Matches a specific driver trip detail by schedule ID. */
   detail: (scheduleId: string) => ['driver-trips', 'detail', scheduleId] as const,

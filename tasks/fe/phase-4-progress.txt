@@ -1,0 +1,8 @@
+## Iteration 1 - TASK-001: Create driver hooks
+- Created `src/hooks/use-driver-trips.ts` with `useDriverTrips(params)` and `useDriverTripDetail(scheduleId, date?)` hooks
+- Updated `driverTripKeys.lists` filter type in keys.ts: changed `status` to `date` to match the driver trips API date-based filtering
+- Both hooks use typed API client, proper query keys, JSDoc, staleTime 60s
+- Detail hook uses `enabled: scheduleId.length > 0` guard
+- 8 tests pass covering: date filtering, pagination, error handling, disabled query when scheduleId empty
+- Learnings: Must run vitest from apps/web/ dir, not monorepo root
+---

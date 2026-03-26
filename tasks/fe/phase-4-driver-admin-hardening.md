@@ -8,14 +8,8 @@
 
 ## Driver Features
 
-### TASK-001: Create driver hooks
-**Description:** Create `src/hooks/use-driver-trips.ts`: `useDriverTrips(date)` — list assigned schedules for date. `useDriverTripDetail(scheduleId)` — full trip detail with route, stops, bookings, tracking, delay. Both use typed API client with proper query keys.
-
-**Acceptance Criteria:**
-- [ ] Both hooks typed from OpenAPI spec
-- [ ] Date-based query key for list
-- [ ] JSDoc
-- [ ] Typecheck passes
+### TASK-001: Create driver hooks ✅
+- [x] Both hooks typed from OpenAPI spec, date-based query key for list, JSDoc, typecheck passes
 
 ### TASK-002: Create driver trips list page
 **Description:** Create `src/pages/driver/trips.tsx`. Date selector (defaults to today, navigate between days). Shows assigned schedule cards: route name, departure/arrival times, bus info, passenger count, status (upcoming/in-progress/completed). Tap card navigates to trip detail.
