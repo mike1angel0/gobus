@@ -75,15 +75,7 @@
 ### TASK-017: Add bundle size measurement ✅
 **Bundle baseline:** Total JS: 1.3MB (gzip ~300KB). Largest chunks: index 411KB (127KB gz), live-map 156KB (46KB gz), types 56KB (13KB gz).
 
-### TASK-018: Optimize hero image
-**Description:** `src/assets/hero.png` is a PNG that may be large. If used on the home page, it should be optimized.
-
-**Acceptance Criteria:**
-- [ ] Convert `hero.png` to WebP format (or keep PNG if < 50KB)
-- [ ] Add `loading="lazy"` attribute if used in an `<img>` tag
-- [ ] Add `width` and `height` attributes to prevent layout shift
-- [ ] If image is unused, delete it
-- [ ] Typecheck passes
+### TASK-018: Optimize hero image ✅
 
 ---
 

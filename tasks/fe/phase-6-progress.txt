@@ -94,3 +94,69 @@
 - All 1283 tests pass, typecheck clean, lint clean (only pre-existing warning)
 - Learnings: Zod + i18n requires factory pattern (`createSchema(t)`) with `useMemo` keyed on `t`; keep static schemas for unit tests that validate schema logic without rendering; all test render functions need `I18nextProvider` wrapping
 ---
+
+## Iteration 12 - TASK-012: Translate search and booking namespaces
+- Updated EN and RO search.json with 50+ new keys covering: page title, heading, form labels/validation/placeholders, results (with pluralization), empty/loading/error states, trip card (seats with pluralization, stops toggle, aria labels), trip detail page (back link, departure/arrival, from, stops count, cancelled badge, error/loading states, booking form with stop selection, seat count pluralization, confirm button)
+- Updated EN and RO booking.json with 40+ new keys covering: seat states (available/selected/occupied/blocked/disabled), seat map (aria labels, no seats, premium), booking card (seats/order labels, details expand/collapse, loading), cancel dialog (title, description with orderId interpolation, keep/confirm/cancelling), my trips (heading, tabs, empty states per tab, load more, search CTA), status labels (both lowercase and UPPERCASE keys for direct mapping)
+- Applied `useTranslation('search')` to: search.tsx, search-form.tsx, trip-card.tsx, trip/[id].tsx (including all sub-components: ResultsList, SearchContent, CitySelect, DateField, BookingForm, TripDetailContent, ErrorState, StopList, TripDetailSkeleton)
+- Applied `useTranslation('booking')` to: my-trips.tsx, booking-card.tsx, seat-map.tsx (including sub-components: BookingList, MyTripsContent, BookingDetail, CancelDialog, SeatCell, SeatLegend)
+- Used factory pattern for search form Zod schema (`createSearchFormSchema(t)` with `useMemo`)
+- Updated my-trips.test.tsx: added `i18n.changeLanguage('en')` in beforeEach, changed status assertions from 'CONFIRMED'/'COMPLETED' to 'Confirmed'/'Completed'
+- Removed unused `SEAT_STATE_KEYS` constant from seat-map.tsx (caught by lint)
+- All 1283 tests pass, typecheck clean, lint clean (only pre-existing warning)
+- Learnings: When translating status badges that display raw API enum values (e.g. 'CONFIRMED'), add both lowercase and UPPERCASE keys in translation files to support `t('status.CONFIRMED')` pattern; this avoids needing a mapping function
+---
+
+## Iteration 13 - TASK-013: Translate provider namespace
+- All provider pages (dashboard, routes, fleet, schedules, drivers, tracking, profile) and dialogs (create-route, create-bus, edit-bus, create-schedule, create-driver, schedule-filter-bar, analytics-section) were already using `useTranslation('provider')` from previous iterations
+- Both EN and RO provider.json files already had comprehensive translations with all required sub-sections (dashboard, routes, fleet, schedules, drivers, analytics, tracking, profile)
+- Removed unused `SEAT_TYPE_LABELS` constant from seat-map-editor.tsx (replaced by i18n `getSeatTypeLabel` function)
+- Fixed 3 test files (create-driver-dialog, edit-bus-dialog, create-schedule-dialog) and 1 test file (schedule-filter-bar) that needed `I18nextProvider` wrapping and `i18n.changeLanguage('en')` in `beforeEach`
+- All 1283 tests pass, typecheck clean, lint clean
+- Learnings: When components are translated incrementally across tasks, the test files may not get updated with i18n wrapping until a later task runs the full test suite and catches the failures; always run full test suite before marking a translation task complete
+---
+
+## Iteration 14 - TASK-014: Translate driver, admin, and tracking namespaces
+- Admin pages were already fully translated with `useTranslation('admin')` from previous iterations
+- Tracking page was already using `useTranslation('provider')` for the provider namespace tracking section; tracking components (sidebar, report dialog, active delays) already used `useTranslation('tracking')`
+- Driver pages (trips.tsx, trip-detail.tsx, delay.tsx) were not translated — added `useTranslation('driver')` to all three pages and all sub-components (TripCard, TripListContent, DateNav, TripDetailSkeleton, TripDetailError, StopProgressTracker, LocationSharingToggle, TripInfoHeader, PresetButtons)
+- Updated EN and RO driver.json with 60+ new keys covering: trips (status labels, navigation, error/empty states), tripDetail (loading, error, back, stop progress, location sharing, toast messages), delay (form labels, placeholders, character count, reasons, missing params)
+- Replaced hardcoded STATUS_LABELS with i18n STATUS_KEYS map, removed hardcoded REASON_LABELS in favor of `t('delay.reasons.REASON')` pattern
+- Fixed pre-existing admin/users.test.tsx failure: `getByText('Passenger')` found multiple matches (filter dropdown + user badge) — changed to `getAllByText().length >= 1`
+- All 1283 tests pass, typecheck clean, lint clean
+- Learnings: Role/status labels that appear both in filter dropdowns and in data badges cause `getByText` to fail with multiple matches; use `getAllByText` when the same label text is expected in multiple UI contexts
+---
+
+## Iteration 16 - TASK-016: Create frontend .env.example
+- Created `apps/web/.env.example` with `VITE_API_URL` and descriptive comments explaining dev vs production usage
+- Verified root `.gitignore` already excludes `.env` and `.env*.local`
+- Note: actual `.env` uses `http://localhost:3003` (not `:3000/api/v1` as PRD suggested) — `.env.example` matches actual usage
+- Learnings: Only one VITE_ env var is used in the entire frontend codebase
+---
+
+## Iteration 15 - TASK-015: Translate error boundary and 404 page
+- Updated `error-fallback.tsx` to use `useTranslation('common')` for heading ("Error"/"Eroare"), default message, and retry button text
+- Updated `not-found.tsx` to use `useTranslation('common')` for heading, description, and "Go home" link
+- Added new translation keys to both EN and RO common.json: `errors.somethingWentWrongDefault`, `errors.errorHeading`, updated `errors.pageNotFoundDescription` to match component text
+- Added `i18n.changeLanguage('en')` in `beforeEach` for all 3 test files (error-boundary, error-fallback, not-found)
+- Added Romanian translation tests for both error-fallback and not-found
+- All 19 error component tests pass, typecheck clean, lint clean
+- Learnings: ErrorBoundary is a class component and can't use hooks directly — it delegates to ErrorFallback which handles the i18n; translation keys already existed in common.json from TASK-007 but needed additional keys for the default message and heading
+---
+
+## Iteration 17 - TASK-017: Add bundle size measurement
+- Added `rollup-plugin-visualizer` as devDependency
+- Configured vite.config.ts to conditionally include visualizer when `ANALYZE=true` env var is set
+- Added `build:analyze` script to package.json that runs `ANALYZE=true vite build`
+- `dist/stats.html` already covered by root `.gitignore` (`dist/` entry)
+- Bundle baseline: Total JS 1.3MB (gzip ~300KB). Largest: index 411KB (127KB gz), live-map 156KB (46KB gz), types 56KB (13KB gz)
+- Typecheck passes
+- Learnings: `filter(Boolean)` on plugins array handles conditional plugin inclusion cleanly in Vite config
+---
+
+## Iteration 18 - TASK-018: Optimize hero image
+- hero.png was 44KB (under 50KB threshold) but was not imported or referenced anywhere in the codebase
+- Deleted the unused file per acceptance criteria
+- Typecheck passes, no code changes needed
+- Learnings: Always grep for actual imports/references before optimizing assets — unused assets should just be deleted
+---
