@@ -9,6 +9,7 @@ import { CardListSkeleton } from '@/components/shared/loading-skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useDriverTrips } from '@/hooks/use-driver-trips';
+import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
 
 type DriverTrip = components['schemas']['DriverTrip'];
@@ -43,7 +44,6 @@ const STATUS_LABELS: Record<ReturnType<typeof deriveTripStatus>, string> = {
   completed: 'Completed',
   cancelled: 'Cancelled',
 };
-
 
 /* ---------- Trip Card ---------- */
 
@@ -170,12 +170,7 @@ function DateNav({ selectedDate, onPrev, onNext }: DateNavProps) {
 
   return (
     <div className="flex items-center justify-center gap-3">
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={onPrev}
-        aria-label="Previous day"
-      >
+      <Button variant="outline" size="icon" onClick={onPrev} aria-label="Previous day">
         <ChevronLeft className="h-4 w-4" aria-hidden="true" />
       </Button>
       <span className="min-w-48 text-center font-medium" aria-live="polite">
@@ -186,12 +181,7 @@ function DateNav({ selectedDate, onPrev, onNext }: DateNavProps) {
           </span>
         )}
       </span>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={onNext}
-        aria-label="Next day"
-      >
+      <Button variant="outline" size="icon" onClick={onNext} aria-label="Next day">
         <ChevronRight className="h-4 w-4" aria-hidden="true" />
       </Button>
     </div>
@@ -215,6 +205,7 @@ function DateNav({ selectedDate, onPrev, onNext }: DateNavProps) {
  * ```
  */
 export default function DriverTripsPage() {
+  usePageTitle('Driver Trips');
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const navigate = useNavigate();
 

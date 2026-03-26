@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { PageError } from '@/components/shared/error-state';
 import { useAdminUsers, useAdminBuses, useAuditLogs } from '@/hooks/use-admin';
 import { useAuth } from '@/hooks/useAuth';
+import { usePageTitle } from '@/hooks/use-page-title';
 
 /** Number of recent audit log entries to show on the dashboard. */
 const RECENT_AUDIT_COUNT = 5;
@@ -316,10 +317,7 @@ function useAdminDashboardData(): AdminDashboardData {
     showStatsSkeleton: usersQuery.isLoading && !usersQuery.data,
     activityLoading: auditQuery.isLoading,
     isFullError:
-      queries.some((q) => q.isError) &&
-      !usersQuery.data &&
-      !busesQuery.data &&
-      !auditQuery.data,
+      queries.some((q) => q.isError) && !usersQuery.data && !busesQuery.data && !auditQuery.data,
     retry: () => {
       for (const q of queries) {
         if (q.isError) q.refetch();
@@ -344,6 +342,7 @@ function useAdminDashboardData(): AdminDashboardData {
  * ```
  */
 export default function AdminDashboardPage() {
+  usePageTitle('Admin Dashboard');
   const { user } = useAuth();
   const dashboard = useAdminDashboardData();
 

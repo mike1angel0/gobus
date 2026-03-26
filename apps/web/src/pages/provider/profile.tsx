@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { useProviderProfile } from '@/hooks/use-provider-profile';
+import { usePageTitle } from '@/hooks/use-page-title';
 
 /** Formats an ISO date string to a human-readable date. */
 function formatDate(iso: string): string {
@@ -20,7 +21,11 @@ function formatDate(iso: string): string {
  */
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8" aria-label="Loading provider profile" aria-busy="true">
+    <div
+      className="mx-auto max-w-2xl px-4 py-8"
+      aria-label="Loading provider profile"
+      aria-busy="true"
+    >
       <Card>
         <CardHeader>
           <Skeleton className="h-8 w-48" />
@@ -52,6 +57,7 @@ function ProfileSkeleton() {
  * ```
  */
 export default function ProviderProfilePage() {
+  usePageTitle('Provider Profile');
   const { data, isLoading, isError, refetch } = useProviderProfile();
 
   if (isLoading) {

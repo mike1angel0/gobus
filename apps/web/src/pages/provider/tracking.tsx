@@ -13,6 +13,7 @@ import type { ScheduleOption } from '@/components/tracking/report-delay-dialog';
 import { ActiveDelaysList } from '@/components/tracking/active-delays-list';
 import { useBuses } from '@/hooks/use-buses';
 import { useProviderTracking } from '@/hooks/use-provider-tracking';
+import { usePageTitle } from '@/hooks/use-page-title';
 import { useSchedules } from '@/hooks/use-schedules';
 import { useDelays } from '@/hooks/use-delays';
 import type { components } from '@/api/generated/types';
@@ -241,6 +242,7 @@ function TrackingContent({ data }: TrackingContentProps) {
  * ```
  */
 export default function ProviderTrackingPage() {
+  usePageTitle('Live Tracking');
   const data = useTrackingPageData();
 
   if (data.isLoading) {

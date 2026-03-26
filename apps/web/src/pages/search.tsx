@@ -6,10 +6,10 @@ import { CardListSkeleton } from '@/components/shared/loading-skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useSearchTrips } from '@/hooks/use-search';
+import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
 
 type SearchResult = components['schemas']['SearchResult'];
-
 
 /** Props for the {@link ResultsList} component. */
 interface ResultsListProps {
@@ -107,6 +107,7 @@ function SearchContent({ hasParams, isLoading, isError, results, onRetry }: Sear
  * ```
  */
 export default function SearchPage() {
+  usePageTitle('Search');
   const [searchParams] = useSearchParams();
 
   const origin = searchParams.get('origin') ?? '';

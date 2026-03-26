@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useAuditLogs } from '@/hooks/use-admin';
+import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
 
 type AuditLog = components['schemas']['AdminAuditLog'];
@@ -209,10 +210,7 @@ function AuditLogRow({ log, isExpanded, onToggle }: AuditLogRowProps) {
           ) : (
             <span className="h-4 w-4 shrink-0" aria-hidden="true" />
           )}
-          <time
-            className="shrink-0 text-sm text-muted-foreground"
-            dateTime={log.createdAt}
-          >
+          <time className="shrink-0 text-sm text-muted-foreground" dateTime={log.createdAt}>
             {formatTimestamp(log.createdAt)}
           </time>
           <Badge variant="outline">{log.action}</Badge>
@@ -271,10 +269,7 @@ interface AuditLogPaginationProps {
 /** Pagination controls for the audit log list. */
 function AuditLogPagination({ page, totalPages, onPageChange }: AuditLogPaginationProps) {
   return (
-    <nav
-      className="mt-8 flex items-center justify-center gap-4"
-      aria-label="Audit log pagination"
-    >
+    <nav className="mt-8 flex items-center justify-center gap-4" aria-label="Audit log pagination">
       <Button
         variant="outline"
         size="sm"
@@ -374,6 +369,7 @@ function AuditLogListContent({
  * ```
  */
 export default function AdminAuditLogsPage() {
+  usePageTitle('Audit Logs');
   const [page, setPage] = useState(1);
   const [userIdFilter, setUserIdFilter] = useState('');
   const [actionFilter, setActionFilter] = useState('');

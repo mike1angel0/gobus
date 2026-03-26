@@ -7,6 +7,7 @@ import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { BookingCard } from '@/components/booking/booking-card';
 import { useBookings } from '@/hooks/use-bookings';
+import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
 
 type Booking = components['schemas']['Booking'];
@@ -49,7 +50,6 @@ function splitBookings(bookings: Booking[]): { upcoming: Booking[]; past: Bookin
 
   return { upcoming, past };
 }
-
 
 /** Props for the tab button. */
 interface TabButtonProps {
@@ -212,6 +212,7 @@ function MyTripsContent({
  * ```
  */
 export default function MyTripsPage() {
+  usePageTitle('My Trips');
   const [activeTab, setActiveTab] = useState<Tab>('upcoming');
   const [page, setPage] = useState(1);
 

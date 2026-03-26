@@ -8,6 +8,7 @@ import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useAdminBuses, useToggleSeat } from '@/hooks/use-admin';
 import { useBusDetail } from '@/hooks/use-buses';
+import { usePageTitle } from '@/hooks/use-page-title';
 import { SeatGridPreview } from '@/components/fleet/create-bus-dialog';
 import type { components } from '@/api/generated/types';
 
@@ -40,7 +41,6 @@ function AdminFleetSkeleton() {
     </div>
   );
 }
-
 
 /* ---------- Seat Toggle Grid ---------- */
 
@@ -164,19 +164,31 @@ function SeatToggleGrid({ busId, rows, columns }: SeatToggleGridProps) {
       </div>
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded border border-green-500 bg-green-200" aria-hidden="true" />
+          <span
+            className="inline-block h-3 w-3 rounded border border-green-500 bg-green-200"
+            aria-hidden="true"
+          />
           Standard
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded border border-amber-500 bg-amber-200" aria-hidden="true" />
+          <span
+            className="inline-block h-3 w-3 rounded border border-amber-500 bg-amber-200"
+            aria-hidden="true"
+          />
           Premium
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded border border-blue-500 bg-blue-200" aria-hidden="true" />
+          <span
+            className="inline-block h-3 w-3 rounded border border-blue-500 bg-blue-200"
+            aria-hidden="true"
+          />
           Accessible
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded border border-red-400 bg-red-100" aria-hidden="true" />
+          <span
+            className="inline-block h-3 w-3 rounded border border-red-400 bg-red-100"
+            aria-hidden="true"
+          />
           Disabled
         </span>
       </div>
@@ -237,9 +249,7 @@ function AdminBusCard({ bus, isExpanded, onToggle }: AdminBusCardProps) {
             )}
           </Button>
         </div>
-        {isExpanded && (
-          <SeatToggleGrid busId={bus.id} rows={bus.rows} columns={bus.columns} />
-        )}
+        {isExpanded && <SeatToggleGrid busId={bus.id} rows={bus.rows} columns={bus.columns} />}
       </CardContent>
     </Card>
   );
@@ -264,7 +274,10 @@ function ProviderGroup({ providerId, buses, expandedBuses, onToggleBus }: Provid
   return (
     <div>
       <h3 className="mb-3 text-lg font-semibold text-muted-foreground">Provider: {providerId}</h3>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label={`Buses for provider ${providerId}`}>
+      <div
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        aria-label={`Buses for provider ${providerId}`}
+      >
         {buses.map((bus) => (
           <AdminBusCard
             key={bus.id}
@@ -405,9 +418,7 @@ function FleetContent({
       />
     );
   }
-  return (
-    <GroupedBusList buses={buses} expandedBuses={expandedBuses} onToggleBus={onToggleBus} />
-  );
+  return <GroupedBusList buses={buses} expandedBuses={expandedBuses} onToggleBus={onToggleBus} />;
 }
 
 /* ---------- Page ---------- */
@@ -426,6 +437,7 @@ function FleetContent({
  * ```
  */
 export default function AdminFleetPage() {
+  usePageTitle('Fleet Management');
   const [page, setPage] = useState(1);
   const busesQuery = useAdminBuses({ page, pageSize: 20 });
   const [expandedBuses, setExpandedBuses] = useState<Set<string>>(new Set());
@@ -470,7 +482,9 @@ export default function AdminFleetPage() {
         />
       </section>
 
-      {totalPages > 1 && <FleetPagination page={page} totalPages={totalPages} onPageChange={setPage} />}
+      {totalPages > 1 && (
+        <FleetPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      )}
     </div>
   );
 }

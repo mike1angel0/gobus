@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
+import { usePageTitle } from '@/hooks/use-page-title';
 import {
   Dialog,
   DialogContent,
@@ -34,7 +35,6 @@ const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 /** Shared CSS class for select elements styled to match Input. */
 const SELECT_CLASS =
   'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
-
 
 /* ---------- Schedule Card ---------- */
 
@@ -444,6 +444,7 @@ function useSchedulesPageData(filters: FilterState) {
  * ```
  */
 export default function ProviderSchedulesPage() {
+  usePageTitle('Schedules');
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [driverDialogScheduleId, setDriverDialogScheduleId] = useState<string | null>(null);
 

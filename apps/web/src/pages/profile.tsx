@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { usePageTitle } from '@/hooks/use-page-title';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProfileEditForm } from '@/pages/profile-edit-form';
@@ -40,6 +41,7 @@ function ProfileSkeleton() {
  * ```
  */
 export default function ProfilePage() {
+  usePageTitle('Profile');
   const { user, isLoading } = useAuth();
   const [editing, setEditing] = useState(false);
 

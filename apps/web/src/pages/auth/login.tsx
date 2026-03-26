@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { loginSchema, getRedirectForRole, type LoginFormValues } from '@/pages/auth/login-schema';
+import { usePageTitle } from '@/hooks/use-page-title';
 
 /**
  * Login page with email/password form.
@@ -23,6 +24,7 @@ import { loginSchema, getRedirectForRole, type LoginFormValues } from '@/pages/a
  * - Accessible: labels, aria attributes, keyboard navigable
  */
 export default function LoginPage() {
+  usePageTitle('Sign In');
   const { login, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [rootError, setRootError] = useState<string | null>(null);

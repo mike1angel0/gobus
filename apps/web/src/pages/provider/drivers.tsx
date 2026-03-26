@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
+import { usePageTitle } from '@/hooks/use-page-title';
 import {
   Dialog,
   DialogContent,
@@ -149,6 +150,7 @@ function DriverListSection({ drivers, onDelete, isDeleting }: DriverListSectionP
  * ```
  */
 export default function ProviderDriversPage() {
+  usePageTitle('Drivers');
   const driversQuery = useDrivers({ page: 1, pageSize: 50 });
   const deleteDriver = useDeleteDriver();
 

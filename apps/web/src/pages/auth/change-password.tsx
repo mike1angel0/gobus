@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { usePageTitle } from '@/hooks/use-page-title';
 import { getPasswordStrength } from '@/pages/auth/register-schema';
 import {
   changePasswordSchema,
@@ -42,6 +43,7 @@ const WRONG_PASSWORD_CODES = new Set(['INVALID_CREDENTIALS', 'INCORRECT_PASSWORD
  * ```
  */
 export default function ChangePasswordPage() {
+  usePageTitle('Change Password');
   const { changePassword } = useAuth();
   const [rootError, setRootError] = useState<string | null>(null);
 

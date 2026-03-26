@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDriverTripDetail, useDriverTripPassengers } from '@/hooks/use-driver-trips';
+import { usePageTitle } from '@/hooks/use-page-title';
 import { PassengerList } from '@/components/driver/passenger-list';
 import { useUpdateTracking } from '@/hooks/use-provider-tracking';
 import { useToast } from '@/hooks/use-toast';
@@ -118,22 +119,18 @@ function StopProgressTracker({
                 aria-current={isCurrent ? 'step' : undefined}
               >
                 {isPassed ? (
-                  <CheckCircle2
-                    className="h-5 w-5 shrink-0 text-green-600"
-                    aria-label="Passed"
-                  />
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" aria-label="Passed" />
                 ) : isCurrent ? (
-                  <Navigation
-                    className="h-5 w-5 shrink-0 text-primary"
-                    aria-label="Current stop"
-                  />
+                  <Navigation className="h-5 w-5 shrink-0 text-primary" aria-label="Current stop" />
                 ) : (
                   <Circle
                     className="h-5 w-5 shrink-0 text-muted-foreground"
                     aria-label="Upcoming"
                   />
                 )}
-                <span className={`flex-1 text-sm ${isPassed ? 'text-muted-foreground line-through' : 'font-medium'}`}>
+                <span
+                  className={`flex-1 text-sm ${isPassed ? 'text-muted-foreground line-through' : 'font-medium'}`}
+                >
                   {stop.stopName}
                 </span>
                 <span className="text-xs text-muted-foreground">{time}</span>
@@ -155,9 +152,7 @@ function StopProgressTracker({
         )}
 
         {isLastStop && (
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            All stops completed
-          </p>
+          <p className="mt-4 text-center text-sm text-muted-foreground">All stops completed</p>
         )}
       </CardContent>
     </Card>
@@ -233,9 +228,7 @@ function TripInfoHeader({ trip }: TripInfoHeaderProps) {
           <h2 className="text-lg font-semibold">{trip.routeName}</h2>
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-              trip.status === 'CANCELLED'
-                ? 'bg-red-100 text-red-700'
-                : 'bg-blue-100 text-blue-700'
+              trip.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
             }`}
           >
             {trip.status}
@@ -310,14 +303,17 @@ function useGeolocation(): GeolocationState {
   useEffect(() => {
     if (!navigator.geolocation) return;
 
-    navigator.permissions?.query({ name: 'geolocation' }).then((result) => {
-      setPermission(result.state as GeoPermission);
-      result.addEventListener('change', () => {
+    navigator.permissions
+      ?.query({ name: 'geolocation' })
+      .then((result) => {
         setPermission(result.state as GeoPermission);
+        result.addEventListener('change', () => {
+          setPermission(result.state as GeoPermission);
+        });
+      })
+      .catch(() => {
+        // permissions API not supported, we'll know when we try
       });
-    }).catch(() => {
-      // permissions API not supported, we'll know when we try
-    });
   }, []);
 
   const startWatching = useCallback(() => {
@@ -448,6 +444,7 @@ function useGpsPosting({
  * ```
  */
 export default function DriverTripDetailPage() {
+  usePageTitle('Trip Detail');
   const { id: scheduleId = '' } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -501,7 +498,10 @@ export default function DriverTripDetailPage() {
       toast({ title: 'Location sharing stopped' });
     } else {
       geo.startWatching();
-      toast({ title: 'Location sharing started', description: 'Passengers can now see your position.' });
+      toast({
+        title: 'Location sharing started',
+        description: 'Passengers can now see your position.',
+      });
     }
   }, [geo, toast]);
 

@@ -38,16 +38,7 @@
 
 ### TASK-005: Add meta tags to index.html ✅
 
-### TASK-006: Add dynamic page titles
-**Description:** All pages show the same `<title>Transio</title>`. Each page should update the document title for better UX and SEO (even without SSR, title updates help browser tabs and history).
-
-**Acceptance Criteria:**
-- [ ] Create a `usePageTitle(title: string)` hook that sets `document.title` on mount
-- [ ] Format: `"Page Name | Transio"` (e.g., `"Search | Transio"`, `"My Bookings | Transio"`)
-- [ ] Applied to all pages (home, search, trip detail, bookings, provider dashboard, etc.)
-- [ ] On unmount, title reverts to `"Transio"` (or just let next page set it)
-- [ ] Unit test for the hook
-- [ ] Typecheck passes, lint clean
+### TASK-006: Add dynamic page titles ✅
 
 ---
 

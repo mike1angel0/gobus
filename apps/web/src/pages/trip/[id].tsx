@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { SeatMap } from '@/components/booking/seat-map';
 import { useTripDetails } from '@/hooks/use-search';
 import { useCreateBooking } from '@/hooks/use-bookings';
+import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
 
 type TripDetail = components['schemas']['TripDetail'];
@@ -456,6 +457,7 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
  * ```
  */
 export default function TripDetailPage() {
+  usePageTitle('Trip Details');
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const date = searchParams.get('date') ?? '';

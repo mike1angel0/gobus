@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  Route as RouteIcon,
-  Plus,
-  Trash2,
-  MapPin,
-  ArrowUp,
-  ArrowDown,
-  X,
-} from 'lucide-react';
+import { Route as RouteIcon, Plus, Trash2, MapPin, ArrowUp, ArrowDown, X } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
+import { usePageTitle } from '@/hooks/use-page-title';
 import {
   Dialog,
   DialogContent,
@@ -456,6 +449,7 @@ function RouteListSection({ routes, onDelete, isDeleting }: RouteListSectionProp
  * ```
  */
 export default function ProviderRoutesPage() {
+  usePageTitle('Routes');
   const routesQuery = useRoutes({ page: 1, pageSize: 50 });
   const deleteRoute = useDeleteRoute();
 

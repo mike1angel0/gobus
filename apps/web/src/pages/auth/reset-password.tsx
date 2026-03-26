@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { usePageTitle } from '@/hooks/use-page-title';
 import { getPasswordStrength } from '@/pages/auth/register-schema';
 import {
   resetPasswordSchema,
@@ -29,6 +30,7 @@ const TOKEN_ERROR_CODES = new Set(['TOKEN_EXPIRED', 'TOKEN_INVALID', 'INVALID_TO
 
 /** Reset password page — sets a new password using a token from email. */
 export default function ResetPasswordPage() {
+  usePageTitle('Reset Password');
   const { resetPassword } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

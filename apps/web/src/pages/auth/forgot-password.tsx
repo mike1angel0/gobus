@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
+import { usePageTitle } from '@/hooks/use-page-title';
 import { cn } from '@/lib/utils';
 import {
   forgotPasswordSchema,
@@ -16,6 +17,7 @@ import {
 
 /** Forgot password page — sends a password reset email. */
 export default function ForgotPasswordPage() {
+  usePageTitle('Forgot Password');
   const { forgotPassword } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [rootError, setRootError] = useState<string | null>(null);

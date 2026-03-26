@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCreateDelay } from '@/hooks/use-delays';
+import { usePageTitle } from '@/hooks/use-page-title';
 
 /** Preset delay options in minutes for quick selection. */
 const PRESET_MINUTES = [5, 10, 15, 20, 30, 45, 60] as const;
@@ -84,6 +85,7 @@ function PresetButtons({ selected, onSelect }: PresetButtonsProps) {
  * @see {@link useCreateDelay} for the mutation hook
  */
 export default function DriverDelayPage() {
+  usePageTitle('Report Delay');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 

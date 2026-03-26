@@ -1,11 +1,14 @@
 import { Bus, Shield, Clock } from 'lucide-react';
 import { SearchForm } from '@/components/search/search-form';
+import { usePageTitle } from '@/hooks/use-page-title';
 
 /**
  * Home page with hero section, search form, and feature highlights.
  * The search form navigates to /search with origin, destination, and date query params.
  */
 export default function HomePage() {
+  usePageTitle('Home');
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}

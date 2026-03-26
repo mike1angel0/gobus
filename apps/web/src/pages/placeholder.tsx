@@ -1,8 +1,12 @@
+import { usePageTitle } from '@/hooks/use-page-title';
+
 /**
  * Temporary placeholder page displayed for routes not yet implemented.
  * Will be replaced with actual page components in later tasks.
  */
 export default function PlaceholderPage() {
+  usePageTitle('Coming Soon');
+
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="glass-card p-8 text-center">

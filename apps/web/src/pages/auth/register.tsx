@@ -8,6 +8,7 @@ import { isApiError } from '@/api/errors';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { getRedirectForRole } from '@/pages/auth/login-schema';
+import { usePageTitle } from '@/hooks/use-page-title';
 import {
   registerSchema,
   getPasswordStrength,
@@ -42,6 +43,7 @@ function buildRegisterPayload(data: RegisterFormValues) {
  * - Accessible: labels, ARIA attributes, keyboard navigable
  */
 export default function RegisterPage() {
+  usePageTitle('Sign Up');
   const { register: authRegister, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [rootError, setRootError] = useState<string | null>(null);

@@ -20,3 +20,28 @@
 - Typecheck passes, no TS code changes
 - Learnings: nginx supports nested location blocks; exact-match `location =` takes priority for specific paths within a parent location
 ---
+
+## Iteration 4 - TASK-004: Harden web Dockerfile
+- Added HEALTHCHECK directive using `wget -q --spider http://127.0.0.1:8080/` (wget available in alpine, curl is not)
+- Configured non-root user: nginx runs as uid=101 (nginx user), verified with `docker exec whoami`
+- Changed listen port from 80 to 8080 (non-root can't bind privileged ports), updated docker-compose.yml port mapping
+- Fixed nginx pid file path to /tmp/nginx.pid (writable by non-root)
+- Added deferred upstream resolution via `set $api_upstream` + `resolver 127.0.0.11` to prevent startup crash when api service is unavailable
+- Health check verified as "healthy" via `docker inspect --format='{{.State.Health.Status}}'`
+- Learnings: Use 127.0.0.1 not localhost in healthchecks (IPv6 localhost resolution fails when nginx only listens on IPv4); nginx pid path in alpine is `/run/nginx.pid` not `/var/run/nginx.pid`; use variable-based proxy_pass to defer upstream DNS resolution
+---
+
+## Iteration 5 - TASK-005: Add meta tags to index.html
+- Added description meta tag, theme-color (#2563eb from CSS primary), canonical URL, and full Open Graph tags (title, description, type, url, image) to index.html
+- Verified favicon.svg exists in public/
+- HTML-only change, typecheck passes
+- Learnings: Primary color is defined as HSL in index.css (`217 91% 60%`), converts to hex `#2563eb` for theme-color meta tag
+---
+
+## Iteration 6 - TASK-006: Add dynamic page titles
+- Created `usePageTitle(title: string)` hook in `src/hooks/use-page-title.ts` that sets `document.title` to `"Title | Transio"` on mount and reverts to `"Transio"` on unmount
+- Applied the hook to all 25 page components across home, search, my-trips, profile, trip detail, placeholder, 4 admin pages, 7 provider pages, 3 driver pages, and 5 auth pages
+- Wrote unit test with 3 assertions: sets title on mount, reverts on unmount, updates on prop change
+- All 1269 tests pass, typecheck clean, lint clean
+- Learnings: Tests must run from `apps/web/` directory for path alias resolution; vitest needs to be run with correct cwd
+---

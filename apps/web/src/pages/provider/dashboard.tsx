@@ -13,6 +13,7 @@ import { useDrivers } from '@/hooks/use-drivers';
 import { useSchedules } from '@/hooks/use-schedules';
 import { useProviderAnalytics } from '@/hooks/use-provider-analytics';
 import { useAuth } from '@/hooks/useAuth';
+import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
 
 type Schedule = components['schemas']['Schedule'];
@@ -365,6 +366,7 @@ function useDashboardData(): DashboardData {
  * ```
  */
 export default function ProviderDashboardPage() {
+  usePageTitle('Dashboard');
   const { user } = useAuth();
   const dashboard = useDashboardData();
 

@@ -17,6 +17,7 @@ import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
 import { useAdminUsers, useUpdateUserStatus, useForceLogout } from '@/hooks/use-admin';
 import { useAuth } from '@/hooks/useAuth';
+import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
 
 type AdminUser = components['schemas']['AdminUser'];
@@ -432,12 +433,7 @@ function UserListContent({
   return (
     <div className="space-y-3">
       {users.map((user) => (
-        <UserRow
-          key={user.id}
-          user={user}
-          isSelf={user.id === currentUserId}
-          onAction={onAction}
-        />
+        <UserRow key={user.id} user={user} isSelf={user.id === currentUserId} onAction={onAction} />
       ))}
     </div>
   );
@@ -460,6 +456,7 @@ function UserListContent({
  * ```
  */
 export default function AdminUsersPage() {
+  usePageTitle('User Management');
   const { user: currentUser } = useAuth();
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState<Role | ''>('');
