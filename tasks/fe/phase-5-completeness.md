@@ -1,0 +1,196 @@
+# Phase 5: Feature Completeness — Profile, Admin Panel, Provider Analytics, Driver Passengers
+
+**Status**: Pending
+**Dependencies**: FE Phase 4 (driver, admin fleet, hardening), BE Phase 4 (all endpoints already implemented)
+**Goal**: Implement all remaining frontend pages and hooks to achieve 100% endpoint coverage against the OpenAPI spec. This includes user profile management, full admin panel (users, audit logs), provider profile and analytics, driver passenger manifest, and navbar updates for all new pages.
+
+---
+
+## User Profile
+
+### TASK-001: Create user profile page
+
+Implement a `/profile` page accessible to all authenticated users for viewing and editing their profile.
+
+- [ ] Create `pages/profile.tsx` with read-only display of current user info (name, email, phone, role, avatar, member since)
+- [ ] Add edit mode with React Hook Form + Zod schema matching `UserUpdate` spec (name: max 100, phone: max 20, avatarUrl: uri max 2048)
+- [ ] Call `PATCH /api/v1/auth/me` on submit, update auth context user state on success
+- [ ] Show toast on success/failure, map field errors from RFC 9457 to form fields
+- [ ] Loading skeleton, error state with retry
+- [ ] Add "Profile" link to navbar for all authenticated users (all roles)
+- [ ] Add `/profile` route in router.tsx inside AuthGuard
+- [ ] Component tests: render profile, edit mode toggle, form validation, successful update, API error handling, field error mapping
+- [ ] Typecheck passes, lint clean
+
+---
+
+## Provider Features
+
+### TASK-002: Create provider profile page
+
+Implement a `/provider/profile` page for providers to view their company information.
+
+- [ ] Create `pages/provider/profile.tsx` showing provider details: name, logo, contactEmail, contactPhone, status (APPROVED/PENDING badge), createdAt
+- [ ] Create `useProviderProfile` hook calling `GET /api/v1/providers/me`, typed from OpenAPI spec, query key in keys.ts
+- [ ] Show pending status with warning banner ("Your provider account is pending approval")
+- [ ] Loading skeleton, error state with retry
+- [ ] Add "Profile" nav link to PROVIDER role in navbar-links.ts
+- [ ] Add `/provider/profile` route in router.tsx
+- [ ] Component tests: render profile, pending status banner, loading/error states
+- [ ] Typecheck passes, lint clean
+
+### TASK-003: Integrate provider analytics into dashboard
+
+The provider dashboard exists but does not call `GET /api/v1/provider/analytics`. Wire up real analytics data.
+
+- [ ] Create `useProviderAnalytics` hook calling `GET /api/v1/provider/analytics`, typed from OpenAPI spec
+- [ ] Update `pages/provider/dashboard.tsx` to use real analytics: totalBookings, totalRevenue, averageOccupancy, revenueByRoute[]
+- [ ] Replace any hardcoded/placeholder stat cards with live data
+- [ ] Show revenue-by-route breakdown (table or bar chart using plain HTML/CSS — no chart library)
+- [ ] Loading skeleton for analytics section, error state with retry
+- [ ] Component tests: renders analytics data, loading state, error state, empty revenue-by-route
+- [ ] Typecheck passes, lint clean
+
+---
+
+## Driver Features
+
+### TASK-004: Create driver passenger manifest
+
+Implement passenger list view on the driver trip detail page.
+
+- [ ] Create `useDriverTripPassengers` hook calling `GET /api/v1/driver/trips/{scheduleId}/passengers` with date query param, typed from OpenAPI spec, query key in keys.ts
+- [ ] Add passenger list section to `pages/driver/trip-detail.tsx` or create `components/driver/passenger-list.tsx` sub-component (respect 500 line limit)
+- [ ] Show each passenger: name, boardingStop, alightingStop, seatLabels, booking status
+- [ ] Show total passenger count and capacity
+- [ ] Empty state when no passengers booked
+- [ ] Loading skeleton for passenger section
+- [ ] Component tests: render passenger list, empty state, loading state, multiple passengers with different stops
+- [ ] Typecheck passes, lint clean
+
+---
+
+## Admin Panel
+
+### TASK-005: Create admin hooks for users and audit logs
+
+Create all remaining admin hooks needed for the admin panel.
+
+- [ ] Create `useAdminUsers` hook: `GET /api/v1/admin/users` with page, pageSize, role, status filters, typed from OpenAPI spec
+- [ ] Create `useUpdateUserStatus` mutation hook: `PATCH /api/v1/admin/users/{id}/status` with status body, invalidates admin user queries on success, toast on success/failure
+- [ ] Create `useForceLogout` mutation hook: `DELETE /api/v1/admin/users/{id}/sessions`, invalidates admin user queries on success, toast on success/failure
+- [ ] Create `useAuditLogs` hook: `GET /api/v1/admin/audit-logs` with page, pageSize, userId, action, dateFrom, dateTo filters, typed from OpenAPI spec
+- [ ] Add query key factories for admin users and audit logs in keys.ts
+- [ ] JSDoc on all exports, unit tests for each hook
+- [ ] Typecheck passes, lint clean
+
+### TASK-006: Create admin dashboard page
+
+Replace the placeholder admin index page with a real dashboard.
+
+- [ ] Create `pages/admin/dashboard.tsx` replacing PlaceholderPage at `/admin` index route
+- [ ] Show summary cards: total users (by role), total providers, total buses, total active schedules
+- [ ] Quick action links to Users, Fleet, Audit Logs sub-pages
+- [ ] Loading skeleton, error state with retry
+- [ ] Update router.tsx to use AdminDashboardPage instead of PlaceholderPage
+- [ ] Component tests: render dashboard, stat cards, navigation links, loading/error states
+- [ ] Typecheck passes, lint clean
+
+### TASK-007: Create admin user management page
+
+Implement `/admin/users` page for managing platform users.
+
+- [ ] Create `pages/admin/users.tsx` with paginated user table/list
+- [ ] Filter bar: role dropdown (PASSENGER/PROVIDER/DRIVER/ADMIN), status dropdown (ACTIVE/SUSPENDED/LOCKED)
+- [ ] Each user row shows: name, email, role badge, status badge, provider name (if applicable), createdAt
+- [ ] Action buttons per user:
+  - Suspend (ACTIVE → SUSPENDED) with confirmation dialog
+  - Unsuspend (SUSPENDED → ACTIVE) with confirmation dialog
+  - Unlock (LOCKED → ACTIVE) with confirmation dialog
+  - Force logout with confirmation dialog
+- [ ] Disable actions on the current admin's own row (cannot suspend/logout yourself)
+- [ ] Pagination controls
+- [ ] Loading skeleton, error state with retry, empty state
+- [ ] Add "Users" nav link to ADMIN role in navbar-links.ts
+- [ ] Add `/admin/users` route in router.tsx
+- [ ] Component tests: render user list, filter by role, filter by status, suspend/unsuspend/unlock actions, force logout, confirmation dialogs, pagination, self-action prevention, loading/error/empty states
+- [ ] Typecheck passes, lint clean
+
+### TASK-008: Create admin audit log page
+
+Implement `/admin/audit-logs` page for viewing system audit trail.
+
+- [ ] Create `pages/admin/audit-logs.tsx` with paginated audit log table
+- [ ] Filter bar: userId text input, action dropdown, dateFrom date picker, dateTo date picker
+- [ ] Each row shows: timestamp (formatted), user email/name, action, resource, resourceId, ipAddress
+- [ ] Expandable row detail showing full metadata JSON (if present) and userAgent
+- [ ] Pagination controls
+- [ ] Loading skeleton, error state with retry, empty state
+- [ ] Add "Audit Logs" nav link to ADMIN role in navbar-links.ts
+- [ ] Add `/admin/audit-logs` route in router.tsx
+- [ ] Component tests: render audit log list, filter by date range, filter by action, expandable detail, pagination, loading/error/empty states
+- [ ] Typecheck passes, lint clean
+
+---
+
+## Navigation & Routing
+
+### TASK-009: Update navbar and router for all new pages
+
+Wire up all new pages in the router and navbar.
+
+- [ ] Update `navbar-links.ts`:
+  - Add `{ label: 'Profile', href: '/provider/profile', roles: ['PROVIDER'] }` after Dashboard
+  - Add `{ label: 'Dashboard', href: '/admin', roles: ['ADMIN'] }` before Fleet
+  - Add `{ label: 'Users', href: '/admin/users', roles: ['ADMIN'] }` after Fleet
+  - Add `{ label: 'Audit Logs', href: '/admin/audit-logs', roles: ['ADMIN'] }` after Users
+  - Add universal Profile link for all authenticated users (consider user menu dropdown or separate link)
+- [ ] Update `router.tsx`:
+  - Add `/profile` route inside AuthGuard (all roles)
+  - Add `/provider/profile` route inside Provider RoleGuard
+  - Replace admin index `PlaceholderPage` with `AdminDashboardPage`
+  - Add `/admin/users` route inside Admin RoleGuard
+  - Add `/admin/audit-logs` route inside Admin RoleGuard
+- [ ] Lazy-load all new pages with `React.lazy`
+- [ ] Verify no dead links remain (PlaceholderPage no longer used as a route target)
+- [ ] Component tests: verify navbar shows correct links per role, verify all routes render
+- [ ] Typecheck passes, lint clean
+
+---
+
+## Quality Gates
+
+### TASK-010: Phase 5 quality gates and coverage
+
+Run all quality gates and fix any issues introduced by Phase 5.
+
+- [ ] `npm run typecheck` — zero errors
+- [ ] `npm run lint` — zero errors (warnings acceptable for known react-hooks/incompatible-library)
+- [ ] `npm run format:check` — passes (run `format:fix` if needed)
+- [ ] `npm run test` — all tests pass
+- [ ] `npm run test:coverage` — meets 90% threshold (statements, branches, functions, lines)
+- [ ] `npm run build` — production build succeeds
+- [ ] `npm run api:check` — all frontend API calls reference valid spec endpoints, coverage improved
+- [ ] Zero `any` types in new code
+- [ ] Zero `console.log` in new code
+- [ ] Zero raw `fetch()` calls — all API calls through typed client
+- [ ] JSDoc on all new exports
+- [ ] All new pages have loading skeletons, error states with retry, empty states
+- [ ] All new forms use Zod schemas matching OpenAPI spec constraints
+- [ ] WCAG 2.1 AA: semantic HTML, aria-labels on interactive elements, keyboard navigable
+- [ ] Verify endpoint coverage: `api:check` should report ≥95% spec endpoint coverage (up from ~87%)
+
+---
+
+## Pre-existing Issues (Fix Before or During Phase 5)
+
+### TASK-011: Fix pre-existing quality gate failures
+
+Address existing failures that block clean quality gates.
+
+- [ ] Fix `apps/web/src/components/fleet/seat-map-editor.test.tsx` — remove unused `beforeEach` import and `SeatType` type (already fixed, verify committed)
+- [ ] Run `npm run format:fix` in apps/web to fix 28 files with formatting issues
+- [ ] Fix frontend coverage to meet 90% threshold:
+  - Branch coverage 82.89% → needs improvement in provider/routes.tsx, provider/schedules.tsx, driver/trip-detail.tsx, auth-context.tsx (see Phase 4 QA items US-QA-002 through US-QA-007)
+  - Function coverage 89.55% → add tests for uncovered functions in fleet.tsx, trip-detail.tsx
+  - Statement coverage 89.88% → follows from branch/function fixes

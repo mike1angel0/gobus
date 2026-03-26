@@ -1,12 +1,12 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { SeatMapEditor, type SeatMapEditorProps } from './seat-map-editor';
 import { renderWithProviders } from '@/test/helpers';
 import type { components } from '@/api/generated/types';
 
 type Seat = components['schemas']['Seat'];
-type SeatType = components['schemas']['SeatType'];
+
 
 /* ---------- Helpers ---------- */
 

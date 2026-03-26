@@ -7,11 +7,11 @@ services:
       POSTGRES_PASSWORD: transio_dev_password
       POSTGRES_DB: transio
     ports:
-      - "5432:5432"
+      - "${PG_PORT:-5632}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-EXEC", "pg_isready -U transio -d transio"]
+      test: ["CMD-SHELL", "pg_isready -U transio -d transio"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,14 +26,14 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "${PORT:-3000}:3000"
+      - "${API_PORT:-3100}:3000"
     environment:
       DATABASE_URL: postgresql://transio:transio_dev_password@postgres:5432/transio
       JWT_SECRET: ${JWT_SECRET:-docker-dev-jwt-secret-change-in-production}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-docker-dev-jwt-refresh-secret-change-in-prod}
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 3000
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:7766}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health/live"]
@@ -41,6 +41,17 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${PORT:-7766}:80"
 
 volumes:
   pgdata:
