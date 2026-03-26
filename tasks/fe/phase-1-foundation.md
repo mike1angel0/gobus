@@ -10,16 +10,7 @@
 
 ### ~~TASK-001: Initialize Vite + React + TypeScript strict~~ ✅
 
-### TASK-002: Configure Tailwind CSS + shadcn/ui — replicate existing design
-**Description:** Install and configure Tailwind CSS v3.4. **Copy the exact design system from the existing Next.js app** — read `tailwind.config.ts` and `src/app/globals.css` from the project root to replicate: custom colors (primary blue #3B82F6, accent green #10B981, dark slate palette dark-50 through dark-950), glass-morphism effects (backdrop-blur, border opacity), gradient text. Install shadcn/ui with the dark theme. Create `src/components/ui/` directory. Port ALL utility classes from existing `globals.css`: `.glass`, `.glass-card`, `.btn-primary`, `.btn-accent`, `.btn-secondary`, `.input-field`, and any others found. The new app must be visually identical to the existing one.
-
-**Acceptance Criteria:**
-- [ ] Tailwind theme colors copied exactly from existing `tailwind.config.ts`
-- [ ] ALL utility classes from existing `globals.css` ported (`.glass`, `.glass-card`, `.btn-primary`, `.btn-accent`, `.btn-secondary`, `.input-field`, etc.)
-- [ ] shadcn/ui initialized with dark theme
-- [ ] `src/components/ui/` directory with shadcn base components (button, input, card, dialog, toast)
-- [ ] Visual comparison: new app shell matches existing app's look and feel
-- [ ] Typecheck passes
+### ~~TASK-002: Configure Tailwind CSS + shadcn/ui — replicate existing design~~ ✅
 
 ### TASK-003: Configure ESLint, Prettier, and quality gates
 **Description:** Install and configure: ESLint with TypeScript + React + a11y + complexity rules (max-lines: 500, max-lines-per-function: 250, complexity: 15, max-depth: 4, jsdoc on exports). Prettier (semi, singleQuote, printWidth: 100). Add npm scripts: `lint`, `format:check`, `format:fix`.
