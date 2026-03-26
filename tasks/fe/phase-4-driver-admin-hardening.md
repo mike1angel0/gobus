@@ -17,32 +17,15 @@
 ### TASK-003: Create driver trip detail page ✅
 - [x] Live map, location sharing, GPS posting, stop progress, passenger count, report delay, cleanup, geolocation permission, mobile layout, 34 tests, typecheck passes
 
-### TASK-004: Create delay reporting page
-**Description:** Create `src/pages/driver/delay.tsx`. Form: preset delay buttons (5, 10, 15, 20, 30, 45, 60 min), custom input for other values. Reason dropdown (Traffic, Mechanical, Weather, Other). Optional notes. Submit calls `useCreateDelay`. Redirects back to trip detail on success.
-
-**Acceptance Criteria:**
-- [ ] Preset delay buttons for quick selection
-- [ ] Custom minutes input
-- [ ] Reason dropdown with all DelayReason options
-- [ ] Notes textarea (optional)
-- [ ] Zod validation
-- [ ] Submit + redirect on success
-- [ ] Toast notification
-- [ ] Component test
-- [ ] Typecheck passes
+### TASK-004: Create delay reporting page ✅
+- [x] Preset delay buttons (5/10/15/20/30/45/60), custom minutes input, reason dropdown, notes textarea, Zod validation matching OpenAPI spec, submit+redirect, toast via useCreateDelay hook, 25 component tests, typecheck passes
 
 ---
 
 ## Admin Features
 
-### TASK-005: Create admin hooks
-**Description:** Create `src/hooks/use-admin.ts`: `useAdminBuses(pagination)` — all buses across providers. `useToggleSeat()` — mutation to enable/disable seat.
-
-**Acceptance Criteria:**
-- [ ] Typed from OpenAPI spec
-- [ ] Toggle mutation invalidates bus detail query
-- [ ] JSDoc
-- [ ] Typecheck passes
+### TASK-005: Create admin hooks ✅
+- [x] Typed from OpenAPI spec, useAdminBuses with pagination/providerId filter, useToggleSeat mutation invalidates admin+provider bus queries, JSDoc, 9 tests, typecheck passes
 
 ### TASK-006: Create admin fleet page
 **Description:** Create `src/pages/admin/fleet.tsx`. List all buses from all providers (grouped by provider). For each bus: show provider name, bus info, seat map in view mode with enable/disable toggles per seat. Click seat toggles enabled state via API. Visual indicator for disabled seats.
