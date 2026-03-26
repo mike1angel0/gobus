@@ -1,0 +1,51 @@
+{
+  "buttons": {
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "create": "Creează",
+    "retry": "Reîncearcă",
+    "back": "Înapoi",
+    "confirm": "Confirmă",
+    "close": "Închide",
+    "search": "Caută",
+    "submit": "Trimite"
+  },
+  "loading": {
+    "generic": "Se încarcă...",
+    "saving": "Se salvează...",
+    "deleting": "Se șterge..."
+  },
+  "errors": {
+    "generic": "A apărut o eroare neașteptată",
+    "network": "Eroare de rețea. Verifică conexiunea la internet.",
+    "notFound": "Resursa nu a fost găsită",
+    "forbidden": "Nu ai permisiunea de a accesa această resursă",
+    "serverError": "Eroare de server. Te rugăm să încerci din nou.",
+    "validation": "Verifică datele introduse",
+    "somethingWentWrong": "Ceva nu a mers bine",
+    "tryAgain": "Încearcă din nou",
+    "pageNotFound": "Pagina nu a fost găsită",
+    "pageNotFoundDescription": "Pagina pe care o cauți nu există",
+    "goHome": "Mergi acasă"
+  },
+  "empty": {
+    "noResults": "Niciun rezultat găsit",
+    "noData": "Nu există date"
+  },
+  "pagination": {
+    "page": "Pagina",
+    "of": "din",
+    "next": "Următoarea",
+    "previous": "Anterioara",
+    "showing": "Se afișează"
+  },
+  "toast": {
+    "success": "Operațiune reușită",
+    "error": "Operațiune eșuată",
+    "saved": "Salvat cu succes",
+    "deleted": "Șters cu succes",
+    "created": "Creat cu succes"
+  }
+}

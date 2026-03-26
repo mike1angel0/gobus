@@ -1,0 +1,73 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "revenue": "Revenue",
+    "occupancy": "Occupancy",
+    "totalBookings": "Total bookings",
+    "activeRoutes": "Active routes"
+  },
+  "routes": {
+    "title": "Routes",
+    "create": "Create route",
+    "edit": "Edit route",
+    "name": "Route name",
+    "origin": "Origin",
+    "destination": "Destination",
+    "stops": "Stops",
+    "addStop": "Add stop",
+    "removeStop": "Remove stop",
+    "estimatedDuration": "Estimated duration",
+    "distanceKm": "Distance (km)"
+  },
+  "fleet": {
+    "title": "Fleet",
+    "create": "Add bus",
+    "edit": "Edit bus",
+    "licensePlate": "License plate",
+    "capacity": "Capacity",
+    "seatMap": "Seat map",
+    "seatMapEditor": "Seat map editor",
+    "rows": "Rows",
+    "seatsPerRow": "Seats per row"
+  },
+  "schedules": {
+    "title": "Schedules",
+    "create": "Create schedule",
+    "route": "Route",
+    "bus": "Bus",
+    "departureTime": "Departure time",
+    "price": "Price",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended",
+    "daysOfWeek": "Days of operation",
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "filter": {
+      "route": "Filter by route",
+      "status": "Filter by status",
+      "all": "All"
+    }
+  },
+  "drivers": {
+    "title": "Drivers",
+    "create": "Add driver",
+    "driverList": "Driver list",
+    "assignment": "Assignment",
+    "licenseNumber": "License number"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "revenueByRoute": "Revenue by route",
+    "totalBookings": "Total bookings",
+    "occupancyRate": "Occupancy rate"
+  }
+}

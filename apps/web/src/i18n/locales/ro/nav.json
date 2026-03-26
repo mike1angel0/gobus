@@ -1,0 +1,29 @@
+{
+  "links": {
+    "home": "Acasă",
+    "search": "Caută",
+    "myTrips": "Călătoriile mele",
+    "dashboard": "Panou de control",
+    "routes": "Rute",
+    "fleet": "Flotă",
+    "schedules": "Programări",
+    "drivers": "Șoferi",
+    "tracking": "Urmărire",
+    "trips": "Curse",
+    "history": "Istoric",
+    "users": "Utilizatori",
+    "auditLogs": "Jurnal de audit",
+    "profile": "Profil"
+  },
+  "menu": {
+    "logout": "Deconectare",
+    "profile": "Profil",
+    "changePassword": "Schimbă parola"
+  },
+  "a11y": {
+    "skipToContent": "Sari la conținut",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul",
+    "mainNavigation": "Navigare principală"
+  }
+}

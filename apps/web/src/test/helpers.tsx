@@ -2,7 +2,9 @@ import type { ReactElement, ReactNode } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
 import { AuthProvider } from '@/contexts/auth-context';
+import i18n from '@/i18n/config';
 
 /**
  * Options for {@link renderWithProviders}. Extends RTL's RenderOptions
@@ -31,7 +33,7 @@ function createTestQueryClient(): QueryClient {
 }
 
 /**
- * Wraps a component in all application providers (QueryClient, Router) for testing.
+ * Wraps a component in all application providers (QueryClient, Router, I18next) for testing.
  *
  * @example
  * ```tsx
@@ -53,9 +55,11 @@ function renderWithProviders(
   function Wrapper({ children }: { children: ReactNode }) {
     const content = <MemoryRouter {...routerProps}>{children}</MemoryRouter>;
     return (
-      <QueryClientProvider client={client}>
-        {withAuth ? <AuthProvider>{content}</AuthProvider> : content}
-      </QueryClientProvider>
+      <I18nextProvider i18n={i18n}>
+        <QueryClientProvider client={client}>
+          {withAuth ? <AuthProvider>{content}</AuthProvider> : content}
+        </QueryClientProvider>
+      </I18nextProvider>
     );
   }
 

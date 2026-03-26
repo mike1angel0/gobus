@@ -1,0 +1,29 @@
+{
+  "links": {
+    "home": "Home",
+    "search": "Search",
+    "myTrips": "My Trips",
+    "dashboard": "Dashboard",
+    "routes": "Routes",
+    "fleet": "Fleet",
+    "schedules": "Schedules",
+    "drivers": "Drivers",
+    "tracking": "Tracking",
+    "trips": "Trips",
+    "history": "History",
+    "users": "Users",
+    "auditLogs": "Audit Logs",
+    "profile": "Profile"
+  },
+  "menu": {
+    "logout": "Log out",
+    "profile": "Profile",
+    "changePassword": "Change password"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mainNavigation": "Main navigation"
+  }
+}

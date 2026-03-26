@@ -1,0 +1,33 @@
+{
+  "trips": {
+    "title": "My trips",
+    "dateNavigation": "Date navigation",
+    "today": "Today",
+    "noTrips": "No scheduled trips"
+  },
+  "tripDetail": {
+    "title": "Trip details",
+    "locationSharing": "Location sharing",
+    "startSharing": "Start sharing",
+    "stopSharing": "Stop sharing",
+    "stopProgress": "Stop progress",
+    "passengerCount": "Passenger count",
+    "nextStop": "Next stop"
+  },
+  "delay": {
+    "title": "Report delay",
+    "presets": "Preset delays",
+    "minutes": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "customMinutes": "Custom minutes",
+    "reason": "Reason",
+    "notes": "Notes",
+    "submit": "Report",
+    "reasons": {
+      "traffic": "Traffic",
+      "weather": "Weather conditions",
+      "mechanical": "Mechanical issues",
+      "other": "Other"
+    }
+  }
+}

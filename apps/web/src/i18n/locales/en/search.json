@@ -1,0 +1,31 @@
+{
+  "form": {
+    "origin": "Departure from",
+    "destination": "Destination",
+    "date": "Date",
+    "passengers": "Passengers",
+    "submit": "Search trips"
+  },
+  "results": {
+    "tripsFound": "{{count}} trip found",
+    "tripsFound_other": "{{count}} trips found",
+    "noTrips": "No trips found",
+    "filters": "Filters"
+  },
+  "tripCard": {
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "duration": "Duration",
+    "price": "Price",
+    "seatsAvailable": "{{count}} seat available",
+    "seatsAvailable_other": "{{count}} seats available",
+    "details": "Details"
+  },
+  "tripDetail": {
+    "title": "Trip details",
+    "route": "Route",
+    "schedule": "Schedule",
+    "stops": "Stops",
+    "selectSeats": "Select seats"
+  }
+}

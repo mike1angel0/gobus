@@ -1,0 +1,73 @@
+{
+  "dashboard": {
+    "title": "Panou de control",
+    "revenue": "Venituri",
+    "occupancy": "Grad de ocupare",
+    "totalBookings": "Total rezervări",
+    "activeRoutes": "Rute active"
+  },
+  "routes": {
+    "title": "Rute",
+    "create": "Creează rută",
+    "edit": "Editează ruta",
+    "name": "Nume rută",
+    "origin": "Origine",
+    "destination": "Destinație",
+    "stops": "Stații",
+    "addStop": "Adaugă stație",
+    "removeStop": "Elimină stație",
+    "estimatedDuration": "Durată estimată",
+    "distanceKm": "Distanță (km)"
+  },
+  "fleet": {
+    "title": "Flotă",
+    "create": "Adaugă autobuz",
+    "edit": "Editează autobuz",
+    "licensePlate": "Număr de înmatriculare",
+    "capacity": "Capacitate",
+    "seatMap": "Hartă locuri",
+    "seatMapEditor": "Editor hartă locuri",
+    "rows": "Rânduri",
+    "seatsPerRow": "Locuri pe rând"
+  },
+  "schedules": {
+    "title": "Programări",
+    "create": "Creează programare",
+    "route": "Rută",
+    "bus": "Autobuz",
+    "departureTime": "Ora de plecare",
+    "price": "Preț",
+    "status": "Status",
+    "active": "Activ",
+    "inactive": "Inactiv",
+    "suspended": "Suspendat",
+    "daysOfWeek": "Zile de operare",
+    "days": {
+      "monday": "Luni",
+      "tuesday": "Marți",
+      "wednesday": "Miercuri",
+      "thursday": "Joi",
+      "friday": "Vineri",
+      "saturday": "Sâmbătă",
+      "sunday": "Duminică"
+    },
+    "filter": {
+      "route": "Filtrează după rută",
+      "status": "Filtrează după status",
+      "all": "Toate"
+    }
+  },
+  "drivers": {
+    "title": "Șoferi",
+    "create": "Adaugă șofer",
+    "driverList": "Lista șoferilor",
+    "assignment": "Atribuire",
+    "licenseNumber": "Număr permis"
+  },
+  "analytics": {
+    "title": "Statistici",
+    "revenueByRoute": "Venituri pe rută",
+    "totalBookings": "Total rezervări",
+    "occupancyRate": "Rată de ocupare"
+  }
+}

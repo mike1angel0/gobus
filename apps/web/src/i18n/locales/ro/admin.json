@@ -1,0 +1,35 @@
+{
+  "users": {
+    "title": "Gestionare utilizatori",
+    "roleFilter": "Filtrează după rol",
+    "statusFilter": "Filtrează după status",
+    "actions": {
+      "suspend": "Suspendă",
+      "unsuspend": "Reactivează",
+      "unlock": "Deblochează",
+      "forceLogout": "Deconectare forțată"
+    },
+    "confirmSuspend": "Ești sigur că vrei să suspendezi acest utilizator?",
+    "confirmUnsuspend": "Ești sigur că vrei să reactivezi acest utilizator?",
+    "confirmUnlock": "Ești sigur că vrei să deblochezi acest utilizator?",
+    "confirmForceLogout": "Ești sigur că vrei să deconectezi forțat acest utilizator?"
+  },
+  "auditLogs": {
+    "title": "Jurnal de audit",
+    "actionFilter": "Filtrează după acțiune",
+    "dateRange": "Interval de date",
+    "expandDetail": "Detalii",
+    "noLogs": "Niciun eveniment înregistrat"
+  },
+  "fleet": {
+    "title": "Gestionare flotă",
+    "seatToggle": "Comutare loc"
+  },
+  "dashboard": {
+    "title": "Panou de control admin",
+    "totalUsers": "Total utilizatori",
+    "activeProviders": "Operatori activi",
+    "totalBuses": "Total autobuze",
+    "recentActivity": "Activitate recentă"
+  }
+}

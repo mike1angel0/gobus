@@ -44,36 +44,7 @@
 
 ## Internationalization (i18n)
 
-### TASK-007: Set up react-i18next with per-domain translation files
-**Description:** Install and configure `react-i18next` + `i18next` with lazy-loaded namespace support. Translations must be split per domain (NOT a single file). Languages: Romanian (RO, default) and English (EN). Use JSON translation files organized by namespace. Configure language detection from `localStorage` with fallback to browser `navigator.language`, then to `ro`.
-
-**Acceptance Criteria:**
-- [ ] `react-i18next`, `i18next`, `i18next-browser-languagedetector` installed
-- [ ] `src/i18n/config.ts` created with i18next initialization: `fallbackLng: 'ro'`, `supportedLngs: ['ro', 'en']`, namespace-based loading
-- [ ] Translation file structure created:
-  ```
-  src/i18n/
-  ├── config.ts
-  └── locales/
-      ├── ro/
-      │   ├── common.json       # Buttons, loading, errors, empty states, pagination
-      │   ├── nav.json           # Navigation menu items, footer
-      │   ├── auth.json          # Login, register, password reset/change, profile
-      │   ├── search.json        # Search form, trip cards, trip detail
-      │   ├── booking.json       # Seat selection, booking card, my trips
-      │   ├── provider.json      # Dashboard, routes, fleet, schedules, drivers, analytics
-      │   ├── driver.json        # Driver trips, delay reporting, GPS
-      │   ├── admin.json         # User management, audit logs, fleet management
-      │   └── tracking.json      # Live tracking, delays, bus sidebar
-      └── en/
-          └── [same 9 files]
-  ```
-- [ ] Each namespace is lazy-loaded (only fetched when the component using it renders)
-- [ ] `I18nextProvider` wraps the app in `root-layout.tsx`
-- [ ] Language persisted in `localStorage` key `i18n_lang`
-- [ ] `npm run build` succeeds — translation JSON files included in bundle
-- [ ] Unit test: i18n initializes with `ro` default
-- [ ] Typecheck passes, lint clean
+### TASK-007: Set up react-i18next with per-domain translation files ✅
 
 ### TASK-008: Create language switcher component
 **Description:** Add a language toggle to the navbar that allows switching between RO and EN. Switching languages should update all visible text immediately without page reload.

@@ -1,0 +1,18 @@
+{
+  "liveMap": {
+    "title": "Live tracking",
+    "noBuses": "No active buses"
+  },
+  "busSidebar": {
+    "speed": "Speed",
+    "lastUpdate": "Last update",
+    "activeDelays": "Active delays",
+    "noDelays": "No delays"
+  },
+  "delays": {
+    "title": "Delays",
+    "reportDelay": "Report delay",
+    "minutes": "{{count}} minute delay",
+    "minutes_other": "{{count}} minutes delay"
+  }
+}

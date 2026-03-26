@@ -1,0 +1,33 @@
+{
+  "seatSelection": {
+    "title": "Selectează locuri",
+    "instructions": "Apasă pe un loc disponibil pentru a-l selecta",
+    "selected": "{{count}} loc selectat",
+    "selected_other": "{{count}} locuri selectate"
+  },
+  "seatTypes": {
+    "standard": "Standard",
+    "premium": "Premium",
+    "accessible": "Accesibil",
+    "blocked": "Blocat"
+  },
+  "card": {
+    "status": "Status",
+    "tripDate": "Data călătoriei",
+    "boardingStop": "Stația de îmbarcare",
+    "alightingStop": "Stația de coborâre",
+    "seats": "Locuri",
+    "totalPrice": "Preț total"
+  },
+  "myTrips": {
+    "title": "Călătoriile mele",
+    "noTrips": "Nu ai nicio rezervare",
+    "cancelBooking": "Anulează rezervarea",
+    "cancelConfirmation": "Ești sigur că vrei să anulezi această rezervare?"
+  },
+  "status": {
+    "confirmed": "Confirmată",
+    "cancelled": "Anulată",
+    "completed": "Finalizată"
+  }
+}

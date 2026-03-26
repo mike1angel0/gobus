@@ -1,0 +1,33 @@
+{
+  "seatSelection": {
+    "title": "Select seats",
+    "instructions": "Click on an available seat to select it",
+    "selected": "{{count}} seat selected",
+    "selected_other": "{{count}} seats selected"
+  },
+  "seatTypes": {
+    "standard": "Standard",
+    "premium": "Premium",
+    "accessible": "Accessible",
+    "blocked": "Blocked"
+  },
+  "card": {
+    "status": "Status",
+    "tripDate": "Trip date",
+    "boardingStop": "Boarding stop",
+    "alightingStop": "Alighting stop",
+    "seats": "Seats",
+    "totalPrice": "Total price"
+  },
+  "myTrips": {
+    "title": "My Trips",
+    "noTrips": "You have no bookings",
+    "cancelBooking": "Cancel booking",
+    "cancelConfirmation": "Are you sure you want to cancel this booking?"
+  },
+  "status": {
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  }
+}

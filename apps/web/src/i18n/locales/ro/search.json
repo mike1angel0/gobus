@@ -1,0 +1,31 @@
+{
+  "form": {
+    "origin": "Plecare din",
+    "destination": "Destinație",
+    "date": "Data",
+    "passengers": "Pasageri",
+    "submit": "Caută curse"
+  },
+  "results": {
+    "tripsFound": "{{count}} cursă găsită",
+    "tripsFound_other": "{{count}} curse găsite",
+    "noTrips": "Nicio cursă găsită",
+    "filters": "Filtre"
+  },
+  "tripCard": {
+    "departure": "Plecare",
+    "arrival": "Sosire",
+    "duration": "Durata",
+    "price": "Preț",
+    "seatsAvailable": "{{count}} loc disponibil",
+    "seatsAvailable_other": "{{count}} locuri disponibile",
+    "details": "Detalii"
+  },
+  "tripDetail": {
+    "title": "Detalii cursă",
+    "route": "Rută",
+    "schedule": "Program",
+    "stops": "Stații",
+    "selectSeats": "Selectează locuri"
+  }
+}

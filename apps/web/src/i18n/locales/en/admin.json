@@ -1,0 +1,35 @@
+{
+  "users": {
+    "title": "User management",
+    "roleFilter": "Filter by role",
+    "statusFilter": "Filter by status",
+    "actions": {
+      "suspend": "Suspend",
+      "unsuspend": "Unsuspend",
+      "unlock": "Unlock",
+      "forceLogout": "Force logout"
+    },
+    "confirmSuspend": "Are you sure you want to suspend this user?",
+    "confirmUnsuspend": "Are you sure you want to unsuspend this user?",
+    "confirmUnlock": "Are you sure you want to unlock this user?",
+    "confirmForceLogout": "Are you sure you want to force logout this user?"
+  },
+  "auditLogs": {
+    "title": "Audit logs",
+    "actionFilter": "Filter by action",
+    "dateRange": "Date range",
+    "expandDetail": "Details",
+    "noLogs": "No events recorded"
+  },
+  "fleet": {
+    "title": "Fleet management",
+    "seatToggle": "Seat toggle"
+  },
+  "dashboard": {
+    "title": "Admin dashboard",
+    "totalUsers": "Total users",
+    "activeProviders": "Active providers",
+    "totalBuses": "Total buses",
+    "recentActivity": "Recent activity"
+  }
+}

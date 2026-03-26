@@ -1,0 +1,18 @@
+{
+  "liveMap": {
+    "title": "Urmărire în timp real",
+    "noBuses": "Niciun autobuz activ"
+  },
+  "busSidebar": {
+    "speed": "Viteză",
+    "lastUpdate": "Ultima actualizare",
+    "activeDelays": "Întârzieri active",
+    "noDelays": "Fără întârzieri"
+  },
+  "delays": {
+    "title": "Întârzieri",
+    "reportDelay": "Raportează întârziere",
+    "minutes": "{{count}} minut întârziere",
+    "minutes_other": "{{count}} minute întârziere"
+  }
+}

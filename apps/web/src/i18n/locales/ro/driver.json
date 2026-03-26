@@ -1,0 +1,33 @@
+{
+  "trips": {
+    "title": "Cursele mele",
+    "dateNavigation": "Navigare după dată",
+    "today": "Azi",
+    "noTrips": "Nicio cursă programată"
+  },
+  "tripDetail": {
+    "title": "Detalii cursă",
+    "locationSharing": "Partajare locație",
+    "startSharing": "Pornește partajarea",
+    "stopSharing": "Oprește partajarea",
+    "stopProgress": "Progres stații",
+    "passengerCount": "Număr pasageri",
+    "nextStop": "Următoarea stație"
+  },
+  "delay": {
+    "title": "Raportează întârziere",
+    "presets": "Întârzieri predefinite",
+    "minutes": "{{count}} minut",
+    "minutes_other": "{{count}} minute",
+    "customMinutes": "Minute personalizate",
+    "reason": "Motiv",
+    "notes": "Note",
+    "submit": "Raportează",
+    "reasons": {
+      "traffic": "Trafic",
+      "weather": "Condiții meteo",
+      "mechanical": "Probleme mecanice",
+      "other": "Altele"
+    }
+  }
+}

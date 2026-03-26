@@ -1,0 +1,51 @@
+{
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "retry": "Retry",
+    "back": "Back",
+    "confirm": "Confirm",
+    "close": "Close",
+    "search": "Search",
+    "submit": "Submit"
+  },
+  "loading": {
+    "generic": "Loading...",
+    "saving": "Saving...",
+    "deleting": "Deleting..."
+  },
+  "errors": {
+    "generic": "An unexpected error occurred",
+    "network": "Network error. Check your internet connection.",
+    "notFound": "Resource not found",
+    "forbidden": "You do not have permission to access this resource",
+    "serverError": "Server error. Please try again.",
+    "validation": "Please check your input",
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try again",
+    "pageNotFound": "Page not found",
+    "pageNotFoundDescription": "The page you're looking for doesn't exist",
+    "goHome": "Go home"
+  },
+  "empty": {
+    "noResults": "No results found",
+    "noData": "No data available"
+  },
+  "pagination": {
+    "page": "Page",
+    "of": "of",
+    "next": "Next",
+    "previous": "Previous",
+    "showing": "Showing"
+  },
+  "toast": {
+    "success": "Operation successful",
+    "error": "Operation failed",
+    "saved": "Saved successfully",
+    "deleted": "Deleted successfully",
+    "created": "Created successfully"
+  }
+}
