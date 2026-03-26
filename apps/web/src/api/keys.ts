@@ -142,4 +142,9 @@ export const driverTripKeys = {
     filters ? (['driver-trips', 'list', filters] as const) : (['driver-trips', 'list'] as const),
   /** Matches a specific driver trip detail by schedule ID. */
   detail: (scheduleId: string) => ['driver-trips', 'detail', scheduleId] as const,
+  /** Matches a specific driver trip's passenger list. */
+  passengers: (scheduleId: string, date?: string) =>
+    date
+      ? (['driver-trips', 'passengers', scheduleId, date] as const)
+      : (['driver-trips', 'passengers', scheduleId] as const),
 };

@@ -8,9 +8,11 @@ import { renderWithProviders } from '@/test/helpers';
 /* ---------- Mocks ---------- */
 
 const mockDriverTripDetail = vi.fn();
+const mockDriverTripPassengers = vi.fn();
 
 vi.mock('@/hooks/use-driver-trips', () => ({
   useDriverTripDetail: (...args: unknown[]) => mockDriverTripDetail(...args),
+  useDriverTripPassengers: (...args: unknown[]) => mockDriverTripPassengers(...args),
 }));
 
 const mockUpdateTracking = { mutate: vi.fn(), isPending: false };
@@ -123,6 +125,12 @@ function errorState() {
 beforeEach(() => {
   vi.clearAllMocks();
   mockDriverTripDetail.mockReturnValue(loadedState());
+  mockDriverTripPassengers.mockReturnValue({
+    data: { data: [] },
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  });
 
   // Mock geolocation API
   Object.defineProperty(navigator, 'geolocation', {
@@ -430,10 +438,20 @@ describe('DriverTripDetailPage', () => {
     });
   });
 
-  describe('passenger info', () => {
-    it('renders passenger count summary', () => {
+  describe('passenger manifest', () => {
+    it('renders passenger manifest section', () => {
       renderWithProviders(<DriverTripDetailPage />);
-      expect(screen.getByText('25 confirmed of 50 seats')).toBeInTheDocument();
+      expect(screen.getByText('Passenger Manifest')).toBeInTheDocument();
+    });
+
+    it('renders passenger count from header info', () => {
+      renderWithProviders(<DriverTripDetailPage />);
+      expect(screen.getByText('25 / 50 passengers')).toBeInTheDocument();
+    });
+
+    it('shows empty state when no passengers loaded', () => {
+      renderWithProviders(<DriverTripDetailPage />);
+      expect(screen.getByText('No passengers booked for this trip')).toBeInTheDocument();
     });
   });
 

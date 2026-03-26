@@ -3,7 +3,11 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
 
-import { useDriverTrips, useDriverTripDetail } from '@/hooks/use-driver-trips';
+import {
+  useDriverTrips,
+  useDriverTripDetail,
+  useDriverTripPassengers,
+} from '@/hooks/use-driver-trips';
 
 const mockGet = vi.fn();
 
@@ -196,6 +200,90 @@ describe('useDriverTripDetail', () => {
     mockGet.mockRejectedValueOnce(apiError);
 
     const { result } = renderHook(() => useDriverTripDetail('sched_1'), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toBe(apiError);
+  });
+});
+
+const mockPassengersResponse = {
+  data: [
+    {
+      bookingId: 'bk_1',
+      passengerName: 'Alice Smith',
+      boardingStop: 'Bucharest North',
+      alightingStop: 'Cluj Central',
+      seatLabels: ['1A', '1B'],
+      status: 'CONFIRMED',
+    },
+    {
+      bookingId: 'bk_2',
+      passengerName: 'Bob Jones',
+      boardingStop: 'Pitesti',
+      alightingStop: 'Cluj Central',
+      seatLabels: ['3C'],
+      status: 'CANCELLED',
+    },
+  ],
+};
+
+describe('useDriverTripPassengers', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+  });
+
+  it('fetches passengers by scheduleId and date', async () => {
+    mockGet.mockResolvedValueOnce({ data: mockPassengersResponse });
+
+    const { result } = renderHook(
+      () => useDriverTripPassengers('sched_1', '2026-04-01'),
+      { wrapper: createWrapper() },
+    );
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data).toEqual(mockPassengersResponse);
+    expect(mockGet).toHaveBeenCalledWith('/api/v1/driver/trips/{scheduleId}/passengers', {
+      params: {
+        path: { scheduleId: 'sched_1' },
+        query: { date: '2026-04-01' },
+      },
+    });
+  });
+
+  it('fetches passengers without date', async () => {
+    mockGet.mockResolvedValueOnce({ data: mockPassengersResponse });
+
+    const { result } = renderHook(() => useDriverTripPassengers('sched_1'), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockGet).toHaveBeenCalledWith('/api/v1/driver/trips/{scheduleId}/passengers', {
+      params: {
+        path: { scheduleId: 'sched_1' },
+        query: { date: undefined },
+      },
+    });
+  });
+
+  it('does not fetch when scheduleId is empty', () => {
+    const { result } = renderHook(() => useDriverTripPassengers(''), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(mockGet).not.toHaveBeenCalled();
+  });
+
+  it('surfaces errors from the API', async () => {
+    const apiError = new Error('Forbidden');
+    mockGet.mockRejectedValueOnce(apiError);
+
+    const { result } = renderHook(() => useDriverTripPassengers('sched_1'), {
       wrapper: createWrapper(),
     });
 

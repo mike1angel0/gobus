@@ -17,7 +17,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDriverTripDetail } from '@/hooks/use-driver-trips';
+import { useDriverTripDetail, useDriverTripPassengers } from '@/hooks/use-driver-trips';
+import { PassengerList } from '@/components/driver/passenger-list';
 import { useUpdateTracking } from '@/hooks/use-provider-tracking';
 import { useToast } from '@/hooks/use-toast';
 import { LiveMap } from '@/components/maps/live-map';
@@ -456,6 +457,13 @@ export default function DriverTripDetailPage() {
   const { data, isLoading, isError, refetch } = useDriverTripDetail(scheduleId, date);
   const trip = data?.data;
 
+  const {
+    data: passengersData,
+    isLoading: passengersLoading,
+    isError: passengersError,
+    refetch: refetchPassengers,
+  } = useDriverTripPassengers(scheduleId, date);
+
   const [currentStopIndex, setCurrentStopIndex] = useState(0);
   const [isAdvancing, setIsAdvancing] = useState(false);
 
@@ -583,18 +591,19 @@ export default function DriverTripDetailPage() {
           />
         </section>
 
-        {/* Passenger count */}
-        <Card>
-          <CardContent className="flex items-center gap-3 p-4">
-            <Users className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-            <div>
-              <h3 className="font-medium">Passengers</h3>
-              <p className="text-sm text-muted-foreground">
-                {trip.passengerCount} confirmed of {trip.totalSeats} seats
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Passenger manifest */}
+        <section aria-labelledby="passengers-heading">
+          <h2 id="passengers-heading" className="sr-only">
+            Passenger Manifest
+          </h2>
+          <PassengerList
+            passengers={passengersData?.data}
+            totalSeats={trip.totalSeats}
+            isLoading={passengersLoading}
+            isError={passengersError}
+            onRetry={refetchPassengers}
+          />
+        </section>
 
         {/* Report delay */}
         <Button

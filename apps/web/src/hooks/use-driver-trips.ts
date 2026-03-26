@@ -88,3 +88,40 @@ export function useDriverTripDetail(scheduleId: string, date?: string) {
     staleTime: 30 * 1000,
   });
 }
+
+/**
+ * React Query hook that fetches the passenger manifest for a driver's trip.
+ *
+ * Calls `GET /api/v1/driver/trips/{scheduleId}/passengers` with an optional
+ * `date` query param. Returns the list of confirmed/cancelled bookings with
+ * passenger name, boarding/alighting stops, and seat labels.
+ * Requires the DRIVER role.
+ *
+ * @param scheduleId - The schedule identifier.
+ * @param date - Optional trip date in ISO 8601 format (YYYY-MM-DD). Defaults to today on the server.
+ * @returns A React Query result with the passenger list.
+ *
+ * @example
+ * ```tsx
+ * const { data } = useDriverTripPassengers('sched_abc', '2026-04-01');
+ * const passengers = data?.data ?? [];
+ * ```
+ */
+export function useDriverTripPassengers(scheduleId: string, date?: string) {
+  const client = useApiClient();
+
+  return useQuery({
+    queryKey: driverTripKeys.passengers(scheduleId, date),
+    queryFn: async () => {
+      const { data } = await client.GET('/api/v1/driver/trips/{scheduleId}/passengers', {
+        params: {
+          path: { scheduleId },
+          query: { date },
+        },
+      });
+      return data;
+    },
+    enabled: scheduleId.length > 0,
+    staleTime: 30 * 1000,
+  });
+}

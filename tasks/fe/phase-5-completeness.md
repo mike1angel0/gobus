@@ -59,14 +59,14 @@ The provider dashboard exists but does not call `GET /api/v1/provider/analytics`
 
 Implement passenger list view on the driver trip detail page.
 
-- [ ] Create `useDriverTripPassengers` hook calling `GET /api/v1/driver/trips/{scheduleId}/passengers` with date query param, typed from OpenAPI spec, query key in keys.ts
-- [ ] Add passenger list section to `pages/driver/trip-detail.tsx` or create `components/driver/passenger-list.tsx` sub-component (respect 500 line limit)
-- [ ] Show each passenger: name, boardingStop, alightingStop, seatLabels, booking status
-- [ ] Show total passenger count and capacity
-- [ ] Empty state when no passengers booked
-- [ ] Loading skeleton for passenger section
-- [ ] Component tests: render passenger list, empty state, loading state, multiple passengers with different stops
-- [ ] Typecheck passes, lint clean
+- [x] Create `useDriverTripPassengers` hook calling `GET /api/v1/driver/trips/{scheduleId}/passengers` with date query param, typed from OpenAPI spec, query key in keys.ts
+- [x] Add passenger list section to `pages/driver/trip-detail.tsx` or create `components/driver/passenger-list.tsx` sub-component (respect 500 line limit)
+- [x] Show each passenger: name, boardingStop, alightingStop, seatLabels, booking status
+- [x] Show total passenger count and capacity
+- [x] Empty state when no passengers booked
+- [x] Loading skeleton for passenger section
+- [x] Component tests: render passenger list, empty state, loading state, multiple passengers with different stops
+- [x] Typecheck passes, lint clean
 
 ---
 
