@@ -180,13 +180,13 @@
 **Description:** Create `apps/api/Dockerfile` (multi-stage: install → generate Prisma → build → slim runner with node:20-alpine). Create `docker-compose.yml` at monorepo root with: PostgreSQL 16, API service (depends on postgres), volume for DB data. Add `.env.example` with all required env vars documented.
 
 **Acceptance Criteria:**
-- [ ] Multi-stage Dockerfile (build + runtime stages)
-- [ ] Runtime image uses node:20-alpine (minimal)
-- [ ] `docker-compose.yml` with postgres + api services
-- [ ] `.env.example` documents all required variables
-- [ ] `docker compose up` starts both services
-- [ ] Health check in Docker compose
-- [ ] Typecheck passes
+- [x] Multi-stage Dockerfile (build + runtime stages)
+- [x] Runtime image uses node:20-alpine (minimal)
+- [x] `docker-compose.yml` with postgres + api services
+- [x] `.env.example` documents all required variables
+- [x] `docker compose up` starts both services
+- [x] Health check in Docker compose
+- [x] Typecheck passes
 
 ### TASK-016: Create database migration and seed scripts for Docker
 **Description:** Add npm scripts: `db:migrate:deploy` (for production, uses `prisma migrate deploy`), `db:migrate:reset` (for dev, uses `prisma migrate reset --force`). Update seed script to be idempotent (upsert, not create). Add a `docker-entrypoint.sh` that runs migrations before starting the server.
