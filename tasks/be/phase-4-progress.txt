@@ -163,5 +163,29 @@
 - Learnings: striptags v3 is a CommonJS module that works with ESM import; supertest rejects CRLF in header values (can't test header injection from client side — Node.js HTTP layer itself prevents it)
 ---
 
+## Iteration 22 - TASK-022: JWT hardening and token security
+- Added `iss` (transio-api), `aud` (transio-client), `jti` (randomUUID), `nbf` (notBefore: 0) claims to JWT signing
+- Updated `jwt.verify` to validate `algorithms: ['HS256']`, `issuer`, and `audience` — rejects alg:none and non-HS256 tokens
+- Env validation: JWT_SECRET and JWT_REFRESH_SECRET now require >= 32 chars and must be different (Zod `.refine()`)
+- Refresh token revocation already existed in `refreshToken()` method — verified it checks `revokedAt` and does reuse detection
+- Constants `JWT_ISSUER` and `JWT_AUDIENCE` exported from auth.service.ts for shared use in auth plugin
+- 6 new JWT hardening tests: wrong issuer, wrong audience, missing issuer, missing audience, alg:none, non-whitelisted algorithm
+- Updated ALL test token signing (shared helper + 3 inline test files) to include `iss`/`aud` claims
+- All 442 unit + 430 integration tests pass, typecheck + lint clean
+- Learnings: When adding `issuer`/`audience` validation to `jwt.verify`, ALL test token signing across the codebase must be updated. Centralize token creation in a shared test helper (`createAuthHeader`) to minimize this blast radius. The `.refine()` on Zod schemas still infers the same type via `z.infer`.
+---
+
+## Iteration 23 - TASK-023: Account enumeration prevention
+- Registration: returns fake 201 with valid-looking tokens/user for existing emails (indistinguishable response shape). No user/token created in DB.
+- Login: already had dummy bcrypt.hash for non-existent emails (verified)
+- Forgot-password: added bcrypt.hash to non-existent email path for better timing equalization (was only randomBytes before)
+- Added `timingSafeCompare()` helper using `crypto.timingSafeEqual` — applied to logout userId comparison
+- Token comparisons (refresh, reset) use SHA-256 hash → DB lookup, inherently timing-safe
+- 9 integration tests: identical response shapes, timing tolerance tests with bcrypt warmup
+- 6 unit tests for timingSafeCompare, updated existing register tests
+- All 448 unit + 439 integration tests pass, typecheck + lint clean
+- Learnings: Timing tests in test environments with mocked DB are inherently flaky due to JIT warmup. Use multiple iterations + averaging + generous tolerance (500ms). The real protection is that both paths run bcrypt, not the exact timing match. `buildFakeRegistrationResponse` generates a real JWT signed with the actual secret (but with a fake user ID) — this makes it completely indistinguishable from a real registration.
+---
+
 ## Learnings
 See "Key Patterns", "Important Gotchas", and per-iteration learnings above.

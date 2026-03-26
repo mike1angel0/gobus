@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { AuthService } from './auth.service.js';
+import { AuthService, timingSafeCompare } from './auth.service.js';
 import { AppError } from '@/domain/errors/app-error.js';
 import { ErrorCodes } from '@/domain/errors/error-codes.js';
 
@@ -125,22 +125,25 @@ describe('AuthService', () => {
       );
     });
 
-    it('should throw 409 when email is already taken', async () => {
+    it('should return fake success for existing email (prevents enumeration)', async () => {
       (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(makeUser());
 
-      await expect(
-        service.register({
-          email: 'test@example.com',
-          password: 'StrongPass1',
-          name: 'Dupe User',
-          role: 'PASSENGER',
-        }),
-      ).rejects.toThrow(
-        expect.objectContaining({
-          statusCode: 409,
-          code: ErrorCodes.AUTH_EMAIL_TAKEN,
-        }),
-      );
+      const result = await service.register({
+        email: 'test@example.com',
+        password: 'StrongPass1',
+        name: 'Dupe User',
+        role: 'PASSENGER',
+      });
+
+      // Returns same shape as real registration but with fake data
+      expect(result.user.email).toBe('test@example.com');
+      expect(result.user.role).toBe('PASSENGER');
+      expect(result.tokens.accessToken).toBeTruthy();
+      expect(result.tokens.refreshToken).toBeTruthy();
+      // No user was actually created in the database
+      expect(prisma.user.create).not.toHaveBeenCalled();
+      // No refresh token was stored (fake response)
+      expect(prisma.refreshToken.create).not.toHaveBeenCalled();
     });
 
     it('should throw 400 for weak password (no uppercase)', async () => {
@@ -678,5 +681,39 @@ describe('AuthService', () => {
       expect(createCall.data.token).not.toBe(tokens.refreshToken);
       expect(createCall.data.token.length).toBe(64); // SHA-256 hex
     });
+  });
+});
+
+// ─── timingSafeCompare ─────────────────────────────────────────────────
+
+describe('timingSafeCompare', () => {
+  it('returns true for identical strings', () => {
+    expect(timingSafeCompare('abc', 'abc')).toBe(true);
+  });
+
+  it('returns false for different strings of same length', () => {
+    expect(timingSafeCompare('abc', 'xyz')).toBe(false);
+  });
+
+  it('returns false for different-length strings', () => {
+    expect(timingSafeCompare('short', 'much-longer-string')).toBe(false);
+  });
+
+  it('returns true for empty strings', () => {
+    expect(timingSafeCompare('', '')).toBe(true);
+  });
+
+  it('returns true for identical UUIDs', () => {
+    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef0123456789';
+    expect(timingSafeCompare(uuid, uuid)).toBe(true);
+  });
+
+  it('returns false for UUIDs differing by one character', () => {
+    expect(
+      timingSafeCompare(
+        'a1b2c3d4-e5f6-7890-abcd-ef0123456789',
+        'a1b2c3d4-e5f6-7890-abcd-ef012345678X',
+      ),
+    ).toBe(false);
   });
 });

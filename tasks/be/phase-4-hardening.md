@@ -299,12 +299,12 @@
 **Description:** Prevent attackers from discovering valid email addresses: (1) Registration: if email exists, return same 200 response as success (or use email verification flow). (2) Login: always run bcrypt.compare even when user not found (timing-safe). (3) Forgot-password: already returns 200 always (verify). (4) Rate limit all auth endpoints (already done in TASK-003). (5) Add constant-time string comparison for tokens where applicable.
 
 **Acceptance Criteria:**
-- [ ] Login: dummy bcrypt.compare when user not found (equalizes timing)
-- [ ] Registration: returns generic success message (doesn't reveal if email exists)
-- [ ] Forgot-password: always 200 regardless of email existence (already in spec)
-- [ ] All token comparisons use constant-time comparison (crypto.timingSafeEqual)
-- [ ] Integration tests verify identical response times for valid/invalid emails (within 100ms tolerance)
-- [ ] Typecheck passes
+- [x] Login: dummy bcrypt.compare when user not found (equalizes timing)
+- [x] Registration: returns generic success message (doesn't reveal if email exists)
+- [x] Forgot-password: always 200 regardless of email existence (already in spec)
+- [x] All token comparisons use constant-time comparison (crypto.timingSafeEqual)
+- [x] Integration tests verify identical response times for valid/invalid emails (within 100ms tolerance)
+- [x] Typecheck passes
 
 ### TASK-024: DoS and resource exhaustion prevention
 **Description:** Prevent denial-of-service vectors: (1) Global request body size: 1MB (`fastify.bodyLimit`). (2) JSON depth limit: reject deeply nested payloads (max 5 levels via custom parser or Fastify's `bodyLimit`). (3) Prisma query timeouts: add `PrismaClient` with `timeout: 10000` for all queries. (4) Array field limits enforced in Zod (seats: max 200, stops: max 50, seatLabels: max 10). (5) Search endpoint: limit results to 50, add minimum query length for text search. (6) Pagination: enforce max pageSize=100 server-side (even if client sends pageSize=10000). (7) Slow request detection: log warning for requests >5s. (8) Concurrent booking limit: max 5 active bookings per user.

@@ -158,7 +158,7 @@ describe('Auth Routes', () => {
       expect(response.body.data.user.providerId).toBe('prov-1');
     });
 
-    it('returns 409 for duplicate email', async () => {
+    it('returns 201 with fake success for duplicate email (prevents enumeration)', async () => {
       mockUserFindUnique.mockResolvedValueOnce(makeDbUser()); // email exists
 
       const response = await supertest(app.server)
@@ -169,10 +169,14 @@ describe('Auth Routes', () => {
           name: 'Duplicate',
           role: 'PASSENGER',
         })
-        .expect(409);
+        .expect(201);
 
-      expect(response.body.status).toBe(409);
-      expect(response.body.code).toBe('AUTH_EMAIL_TAKEN');
+      // Response shape is identical to real registration
+      expect(response.body.data).toHaveProperty('accessToken');
+      expect(response.body.data).toHaveProperty('refreshToken');
+      expect(response.body.data.user.email).toBe('test@example.com');
+      // No user was actually created
+      expect(mockUserCreate).not.toHaveBeenCalled();
     });
 
     it('returns 400 for weak password', async () => {

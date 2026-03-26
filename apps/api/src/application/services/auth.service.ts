@@ -1,4 +1,4 @@
-import { randomBytes, createHash, randomUUID } from 'node:crypto';
+import { randomBytes, createHash, randomUUID, timingSafeEqual } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { PrismaClient, User } from '@/generated/prisma/client.js';
@@ -26,6 +26,22 @@ const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
+/**
+ * Compare two strings in constant time to prevent timing attacks.
+ * Uses crypto.timingSafeEqual internally, handling unequal-length strings safely.
+ */
+export function timingSafeCompare(a: string, b: string): boolean {
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
+  if (bufA.length !== bufB.length) {
+    // Compare against a same-length dummy to avoid leaking length info via timing
+    const dummy = Buffer.alloc(bufA.length);
+    timingSafeEqual(bufA, dummy);
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
+}
+
 /** JWT issuer claim identifying this service. */
 export const JWT_ISSUER = 'transio-api';
 
@@ -43,6 +59,8 @@ export class AuthService {
   /**
    * Register a new user account. Creates a provider entity when role is PROVIDER.
    * Returns the created user and JWT token pair.
+   * When the email already exists, returns a fake success response to prevent
+   * account enumeration (identical shape, equalized timing via dummy bcrypt).
    */
   async register(data: RegisterData): Promise<{ user: UserEntity; tokens: TokenPair }> {
     this.validatePasswordStrength(data.password);
@@ -52,7 +70,12 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new AppError(409, ErrorCodes.AUTH_EMAIL_TAKEN, 'Email address is already registered');
+      // Perform real bcrypt hash to equalize timing with actual registration
+      await bcrypt.hash(data.password, BCRYPT_ROUNDS);
+      logger.warn('Registration attempted with existing email', { email: data.email });
+
+      // Return fake success response indistinguishable from real registration
+      return this.buildFakeRegistrationResponse(data);
     }
 
     const passwordHash = await bcrypt.hash(data.password, BCRYPT_ROUNDS);
@@ -197,7 +220,7 @@ export class AuthService {
       where: { token: tokenHash },
     });
 
-    if (storedToken && storedToken.userId === userId && !storedToken.revokedAt) {
+    if (storedToken && timingSafeCompare(storedToken.userId, userId) && !storedToken.revokedAt) {
       await this.prisma.refreshToken.update({
         where: { id: storedToken.id },
         data: { revokedAt: new Date() },
@@ -263,9 +286,11 @@ export class AuthService {
     });
 
     if (!user) {
-      // Simulate work to prevent timing attacks
+      // Simulate realistic work to equalize timing with the real path
+      // (DB write + crypto operations take measurable time)
       randomBytes(32);
       createHash('sha256').update(randomBytes(32)).digest('hex');
+      await bcrypt.hash('dummy-timing-equalization', BCRYPT_ROUNDS);
       return;
     }
 
@@ -514,6 +539,54 @@ export class AuthService {
       status: user.status,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  /**
+   * Build a fake registration response identical in shape to a real one.
+   * Tokens and user ID are fake — any attempt to use them will fail gracefully.
+   * Prevents account enumeration via registration endpoint.
+   */
+  private buildFakeRegistrationResponse(
+    data: RegisterData,
+  ): { user: UserEntity; tokens: TokenPair } {
+    const env = getEnv();
+    const fakeUserId = randomUUID();
+    const now = new Date();
+
+    const payload: Omit<AuthTokenPayload, 'iat' | 'exp' | 'nbf'> = {
+      sub: fakeUserId,
+      email: data.email,
+      role: data.role,
+      providerId: null,
+      iss: JWT_ISSUER,
+      aud: JWT_AUDIENCE,
+      jti: randomUUID(),
+    };
+
+    const accessToken = jwt.sign(payload, env.JWT_SECRET, {
+      expiresIn: ACCESS_TOKEN_EXPIRY,
+      notBefore: 0,
+      algorithm: 'HS256',
+    });
+
+    const refreshToken = randomBytes(40).toString('hex');
+
+    return {
+      user: {
+        id: fakeUserId,
+        email: data.email,
+        name: data.name,
+        role: data.role,
+        phone: data.phone ?? null,
+        avatarUrl: null,
+        preferences: null,
+        providerId: null,
+        status: 'ACTIVE',
+        createdAt: now,
+        updatedAt: now,
+      },
+      tokens: { accessToken, refreshToken },
     };
   }
 }
