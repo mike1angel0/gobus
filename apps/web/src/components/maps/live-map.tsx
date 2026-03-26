@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -102,7 +102,7 @@ function AutoFitBounds({ stops, busPosition }: { stops: MapStop[]; busPosition?:
 /**
  * Inner component that updates bus marker position via ref to avoid full re-render.
  */
-function BusMarker({ position }: { position: BusPosition }) {
+const BusMarker = memo(function BusMarker({ position }: { position: BusPosition }) {
   const markerRef = useRef<L.Marker>(null);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ function BusMarker({ position }: { position: BusPosition }) {
       icon={createBusIcon(position.heading)}
     />
   );
-}
+});
 
 /**
  * Live map component using react-leaflet with dark CartoDB tiles.
@@ -136,10 +136,10 @@ function BusMarker({ position }: { position: BusPosition }) {
  * />
  * ```
  */
-export function LiveMap({ stops, busPosition, center, zoom, className }: LiveMapProps) {
+export const LiveMap = memo(function LiveMap({ stops, busPosition, center, zoom, className }: LiveMapProps) {
   const mapCenter = center ?? DEFAULT_CENTER;
   const mapZoom = zoom ?? DEFAULT_ZOOM;
-  const stopIcon = createStopIcon();
+  const stopIcon = useMemo(() => createStopIcon(), []);
 
   const routePositions: L.LatLngExpression[] = stops.map((s) => [s.lat, s.lng]);
 
@@ -178,4 +178,4 @@ export function LiveMap({ stops, busPosition, center, zoom, className }: LiveMap
       </MapContainer>
     </div>
   );
-}
+});

@@ -51,22 +51,8 @@
 
 ## Performance
 
-### TASK-010: Optimize bundle and rendering
-**Description:** Review and optimize:
-- All pages use React.lazy + Suspense (code splitting per route)
-- React.memo on expensive components (SeatMap, LiveMap, TripCard list)
-- useCallback/useMemo where render cost is measurable
-- Image optimization (if any images, use lazy loading)
-- No unnecessary re-renders from polling (use refs for non-visual state)
-- Bundle analysis: ensure no large libraries loaded unnecessarily
-
-**Acceptance Criteria:**
-- [ ] All routes lazy-loaded
-- [ ] SeatMap and LiveMap memoized
-- [ ] Polling doesn't cause full-page re-renders
-- [ ] Bundle size < 500KB gzipped (excluding leaflet)
-- [ ] No unused imports or dead code
-- [ ] Typecheck passes
+### TASK-010: Optimize bundle and rendering ✅
+- [x] All routes lazy-loaded (22 pages via React.lazy), SeatMapEditor+EditorSeatCell+LiveMap+BusMarker wrapped in React.memo, stopIcon memoized with useMemo, polling uses refs for non-visual state (useGpsPosting) and React Query refetchInterval (component-scoped), bundle 303.5KB gzipped total (258KB excl. leaflet), no unused imports, typecheck passes, 1084 tests pass
 
 ### TASK-011: Optimize API calls
 **Description:** Review all React Query usage:

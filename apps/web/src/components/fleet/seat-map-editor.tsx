@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -93,7 +93,7 @@ function getNextSeatType(current: SeatType): SeatType {
  * />
  * ```
  */
-export function SeatMapEditor({
+export const SeatMapEditor = memo(function SeatMapEditor({
   seats: initialSeats,
   rows,
   columns,
@@ -233,7 +233,7 @@ export function SeatMapEditor({
       </div>
     </div>
   );
-}
+});
 
 /* ---------- Brush Toolbar ---------- */
 
@@ -301,7 +301,7 @@ interface EditorSeatCellProps {
  * Individual seat cell within the seat map editor grid.
  * Displays the seat label with type-specific styling and tooltip.
  */
-function EditorSeatCell({ seat, onClick, onKeyDown }: EditorSeatCellProps) {
+const EditorSeatCell = memo(function EditorSeatCell({ seat, onClick, onKeyDown }: EditorSeatCellProps) {
   const icon = SEAT_TYPE_ICONS[seat.type];
   const ariaLabel = `Seat ${seat.label}, ${SEAT_TYPE_LABELS[seat.type]}. Click to change type.`;
 
@@ -333,7 +333,7 @@ function EditorSeatCell({ seat, onClick, onKeyDown }: EditorSeatCellProps) {
       </TooltipContent>
     </Tooltip>
   );
-}
+});
 
 /* ---------- Seat Count Summary ---------- */
 

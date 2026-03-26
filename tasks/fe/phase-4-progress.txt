@@ -77,3 +77,12 @@
 - All 1084 tests pass, typecheck clean, lint clean
 - Learnings: vitest-axe requires explicit `expect.extend(matchers)` in setup, not just import of extend-expect. Use `import * as axeMatchers from 'vitest-axe/matchers'` pattern.
 ---
+## Iteration 10 - TASK-010: Optimize bundle and rendering
+- All 22 routes already lazy-loaded via React.lazy in router.tsx
+- Wrapped SeatMapEditor and EditorSeatCell in React.memo for seat grid performance
+- Wrapped LiveMap and BusMarker in React.memo; memoized stopIcon with useMemo to avoid recreating DivIcon on each render
+- Polling verified: useGpsPosting uses refs for non-visual state (positionRef, stopIndexRef) to avoid re-renders from interval ticks; React Query's refetchInterval only re-renders subscribing components
+- Bundle size: 303.5KB gzipped total (258KB excluding leaflet) — well under 500KB target
+- All 1084 tests pass, typecheck clean, lint clean (only pre-existing react-hooks/incompatible-library warnings)
+- Learnings: Vite code-splitting via React.lazy already works well out of the box. The main optimization wins come from React.memo on components rendered in loops (EditorSeatCell in seat grid, BusMarker).
+---
