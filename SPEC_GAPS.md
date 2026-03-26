@@ -13,3 +13,9 @@ Format:
 ```
 
 ---
+
+## SearchResult schema
+- **Issue**: Missing `activeDelay` field (delay minutes + reason) for displaying delay badges on search result cards. Also missing `stopTimes` array for expandable stop list in TripCard. Currently this data is only available via the separate `/api/v1/delays` and `/api/v1/trips/{scheduleId}` endpoints.
+- **Found by**: FE Phase 2, TASK-004
+- **Suggested fix**: Add optional `activeDelay: { delayMinutes: integer, reason?: string }` and optional `stopTimes: StopTime[]` to SearchResult schema
+- **Blocking**: No — FE will show delay badge only when delay data is provided via optional props, and expandable stops will lazy-load from TripDetail endpoint

@@ -17,3 +17,25 @@
 - 14 unit tests all passing, typecheck clean, lint clean
 - Learnings: Tests for mutations need `act()` wrapper around `mutate()` calls. The toast hook uses `{ toast }` destructured from `useToast()`.
 ---
+
+## Iteration 3 - TASK-003: Create SearchForm component
+- Created `src/components/search/search-form.tsx` with React Hook Form + Zod validation
+- 15 European city dropdowns (select elements), date picker (min: today, default: today), swap button
+- Compact mode (glass-card, sr-only labels) for home hero, full mode (visible labels, border) for search page
+- Form validation: origin ≠ destination, both required; navigates to `/search?origin=X&destination=Y&date=Z`
+- Pre-fills from URL search params via `useSearchParams()`
+- Refactored home page to use SearchForm component, updated home page tests
+- 14 component tests + 11 updated home tests all passing, typecheck clean, lint clean (0 errors)
+- Learnings: In compact mode with responsive swap buttons (mobile visible, desktop hidden), tests find multiple buttons — use `getAllByRole` instead of `getByRole` for swap button. Native `<select>` elements work well for city dropdowns without needing a custom Combobox component.
+---
+
+## Iteration 4 - TASK-004: Create TripCard component
+- Created `src/components/search/trip-card.tsx` with Card-based layout showing provider, times, duration, route, price, seats
+- Seat availability color-coded: green (>50%), yellow (20-50%), red (<20%)
+- Optional delay badge with 3 severity levels: on-time (green), minor ≤15min (yellow), major >15min (red)
+- Optional expandable stops section with toggle button, ordered list of stops with times
+- Link navigates to `/trip/{scheduleId}?date=X` with proper URL encoding
+- Documented spec gap: SearchResult schema missing `activeDelay` and `stopTimes` fields (non-blocking)
+- 25 component tests all passing, typecheck clean, lint clean (0 errors)
+- Learnings: Boundary conditions in getSeatLevel matter for tests — 10/50 = 0.2 is exactly at the boundary, use values clearly within range for test assertions. Tests must run from apps/web directory, not monorepo root, for path aliases to resolve.
+---

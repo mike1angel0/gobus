@@ -18,19 +18,7 @@
 
 ### ~~TASK-003: Create SearchForm component~~ ✅
 
-### TASK-004: Create TripCard component
-**Description:** Create `src/components/search/trip-card.tsx`. Displays: provider logo + name, departure/arrival times, route name, duration, price, available seats count, delay badge (if active delay). Expandable section showing stop list with times. Link to trip detail page.
-
-**Acceptance Criteria:**
-- [ ] All trip info displayed clearly
-- [ ] Delay badge shows when delay active (color-coded by severity)
-- [ ] Expandable stops section with stop names and times
-- [ ] Available seats count with visual indicator
-- [ ] Click navigates to `/trip/{scheduleId}?date=X`
-- [ ] Responsive layout
-- [ ] Accessible
-- [ ] Component test
-- [ ] Typecheck passes
+### ~~TASK-004: Create TripCard component~~ ✅
 
 ### TASK-005: Create search results page
 **Description:** Create `src/pages/search.tsx`. Reads query params (origin, destination, date). Uses `useSearchTrips` hook. Shows: search form (compact, pre-filled), results list with TripCard components, empty state ("No trips found"), loading skeleton, error state with retry.
