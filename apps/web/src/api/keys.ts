@@ -127,6 +127,13 @@ export const providerProfileKeys = {
   me: () => ['provider-profile', 'me'] as const,
 };
 
+/** Query keys for provider analytics (`/provider/analytics`). */
+export const providerAnalyticsKeys = {
+  all: ['provider-analytics'] as const,
+  /** Key for the provider analytics query (`GET /provider/analytics`). */
+  analytics: () => ['provider-analytics', 'analytics'] as const,
+};
+
 /** Query keys for driver trip resources (`/driver/trips`). */
 export const driverTripKeys = {
   all: ['driver-trips'] as const,

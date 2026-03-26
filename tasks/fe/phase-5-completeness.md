@@ -43,13 +43,13 @@ Implement a `/provider/profile` page for providers to view their company informa
 
 The provider dashboard exists but does not call `GET /api/v1/provider/analytics`. Wire up real analytics data.
 
-- [ ] Create `useProviderAnalytics` hook calling `GET /api/v1/provider/analytics`, typed from OpenAPI spec
-- [ ] Update `pages/provider/dashboard.tsx` to use real analytics: totalBookings, totalRevenue, averageOccupancy, revenueByRoute[]
-- [ ] Replace any hardcoded/placeholder stat cards with live data
-- [ ] Show revenue-by-route breakdown (table or bar chart using plain HTML/CSS — no chart library)
-- [ ] Loading skeleton for analytics section, error state with retry
-- [ ] Component tests: renders analytics data, loading state, error state, empty revenue-by-route
-- [ ] Typecheck passes, lint clean
+- [x] Create `useProviderAnalytics` hook calling `GET /api/v1/provider/analytics`, typed from OpenAPI spec
+- [x] Update `pages/provider/dashboard.tsx` to use real analytics: totalBookings, totalRevenue, averageOccupancy, revenueByRoute[]
+- [x] Replace any hardcoded/placeholder stat cards with live data
+- [x] Show revenue-by-route breakdown (table or bar chart using plain HTML/CSS — no chart library)
+- [x] Loading skeleton for analytics section, error state with retry
+- [x] Component tests: renders analytics data, loading state, error state, empty revenue-by-route
+- [x] Typecheck passes, lint clean
 
 ---
 

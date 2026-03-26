@@ -8,3 +8,23 @@
 - 18 component tests covering render, edit toggle, validation, API errors, field error mapping
 - Learnings: ESLint complexity rule triggers at 25, extracting sub-components is the fix. AuthContextValue changes require updating all test files that mock it.
 ---
+
+## Iteration 2 - TASK-002: Create provider profile page
+- Created `useProviderProfile` hook calling `GET /api/v1/providers/me` with providerProfileKeys in keys.ts
+- Created `pages/provider/profile.tsx` showing provider name, logo, contactEmail, contactPhone, status badge, createdAt
+- Added pending status warning banner when provider.status === 'PENDING'
+- Added Badge UI component (shadcn pattern) for status display
+- Added "Profile" nav link for PROVIDER role in navbar-links.ts, route in router.tsx
+- 11 component tests + 2 hook tests (13 total), all passing
+- Learnings: Badge component didn't exist yet — had to create it as shadcn CLI config was broken. No edit mode needed for provider profile (read-only per PRD).
+---
+
+## Iteration 3 - TASK-003: Integrate provider analytics into dashboard
+- Created `useProviderAnalytics` hook calling `GET /api/v1/provider/analytics` with providerAnalyticsKeys in keys.ts
+- Extracted `AnalyticsSection` component into `components/provider/analytics-section.tsx` to keep dashboard under 500 lines
+- Shows 3 analytics stat cards: total bookings, total revenue (formatted as USD), average occupancy (as %)
+- Revenue-by-route breakdown with proportional horizontal bars (pure HTML/CSS, no chart library)
+- Full loading skeleton, error state with retry, empty state for revenue-by-route
+- 3 hook tests + 14 analytics section tests + 2 dashboard integration tests, all passing
+- Learnings: Extracting analytics into separate component keeps both files under 200 lines and cleanly separates concerns. The analytics query is independent from the existing dashboard queries — error in analytics doesn't block the rest of the dashboard.
+---

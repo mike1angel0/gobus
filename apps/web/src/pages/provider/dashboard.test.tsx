@@ -10,6 +10,7 @@ const mockRoutes = vi.fn();
 const mockBuses = vi.fn();
 const mockDrivers = vi.fn();
 const mockSchedules = vi.fn();
+const mockAnalytics = vi.fn();
 
 vi.mock('@/hooks/use-routes', () => ({
   useRoutes: (...args: unknown[]) => mockRoutes(...args),
@@ -27,6 +28,10 @@ vi.mock('@/hooks/use-schedules', () => ({
   useSchedules: (...args: unknown[]) => mockSchedules(...args),
 }));
 
+vi.mock('@/hooks/use-provider-analytics', () => ({
+  useProviderAnalytics: () => mockAnalytics(),
+}));
+
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: { name: 'Test Provider' }, isAuthenticated: true }),
 }));
@@ -37,6 +42,23 @@ vi.mock('@/hooks/useAuth', () => ({
 function loadedState(total: number, data: unknown[] = []) {
   return {
     data: { data, meta: { total, page: 1, pageSize: 10, totalPages: 1 } },
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  };
+}
+
+/** Returns a loaded analytics state. */
+function analyticsLoadedState() {
+  return {
+    data: {
+      data: {
+        totalBookings: 50,
+        totalRevenue: 5000,
+        averageOccupancy: 0.65,
+        revenueByRoute: [],
+      },
+    },
     isLoading: false,
     isError: false,
     refetch: vi.fn(),
@@ -86,6 +108,8 @@ describe('ProviderDashboardPage', () => {
     mockBuses.mockReset();
     mockDrivers.mockReset();
     mockSchedules.mockReset();
+    mockAnalytics.mockReset();
+    mockAnalytics.mockReturnValue(analyticsLoadedState());
   });
 
   describe('loading state', () => {
@@ -215,6 +239,36 @@ describe('ProviderDashboardPage', () => {
 
       const schedulesLink = screen.getByText('Active schedules').closest('a');
       expect(schedulesLink).toHaveAttribute('href', '/provider/schedules');
+    });
+  });
+
+  describe('analytics integration', () => {
+    it('renders analytics section with data', () => {
+      mockRoutes.mockReturnValue(loadedState(0));
+      mockBuses.mockReturnValue(loadedState(0));
+      mockDrivers.mockReturnValue(loadedState(0));
+      mockSchedules.mockReturnValue(loadedState(0));
+
+      renderWithProviders(<ProviderDashboardPage />);
+
+      expect(screen.getByRole('heading', { name: 'Analytics' })).toBeInTheDocument();
+    });
+
+    it('renders analytics loading skeleton when analytics is loading', () => {
+      mockRoutes.mockReturnValue(loadedState(0));
+      mockBuses.mockReturnValue(loadedState(0));
+      mockDrivers.mockReturnValue(loadedState(0));
+      mockSchedules.mockReturnValue(loadedState(0));
+      mockAnalytics.mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        isError: false,
+        refetch: vi.fn(),
+      });
+
+      renderWithProviders(<ProviderDashboardPage />);
+
+      expect(screen.getByLabelText('Loading analytics')).toHaveAttribute('aria-busy', 'true');
     });
   });
 

@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { PageError } from '@/components/shared/error-state';
+import { AnalyticsSection } from '@/components/provider/analytics-section';
 import { useRoutes } from '@/hooks/use-routes';
 import { useBuses } from '@/hooks/use-buses';
 import { useDrivers } from '@/hooks/use-drivers';
 import { useSchedules } from '@/hooks/use-schedules';
+import { useProviderAnalytics } from '@/hooks/use-provider-analytics';
 import { useAuth } from '@/hooks/useAuth';
 import type { components } from '@/api/generated/types';
 
@@ -285,6 +287,8 @@ interface DashboardData {
   isFullError: boolean;
   /** Retry callback for failed queries. */
   retry: () => void;
+  /** Analytics query result from useProviderAnalytics. */
+  analytics: ReturnType<typeof useProviderAnalytics>;
 }
 
 /** Fetches all dashboard data and builds stat card configs. */
@@ -297,6 +301,7 @@ function useDashboardData(): DashboardData {
     page: 1,
     pageSize: UPCOMING_COUNT,
   });
+  const analyticsQuery = useProviderAnalytics();
 
   const queries = [routesQuery, busesQuery, driversQuery, schedulesQuery];
 
@@ -339,6 +344,7 @@ function useDashboardData(): DashboardData {
     isFullError:
       queries.some((q) => q.isError) && !routesQuery.data && !busesQuery.data && !driversQuery.data,
     retry: () => retryFailed(queries),
+    analytics: analyticsQuery,
   };
 }
 
@@ -348,6 +354,7 @@ function useDashboardData(): DashboardData {
  *
  * Displays:
  * - Stat cards for total routes, buses, drivers, and active schedules
+ * - Analytics section with bookings, revenue, occupancy, and revenue-by-route
  * - List of next 5 upcoming active schedules
  * - Quick action buttons to create routes and schedules
  *
@@ -386,6 +393,13 @@ export default function ProviderDashboardPage() {
       </div>
 
       <StatsSection showSkeleton={dashboard.showStatsSkeleton} stats={dashboard.stats} />
+
+      <AnalyticsSection
+        data={dashboard.analytics.data?.data}
+        isLoading={dashboard.analytics.isLoading}
+        isError={dashboard.analytics.isError}
+        onRetry={() => dashboard.analytics.refetch()}
+      />
 
       <div className="grid gap-8 lg:grid-cols-3">
         <UpcomingSchedulesSection
