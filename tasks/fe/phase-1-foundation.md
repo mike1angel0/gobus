@@ -48,16 +48,7 @@
 
 ### ~~TASK-014: Create Navbar component~~ ✅
 
-### TASK-015: Create app layout and home page
-**Description:** Create `src/components/layout/app-layout.tsx` wrapping Navbar + Outlet + ToastContainer. Create `src/pages/home.tsx` with hero section, search form, popular routes preview. Use the dark glass-morphism design language.
-
-**Acceptance Criteria:**
-- [ ] App layout wraps all pages with Navbar
-- [ ] Toast notifications configured (react-hot-toast or shadcn toast)
-- [ ] Home page with hero, search CTA
-- [ ] Responsive design
-- [ ] Component test
-- [ ] Typecheck passes
+### ~~TASK-015: Create app layout and home page~~ ✅
 
 ---
 

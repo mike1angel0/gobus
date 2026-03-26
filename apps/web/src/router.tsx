@@ -1,11 +1,13 @@
 import { lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { RootLayout } from '@/components/layout/root-layout';
+import { AppLayout } from '@/components/layout/app-layout';
 import { AuthGuard } from '@/components/guards/auth-guard';
 import { RoleGuard } from '@/components/guards/role-guard';
 
 /* ---------- Lazy-loaded pages ---------- */
 
+const HomePage = lazy(() => import('@/pages/home'));
 const LoginPage = lazy(() => import('@/pages/auth/login'));
 const RegisterPage = lazy(() => import('@/pages/auth/register'));
 const ForgotPasswordPage = lazy(() => import('@/pages/auth/forgot-password'));
@@ -29,56 +31,61 @@ export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-      /* ---- Public routes ---- */
-      { path: '/', element: <PlaceholderPage /> },
-      { path: '/search', element: <PlaceholderPage /> },
-      { path: '/trip/:id', element: <PlaceholderPage /> },
-
-      /* ---- Auth routes (public) ---- */
-      { path: '/auth/login', element: <LoginPage /> },
-      { path: '/auth/register', element: <RegisterPage /> },
-      { path: '/auth/forgot-password', element: <ForgotPasswordPage /> },
-      { path: '/auth/reset-password', element: <ResetPasswordPage /> },
-
-      /* ---- Authenticated routes ---- */
       {
-        element: <AuthGuard />,
+        element: <AppLayout />,
         children: [
-          { path: '/auth/change-password', element: <ChangePasswordPage /> },
-          { path: '/my-trips', element: <PlaceholderPage /> },
+          /* ---- Public routes ---- */
+          { path: '/', element: <HomePage /> },
+          { path: '/search', element: <PlaceholderPage /> },
+          { path: '/trip/:id', element: <PlaceholderPage /> },
 
-          /* ---- Provider routes ---- */
-          {
-            path: '/provider',
-            element: <RoleGuard allowedRoles={['PROVIDER']} />,
-            children: [
-              { index: true, element: <PlaceholderPage /> },
-              { path: 'routes', element: <PlaceholderPage /> },
-              { path: 'fleet', element: <PlaceholderPage /> },
-              { path: 'schedules', element: <PlaceholderPage /> },
-              { path: 'drivers', element: <PlaceholderPage /> },
-              { path: 'tracking', element: <PlaceholderPage /> },
-            ],
-          },
+          /* ---- Auth routes (public) ---- */
+          { path: '/auth/login', element: <LoginPage /> },
+          { path: '/auth/register', element: <RegisterPage /> },
+          { path: '/auth/forgot-password', element: <ForgotPasswordPage /> },
+          { path: '/auth/reset-password', element: <ResetPasswordPage /> },
 
-          /* ---- Driver routes ---- */
+          /* ---- Authenticated routes ---- */
           {
-            path: '/driver',
-            element: <RoleGuard allowedRoles={['DRIVER']} />,
+            element: <AuthGuard />,
             children: [
-              { index: true, element: <PlaceholderPage /> },
-              { path: 'trip/:id', element: <PlaceholderPage /> },
-              { path: 'delay', element: <PlaceholderPage /> },
-            ],
-          },
+              { path: '/auth/change-password', element: <ChangePasswordPage /> },
+              { path: '/my-trips', element: <PlaceholderPage /> },
 
-          /* ---- Admin routes ---- */
-          {
-            path: '/admin',
-            element: <RoleGuard allowedRoles={['ADMIN']} />,
-            children: [
-              { index: true, element: <PlaceholderPage /> },
-              { path: 'fleet', element: <PlaceholderPage /> },
+              /* ---- Provider routes ---- */
+              {
+                path: '/provider',
+                element: <RoleGuard allowedRoles={['PROVIDER']} />,
+                children: [
+                  { index: true, element: <PlaceholderPage /> },
+                  { path: 'routes', element: <PlaceholderPage /> },
+                  { path: 'fleet', element: <PlaceholderPage /> },
+                  { path: 'schedules', element: <PlaceholderPage /> },
+                  { path: 'drivers', element: <PlaceholderPage /> },
+                  { path: 'tracking', element: <PlaceholderPage /> },
+                ],
+              },
+
+              /* ---- Driver routes ---- */
+              {
+                path: '/driver',
+                element: <RoleGuard allowedRoles={['DRIVER']} />,
+                children: [
+                  { index: true, element: <PlaceholderPage /> },
+                  { path: 'trip/:id', element: <PlaceholderPage /> },
+                  { path: 'delay', element: <PlaceholderPage /> },
+                ],
+              },
+
+              /* ---- Admin routes ---- */
+              {
+                path: '/admin',
+                element: <RoleGuard allowedRoles={['ADMIN']} />,
+                children: [
+                  { index: true, element: <PlaceholderPage /> },
+                  { path: 'fleet', element: <PlaceholderPage /> },
+                ],
+              },
             ],
           },
         ],
