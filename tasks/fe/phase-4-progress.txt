@@ -6,3 +6,18 @@
 - 8 tests pass covering: date filtering, pagination, error handling, disabled query when scheduleId empty
 - Learnings: Must run vitest from apps/web/ dir, not monorepo root
 ---
+## Iteration 2 - TASK-002: Create driver trips list page
+- Created `src/pages/driver/trips.tsx` with date navigation (prev/next day), trip cards with time-derived status (upcoming/in-progress/completed/cancelled), loading skeleton, error state with retry, empty state
+- Mobile-first layout (max-w-lg), keyboard navigable cards, aria-live for date changes, proper heading hierarchy
+- Updated router.tsx to replace PlaceholderPage with DriverTripsPage at `/driver` index route
+- 18 tests pass covering: loading, error+retry, empty, cards rendering, status badges, navigation on click/Enter, date nav (prev/next/Today badge), accessibility (headings, aria-live, keyboard, landmarks), hook integration
+- Learnings: Follow existing page patterns exactly (sub-components for skeleton/error/empty/card, section with sr-only h2). Remove unused imports before lint.
+---
+## Iteration 3 - TASK-003: Create driver trip detail page
+- Created `src/pages/driver/trip-detail.tsx` with: trip info header, live map (via LiveMap component), location sharing toggle (geolocation API), GPS posting every 5s (via useUpdateTracking), stop progress tracker with manual advance, passenger count summary, report delay navigation, back button
+- Custom hooks: `useGeolocation` (permission handling, watchPosition, cleanup on unmount), `useGpsPosting` (interval-based GPS posting using refs to avoid re-renders)
+- Updated router.tsx to use DriverTripDetailPage at `/driver/trip/:id`
+- 34 tests covering: loading/error states, trip info, map rendering, location sharing toggle/permission states, stop progress (advance, all completed), passenger info, report delay navigation, back navigation, hook integration, accessibility (headings, landmarks, labels, sr-only), geolocation cleanup on unmount
+- Documented 3 spec gaps in SPEC_GAPS.md: (1) DriverTripDetail missing busId for tracking, (2) StopTime missing lat/lng for map, (3) No passenger list data (only count)
+- Learnings: No Badge UI component exists, use styled spans. Avoid setState in effects (use lazy initializer). Don't update refs during render (use effects). Use `format(new Date(...), 'HH:mm')` in tests for timezone independence.
+---

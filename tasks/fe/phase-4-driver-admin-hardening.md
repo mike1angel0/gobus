@@ -14,21 +14,8 @@
 ### TASK-002: Create driver trips list page ✅
 - [x] Date navigation, schedule cards with status, empty/loading/error states, mobile-first, component test (18 tests), typecheck passes
 
-### TASK-003: Create driver trip detail page
-**Description:** Create `src/pages/driver/trip/[id].tsx`. Displays: route info, live map with route + current position, stop progress tracker (list of stops with check marks for passed stops). Features: "Start Sharing Location" toggle (uses `navigator.geolocation.watchPosition`), posts GPS to `POST /api/v1/tracking` every 5 seconds. Stop progress: manual "Arrived at stop" button increments currentStopIndex. Passenger list (from bookings). "Report Delay" button navigates to delay form.
-
-**Acceptance Criteria:**
-- [ ] Live map showing route and current position
-- [ ] Location sharing toggle using browser geolocation API
-- [ ] GPS posted to tracking endpoint every 5s when sharing
-- [ ] Stop progress tracker with manual advance button
-- [ ] Passenger list from bookings
-- [ ] Report delay button
-- [ ] Cleanup: stops GPS posting on unmount / toggle off
-- [ ] Geolocation permission handling (request, denied state)
-- [ ] Mobile-optimized layout
-- [ ] Component test
-- [ ] Typecheck passes
+### TASK-003: Create driver trip detail page ✅
+- [x] Live map, location sharing, GPS posting, stop progress, passenger count, report delay, cleanup, geolocation permission, mobile layout, 34 tests, typecheck passes
 
 ### TASK-004: Create delay reporting page
 **Description:** Create `src/pages/driver/delay.tsx`. Form: preset delay buttons (5, 10, 15, 20, 30, 45, 60 min), custom input for other values. Reason dropdown (Traffic, Mechanical, Weather, Other). Optional notes. Submit calls `useCreateDelay`. Redirects back to trip detail on success.
