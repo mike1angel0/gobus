@@ -321,8 +321,9 @@ async function main() {
     { routeIndex: 7, busIndex: 4, driverId: driverC.id, departureHour: 16, departureMinute: 0, durationMinutes: 180, basePrice: 40, daysOfWeek: [1, 2, 3, 4, 5, 6] },
   ];
 
-  // Use a reference date for departure/arrival times (today)
-  const refDate = new Date('2026-03-25T00:00:00.000Z');
+  // Use today's date as reference so seeded schedules are always searchable
+  const now = new Date();
+  const refDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 
   for (const input of scheduleInputs) {
     const route = routes[input.routeIndex];
@@ -388,12 +389,53 @@ async function main() {
     await prisma.stopTime.createMany({ data: stopTimesData });
   }
 
+  // ─── Bus Tracking (GPS positions) ──────────────────────────────────────────
+  // Place each bus at a mid-route position to simulate active trips
+  const trackingData = [
+    // Bus B-100-TBE: on București → Cluj route, near Brașov
+    { busId: buses[0].id, lat: 45.6427, lng: 25.5887, speed: 85, heading: 315, currentStopIndex: 2, isActive: true },
+    // Bus B-200-TBE: on București → Timișoara route, near Pitești
+    { busId: buses[1].id, lat: 44.8565, lng: 24.8691, speed: 92, heading: 270, currentStopIndex: 1, isActive: true },
+    // Bus CJ-100-CB: on Cluj → Sibiu route, near Târgu Mureș
+    { busId: buses[2].id, lat: 46.5386, lng: 24.5554, speed: 78, heading: 180, currentStopIndex: 1, isActive: true },
+    // Bus CJ-200-CB: on Cluj → Oradea route, en route
+    { busId: buses[3].id, lat: 46.9200, lng: 22.7700, speed: 88, heading: 250, currentStopIndex: 0, isActive: true },
+    // Bus TM-100-DL: on Timișoara → Arad route, midway
+    { busId: buses[4].id, lat: 45.9600, lng: 21.2600, speed: 75, heading: 0, currentStopIndex: 0, isActive: true },
+  ];
+
+  for (const tracking of trackingData) {
+    await prisma.busTracking.upsert({
+      where: { busId: tracking.busId },
+      update: {
+        lat: tracking.lat,
+        lng: tracking.lng,
+        speed: tracking.speed,
+        heading: tracking.heading,
+        currentStopIndex: tracking.currentStopIndex,
+        isActive: tracking.isActive,
+        tripDate: refDate,
+      },
+      create: {
+        busId: tracking.busId,
+        lat: tracking.lat,
+        lng: tracking.lng,
+        speed: tracking.speed,
+        heading: tracking.heading,
+        currentStopIndex: tracking.currentStopIndex,
+        isActive: tracking.isActive,
+        tripDate: refDate,
+      },
+    });
+  }
+
   console.log('Seed complete.');
   console.log(`  Providers: 3`);
   console.log(`  Users: ${users.length} (1 admin, 3 provider admins, 3 drivers, 2 passengers)`);
   console.log(`  Routes: ${routes.length}`);
   console.log(`  Buses: ${buses.length}`);
   console.log(`  Schedules: ${scheduleInputs.length}`);
+  console.log(`  Bus tracking: ${trackingData.length}`);
   console.log(`  Default password for all accounts: ${DEFAULT_PASSWORD}`);
 
   await prisma.$disconnect();

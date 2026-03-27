@@ -66,6 +66,20 @@ export class SearchService {
   constructor(private readonly prisma: PrismaClient) {}
 
   /**
+   * Return a sorted list of distinct stop names across all routes.
+   * Used to populate city dropdowns in the search form.
+   */
+  async listCities(): Promise<string[]> {
+    const stops = await this.prisma.stop.findMany({
+      select: { name: true },
+      distinct: ['name'],
+      orderBy: { name: 'asc' },
+    });
+
+    return stops.map((s) => s.name);
+  }
+
+  /**
    * Search for available trips matching origin and destination stops on a given date.
    * Use database-level filtering and pagination to avoid loading all schedules into memory.
    * Find schedules with stop times matching the origin and destination (in correct order),

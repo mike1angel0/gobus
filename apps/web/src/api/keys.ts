@@ -79,7 +79,7 @@ export const trackingKeys = {
   detail: (busId: string) => ['tracking', 'detail', busId] as const,
 };
 
-/** Query keys for search resources (`/search`, `/trips`). */
+/** Query keys for search resources (`/search`, `/trips`, `/cities`). */
 export const searchKeys = {
   all: ['search'] as const,
   /** Matches search result queries, optionally narrowed by search filters. */
@@ -87,6 +87,8 @@ export const searchKeys = {
     filters ? (['search', 'list', filters] as const) : (['search', 'list'] as const),
   /** Matches a specific trip detail by schedule ID. */
   detail: (scheduleId: string) => ['search', 'detail', scheduleId] as const,
+  /** Matches the cities list query. */
+  cities: () => ['search', 'cities'] as const,
 };
 
 /** Query keys for driver resources (`/drivers`). */

@@ -11,6 +11,14 @@ vi.mock('@/api/hooks', () => ({
   useApiClient: () => ({ GET: mockGet }),
 }));
 
+vi.mock('@/hooks/use-search', async () => {
+  const actual = await vi.importActual('@/hooks/use-search');
+  return {
+    ...actual,
+    useCities: () => ({ data: { data: ['Berlin', 'Budapest', 'Prague', 'Vienna'] }, isLoading: false }),
+  };
+});
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {

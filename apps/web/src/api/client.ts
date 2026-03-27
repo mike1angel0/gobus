@@ -4,10 +4,11 @@ import { parseApiError } from '@/api/errors';
 
 /**
  * Returns the API base URL from the `VITE_API_URL` environment variable.
- * Falls back to `'/api/v1'` during development if not set.
+ * Falls back to `''` (same-origin) since the generated path types already
+ * include the `/api/v1` prefix.
  */
 function getBaseUrl(): string {
-  return import.meta.env.VITE_API_URL ?? '/api/v1';
+  return import.meta.env.VITE_API_URL ?? '';
 }
 
 /** Callback invoked when the API returns a 401 (unauthorized). */

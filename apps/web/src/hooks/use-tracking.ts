@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useApiClient } from '@/api/hooks';
+import { ApiError } from '@/api/errors';
 import { trackingKeys } from '@/api/keys';
 
 /**
@@ -33,5 +34,9 @@ export function useBusTracking(busId: string, enabled = true) {
     enabled: busId.length > 0 && enabled,
     staleTime: 5 * 1000,
     refetchInterval: enabled ? 10 * 1000 : false,
+    retry: (failureCount, error) => {
+      if (error instanceof ApiError && error.status === 404) return false;
+      return failureCount < 3;
+    },
   });
 }

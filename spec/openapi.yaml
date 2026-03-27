@@ -53,6 +53,8 @@ paths:
     $ref: paths/schedules.yaml#/list
   /api/v1/schedules/{id}:
     $ref: paths/schedules.yaml#/byId
+  /api/v1/cities:
+    $ref: paths/search.yaml#/cities
   /api/v1/search:
     $ref: paths/search.yaml#/search
   /api/v1/trips/{scheduleId}:

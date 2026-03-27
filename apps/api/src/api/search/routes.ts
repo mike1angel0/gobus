@@ -76,6 +76,16 @@ function serializeTripDetail(detail: TripDetail): Record<string, unknown> {
 async function searchRoutes(app: FastifyInstance): Promise<void> {
   const searchService = new SearchService(getPrisma());
 
+  // GET /api/v1/cities — list available cities for search dropdowns
+  app.get(
+    '/api/v1/cities',
+    { preHandler: [cachePublic(300)], config: { rateLimit: SEARCH_RATE_LIMIT } },
+    async () => {
+      const cities = await searchService.listCities();
+      return { data: cities };
+    },
+  );
+
   // GET /api/v1/search — search for available trips
   app.get(
     '/api/v1/search',

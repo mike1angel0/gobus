@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useBusTracking } from './use-tracking';
+import { ApiError } from '@/api/errors';
 
 const mockGet = vi.fn();
 
@@ -74,15 +75,51 @@ describe('useBusTracking', () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('handles API errors gracefully', async () => {
+  it('handles non-404 API errors after retries', async () => {
     mockGet.mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() => useBusTracking('bus_1'), {
-      wrapper: createWrapper(),
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { gcTime: 0, retryDelay: 0 } },
     });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useBusTracking('bus_1'), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
     });
+
+    // Non-404 errors retry up to 3 times, so total calls = 4 (1 initial + 3 retries)
+    expect(mockGet).toHaveBeenCalledTimes(4);
+  });
+
+  it('does not retry on 404 errors', async () => {
+    const notFoundError = new ApiError({
+      type: 'https://httpstatuses.com/404',
+      title: 'Not Found',
+      status: 404,
+      detail: 'Bus tracking not found',
+      code: 'TRACKING_NOT_FOUND',
+    });
+    mockGet.mockRejectedValue(notFoundError);
+
+    // Use a wrapper that does NOT override retry, so the hook's custom retry logic is exercised
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { gcTime: 0 } },
+    });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useBusTracking('bus_1'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    // Custom retry returns false for 404, so only 1 call (no retries)
+    expect(mockGet).toHaveBeenCalledTimes(1);
   });
 });

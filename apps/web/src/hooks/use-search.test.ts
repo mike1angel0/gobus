@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement, type ReactNode } from 'react';
-import { useSearchTrips, useTripDetails } from '@/hooks/use-search';
+import { useCities, useSearchTrips, useTripDetails } from '@/hooks/use-search';
 
 const mockGet = vi.fn();
 
@@ -284,6 +284,41 @@ describe('useTripDetails', () => {
         }),
       { wrapper: createWrapper() },
     );
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(result.current.error).toBe(apiError);
+  });
+});
+
+describe('useCities', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+  });
+
+  it('fetches and returns cities list', async () => {
+    const mockCitiesResponse = {
+      data: ['Alba Iulia', 'Brașov', 'București', 'Cluj-Napoca'],
+    };
+    mockGet.mockResolvedValue({ data: mockCitiesResponse });
+
+    const { result } = renderHook(() => useCities(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data).toEqual(mockCitiesResponse);
+    expect(mockGet).toHaveBeenCalledWith('/api/v1/cities');
+  });
+
+  it('handles API errors gracefully', async () => {
+    const apiError = new Error('Network error');
+    mockGet.mockRejectedValue(apiError);
+
+    const { result } = renderHook(() => useCities(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 

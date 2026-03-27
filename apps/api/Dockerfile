@@ -12,15 +12,16 @@ COPY apps/api/package.json apps/api/
 # Install all dependencies (including devDeps for build)
 RUN npm ci --workspace=apps/api --include-workspace-root
 
-# Copy prisma schema, config, and generate client
+# Copy prisma schema, config, and api source
 COPY apps/api/prisma apps/api/prisma
 COPY apps/api/prisma.config.ts apps/api/
-RUN npm run db:generate --workspace=apps/api
-
-# Copy api source and build TypeScript
-# tsc compiles generated prisma .ts files into dist/generated/prisma/
 COPY apps/api/tsconfig.json apps/api/
 COPY apps/api/src apps/api/src
+
+# Generate Prisma client (after src copy so it isn't overwritten)
+RUN npm run db:generate --workspace=apps/api
+
+# Build TypeScript (tsc compiles generated prisma .ts files into dist/)
 RUN npm run build --workspace=apps/api
 
 # ---- Runtime stage ----

@@ -4,6 +4,25 @@ import { useApiClient } from '@/api/hooks';
 import { searchKeys } from '@/api/keys';
 
 /**
+ * React Query hook that fetches the list of available cities from the API.
+ *
+ * Calls `GET /api/v1/cities` and caches the result for 5 minutes.
+ * Used to populate origin/destination dropdowns in the search form.
+ */
+export function useCities() {
+  const client = useApiClient();
+
+  return useQuery({
+    queryKey: searchKeys.cities(),
+    queryFn: async () => {
+      const { data } = await client.GET('/api/v1/cities');
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
  * Search query parameters for the trip search endpoint.
  */
 export interface SearchTripsParams {

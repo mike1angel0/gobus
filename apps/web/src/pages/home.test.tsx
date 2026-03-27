@@ -14,6 +14,10 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+vi.mock('@/hooks/use-search', () => ({
+  useCities: () => ({ data: { data: ['Berlin', 'Budapest', 'Prague', 'Vienna'] }, isLoading: false }),
+}));
+
 describe('HomePage', () => {
   beforeEach(() => {
     mockNavigate.mockClear();

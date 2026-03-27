@@ -20,6 +20,9 @@ function createMockPrisma() {
       findMany: vi.fn(),
       findUnique: vi.fn(),
     },
+    stop: {
+      findMany: vi.fn(),
+    },
   } as unknown as Parameters<
     typeof SearchService extends new (p: infer P) => unknown ? (p: P) => void : never
   >[0];
@@ -394,6 +397,39 @@ describe('SearchService', () => {
 
       const blockedSeat = result.seats.find((s) => s.label === '2B');
       expect(blockedSeat?.type).toBe('BLOCKED');
+    });
+  });
+
+  describe('listCities', () => {
+    it('returns sorted distinct city names', async () => {
+      const mockPrisma = createMockPrisma();
+      const service = new SearchService(mockPrisma);
+
+      vi.mocked(
+        (mockPrisma as unknown as { stop: { findMany: ReturnType<typeof vi.fn> } }).stop.findMany,
+      ).mockResolvedValue([
+        { name: 'Alba Iulia' },
+        { name: 'Brașov' },
+        { name: 'București' },
+        { name: 'Cluj-Napoca' },
+      ]);
+
+      const result = await service.listCities();
+
+      expect(result).toEqual(['Alba Iulia', 'Brașov', 'București', 'Cluj-Napoca']);
+    });
+
+    it('returns empty array when no stops exist', async () => {
+      const mockPrisma = createMockPrisma();
+      const service = new SearchService(mockPrisma);
+
+      vi.mocked(
+        (mockPrisma as unknown as { stop: { findMany: ReturnType<typeof vi.fn> } }).stop.findMany,
+      ).mockResolvedValue([]);
+
+      const result = await service.listCities();
+
+      expect(result).toEqual([]);
     });
   });
 });

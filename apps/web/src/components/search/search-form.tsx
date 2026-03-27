@@ -9,29 +9,8 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { useCities } from '@/hooks/use-search';
 import type { TFunction } from 'i18next';
-
-/**
- * European cities available for trip search.
- * Each entry is a `[value, label]` tuple where value is what gets sent as a query param.
- */
-const CITIES = [
-  'Amsterdam',
-  'Barcelona',
-  'Berlin',
-  'Brussels',
-  'Budapest',
-  'Copenhagen',
-  'Dublin',
-  'Lisbon',
-  'London',
-  'Munich',
-  'Paris',
-  'Prague',
-  'Rome',
-  'Vienna',
-  'Warsaw',
-] as const;
 
 const today = () => format(new Date(), 'yyyy-MM-dd');
 
@@ -85,6 +64,8 @@ interface CitySelectProps {
     : never;
   /** Placeholder text for the empty option. */
   placeholder: string;
+  /** List of city names to display as options. */
+  cities: string[];
 }
 
 /** City dropdown select field with icon, label, and error display. */
@@ -97,6 +78,7 @@ function CitySelect({
   isInvalid,
   registration,
   placeholder,
+  cities,
 }: CitySelectProps) {
   const errorId = `${id}-error`;
   return (
@@ -123,7 +105,7 @@ function CitySelect({
           aria-describedby={isInvalid ? errorId : undefined}
         >
           <option value="">{placeholder}</option>
-          {CITIES.map((city) => (
+          {cities.map((city) => (
             <option key={city} value={city}>
               {city}
             </option>
@@ -197,10 +179,10 @@ function DateField({ hideLabel, error, isInvalid, registration, label }: DateFie
 }
 
 /**
- * Search form for finding bus trips between European cities.
+ * Search form for finding bus trips between cities.
  *
  * Features:
- * - City dropdowns for origin and destination (15 European cities)
+ * - City dropdowns populated from the API (`GET /api/v1/cities`)
  * - Date picker defaulting to today with min date constraint
  * - Swap button to exchange origin and destination
  * - Form validation: both fields required, origin ≠ destination
@@ -217,6 +199,8 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { data: citiesData } = useCities();
+  const cities = citiesData?.data ?? [];
 
   const schema = useMemo(() => createSearchFormSchema(t), [t]);
 
@@ -281,6 +265,7 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
           isInvalid={!!errors.origin}
           registration={register('origin')}
           placeholder={t('form.selectPlaceholder', { label: t('form.origin').toLowerCase() })}
+          cities={cities}
         />
 
         {/* Swap button (only in full mode, placed between origin and destination) */}
@@ -308,6 +293,7 @@ export function SearchForm({ mode = 'compact', className }: SearchFormProps) {
           isInvalid={!!errors.destination}
           registration={register('destination')}
           placeholder={t('form.selectPlaceholder', { label: t('form.destination').toLowerCase() })}
+          cities={cities}
         />
 
         <DateField

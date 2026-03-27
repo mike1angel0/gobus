@@ -1,3 +1,32 @@
+cities:
+  get:
+    operationId: listCities
+    summary: List available cities
+    description: Returns a sorted list of distinct stop names across all active routes. Public endpoint — no authentication required. Useful for populating search form dropdowns.
+    tags:
+      - Search
+    security: []
+    responses:
+      '200':
+        description: List of city names
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - data
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: string
+                    maxLength: 200
+                  description: Sorted list of distinct city/stop names
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
 search:
   get:
     operationId: searchTrips

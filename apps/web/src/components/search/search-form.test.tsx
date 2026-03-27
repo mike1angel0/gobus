@@ -14,12 +14,18 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
+const TEST_CITIES = ['Brașov', 'București', 'Cluj-Napoca'];
+
+vi.mock('@/hooks/use-search', () => ({
+  useCities: () => ({ data: { data: TEST_CITIES }, isLoading: false }),
+}));
+
 describe('SearchForm', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
   });
 
-  it('renders all 15 city options in origin and destination dropdowns', () => {
+  it('renders city options from API in origin and destination dropdowns', () => {
     renderWithProviders(<SearchForm />);
 
     const originSelect = screen.getByLabelText('Origin');
@@ -28,16 +34,16 @@ describe('SearchForm', () => {
     expect(originSelect).toBeInTheDocument();
     expect(destinationSelect).toBeInTheDocument();
 
-    // 15 cities + 1 placeholder option = 16 options each
+    // 3 test cities + 1 placeholder option = 4 options each
     const originOptions = originSelect.querySelectorAll('option');
     const destinationOptions = destinationSelect.querySelectorAll('option');
-    expect(originOptions).toHaveLength(16);
-    expect(destinationOptions).toHaveLength(16);
+    expect(originOptions).toHaveLength(4);
+    expect(destinationOptions).toHaveLength(4);
 
-    // Check a few cities are present
-    expect(screen.getAllByText('Berlin')).toHaveLength(2); // in both dropdowns
-    expect(screen.getAllByText('Paris')).toHaveLength(2);
-    expect(screen.getAllByText('Prague')).toHaveLength(2);
+    // Check cities from API are present in both dropdowns
+    expect(screen.getAllByText('București')).toHaveLength(2);
+    expect(screen.getAllByText('Cluj-Napoca')).toHaveLength(2);
+    expect(screen.getAllByText('Brașov')).toHaveLength(2);
   });
 
   it('renders date input with today as default value', () => {
@@ -85,25 +91,25 @@ describe('SearchForm', () => {
     const originSelect = screen.getByLabelText('Origin') as HTMLSelectElement;
     const destinationSelect = screen.getByLabelText('Destination') as HTMLSelectElement;
 
-    await user.selectOptions(originSelect, 'Berlin');
-    await user.selectOptions(destinationSelect, 'Prague');
+    await user.selectOptions(originSelect, 'București');
+    await user.selectOptions(destinationSelect, 'Cluj-Napoca');
 
-    expect(originSelect).toHaveValue('Berlin');
-    expect(destinationSelect).toHaveValue('Prague');
+    expect(originSelect).toHaveValue('București');
+    expect(destinationSelect).toHaveValue('Cluj-Napoca');
 
     const swapButtons = screen.getAllByRole('button', { name: 'Swap origin and destination' });
     await user.click(swapButtons[0]);
 
-    expect(originSelect).toHaveValue('Prague');
-    expect(destinationSelect).toHaveValue('Berlin');
+    expect(originSelect).toHaveValue('Cluj-Napoca');
+    expect(destinationSelect).toHaveValue('București');
   });
 
   it('navigates to /search with query params on valid submission', async () => {
     const user = userEvent.setup();
     renderWithProviders(<SearchForm />);
 
-    await user.selectOptions(screen.getByLabelText('Origin'), 'Berlin');
-    await user.selectOptions(screen.getByLabelText('Destination'), 'Prague');
+    await user.selectOptions(screen.getByLabelText('Origin'), 'București');
+    await user.selectOptions(screen.getByLabelText('Destination'), 'Cluj-Napoca');
 
     const submitButton = screen.getByRole('button', { name: /search/i });
     await user.click(submitButton);
@@ -114,8 +120,8 @@ describe('SearchForm', () => {
 
     const navigatedUrl = mockNavigate.mock.calls[0][0] as string;
     expect(navigatedUrl).toContain('/search?');
-    expect(navigatedUrl).toContain('origin=Berlin');
-    expect(navigatedUrl).toContain('destination=Prague');
+    expect(navigatedUrl).toContain('origin=');
+    expect(navigatedUrl).toContain('destination=');
     expect(navigatedUrl).toContain('date=');
   });
 
@@ -124,7 +130,7 @@ describe('SearchForm', () => {
     renderWithProviders(<SearchForm />);
 
     // Select destination but not origin
-    await user.selectOptions(screen.getByLabelText('Destination'), 'Prague');
+    await user.selectOptions(screen.getByLabelText('Destination'), 'Cluj-Napoca');
 
     const submitButton = screen.getByRole('button', { name: /search/i });
     await user.click(submitButton);
@@ -139,8 +145,8 @@ describe('SearchForm', () => {
     const user = userEvent.setup();
     renderWithProviders(<SearchForm />);
 
-    await user.selectOptions(screen.getByLabelText('Origin'), 'Berlin');
-    await user.selectOptions(screen.getByLabelText('Destination'), 'Berlin');
+    await user.selectOptions(screen.getByLabelText('Origin'), 'București');
+    await user.selectOptions(screen.getByLabelText('Destination'), 'București');
 
     const submitButton = screen.getByRole('button', { name: /search/i });
     await user.click(submitButton);
@@ -154,12 +160,12 @@ describe('SearchForm', () => {
   it('pre-fills form from URL search params', () => {
     renderWithProviders(<SearchForm />, {
       routerProps: {
-        initialEntries: ['/search?origin=Vienna&destination=Budapest&date=2026-05-01'],
+        initialEntries: ['/search?origin=Bra%C8%99ov&destination=Cluj-Napoca&date=2026-05-01'],
       },
     });
 
-    expect(screen.getByLabelText('Origin')).toHaveValue('Vienna');
-    expect(screen.getByLabelText('Destination')).toHaveValue('Budapest');
+    expect(screen.getByLabelText('Origin')).toHaveValue('Brașov');
+    expect(screen.getByLabelText('Destination')).toHaveValue('Cluj-Napoca');
     expect(screen.getByLabelText('Travel date')).toHaveValue('2026-05-01');
   });
 
