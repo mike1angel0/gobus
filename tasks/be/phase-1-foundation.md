@@ -29,8 +29,8 @@ Set up root `package.json` with npm workspaces (`apps/*`). Keep existing Next.js
 **Acceptance Criteria:**
 - [x] Root `package.json` with `"workspaces": ["apps/*"]`
 - [x] `spec/` directory created with placeholder `openapi.yaml`
-- [x] `apps/api/package.json` initialized with name `@transio/api`
-- [x] `apps/web/package.json` initialized with name `@transio/web`
+- [x] `apps/api/package.json` initialized with name `@gobus/api`
+- [x] `apps/web/package.json` initialized with name `@gobus/web`
 - [x] Existing Next.js code kept in place as design reference (not moved or deleted)
 - [x] Root `.gitignore` updated (node_modules, dist, .env, *.db, coverage/)
 - [x] Root `CLAUDE.md` created with monorepo overview and API-first workflow

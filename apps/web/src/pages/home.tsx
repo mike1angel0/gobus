@@ -15,7 +15,7 @@ export default function HomePage() {
       <section className="relative flex min-h-[70vh] items-center justify-center px-4 py-20">
         <div className="mx-auto w-full max-w-4xl text-center">
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Travel smarter with <span className="text-primary">Transio</span>
+            Travel smarter with <span className="text-primary">GoBus</span>
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
             Find and book bus trips across the country. Real-time tracking, easy booking, and

@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 
 /**
- * Pre-configured QueryClient with sensible defaults for the Transio application.
+ * Pre-configured QueryClient with sensible defaults for the GoBus application.
  *
  * - `staleTime`: 30 seconds — avoids refetching data that was just fetched.
  * - `retry`: 1 — retries failed requests once before surfacing the error.

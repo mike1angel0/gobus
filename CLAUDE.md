@@ -1,4 +1,4 @@
-# Transio — Bus Transport Platform
+# GoBus — Bus Transport Platform
 
 ## Monorepo Structure
 

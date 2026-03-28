@@ -1,5 +1,5 @@
 /**
- * i18next configuration for Transio.
+ * i18next configuration for GoBus.
  *
  * - Supports Romanian (ro, default) and English (en).
  * - Translations are split per domain namespace and lazy-loaded.

@@ -36,7 +36,7 @@ vi.mock('@/infrastructure/prisma/client.js', () => ({
 
 /** Sign a JWT token with the test secret. */
 function signToken(payload: Record<string, unknown>, options?: jwt.SignOptions): string {
-  return jwt.sign({ ...payload, iss: 'transio-api', aud: 'transio-client' }, JWT_SECRET, {
+  return jwt.sign({ ...payload, iss: 'gobus-api', aud: 'gobus-client' }, JWT_SECRET, {
     expiresIn: '15m',
     algorithm: 'HS256',
     ...options,
@@ -122,7 +122,7 @@ describe('auth plugin', () => {
 
   it('returns 401 when token is signed with wrong secret', async () => {
     const token = jwt.sign(
-      { ...validPayload(), iss: 'transio-api', aud: 'transio-client' },
+      { ...validPayload(), iss: 'gobus-api', aud: 'gobus-client' },
       'wrong-secret',
       { expiresIn: '15m' },
     );
@@ -255,7 +255,7 @@ describe('auth plugin', () => {
 
   it('returns 401 when token has wrong issuer', async () => {
     const token = jwt.sign(
-      { ...validPayload(), iss: 'wrong-issuer', aud: 'transio-client' },
+      { ...validPayload(), iss: 'wrong-issuer', aud: 'gobus-client' },
       JWT_SECRET,
       { expiresIn: '15m', algorithm: 'HS256' },
     );
@@ -270,7 +270,7 @@ describe('auth plugin', () => {
 
   it('returns 401 when token has wrong audience', async () => {
     const token = jwt.sign(
-      { ...validPayload(), iss: 'transio-api', aud: 'wrong-audience' },
+      { ...validPayload(), iss: 'gobus-api', aud: 'wrong-audience' },
       JWT_SECRET,
       { expiresIn: '15m', algorithm: 'HS256' },
     );
@@ -284,7 +284,7 @@ describe('auth plugin', () => {
   });
 
   it('returns 401 when token is missing issuer claim', async () => {
-    const token = jwt.sign({ ...validPayload(), aud: 'transio-client' }, JWT_SECRET, {
+    const token = jwt.sign({ ...validPayload(), aud: 'gobus-client' }, JWT_SECRET, {
       expiresIn: '15m',
       algorithm: 'HS256',
     });
@@ -298,7 +298,7 @@ describe('auth plugin', () => {
   });
 
   it('returns 401 when token is missing audience claim', async () => {
-    const token = jwt.sign({ ...validPayload(), iss: 'transio-api' }, JWT_SECRET, {
+    const token = jwt.sign({ ...validPayload(), iss: 'gobus-api' }, JWT_SECRET, {
       expiresIn: '15m',
       algorithm: 'HS256',
     });
@@ -316,7 +316,7 @@ describe('auth plugin', () => {
     // when algorithms whitelist doesn't include 'none'
     const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url');
     const payload = Buffer.from(
-      JSON.stringify({ ...validPayload(), iss: 'transio-api', aud: 'transio-client' }),
+      JSON.stringify({ ...validPayload(), iss: 'gobus-api', aud: 'gobus-client' }),
     ).toString('base64url');
     const unsignedToken = `${header}.${payload}.`;
     const response = await app.inject({
@@ -331,7 +331,7 @@ describe('auth plugin', () => {
   it('returns 401 when token uses RS256 algorithm (not in whitelist)', async () => {
     // Token signed with HS256 but claiming RS256 won't pass the algorithms check
     const token = jwt.sign(
-      { ...validPayload(), iss: 'transio-api', aud: 'transio-client' },
+      { ...validPayload(), iss: 'gobus-api', aud: 'gobus-client' },
       JWT_SECRET,
       { expiresIn: '15m', algorithm: 'HS384' },
     );

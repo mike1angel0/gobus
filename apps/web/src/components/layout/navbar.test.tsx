@@ -67,7 +67,7 @@ describe('Navbar', () => {
   describe('unauthenticated', () => {
     it('renders logo with link to home', () => {
       renderNavbar();
-      const logo = screen.getByLabelText('Transio home');
+      const logo = screen.getByLabelText('GoBus home');
       expect(logo).toBeInTheDocument();
       expect(logo).toHaveAttribute('href', '/');
     });
@@ -280,7 +280,7 @@ describe('Navbar', () => {
 
     it('logo has accessible label', () => {
       renderNavbar();
-      expect(screen.getByLabelText('Transio home')).toBeInTheDocument();
+      expect(screen.getByLabelText('GoBus home')).toBeInTheDocument();
     });
 
     it('hamburger button has aria-label and aria-expanded', () => {

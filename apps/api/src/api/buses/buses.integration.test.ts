@@ -37,7 +37,7 @@ vi.mock('@/infrastructure/config/env.js', () => ({
   getEnv: () => ({
     JWT_SECRET,
     NODE_ENV: 'test',
-    DATABASE_URL: 'postgresql://test:test@localhost:5432/transio_test',
+    DATABASE_URL: 'postgresql://test:test@localhost:5432/gobus_test',
   }),
 }));
 

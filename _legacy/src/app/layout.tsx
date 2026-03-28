@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <title>Transio — Bus Transit Platform</title>
+        <title>GoBus — Bus Transit Platform</title>
         <meta name="description" content="Modern bus transit booking platform" />
         <link
           rel="stylesheet"

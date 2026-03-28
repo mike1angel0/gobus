@@ -97,12 +97,12 @@ describe('parseCorsOrigins', () => {
 
   it('uses only configured origins in production mode', async () => {
     process.env.NODE_ENV = 'production';
-    process.env.CORS_ORIGIN = 'https://app.transio.com,https://www.transio.com';
+    process.env.CORS_ORIGIN = 'https://app.gobus.ro,https://www.gobus.ro';
 
     const { parseCorsOrigins } = await import('@/app.js');
     const origins = parseCorsOrigins();
 
-    expect(origins).toEqual(['https://app.transio.com', 'https://www.transio.com']);
+    expect(origins).toEqual(['https://app.gobus.ro', 'https://www.gobus.ro']);
     expect(origins).not.toContain('http://localhost:3001');
   });
 });

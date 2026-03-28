@@ -1,4 +1,4 @@
-# Transio Web Frontend
+# GoBus Web Frontend
 
 ## Tech Stack
 
@@ -22,18 +22,18 @@
 npm install
 
 # Regenerate API types from OpenAPI spec
-npm run spec:bundle && npm -w @transio/web run api:sync
+npm run spec:bundle && npm -w @gobus/web run api:sync
 
 # Start dev server
-npm -w @transio/web run dev
+npm -w @gobus/web run dev
 
 # Run all quality gates
-npm -w @transio/web run typecheck
-npm -w @transio/web run lint
-npm -w @transio/web run format:check
-npm -w @transio/web run test
-npm -w @transio/web run test:coverage   # 90% threshold
-npm -w @transio/web run build
+npm -w @gobus/web run typecheck
+npm -w @gobus/web run lint
+npm -w @gobus/web run format:check
+npm -w @gobus/web run test
+npm -w @gobus/web run test:coverage   # 90% threshold
+npm -w @gobus/web run build
 ```
 
 ## Project Structure
@@ -82,7 +82,7 @@ spec/openapi.yaml → spec:bundle → openapi.json → api:sync → src/api/gene
 
 1. **Spec changes**: Edit `spec/openapi.yaml`
 2. **Bundle**: `npm run spec:bundle` (produces `spec/dist/openapi.json`)
-3. **Sync types**: `npm -w @transio/web run api:sync` (regenerates `src/api/generated/types.ts`)
+3. **Sync types**: `npm -w @gobus/web run api:sync` (regenerates `src/api/generated/types.ts`)
 4. **Use in code**: Import types from generated file, use `openapi-fetch` typed client
 
 The typed client (`src/api/client.ts`) auto-attaches Bearer tokens and handles 401 refresh. Never use raw `fetch()`.
@@ -237,12 +237,12 @@ If a component exceeds limits, extract sub-components into separate files.
 ## Quality Gate Commands
 
 ```bash
-npm -w @transio/web run typecheck       # TypeScript strict check
-npm -w @transio/web run lint            # ESLint (complexity, a11y, JSDoc)
-npm -w @transio/web run format:check    # Prettier formatting
-npm -w @transio/web run test            # Run all tests
-npm -w @transio/web run test:coverage   # Tests + 90% coverage check
-npm -w @transio/web run build           # Production build
+npm -w @gobus/web run typecheck       # TypeScript strict check
+npm -w @gobus/web run lint            # ESLint (complexity, a11y, JSDoc)
+npm -w @gobus/web run format:check    # Prettier formatting
+npm -w @gobus/web run test            # Run all tests
+npm -w @gobus/web run test:coverage   # Tests + 90% coverage check
+npm -w @gobus/web run build           # Production build
 ```
 
 ## Known Gotchas

@@ -24,8 +24,8 @@ describe('createAuthHeader', () => {
     const token = header.replace('Bearer ', '');
     const decoded = jwt.verify(token, secret, {
       algorithms: ['HS256'],
-      issuer: 'transio-api',
-      audience: 'transio-client',
+      issuer: 'gobus-api',
+      audience: 'gobus-client',
     }) as TestTokenPayload;
     expect(decoded.sub).toBe('user-1');
     expect(decoded.role).toBe('ADMIN');
@@ -38,8 +38,8 @@ describe('createAuthHeader', () => {
     const token = header.replace('Bearer ', '');
     const decoded = jwt.verify(token, secret, {
       algorithms: ['HS256'],
-      issuer: 'transio-api',
-      audience: 'transio-client',
+      issuer: 'gobus-api',
+      audience: 'gobus-client',
     }) as TestTokenPayload;
     expect(decoded.sub).toBe('user-2');
     expect(decoded.role).toBe('PROVIDER');
@@ -51,8 +51,8 @@ describe('createAuthHeader', () => {
     const token = header.replace('Bearer ', '');
     const decoded = jwt.verify(token, secret, {
       algorithms: ['HS256'],
-      issuer: 'transio-api',
-      audience: 'transio-client',
+      issuer: 'gobus-api',
+      audience: 'gobus-client',
     }) as TestTokenPayload;
     expect(decoded.email).toBe('custom@example.com');
   });

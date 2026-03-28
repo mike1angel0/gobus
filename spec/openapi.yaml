@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
-  title: Transio API
+  title: GoBus API
   version: 1.0.0
   description: Bus transport platform API for managing routes, schedules, bookings, and live tracking.
   license:
     name: UNLICENSED
   contact:
-    name: Transio Support
-    email: support@transio.app
+    name: GoBus Support
+    email: support@gobus.ro
 servers:
   - url: http://localhost:3000
     description: Local development

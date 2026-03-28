@@ -36,10 +36,10 @@ async function main() {
   const users = await Promise.all([
     // Admin
     prisma.user.upsert({
-      where: { email: 'admin@transio.dev' },
+      where: { email: 'admin@gobus.ro' },
       update: {},
       create: {
-        email: 'admin@transio.dev',
+        email: 'admin@gobus.ro',
         name: 'Admin User',
         passwordHash,
         role: 'ADMIN',

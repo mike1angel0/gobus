@@ -1,4 +1,4 @@
-# @transio/api — Fastify Backend
+# @gobus/api — Fastify Backend
 
 ## Tech Stack
 
@@ -71,7 +71,7 @@ Use `dataResponse()` / `paginatedResponse()` wrappers from `src/shared/schemas.t
 
 ```json
 {
-  "type": "https://transio.ro/errors/validation-error",
+  "type": "https://gobus.ro/errors/validation-error",
   "title": "Validation Error",
   "status": 400,
   "detail": "Request body validation failed",

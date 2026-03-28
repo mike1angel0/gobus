@@ -41,8 +41,8 @@ function tokenForRole(role: string, providerId: string | null = null): string {
     email: 'test@example.com',
     role,
     providerId,
-    iss: 'transio-api',
-    aud: 'transio-client',
+    iss: 'gobus-api',
+    aud: 'gobus-client',
   };
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '15m', algorithm: 'HS256' });
 }

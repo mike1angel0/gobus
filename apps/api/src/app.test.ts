@@ -15,7 +15,7 @@ vi.mock('@/infrastructure/config/env.js', () => ({
   getEnv: () => ({
     JWT_SECRET: 'test-jwt-secret-do-not-use-in-prod',
     NODE_ENV: 'test',
-    DATABASE_URL: 'postgresql://test:test@localhost:5432/transio_test',
+    DATABASE_URL: 'postgresql://test:test@localhost:5432/gobus_test',
   }),
 }));
 
@@ -79,7 +79,7 @@ describe('buildApp compression (non-test)', () => {
       getEnv: () => ({
         JWT_SECRET: 'test-jwt-secret-do-not-use-in-prod',
         NODE_ENV: 'development',
-        DATABASE_URL: 'postgresql://test:test@localhost:5432/transio_test',
+        DATABASE_URL: 'postgresql://test:test@localhost:5432/gobus_test',
       }),
     }));
     vi.doMock('@/infrastructure/logger/logger.js', () => ({

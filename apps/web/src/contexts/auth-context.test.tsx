@@ -145,7 +145,7 @@ describe('AuthProvider', () => {
     });
 
     it('restores session from stored refresh token', async () => {
-      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      localStorageMock.setItem('gobus_refresh_token', 'stored-refresh-token');
       mockPost.mockResolvedValueOnce(createRefreshResponse() as never);
       mockGet.mockResolvedValueOnce({ data: { data: testUser } } as never);
 
@@ -161,7 +161,7 @@ describe('AuthProvider', () => {
     });
 
     it('clears auth when refresh token is invalid during restore', async () => {
-      localStorageMock.setItem('transio_refresh_token', 'expired-token');
+      localStorageMock.setItem('gobus_refresh_token', 'expired-token');
       mockPost.mockRejectedValueOnce(new Error('401 Unauthorized'));
 
       const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
@@ -171,11 +171,11 @@ describe('AuthProvider', () => {
       });
 
       expect(result.current.user).toBeNull();
-      expect(localStorageMock.getItem('transio_refresh_token')).toBeNull();
+      expect(localStorageMock.getItem('gobus_refresh_token')).toBeNull();
     });
 
     it('clears auth when refresh succeeds but returns no data', async () => {
-      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      localStorageMock.setItem('gobus_refresh_token', 'stored-refresh-token');
       mockPost.mockResolvedValueOnce({ data: undefined } as never);
 
       const { result } = renderHook(() => useAuth(), { wrapper: createWrapper() });
@@ -188,7 +188,7 @@ describe('AuthProvider', () => {
     });
 
     it('clears auth when profile fetch returns no data after refresh', async () => {
-      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      localStorageMock.setItem('gobus_refresh_token', 'stored-refresh-token');
       mockPost.mockResolvedValueOnce(createRefreshResponse() as never);
       mockGet.mockResolvedValueOnce({ data: undefined } as never);
 
@@ -202,7 +202,7 @@ describe('AuthProvider', () => {
     });
 
     it('clears auth on 403 (suspended) during session restore', async () => {
-      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      localStorageMock.setItem('gobus_refresh_token', 'stored-refresh-token');
       const { ApiError } = await import('@/api/errors');
       const suspendedError = new ApiError({
         type: 'about:blank',
@@ -222,7 +222,7 @@ describe('AuthProvider', () => {
     });
 
     it('clears auth on 423 (locked) during session restore', async () => {
-      localStorageMock.setItem('transio_refresh_token', 'stored-refresh-token');
+      localStorageMock.setItem('gobus_refresh_token', 'stored-refresh-token');
       const { ApiError } = await import('@/api/errors');
       const lockedError = new ApiError({
         type: 'about:blank',
@@ -260,7 +260,7 @@ describe('AuthProvider', () => {
       expect(result.current.user).toEqual(testUser);
       expect(result.current.isAuthenticated).toBe(true);
       expect(mockSetAccessToken).toHaveBeenCalledWith(expect.any(String));
-      expect(localStorageMock.getItem('transio_refresh_token')).toBe('refresh-token-123');
+      expect(localStorageMock.getItem('gobus_refresh_token')).toBe('refresh-token-123');
     });
 
     it('calls POST /api/v1/auth/login with correct body', async () => {
@@ -384,7 +384,7 @@ describe('AuthProvider', () => {
       expect(result.current.status).toBe('unauthenticated');
       expect(result.current.user).toBeNull();
       expect(mockSetAccessToken).toHaveBeenLastCalledWith(null);
-      expect(localStorageMock.getItem('transio_refresh_token')).toBeNull();
+      expect(localStorageMock.getItem('gobus_refresh_token')).toBeNull();
       expect(mockPost).toHaveBeenCalledWith('/api/v1/auth/logout', {
         body: { refreshToken: 'refresh-token-123' },
       });

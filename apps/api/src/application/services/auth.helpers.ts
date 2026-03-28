@@ -29,10 +29,10 @@ export const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000;
 export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 /** JWT issuer claim identifying this service. */
-export const JWT_ISSUER = 'transio-api';
+export const JWT_ISSUER = 'gobus-api';
 
 /** JWT audience claim identifying intended recipients. */
-export const JWT_AUDIENCE = 'transio-client';
+export const JWT_AUDIENCE = 'gobus-client';
 
 /**
  * Compare two strings in constant time to prevent timing attacks.

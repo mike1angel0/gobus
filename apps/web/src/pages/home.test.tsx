@@ -28,7 +28,7 @@ describe('HomePage', () => {
       renderWithProviders(<HomePage />);
 
       const heading = screen.getByRole('heading', { level: 1 });
-      expect(heading).toHaveTextContent('Travel smarter with Transio');
+      expect(heading).toHaveTextContent('Travel smarter with GoBus');
     });
 
     it('renders the hero description', () => {

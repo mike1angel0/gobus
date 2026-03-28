@@ -46,7 +46,7 @@ export interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** Key used to store the refresh token in localStorage. */
-export const REFRESH_TOKEN_KEY = 'transio_refresh_token';
+export const REFRESH_TOKEN_KEY = 'gobus_refresh_token';
 
 /** Milliseconds before JWT expiry to trigger a refresh (60 seconds). */
 export const REFRESH_MARGIN_MS = 60 * 1000;

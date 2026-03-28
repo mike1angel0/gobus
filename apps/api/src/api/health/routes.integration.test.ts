@@ -19,7 +19,7 @@ vi.mock('@/infrastructure/config/env.js', () => ({
   getEnv: () => ({
     JWT_SECRET: process.env.JWT_SECRET ?? 'test-jwt-secret-do-not-use-in-prod',
     NODE_ENV: 'test',
-    DATABASE_URL: 'postgresql://test:test@localhost:5432/transio_test',
+    DATABASE_URL: 'postgresql://test:test@localhost:5432/gobus_test',
   }),
 }));
 
@@ -137,7 +137,7 @@ describe('Health check endpoints', () => {
       const response = await supertest(app.server).get('/docs/json').expect(200);
 
       expect(response.body).toHaveProperty('openapi', '3.1.0');
-      expect(response.body).toHaveProperty('info.title', 'Transio API');
+      expect(response.body).toHaveProperty('info.title', 'GoBus API');
       expect(response.body).toHaveProperty('paths');
     });
   });

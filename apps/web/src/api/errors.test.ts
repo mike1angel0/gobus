@@ -4,7 +4,7 @@ import type { ErrorResponse } from '@/api/errors';
 
 describe('ApiError', () => {
   const fullResponse: ErrorResponse = {
-    type: 'https://api.transio.com/errors/validation',
+    type: 'https://api.gobus.ro/errors/validation',
     title: 'Validation Error',
     status: 400,
     detail: 'One or more fields are invalid',
@@ -27,7 +27,7 @@ describe('ApiError', () => {
     expect(error.name).toBe('ApiError');
     expect(error.message).toBe('One or more fields are invalid');
     expect(error.status).toBe(400);
-    expect(error.type).toBe('https://api.transio.com/errors/validation');
+    expect(error.type).toBe('https://api.gobus.ro/errors/validation');
     expect(error.title).toBe('Validation Error');
     expect(error.detail).toBe('One or more fields are invalid');
     expect(error.code).toBe('VALIDATION_ERROR');
@@ -130,7 +130,7 @@ describe('isErrorResponse', () => {
 describe('parseApiError', () => {
   it('parses a valid RFC 9457 body into ApiError', () => {
     const body = {
-      type: 'https://api.transio.com/errors/conflict',
+      type: 'https://api.gobus.ro/errors/conflict',
       title: 'Conflict',
       status: 409,
       detail: 'Email already exists',
@@ -176,7 +176,7 @@ describe('parseApiError', () => {
 
   it('handles 401 unauthorized', () => {
     const body = {
-      type: 'https://api.transio.com/errors/unauthorized',
+      type: 'https://api.gobus.ro/errors/unauthorized',
       title: 'Unauthorized',
       status: 401,
       detail: 'Invalid credentials',
@@ -189,7 +189,7 @@ describe('parseApiError', () => {
 
   it('handles 423 locked', () => {
     const body = {
-      type: 'https://api.transio.com/errors/locked',
+      type: 'https://api.gobus.ro/errors/locked',
       title: 'Account Locked',
       status: 423,
       detail: 'Too many failed attempts. Try again in 15 minutes.',

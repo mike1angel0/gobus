@@ -10,13 +10,13 @@ COPY apps/api/package.json apps/api/
 COPY spec/ spec/
 
 # Install dependencies
-RUN npm ci --workspace=@transio/web --include-workspace-root
+RUN npm ci --workspace=@gobus/web --include-workspace-root
 
 # Copy web source
 COPY apps/web/ apps/web/
 
 # Build the SPA
-RUN npm -w @transio/web run build
+RUN npm -w @gobus/web run build
 
 # Stage 2: Serve with nginx (hardened)
 FROM nginx:alpine

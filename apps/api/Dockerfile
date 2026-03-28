@@ -52,8 +52,8 @@ COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Non-root user for security
-RUN addgroup -S transio && adduser -S transio -G transio
-USER transio
+RUN addgroup -S gobus && adduser -S gobus -G gobus
+USER gobus
 
 EXPOSE 3000
 

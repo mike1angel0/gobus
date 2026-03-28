@@ -25,7 +25,7 @@ export default function Navbar() {
               T
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">
-              Transio
+              GoBus
             </span>
           </Link>
 

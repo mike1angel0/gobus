@@ -61,7 +61,7 @@ vi.mock('@/infrastructure/config/env.js', () => ({
   getEnv: () => ({
     JWT_SECRET: 'test-jwt-secret-do-not-use-in-prod',
     NODE_ENV: 'test',
-    DATABASE_URL: 'postgresql://test:test@localhost:5432/transio_test',
+    DATABASE_URL: 'postgresql://test:test@localhost:5432/gobus_test',
   }),
 }));
 
@@ -78,7 +78,7 @@ const JWT_SECRET = 'test-jwt-secret-do-not-use-in-prod';
 
 /** Generate a valid access token for testing. */
 function makeToken(payload: Record<string, unknown>): string {
-  return jwt.sign({ ...payload, iss: 'transio-api', aud: 'transio-client' }, JWT_SECRET, {
+  return jwt.sign({ ...payload, iss: 'gobus-api', aud: 'gobus-client' }, JWT_SECRET, {
     expiresIn: '15m',
     algorithm: 'HS256',
   });
