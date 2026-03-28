@@ -1,4 +1,5 @@
 import { Bus, Shield, Clock } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { SearchForm } from '@/components/search/search-form';
 import { usePageTitle } from '@/hooks/use-page-title';
 
@@ -7,7 +8,8 @@ import { usePageTitle } from '@/hooks/use-page-title';
  * The search form navigates to /search with origin, destination, and date query params.
  */
 export default function HomePage() {
-  usePageTitle('Home');
+  const { t } = useTranslation('home');
+  usePageTitle(t('pageTitle'));
 
   return (
     <div className="flex flex-col">
@@ -15,11 +17,12 @@ export default function HomePage() {
       <section className="relative flex min-h-[70vh] items-center justify-center px-4 py-20">
         <div className="mx-auto w-full max-w-4xl text-center">
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Travel smarter with <span className="text-primary">GoBus</span>
+            <Trans i18nKey="hero.heading" ns="home">
+              Călătorește mai inteligent cu <span className="text-primary">GoBus</span>
+            </Trans>
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
-            Find and book bus trips across the country. Real-time tracking, easy booking, and
-            reliable service.
+            {t('hero.description')}
           </p>
 
           <SearchForm mode="compact" className="mx-auto max-w-3xl" />
@@ -29,23 +32,23 @@ export default function HomePage() {
       {/* Features Section */}
       <section className="px-4 py-16" aria-labelledby="features-heading">
         <h2 id="features-heading" className="sr-only">
-          Features
+          {t('features.heading')}
         </h2>
         <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
             icon={<Clock className="h-8 w-8 text-primary" />}
-            title="Real-time tracking"
-            description="Track your bus live on the map. Know exactly when it arrives."
+            title={t('features.realTimeTracking.title')}
+            description={t('features.realTimeTracking.description')}
           />
           <FeatureCard
             icon={<Shield className="h-8 w-8 text-primary" />}
-            title="Secure booking"
-            description="Book with confidence. Instant confirmation and easy cancellation."
+            title={t('features.secureBooking.title')}
+            description={t('features.secureBooking.description')}
           />
           <FeatureCard
             icon={<Bus className="h-8 w-8 text-primary" />}
-            title="Wide coverage"
-            description="Hundreds of routes connecting cities and towns across the country."
+            title={t('features.wideCoverage.title')}
+            description={t('features.wideCoverage.description')}
           />
         </div>
       </section>

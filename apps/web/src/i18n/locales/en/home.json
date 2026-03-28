@@ -1,0 +1,22 @@
+{
+  "pageTitle": "Home",
+  "hero": {
+    "heading": "Travel smarter with <1>GoBus</1>",
+    "description": "Find and book bus trips across the country. Real-time tracking, easy booking, and reliable service."
+  },
+  "features": {
+    "heading": "Features",
+    "realTimeTracking": {
+      "title": "Real-time tracking",
+      "description": "Track your bus live on the map. Know exactly when it arrives."
+    },
+    "secureBooking": {
+      "title": "Secure booking",
+      "description": "Book with confidence. Instant confirmation and easy cancellation."
+    },
+    "wideCoverage": {
+      "title": "Wide coverage",
+      "description": "Hundreds of routes connecting cities and towns across the country."
+    }
+  }
+}

@@ -10,8 +10,8 @@ describe('i18n config', () => {
     expect(i18n.language).toBe('ro');
   });
 
-  it('has all 9 namespaces loaded', () => {
-    expect(i18nNamespaces).toHaveLength(9);
+  it('has all 10 namespaces loaded', () => {
+    expect(i18nNamespaces).toHaveLength(10);
     for (const ns of i18nNamespaces) {
       expect(i18n.hasResourceBundle('ro', ns)).toBe(true);
       expect(i18n.hasResourceBundle('en', ns)).toBe(true);
