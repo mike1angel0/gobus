@@ -1,0 +1,10 @@
+{
+  "data": [
+    { "id": "log_001", "userId": "user_passenger_01", "userName": "Ion Popescu", "action": "LOGIN", "details": { "ip": "86.125.100.1" }, "createdAt": "2025-07-15T08:30:00.000Z" },
+    { "id": "log_002", "userId": "user_provider_01", "userName": "Maria Ionescu", "action": "SCHEDULE_CREATE", "details": { "scheduleId": "sched_001", "routeName": "București - Cluj-Napoca" }, "createdAt": "2025-07-14T16:00:00.000Z" },
+    { "id": "log_003", "userId": "user_admin_01", "userName": "Admin GoBus", "action": "USER_SUSPEND", "details": { "targetUserId": "user_suspended_01", "reason": "Abuse" }, "createdAt": "2025-07-14T10:00:00.000Z" },
+    { "id": "log_004", "userId": "user_passenger_01", "userName": "Ion Popescu", "action": "BOOKING_CREATE", "details": { "bookingId": "booking_001", "routeName": "București - Cluj-Napoca" }, "createdAt": "2025-07-10T14:30:00.000Z" },
+    { "id": "log_005", "userId": "user_driver_01", "userName": "Andrei Vasile", "action": "LOGIN", "details": { "ip": "79.118.50.2" }, "createdAt": "2025-07-10T06:45:00.000Z" }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 5, "totalPages": 1 }
+}

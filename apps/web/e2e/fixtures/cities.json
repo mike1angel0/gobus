@@ -1,0 +1,12 @@
+{
+  "data": [
+    { "name": "București", "lat": 44.4268, "lng": 26.1025 },
+    { "name": "Cluj-Napoca", "lat": 46.7712, "lng": 23.6236 },
+    { "name": "Timișoara", "lat": 45.7489, "lng": 21.2087 },
+    { "name": "Iași", "lat": 47.1585, "lng": 27.6014 },
+    { "name": "Brașov", "lat": 45.6427, "lng": 25.5887 },
+    { "name": "Sibiu", "lat": 45.7983, "lng": 24.1256 },
+    { "name": "Constanța", "lat": 44.1598, "lng": 28.6348 },
+    { "name": "Craiova", "lat": 44.3302, "lng": 23.7949 }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "data": {
+    "scheduleId": "sched_001",
+    "routeName": "București - Cluj-Napoca",
+    "providerName": "TransBus România",
+    "departureTime": "2025-07-15T08:00:00.000Z",
+    "arrivalTime": "2025-07-15T14:30:00.000Z",
+    "tripDate": "2025-07-15",
+    "basePrice": 89,
+    "status": "ACTIVE",
+    "stopTimes": [
+      { "id": "st_01", "stopName": "București Nord", "arrivalTime": "2025-07-15T08:00:00.000Z", "departureTime": "2025-07-15T08:00:00.000Z", "orderIndex": 0, "priceFromStart": 0, "lat": 44.4268, "lng": 26.1025 },
+      { "id": "st_02", "stopName": "Pitești", "arrivalTime": "2025-07-15T09:30:00.000Z", "departureTime": "2025-07-15T09:40:00.000Z", "orderIndex": 1, "priceFromStart": 35, "lat": 44.8565, "lng": 24.8692 },
+      { "id": "st_03", "stopName": "Sibiu", "arrivalTime": "2025-07-15T11:30:00.000Z", "departureTime": "2025-07-15T11:40:00.000Z", "orderIndex": 2, "priceFromStart": 55, "lat": 45.7983, "lng": 24.1256 },
+      { "id": "st_04", "stopName": "Cluj-Napoca", "arrivalTime": "2025-07-15T14:30:00.000Z", "departureTime": "2025-07-15T14:30:00.000Z", "orderIndex": 3, "priceFromStart": 89, "lat": 46.7712, "lng": 23.6236 }
+    ],
+    "seats": [
+      { "id": "seat_01", "row": 1, "column": 1, "label": "1A", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": true },
+      { "id": "seat_02", "row": 1, "column": 2, "label": "1B", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": true },
+      { "id": "seat_03", "row": 1, "column": 3, "label": "1C", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": false },
+      { "id": "seat_04", "row": 1, "column": 4, "label": "1D", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": true },
+      { "id": "seat_05", "row": 2, "column": 1, "label": "2A", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": true },
+      { "id": "seat_06", "row": 2, "column": 2, "label": "2B", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": false },
+      { "id": "seat_07", "row": 2, "column": 3, "label": "2C", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": true },
+      { "id": "seat_08", "row": 2, "column": 4, "label": "2D", "type": "STANDARD", "price": 0, "isEnabled": true, "isAvailable": true }
+    ]
+  }
+}

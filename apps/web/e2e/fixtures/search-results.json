@@ -1,0 +1,44 @@
+{
+  "data": [
+    {
+      "scheduleId": "sched_001",
+      "providerName": "TransBus România",
+      "routeName": "București - Cluj-Napoca",
+      "origin": "București",
+      "destination": "Cluj-Napoca",
+      "departureTime": "2025-07-15T08:00:00.000Z",
+      "arrivalTime": "2025-07-15T14:30:00.000Z",
+      "tripDate": "2025-07-15",
+      "price": 89,
+      "availableSeats": 24,
+      "totalSeats": 48
+    },
+    {
+      "scheduleId": "sched_002",
+      "providerName": "FlixBus",
+      "routeName": "București - Cluj-Napoca",
+      "origin": "București",
+      "destination": "Cluj-Napoca",
+      "departureTime": "2025-07-15T10:30:00.000Z",
+      "arrivalTime": "2025-07-15T17:00:00.000Z",
+      "tripDate": "2025-07-15",
+      "price": 75,
+      "availableSeats": 12,
+      "totalSeats": 52
+    },
+    {
+      "scheduleId": "sched_003",
+      "providerName": "Memento Bus",
+      "routeName": "București - Cluj-Napoca",
+      "origin": "București",
+      "destination": "Cluj-Napoca",
+      "departureTime": "2025-07-15T14:00:00.000Z",
+      "arrivalTime": "2025-07-15T20:30:00.000Z",
+      "tripDate": "2025-07-15",
+      "price": 95,
+      "availableSeats": 32,
+      "totalSeats": 48
+    }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 3, "totalPages": 1 }
+}

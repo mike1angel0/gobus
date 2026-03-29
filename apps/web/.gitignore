@@ -1,0 +1,5 @@
+# E2E visual comparison (generated)
+e2e/screenshots/browser/
+e2e/screenshots/diff/
+playwright-report/
+test-results/

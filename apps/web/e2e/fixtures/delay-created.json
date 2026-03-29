@@ -1,0 +1,12 @@
+{
+  "data": {
+    "id": "delay_001",
+    "scheduleId": "sched_001",
+    "offsetMinutes": 15,
+    "reason": "TRAFFIC",
+    "note": "Heavy traffic on A1 motorway near Pitești",
+    "tripDate": "2025-07-15",
+    "active": true,
+    "createdAt": "2025-07-15T09:45:00.000Z"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "data": {
+    "totalBookings": 1247,
+    "totalRevenue": 98450,
+    "averageOccupancy": 72.5,
+    "activeRoutes": 3,
+    "activeBuses": 2,
+    "activeDrivers": 2,
+    "revenueByMonth": [
+      { "month": "2025-01", "revenue": 12400 },
+      { "month": "2025-02", "revenue": 14200 },
+      { "month": "2025-03", "revenue": 15800 },
+      { "month": "2025-04", "revenue": 16500 },
+      { "month": "2025-05", "revenue": 18200 },
+      { "month": "2025-06", "revenue": 21350 }
+    ],
+    "bookingsByRoute": [
+      { "routeName": "București - Cluj-Napoca", "count": 524 },
+      { "routeName": "Timișoara - București", "count": 412 },
+      { "routeName": "Iași - Brașov", "count": 311 }
+    ]
+  }
+}

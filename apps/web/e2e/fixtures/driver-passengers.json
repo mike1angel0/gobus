@@ -1,0 +1,9 @@
+{
+  "data": [
+    { "bookingId": "booking_001", "passengerName": "Ion Popescu", "boardingStop": "București Nord", "alightingStop": "Cluj-Napoca", "seatLabels": ["1A", "1B"], "status": "CONFIRMED" },
+    { "bookingId": "booking_010", "passengerName": "Ana Dumitrescu", "boardingStop": "București Nord", "alightingStop": "Sibiu", "seatLabels": ["2A"], "status": "CONFIRMED" },
+    { "bookingId": "booking_011", "passengerName": "Mihai Radu", "boardingStop": "Pitești", "alightingStop": "Cluj-Napoca", "seatLabels": ["3C", "3D"], "status": "CONFIRMED" },
+    { "bookingId": "booking_012", "passengerName": "Cristina Pavel", "boardingStop": "București Nord", "alightingStop": "Cluj-Napoca", "seatLabels": ["4A"], "status": "CANCELLED" }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 4, "totalPages": 1 }
+}

@@ -1,0 +1,21 @@
+{
+  "data": {
+    "scheduleId": "sched_001",
+    "departureTime": "2025-07-15T08:00:00.000Z",
+    "arrivalTime": "2025-07-15T14:30:00.000Z",
+    "tripDate": "2025-07-15",
+    "routeName": "București - Cluj-Napoca",
+    "busId": "bus_001",
+    "busLicensePlate": "B-123-ABC",
+    "busModel": "Mercedes Tourismo",
+    "status": "ACTIVE",
+    "stops": [
+      { "id": "st_01", "stopName": "București Nord", "arrivalTime": "2025-07-15T08:00:00.000Z", "departureTime": "2025-07-15T08:00:00.000Z", "orderIndex": 0, "priceFromStart": 0, "lat": 44.4268, "lng": 26.1025 },
+      { "id": "st_02", "stopName": "Pitești", "arrivalTime": "2025-07-15T09:30:00.000Z", "departureTime": "2025-07-15T09:40:00.000Z", "orderIndex": 1, "priceFromStart": 35, "lat": 44.8565, "lng": 24.8692 },
+      { "id": "st_03", "stopName": "Sibiu", "arrivalTime": "2025-07-15T11:30:00.000Z", "departureTime": "2025-07-15T11:40:00.000Z", "orderIndex": 2, "priceFromStart": 55, "lat": 45.7983, "lng": 24.1256 },
+      { "id": "st_04", "stopName": "Cluj-Napoca", "arrivalTime": "2025-07-15T14:30:00.000Z", "departureTime": "2025-07-15T14:30:00.000Z", "orderIndex": 3, "priceFromStart": 89, "lat": 46.7712, "lng": 23.6236 }
+    ],
+    "passengerCount": 18,
+    "totalSeats": 48
+  }
+}

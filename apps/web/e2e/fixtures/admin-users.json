@@ -1,0 +1,10 @@
+{
+  "data": [
+    { "id": "user_passenger_01", "email": "ion.popescu@example.com", "name": "Ion Popescu", "role": "PASSENGER", "phone": "+40712345678", "avatarUrl": null, "providerId": null, "providerName": null, "status": "ACTIVE", "createdAt": "2025-01-15T10:00:00.000Z" },
+    { "id": "user_provider_01", "email": "maria.ionescu@transbus.ro", "name": "Maria Ionescu", "role": "PROVIDER", "phone": "+40723456789", "avatarUrl": null, "providerId": "provider_01", "providerName": "TransBus România", "status": "ACTIVE", "createdAt": "2024-11-01T08:00:00.000Z" },
+    { "id": "user_driver_01", "email": "andrei.vasile@transbus.ro", "name": "Andrei Vasile", "role": "DRIVER", "phone": "+40734567890", "avatarUrl": null, "providerId": "provider_01", "providerName": "TransBus România", "status": "ACTIVE", "createdAt": "2025-02-10T07:00:00.000Z" },
+    { "id": "user_suspended_01", "email": "george.marin@example.com", "name": "George Marin", "role": "PASSENGER", "phone": "+40756789012", "avatarUrl": null, "providerId": null, "providerName": null, "status": "SUSPENDED", "createdAt": "2025-03-01T09:00:00.000Z" },
+    { "id": "user_admin_01", "email": "admin@gobus.ro", "name": "Admin GoBus", "role": "ADMIN", "phone": "+40700000000", "avatarUrl": null, "providerId": null, "providerName": null, "status": "ACTIVE", "createdAt": "2024-01-01T00:00:00.000Z" }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 5, "totalPages": 1 }
+}

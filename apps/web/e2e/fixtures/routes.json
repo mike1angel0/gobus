@@ -1,0 +1,8 @@
+{
+  "data": [
+    { "id": "route_001", "name": "București - Cluj-Napoca", "providerId": "provider_01", "createdAt": "2024-12-01T00:00:00.000Z" },
+    { "id": "route_002", "name": "Timișoara - București", "providerId": "provider_01", "createdAt": "2024-12-15T00:00:00.000Z" },
+    { "id": "route_003", "name": "Iași - Brașov", "providerId": "provider_01", "createdAt": "2025-01-10T00:00:00.000Z" }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 3, "totalPages": 1 }
+}

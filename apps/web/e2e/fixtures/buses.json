@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "id": "bus_001", "licensePlate": "B-123-ABC", "model": "Mercedes Tourismo", "capacity": 48, "rows": 12, "columns": 4, "providerId": "provider_01", "providerName": "TransBus România", "createdAt": "2024-11-01T00:00:00.000Z" },
+    { "id": "bus_002", "licensePlate": "CJ-456-DEF", "model": "Setra S 516 HD", "capacity": 52, "rows": 13, "columns": 4, "providerId": "provider_01", "providerName": "TransBus România", "createdAt": "2025-01-15T00:00:00.000Z" }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 2, "totalPages": 1 }
+}

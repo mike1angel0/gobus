@@ -1,0 +1,6 @@
+{
+  "data": [
+    { "id": "tpl_standard_48", "name": "Standard 48-seat", "rows": 12, "columns": 4, "capacity": 48 },
+    { "id": "tpl_large_52", "name": "Large 52-seat", "rows": 13, "columns": 4, "capacity": 52 }
+  ]
+}

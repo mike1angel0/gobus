@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "id": "user_driver_01", "email": "andrei.vasile@transbus.ro", "name": "Andrei Vasile", "role": "DRIVER", "phone": "+40734567890", "avatarUrl": null, "providerId": "provider_01", "status": "ACTIVE", "assignedScheduleCount": 3, "createdAt": "2025-02-10T07:00:00.000Z", "updatedAt": "2025-06-01T10:00:00.000Z" },
+    { "id": "user_driver_02", "email": "elena.stan@transbus.ro", "name": "Elena Stan", "role": "DRIVER", "phone": "+40745678901", "avatarUrl": null, "providerId": "provider_01", "status": "ACTIVE", "assignedScheduleCount": 2, "createdAt": "2025-03-05T08:00:00.000Z", "updatedAt": "2025-06-01T11:00:00.000Z" }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 2, "totalPages": 1 }
+}

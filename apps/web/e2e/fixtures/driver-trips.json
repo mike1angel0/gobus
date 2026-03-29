@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "scheduleId": "sched_001", "departureTime": "2025-07-15T08:00:00.000Z", "arrivalTime": "2025-07-15T14:30:00.000Z", "tripDate": "2025-07-15", "routeName": "București - Cluj-Napoca", "busLicensePlate": "B-123-ABC", "status": "ACTIVE" },
+    { "scheduleId": "sched_004", "departureTime": "2025-07-15T16:00:00.000Z", "arrivalTime": "2025-07-15T22:30:00.000Z", "tripDate": "2025-07-15", "routeName": "Cluj-Napoca - București", "busLicensePlate": "B-123-ABC", "status": "ACTIVE" }
+  ],
+  "meta": { "page": 1, "pageSize": 20, "total": 2, "totalPages": 1 }
+}
