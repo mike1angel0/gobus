@@ -306,9 +306,36 @@ export class BookingService {
         );
         const totalPrice = Math.round(segmentPrice * seatLabels.length * 100) / 100;
 
-        // 6. Create booking + booking seats atomically
+        // 6. Generate human-friendly orderId: GB{CODE}-{YYYYMMDD}-{NNN}
+        const route = await tx.route.findUnique({
+          where: { id: schedule.routeId },
+          select: { provider: { select: { id: true, code: true } } },
+        });
+        if (!route) {
+          throw new AppError(404, ErrorCodes.RESOURCE_NOT_FOUND, 'Route not found');
+        }
+        const providerCode = route.provider.code;
+
+        const dayStart = new Date(tripDateObj);
+        dayStart.setUTCHours(0, 0, 0, 0);
+        const dayEnd = new Date(tripDateObj);
+        dayEnd.setUTCHours(23, 59, 59, 999);
+
+        const todayCount = await tx.booking.count({
+          where: {
+            schedule: { route: { providerId: route.provider.id } },
+            createdAt: { gte: dayStart, lte: dayEnd },
+          },
+        });
+
+        const seq = String(todayCount + 1).padStart(3, '0');
+        const dateStr = tripDateObj.toISOString().slice(0, 10).replace(/-/g, '');
+        const orderId = `GB${providerCode}-${dateStr}-${seq}`;
+
+        // 7. Create booking + booking seats atomically
         const created = await tx.booking.create({
           data: {
+            orderId,
             userId,
             scheduleId,
             totalPrice,

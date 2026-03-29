@@ -28,8 +28,9 @@ Booking:
       description: Unique booking identifier (cuid)
     orderId:
       type: string
-      maxLength: 30
-      description: Human-friendly unique order identifier (cuid)
+      maxLength: 25
+      pattern: '^GB[A-Z]{3}-\d{8}-\d{3}$'
+      description: Human-friendly order identifier (e.g. GBTRA-20260329-001)
     userId:
       type: string
       maxLength: 30
@@ -96,8 +97,9 @@ BookingWithDetails:
       description: Unique booking identifier (cuid)
     orderId:
       type: string
-      maxLength: 30
-      description: Human-friendly unique order identifier (cuid)
+      maxLength: 25
+      pattern: '^GB[A-Z]{3}-\d{8}-\d{3}$'
+      description: Human-friendly order identifier (e.g. GBTRA-20260329-001)
     userId:
       type: string
       maxLength: 30

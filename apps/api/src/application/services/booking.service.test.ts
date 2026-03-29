@@ -43,6 +43,7 @@ function makeStopTimes() {
 function makeScheduleWithRelations() {
   return {
     id: SCHEDULE_ID,
+    routeId: 'route-1',
     stopTimes: makeStopTimes(),
     bus: { seats: makeBusSeats() },
   };
@@ -51,7 +52,7 @@ function makeScheduleWithRelations() {
 function makeBookingRecord(overrides: Record<string, unknown> = {}) {
   return {
     id: 'booking-1',
-    orderId: 'order-1',
+    orderId: 'GBTRA-20260325-001',
     userId: USER_ID,
     scheduleId: SCHEDULE_ID,
     totalPrice: 200,
@@ -79,7 +80,8 @@ function createMockPrisma() {
   const txClient = {
     schedule: { findUnique: vi.fn() },
     bookingSeat: { findMany: vi.fn() },
-    booking: { create: vi.fn() },
+    booking: { create: vi.fn(), count: vi.fn() },
+    route: { findUnique: vi.fn() },
   };
 
   return {
@@ -212,8 +214,12 @@ describe('BookingService', () => {
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
       vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([]);
+      vi.mocked(prisma._tx.route.findUnique).mockResolvedValue({
+        provider: { id: 'provider-1', code: 'TRA' },
+      });
+      vi.mocked(prisma._tx.booking.count).mockResolvedValue(0);
 
-      const createdBooking = makeBookingRecord();
+      const createdBooking = makeBookingRecord({ orderId: 'GBTRA-20260325-001' });
       vi.mocked(prisma._tx.booking.create).mockResolvedValue(createdBooking);
 
       const result = await service.create(USER_ID, {
@@ -225,7 +231,7 @@ describe('BookingService', () => {
       });
 
       expect(result.id).toBe('booking-1');
-      expect(result.orderId).toBe('order-1');
+      expect(result.orderId).toBe('GBTRA-20260325-001');
       expect(result.userId).toBe(USER_ID);
       expect(result.scheduleId).toBe(SCHEDULE_ID);
       expect(result.seatLabels).toEqual(['1A', '1B']);
@@ -270,7 +276,11 @@ describe('BookingService', () => {
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
       vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([]);
-      vi.mocked(prisma._tx.booking.create).mockResolvedValue(makeBookingRecord());
+      vi.mocked(prisma._tx.route.findUnique).mockResolvedValue({
+        provider: { id: 'provider-1', code: 'TRA' },
+      });
+      vi.mocked(prisma._tx.booking.count).mockResolvedValue(0);
+      vi.mocked(prisma._tx.booking.create).mockResolvedValue(makeBookingRecord({ orderId: 'GBTRA-20260325-001' }));
 
       const result = await service.create(USER_ID, {
         scheduleId: SCHEDULE_ID,
@@ -381,7 +391,11 @@ describe('BookingService', () => {
       const schedule = makeScheduleWithRelations();
       vi.mocked(prisma._tx.schedule.findUnique).mockResolvedValue(schedule);
       vi.mocked(prisma._tx.bookingSeat.findMany).mockResolvedValue([]);
-      vi.mocked(prisma._tx.booking.create).mockResolvedValue(makeBookingRecord({ totalPrice: 30 }));
+      vi.mocked(prisma._tx.route.findUnique).mockResolvedValue({
+        provider: { id: 'provider-1', code: 'TRA' },
+      });
+      vi.mocked(prisma._tx.booking.count).mockResolvedValue(0);
+      vi.mocked(prisma._tx.booking.create).mockResolvedValue(makeBookingRecord({ totalPrice: 30, orderId: 'GBTRA-20260325-001' }));
 
       await service.create(USER_ID, {
         scheduleId: SCHEDULE_ID,

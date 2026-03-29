@@ -12,6 +12,7 @@ const mockBookingUpdate = vi.fn();
 const mockBookingCount = vi.fn();
 const mockBookingSeatFindMany = vi.fn();
 const mockScheduleFindUnique = vi.fn();
+const mockRouteFindUnique = vi.fn();
 const mockTransaction = vi.fn();
 
 const mockUserFindUnique = vi.fn();
@@ -29,6 +30,9 @@ const mockPrisma = {
   },
   schedule: {
     findUnique: mockScheduleFindUnique,
+  },
+  route: {
+    findUnique: mockRouteFindUnique,
   },
   user: {
     findUnique: mockUserFindUnique,
@@ -65,7 +69,7 @@ const OTHER_AUTH_HEADER = createAuthHeader(OTHER_USER_ID, 'PASSENGER');
 function makeBookingRecord(overrides: Record<string, unknown> = {}) {
   return {
     id: 'booking-1',
-    orderId: 'order-abc123',
+    orderId: 'GBTRA-20260325-001',
     userId: USER_ID,
     scheduleId: 'sched-1',
     totalPrice: 100,
@@ -143,7 +147,7 @@ describe('Booking Routes', () => {
 
       expect(response.body.data).toHaveLength(1);
       expect(response.body.data[0].id).toBe('booking-1');
-      expect(response.body.data[0].orderId).toBe('order-abc123');
+      expect(response.body.data[0].orderId).toBe('GBTRA-20260325-001');
       expect(response.body.data[0].userId).toBe(USER_ID);
       expect(response.body.data[0].scheduleId).toBe('sched-1');
       expect(response.body.data[0].totalPrice).toBe(100);
@@ -204,16 +208,19 @@ describe('Booking Routes', () => {
     it('returns 201 with booking details on successful creation', async () => {
       mockBookingCount.mockResolvedValueOnce(0);
       const createdBooking = makeBookingRecord();
+      const mockTxBookingCount = vi.fn().mockResolvedValueOnce(0);
 
       mockTransaction.mockImplementationOnce(
         async (callback: (tx: unknown) => Promise<unknown>) => {
           const txClient = {
             schedule: { findUnique: mockScheduleFindUnique },
             bookingSeat: { findMany: mockBookingSeatFindMany },
-            booking: { create: mockBookingCreate },
+            booking: { create: mockBookingCreate, count: mockTxBookingCount },
+            route: { findUnique: mockRouteFindUnique },
           };
-          mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
+          mockScheduleFindUnique.mockResolvedValueOnce({ ...makeScheduleForCreate(), routeId: 'route-1' });
           mockBookingSeatFindMany.mockResolvedValueOnce([]);
+          mockRouteFindUnique.mockResolvedValueOnce({ provider: { id: 'provider-1', code: 'TRA' } });
           mockBookingCreate.mockResolvedValueOnce(createdBooking);
           return callback(txClient);
         },
@@ -232,7 +239,7 @@ describe('Booking Routes', () => {
         .expect(201);
 
       expect(response.body.data.id).toBe('booking-1');
-      expect(response.body.data.orderId).toBe('order-abc123');
+      expect(response.body.data.orderId).toBe('GBTRA-20260325-001');
       expect(response.body.data.status).toBe('CONFIRMED');
       expect(response.body.data.totalPrice).toBe(100);
       expect(response.body.data.seatLabels).toEqual(['1A', '1B']);
@@ -251,9 +258,10 @@ describe('Booking Routes', () => {
           const txClient = {
             schedule: { findUnique: mockScheduleFindUnique },
             bookingSeat: { findMany: mockBookingSeatFindMany },
-            booking: { create: mockBookingCreate },
+            booking: { create: mockBookingCreate, count: vi.fn() },
+            route: { findUnique: mockRouteFindUnique },
           };
-          mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
+          mockScheduleFindUnique.mockResolvedValueOnce({ ...makeScheduleForCreate(), routeId: 'route-1' });
           mockBookingSeatFindMany.mockResolvedValueOnce([{ seatLabel: '1A' }]);
           return callback(txClient);
         },
@@ -282,7 +290,8 @@ describe('Booking Routes', () => {
           const txClient = {
             schedule: { findUnique: mockScheduleFindUnique },
             bookingSeat: { findMany: mockBookingSeatFindMany },
-            booking: { create: mockBookingCreate },
+            booking: { create: mockBookingCreate, count: vi.fn() },
+            route: { findUnique: mockRouteFindUnique },
           };
           mockScheduleFindUnique.mockResolvedValueOnce(null);
           return callback(txClient);
@@ -322,9 +331,10 @@ describe('Booking Routes', () => {
           const txClient = {
             schedule: { findUnique: mockScheduleFindUnique },
             bookingSeat: { findMany: mockBookingSeatFindMany },
-            booking: { create: mockBookingCreate },
+            booking: { create: mockBookingCreate, count: vi.fn() },
+            route: { findUnique: mockRouteFindUnique },
           };
-          mockScheduleFindUnique.mockResolvedValueOnce(makeScheduleForCreate());
+          mockScheduleFindUnique.mockResolvedValueOnce({ ...makeScheduleForCreate(), routeId: 'route-1' });
           return callback(txClient);
         },
       );
@@ -372,7 +382,7 @@ describe('Booking Routes', () => {
         .expect(200);
 
       expect(response.body.data.id).toBe('booking-1');
-      expect(response.body.data.orderId).toBe('order-abc123');
+      expect(response.body.data.orderId).toBe('GBTRA-20260325-001');
       expect(response.body.data.schedule.route.name).toBe('Bucharest - Cluj');
       expect(response.body.data.schedule.bus.model).toBe('Mercedes Tourismo');
     });

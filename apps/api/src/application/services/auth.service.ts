@@ -77,9 +77,16 @@ export class AuthService {
         );
       }
 
+      const code = data.providerName
+        .replace(/[^A-Za-z]/g, '')
+        .slice(0, 3)
+        .toUpperCase()
+        .padEnd(3, 'X');
+
       const provider = await this.prisma.provider.create({
         data: {
           name: data.providerName,
+          code,
           contactEmail: data.email,
           contactPhone: data.phone ?? null,
         },

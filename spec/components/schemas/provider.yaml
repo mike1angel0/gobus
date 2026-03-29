@@ -23,6 +23,11 @@ Provider:
       type: string
       maxLength: 200
       description: Provider company name
+    code:
+      type: string
+      maxLength: 10
+      pattern: '^[A-Z]{3}$'
+      description: Unique 3-letter provider code used in order IDs (e.g. TRA, CAR)
     logo:
       type:
         - string
