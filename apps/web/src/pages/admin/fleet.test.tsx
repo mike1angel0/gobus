@@ -62,7 +62,7 @@ function errorState() {
 }
 
 /** Creates a mock bus. */
-function createMockBus(id: string, licensePlate: string, model: string, providerId = 'prov_1') {
+function createMockBus(id: string, licensePlate: string, model: string, providerId = 'prov_1', providerName = 'Test Provider') {
   return {
     id,
     licensePlate,
@@ -71,6 +71,7 @@ function createMockBus(id: string, licensePlate: string, model: string, provider
     rows: 12,
     columns: 4,
     providerId,
+    providerName,
     createdAt: '2026-03-20T10:00:00Z',
   };
 }
@@ -203,24 +204,24 @@ describe('AdminFleetPage', () => {
 
     it('groups buses by provider', () => {
       const buses = [
-        createMockBus('bus_1', 'AB-123', 'Mercedes', 'prov_alpha'),
-        createMockBus('bus_2', 'CD-456', 'Volvo', 'prov_beta'),
-        createMockBus('bus_3', 'EF-789', 'Scania', 'prov_alpha'),
+        createMockBus('bus_1', 'AB-123', 'Mercedes', 'prov_alpha', 'Alpha Transport'),
+        createMockBus('bus_2', 'CD-456', 'Volvo', 'prov_beta', 'Beta Lines'),
+        createMockBus('bus_3', 'EF-789', 'Scania', 'prov_alpha', 'Alpha Transport'),
       ];
       mockAdminBuses.mockReturnValue(loadedState(buses));
 
       renderWithProviders(<AdminFleetPage />);
 
-      expect(screen.getByText(/Provider:.*prov_alpha/)).toBeInTheDocument();
-      expect(screen.getByText(/Provider:.*prov_beta/)).toBeInTheDocument();
+      expect(screen.getByText('Alpha Transport')).toBeInTheDocument();
+      expect(screen.getByText('Beta Lines')).toBeInTheDocument();
 
       // Alpha provider group should have 2 buses
-      const alphaGroup = screen.getByLabelText('Buses for provider prov_alpha');
+      const alphaGroup = screen.getByLabelText('Buses for Alpha Transport');
       expect(within(alphaGroup).getByText('AB-123')).toBeInTheDocument();
       expect(within(alphaGroup).getByText('EF-789')).toBeInTheDocument();
 
       // Beta provider group should have 1 bus
-      const betaGroup = screen.getByLabelText('Buses for provider prov_beta');
+      const betaGroup = screen.getByLabelText('Buses for Beta Lines');
       expect(within(betaGroup).getByText('CD-456')).toBeInTheDocument();
     });
 

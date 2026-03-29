@@ -165,12 +165,12 @@ describe('AdminUsersPage', () => {
       expect(screen.getAllByText('Suspended').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('shows provider ID when present', () => {
-      mockAdminUsers.mockReturnValue(loadedState([createUser({ providerId: 'prov-123' })]));
+    it('shows provider name when present', () => {
+      mockAdminUsers.mockReturnValue(loadedState([createUser({ providerId: 'prov-123', providerName: 'Alpha Transport' })]));
 
       renderWithProviders(<AdminUsersPage />);
 
-      expect(screen.getByText(/Provider:.*prov-123/)).toBeInTheDocument();
+      expect(screen.getByText('Alpha Transport')).toBeInTheDocument();
     });
 
     it('shows createdAt date', () => {

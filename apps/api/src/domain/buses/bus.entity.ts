@@ -41,6 +41,8 @@ export interface BusEntity {
   columns: number;
   /** Provider who owns this bus. */
   providerId: string;
+  /** Provider company name. */
+  providerName: string;
   /** Bus creation timestamp. */
   createdAt: Date;
 }

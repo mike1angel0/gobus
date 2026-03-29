@@ -51,6 +51,7 @@ function makeBus(overrides: Record<string, unknown> = {}) {
     rows: 13,
     columns: 4,
     providerId: PROVIDER_ID,
+    provider: { name: 'Test Provider' },
     createdAt: new Date('2024-01-01'),
     ...overrides,
   };
@@ -98,6 +99,7 @@ describe('BusService', () => {
         rows: 13,
         columns: 4,
         providerId: PROVIDER_ID,
+        providerName: 'Test Provider',
         createdAt: new Date('2024-01-01'),
       });
       expect(result.meta).toEqual({
@@ -119,6 +121,7 @@ describe('BusService', () => {
           rows: true,
           columns: true,
           providerId: true,
+          provider: { select: { name: true } },
           createdAt: true,
         },
       });
@@ -243,7 +246,7 @@ describe('BusService', () => {
             ],
           },
         },
-        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
       });
     });
 
@@ -317,7 +320,7 @@ describe('BusService', () => {
       expect(prisma.bus.update).toHaveBeenCalledWith({
         where: { id: BUS_ID },
         data: { model: 'Setra S515' },
-        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
       });
     });
 
@@ -334,7 +337,7 @@ describe('BusService', () => {
       expect(prisma.bus.update).toHaveBeenCalledWith({
         where: { id: BUS_ID },
         data: { capacity: 60 },
-        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
       });
     });
 
@@ -360,7 +363,7 @@ describe('BusService', () => {
       expect(prisma.bus.update).toHaveBeenCalledWith({
         where: { id: BUS_ID },
         data: { licensePlate: 'X-999-YYY', model: 'Neoplan', capacity: 56 },
-        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
       });
     });
 
@@ -467,7 +470,7 @@ describe('BusService', () => {
             ],
           },
         },
-        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
       });
       // Verify direct prisma.bus.update was NOT called (transaction path used instead)
       expect(prisma.bus.update).not.toHaveBeenCalled();

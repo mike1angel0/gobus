@@ -268,8 +268,8 @@ function AdminBusCard({ bus, isExpanded, onToggle }: AdminBusCardProps) {
 
 /** Props for {@link ProviderGroup}. */
 interface ProviderGroupProps {
-  /** Provider identifier. */
-  providerId: string;
+  /** Provider display name. */
+  providerName: string;
   /** Buses belonging to this provider. */
   buses: Bus[];
   /** Set of expanded bus IDs. */
@@ -279,16 +279,15 @@ interface ProviderGroupProps {
 }
 
 /** Renders a group of buses belonging to a single provider. */
-function ProviderGroup({ providerId, buses, expandedBuses, onToggleBus }: ProviderGroupProps) {
-  const { t } = useTranslation('admin');
+function ProviderGroup({ providerName, buses, expandedBuses, onToggleBus }: ProviderGroupProps) {
   return (
     <div>
       <h3 className="mb-3 text-lg font-semibold text-muted-foreground">
-        {t('fleet.providerPrefix', { id: providerId })}
+        {providerName}
       </h3>
       <div
         className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        aria-label={`Buses for provider ${providerId}`}
+        aria-label={`Buses for ${providerName}`}
       >
         {buses.map((bus) => (
           <AdminBusCard
@@ -315,16 +314,17 @@ interface GroupedBusListProps {
   onToggleBus: (busId: string) => void;
 }
 
-/** Renders buses grouped by provider ID. */
+/** Renders buses grouped by provider name. */
 function GroupedBusList({ buses, expandedBuses, onToggleBus }: GroupedBusListProps) {
   const groupedBuses = useMemo(() => {
     const groups = new Map<string, Bus[]>();
     for (const bus of buses) {
-      const existing = groups.get(bus.providerId);
+      const key = bus.providerName ?? bus.providerId;
+      const existing = groups.get(key);
       if (existing) {
         existing.push(bus);
       } else {
-        groups.set(bus.providerId, [bus]);
+        groups.set(key, [bus]);
       }
     }
     return groups;
@@ -332,10 +332,10 @@ function GroupedBusList({ buses, expandedBuses, onToggleBus }: GroupedBusListPro
 
   return (
     <div className="space-y-8">
-      {Array.from(groupedBuses.entries()).map(([providerId, providerBuses]) => (
+      {Array.from(groupedBuses.entries()).map(([providerName, providerBuses]) => (
         <ProviderGroup
-          key={providerId}
-          providerId={providerId}
+          key={providerName}
+          providerName={providerName}
           buses={providerBuses}
           expandedBuses={expandedBuses}
           onToggleBus={onToggleBus}

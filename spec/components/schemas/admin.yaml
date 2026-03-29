@@ -50,6 +50,10 @@ AdminUser:
       type: ['string', 'null']
       maxLength: 30
       description: Associated provider ID (for PROVIDER and DRIVER roles)
+    providerName:
+      type: ['string', 'null']
+      maxLength: 200
+      description: Associated provider company name (for PROVIDER and DRIVER roles)
     status:
       type: string
       enum: [ACTIVE, SUSPENDED, LOCKED]

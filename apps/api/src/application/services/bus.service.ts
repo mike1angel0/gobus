@@ -65,6 +65,7 @@ export class BusService {
           rows: true,
           columns: true,
           providerId: true,
+          provider: { select: { name: true } },
           createdAt: true,
         },
       }),
@@ -85,7 +86,7 @@ export class BusService {
   async getById(id: string, providerId: string): Promise<BusWithSeats> {
     const bus = await this.prisma.bus.findUnique({
       where: { id },
-      include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+      include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
     });
 
     verifyOwnership(bus, bus?.providerId, providerId, 'Bus');
@@ -129,7 +130,7 @@ export class BusService {
             })),
           },
         },
-        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+        include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
       });
     });
 
@@ -188,7 +189,7 @@ export class BusService {
               })),
             },
           },
-          include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+          include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
         });
       });
 
@@ -199,7 +200,7 @@ export class BusService {
     const updated = await this.prisma.bus.update({
       where: { id },
       data: updateData,
-      include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } },
+      include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] }, provider: { select: { name: true } } },
     });
 
     logger.info('Bus updated', { busId: id, providerId });
@@ -250,8 +251,8 @@ export class BusService {
     return findTemplateById(templateId);
   }
 
-  /** Convert a Prisma Bus record to a BusEntity. */
-  private toBusEntity(bus: Bus): BusEntity {
+  /** Convert a Prisma Bus record (with provider join) to a BusEntity. */
+  private toBusEntity(bus: Bus & { provider: { name: string } }): BusEntity {
     return {
       id: bus.id,
       licensePlate: bus.licensePlate,
@@ -260,12 +261,13 @@ export class BusService {
       rows: bus.rows,
       columns: bus.columns,
       providerId: bus.providerId,
+      providerName: bus.provider.name,
       createdAt: bus.createdAt,
     };
   }
 
-  /** Convert a Prisma Bus with seats to a BusWithSeats entity. */
-  private toBusWithSeats(bus: Bus & { seats: Seat[] }): BusWithSeats {
+  /** Convert a Prisma Bus with seats and provider to a BusWithSeats entity. */
+  private toBusWithSeats(bus: Bus & { seats: Seat[]; provider: { name: string } }): BusWithSeats {
     return {
       ...this.toBusEntity(bus),
       seats: bus.seats.map((s) => this.toSeatEntity(s)),

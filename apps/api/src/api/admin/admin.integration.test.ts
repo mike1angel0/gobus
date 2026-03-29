@@ -81,6 +81,7 @@ function makeBusRecord(overrides: Record<string, unknown> = {}) {
     rows: 13,
     columns: 4,
     providerId: 'provider-1',
+    provider: { name: 'Test Provider' },
     createdAt: new Date('2026-03-01T10:00:00.000Z'),
     ...overrides,
   };
@@ -146,6 +147,7 @@ describe('GET /api/v1/admin/buses', () => {
       rows: 13,
       columns: 4,
       providerId: 'provider-1',
+      providerName: 'Test Provider',
       createdAt: '2026-03-01T10:00:00.000Z',
     });
     expect(res.body.meta).toEqual({
@@ -359,6 +361,7 @@ function makeUserRecord(overrides: Record<string, unknown> = {}) {
     phone: '+40712345678',
     avatarUrl: null,
     providerId: null,
+    provider: null,
     status: 'ACTIVE',
     failedLoginAttempts: 0,
     lockedUntil: null,
@@ -404,6 +407,7 @@ describe('GET /api/v1/admin/users', () => {
       phone: '+40712345678',
       avatarUrl: null,
       providerId: null,
+      providerName: null,
       status: 'ACTIVE',
       failedLoginAttempts: 0,
       lockedUntil: null,

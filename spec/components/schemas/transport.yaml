@@ -42,6 +42,10 @@ Stop:
       minimum: 0
       maximum: 100
       description: Position in the route (0-based)
+    stationId:
+      type: ['string', 'null']
+      maxLength: 30
+      description: Optional reference to a Station record
 
 Route:
   type: object
@@ -136,6 +140,10 @@ CreateStopInput:
       minimum: 0
       maximum: 100
       description: Position in the route (0-based)
+    stationId:
+      type: string
+      maxLength: 30
+      description: Optional reference to a Station record
 
 CreateRouteRequest:
   type: object
@@ -243,6 +251,10 @@ Bus:
       type: string
       maxLength: 30
       description: Provider who owns this bus
+    providerName:
+      type: string
+      maxLength: 200
+      description: Provider company name
     createdAt:
       type: string
       format: date-time

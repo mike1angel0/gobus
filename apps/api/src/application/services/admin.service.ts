@@ -26,6 +26,8 @@ export interface AdminUserEntity {
   avatarUrl: string | null;
   /** Associated provider ID. */
   providerId: string | null;
+  /** Associated provider company name. */
+  providerName: string | null;
   /** Account status. */
   status: 'ACTIVE' | 'SUSPENDED' | 'LOCKED';
   /** Number of consecutive failed login attempts. */
@@ -132,6 +134,7 @@ export class AdminService {
           rows: true,
           columns: true,
           providerId: true,
+          provider: { select: { name: true } },
           createdAt: true,
         },
       }),
@@ -176,6 +179,7 @@ export class AdminService {
           phone: true,
           avatarUrl: true,
           providerId: true,
+          provider: { select: { name: true } },
           status: true,
           failedLoginAttempts: true,
           lockedUntil: true,
@@ -242,6 +246,7 @@ export class AdminService {
         phone: true,
         avatarUrl: true,
         providerId: true,
+        provider: { select: { name: true } },
         status: true,
         failedLoginAttempts: true,
         lockedUntil: true,
@@ -378,8 +383,8 @@ export class AdminService {
   }
 }
 
-/** Convert a Prisma Bus record to a BusEntity. */
-function toBusEntity(bus: Bus): BusEntity {
+/** Convert a Prisma Bus record (with provider join) to a BusEntity. */
+function toBusEntity(bus: Bus & { provider: { name: string } }): BusEntity {
   return {
     id: bus.id,
     licensePlate: bus.licensePlate,
@@ -388,6 +393,7 @@ function toBusEntity(bus: Bus): BusEntity {
     rows: bus.rows,
     columns: bus.columns,
     providerId: bus.providerId,
+    providerName: bus.provider.name,
     createdAt: bus.createdAt,
   };
 }
@@ -414,6 +420,7 @@ function toAdminUserEntity(user: {
   phone: string | null;
   avatarUrl: string | null;
   providerId: string | null;
+  provider: { name: string } | null;
   status: string;
   failedLoginAttempts: number;
   lockedUntil: Date | null;
@@ -429,6 +436,7 @@ function toAdminUserEntity(user: {
     phone: user.phone,
     avatarUrl: user.avatarUrl,
     providerId: user.providerId,
+    providerName: user.provider?.name ?? null,
     status: user.status as AdminUserEntity['status'],
     failedLoginAttempts: user.failedLoginAttempts,
     lockedUntil: user.lockedUntil,

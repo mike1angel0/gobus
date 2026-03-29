@@ -252,9 +252,9 @@ function UserRow({ user, isSelf, onAction }: UserRowProps) {
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{user.name}</p>
           <p className="truncate text-sm text-muted-foreground">{user.email}</p>
-          {user.providerId && (
+          {user.providerName && (
             <p className="text-xs text-muted-foreground">
-              {t('users.providerPrefix', { id: user.providerId })}
+              {user.providerName}
             </p>
           )}
         </div>

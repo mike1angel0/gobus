@@ -74,6 +74,7 @@ function makeDbBus(overrides: Record<string, unknown> = {}) {
     rows: 13,
     columns: 4,
     providerId: 'prov-1',
+    provider: { name: 'Test Provider' },
     createdAt: new Date('2024-06-01T10:00:00.000Z'),
     ...overrides,
   };

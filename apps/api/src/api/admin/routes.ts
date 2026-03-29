@@ -33,6 +33,7 @@ function serializeBus(bus: BusEntity): Record<string, unknown> {
     rows: bus.rows,
     columns: bus.columns,
     providerId: bus.providerId,
+    providerName: bus.providerName,
     createdAt: bus.createdAt.toISOString(),
   };
 }
@@ -66,6 +67,7 @@ function serializeUser(user: AdminUserEntity): Record<string, unknown> {
     phone: user.phone,
     avatarUrl: user.avatarUrl,
     providerId: user.providerId,
+    providerName: user.providerName,
     status: user.status,
     failedLoginAttempts: user.failedLoginAttempts,
     lockedUntil: user.lockedUntil?.toISOString() ?? null,
