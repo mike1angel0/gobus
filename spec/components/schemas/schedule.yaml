@@ -61,6 +61,19 @@ StopTime:
       minimum: -180
       maximum: 180
       description: Longitude of the stop
+    stationId:
+      type:
+        - string
+        - 'null'
+      maxLength: 30
+      description: Linked station ID (null if no station)
+    facilities:
+      type: array
+      minItems: 0
+      maxItems: 20
+      description: Facilities at this stop's station (empty if no station linked)
+      items:
+        $ref: './station.yaml#/StationFacility'
 
 Schedule:
   type: object

@@ -221,8 +221,8 @@ describe('RouteService', () => {
           providerId: PROVIDER_ID,
           stops: {
             create: [
-              { name: 'Bucharest', lat: 44.4268, lng: 26.1025, orderIndex: 0 },
-              { name: 'Cluj', lat: 46.77, lng: 23.59, orderIndex: 1 },
+              { name: 'Bucharest', lat: 44.4268, lng: 26.1025, orderIndex: 0, stationId: null },
+              { name: 'Cluj', lat: 46.77, lng: 23.59, orderIndex: 1, stationId: null },
             ],
           },
         },

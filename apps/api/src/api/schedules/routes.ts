@@ -36,6 +36,8 @@ function serializeStopTime(stopTime: StopTimeEntity): Record<string, unknown> {
     priceFromStart: stopTime.priceFromStart,
     lat: stopTime.lat,
     lng: stopTime.lng,
+    stationId: stopTime.stationId,
+    facilities: stopTime.facilities,
   };
 }
 

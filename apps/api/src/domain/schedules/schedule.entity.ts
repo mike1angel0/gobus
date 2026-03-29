@@ -22,6 +22,10 @@ export interface StopTimeEntity {
   lat: number | null;
   /** Longitude of the stop. */
   lng: number | null;
+  /** Linked station ID (null if no station). */
+  stationId: string | null;
+  /** Facilities at this stop's station. */
+  facilities: string[];
 }
 
 /**

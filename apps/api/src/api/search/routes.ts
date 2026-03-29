@@ -30,6 +30,8 @@ function serializeSearchResult(result: SearchResult): Record<string, unknown> {
     price: result.price,
     availableSeats: result.availableSeats,
     totalSeats: result.totalSeats,
+    originFacilities: result.originFacilities,
+    destinationFacilities: result.destinationFacilities,
   };
 }
 
@@ -47,6 +49,8 @@ function serializeStopTime(st: TripStopTime): Record<string, unknown> {
     priceFromStart: st.priceFromStart,
     lat: st.lat,
     lng: st.lng,
+    stationId: st.stationId,
+    facilities: st.facilities,
   };
 }
 

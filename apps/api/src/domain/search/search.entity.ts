@@ -22,6 +22,10 @@ export interface SearchResult {
   availableSeats: number;
   /** Total number of enabled seats on the bus. */
   totalSeats: number;
+  /** Facilities at the origin station. */
+  originFacilities: string[];
+  /** Facilities at the destination station. */
+  destinationFacilities: string[];
 }
 
 /** Represents a seat with its current availability status for a specific trip date. */
@@ -62,6 +66,10 @@ export interface TripStopTime {
   lat: number | null;
   /** Longitude of the stop. */
   lng: number | null;
+  /** Linked station ID (null if no station). */
+  stationId: string | null;
+  /** Facilities at this stop's station. */
+  facilities: string[];
 }
 
 /** Detailed trip information with seat map and availability. */

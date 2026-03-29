@@ -19,8 +19,8 @@ describe('ErrorCodes', () => {
     expect(ErrorCodes.RESOURCE_EXHAUSTED).toBe('RESOURCE_EXHAUSTED');
   });
 
-  it('has exactly 14 error codes', () => {
-    expect(Object.keys(ErrorCodes)).toHaveLength(14);
+  it('has exactly 15 error codes', () => {
+    expect(Object.keys(ErrorCodes)).toHaveLength(15);
   });
 
   it('all values are unique strings', () => {

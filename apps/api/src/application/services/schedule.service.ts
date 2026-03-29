@@ -117,7 +117,10 @@ export class ScheduleService {
     const schedule = await this.prisma.schedule.findUnique({
       where: { id },
       include: {
-        stopTimes: { orderBy: { orderIndex: 'asc' } },
+        stopTimes: {
+          orderBy: { orderIndex: 'asc' },
+          include: { station: { select: { id: true, facilities: true } } },
+        },
         route: true,
         bus: true,
         driver: { select: { id: true, name: true } },
@@ -169,7 +172,10 @@ export class ScheduleService {
           },
         },
         include: {
-          stopTimes: { orderBy: { orderIndex: 'asc' } },
+          stopTimes: {
+          orderBy: { orderIndex: 'asc' },
+          include: { station: { select: { id: true, facilities: true } } },
+        },
           route: true,
           bus: true,
           driver: { select: { id: true, name: true } },
@@ -214,7 +220,10 @@ export class ScheduleService {
       where: { id },
       data: updateData,
       include: {
-        stopTimes: { orderBy: { orderIndex: 'asc' } },
+        stopTimes: {
+          orderBy: { orderIndex: 'asc' },
+          include: { station: { select: { id: true, facilities: true } } },
+        },
         route: true,
         bus: true,
         driver: { select: { id: true, name: true } },
@@ -344,8 +353,8 @@ export class ScheduleService {
     };
   }
 
-  /** Convert a Prisma StopTime record to a StopTimeEntity. */
-  private toStopTimeEntity(stopTime: StopTime): StopTimeEntity {
+  /** Convert a Prisma StopTime record (with optional station) to a StopTimeEntity. */
+  private toStopTimeEntity(stopTime: StopTime & { station?: { id: string; facilities: string[] } | null }): StopTimeEntity {
     return {
       id: stopTime.id,
       stopName: stopTime.stopName,
@@ -355,6 +364,8 @@ export class ScheduleService {
       priceFromStart: stopTime.priceFromStart,
       lat: stopTime.lat,
       lng: stopTime.lng,
+      stationId: stopTime.station?.id ?? null,
+      facilities: stopTime.station?.facilities ?? [],
     };
   }
 

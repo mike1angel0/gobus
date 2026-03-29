@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { dataResponse, paginatedResponse } from '@/shared/schemas.js';
 import { routeSchema } from '@/api/routes/schemas.js';
 import { busSchema } from '@/api/buses/schemas.js';
+import { stationFacilityEnum } from '@/api/stations/schemas.js';
 
 /** Zod schema for the ScheduleStatus enum matching OpenAPI ScheduleStatus. */
 export const scheduleStatusSchema = z.enum(['ACTIVE', 'CANCELLED']);
@@ -20,6 +21,12 @@ export const stopTimeSchema = z.object({
     .describe('Cumulative price from the first stop to this stop'),
   lat: z.number().min(-90).max(90).nullable().describe('Latitude of the stop'),
   lng: z.number().min(-180).max(180).nullable().describe('Longitude of the stop'),
+  stationId: z.string().max(30).nullable().describe('Linked station ID (null if no station)'),
+  facilities: z
+    .array(stationFacilityEnum)
+    .min(0)
+    .max(20)
+    .describe('Facilities at this stop\'s station (empty if no station linked)'),
 });
 
 /** Zod schema for a Schedule response object matching OpenAPI Schedule schema. */

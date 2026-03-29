@@ -5,7 +5,8 @@ import { Bus, ChevronDown, Clock, MapPin, Users } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DelayBadge } from '@/components/shared/delay-badge';
-import { cn } from '@/lib/utils';
+import { FacilityIconList } from '@/components/shared/facility-icons';
+import { cn, formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
 
 type SearchResult = components['schemas']['SearchResult'];
@@ -133,7 +134,7 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {delay && <DelayBadge delayMinutes={delay.delayMinutes} reason={delay.reason} />}
-            <span className="text-lg font-bold">{trip.price.toFixed(2)} €</span>
+            <span className="text-lg font-bold">{formatPrice(trip.price)}</span>
           </div>
         </div>
 
@@ -142,6 +143,11 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
           <div className="text-center">
             <p className="text-lg font-semibold">{formatTime(trip.departureTime)}</p>
             <p className="text-xs text-muted-foreground">{trip.origin}</p>
+            {trip.originFacilities && trip.originFacilities.length > 0 && (
+              <div className="mt-0.5 flex justify-center">
+                <FacilityIconList facilities={trip.originFacilities} />
+              </div>
+            )}
           </div>
           <div className="flex flex-1 flex-col items-center">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -154,6 +160,11 @@ export function TripCard({ trip, delay, stops, className }: TripCardProps) {
           <div className="text-center">
             <p className="text-lg font-semibold">{formatTime(trip.arrivalTime)}</p>
             <p className="text-xs text-muted-foreground">{trip.destination}</p>
+            {trip.destinationFacilities && trip.destinationFacilities.length > 0 && (
+              <div className="mt-0.5 flex justify-center">
+                <FacilityIconList facilities={trip.destinationFacilities} />
+              </div>
+            )}
           </div>
         </div>
 

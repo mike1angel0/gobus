@@ -65,6 +65,20 @@ SearchResult:
       minimum: 0
       maximum: 1000
       description: Total number of enabled seats on the bus
+    originFacilities:
+      type: array
+      minItems: 0
+      maxItems: 20
+      description: Facilities at the origin station
+      items:
+        $ref: './station.yaml#/StationFacility'
+    destinationFacilities:
+      type: array
+      minItems: 0
+      maxItems: 20
+      description: Facilities at the destination station
+      items:
+        $ref: './station.yaml#/StationFacility'
 
 SeatAvailability:
   type: object

@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, ArrowLeft, Clock, MapPin, Bus } from 'lucide-react';
+import { FacilityIconList } from '@/components/shared/facility-icons';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,6 +10,7 @@ import { SeatMap } from '@/components/booking/seat-map';
 import { useTripDetails } from '@/hooks/use-search';
 import { useCreateBooking } from '@/hooks/use-bookings';
 import { usePageTitle } from '@/hooks/use-page-title';
+import { formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
 
 type TripDetail = components['schemas']['TripDetail'];
@@ -22,15 +24,6 @@ type StopTime = components['schemas']['StopTime'];
 function formatTime(iso: string): string {
   const date = new Date(iso);
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-/**
- * Formats a price as a currency string.
- * @param price - Numeric price value
- * @returns Formatted price string (e.g., "$12.50")
- */
-function formatPrice(price: number): string {
-  return `$${price.toFixed(2)}`;
 }
 
 /**
@@ -156,6 +149,11 @@ function StopList({ stops }: StopListProps) {
               <span className="ml-2 text-sm text-muted-foreground">
                 {formatTime(stop.departureTime)}
               </span>
+              {stop.facilities && stop.facilities.length > 0 && (
+                <span className="ml-2 inline-flex align-middle">
+                  <FacilityIconList facilities={stop.facilities} />
+                </span>
+              )}
             </div>
             <span className="text-sm text-muted-foreground">
               {formatPrice(stop.priceFromStart)}

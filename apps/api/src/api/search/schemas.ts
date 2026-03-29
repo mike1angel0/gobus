@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { dataResponse, paginatedResponse } from '@/shared/schemas.js';
 import { seatTypeSchema } from '@/api/buses/schemas.js';
-import { scheduleStatusSchema } from '@/api/schedules/schemas.js';
-import { stopTimeSchema } from '@/api/schedules/schemas.js';
+import { scheduleStatusSchema, stopTimeSchema } from '@/api/schedules/schemas.js';
+import { stationFacilityEnum } from '@/api/stations/schemas.js';
 
 /** Zod schema for search query parameters matching OpenAPI searchTrips parameters. */
 export const searchQuerySchema = z
@@ -58,6 +58,16 @@ export const searchResultSchema = z.object({
     .min(0)
     .max(1000)
     .describe('Total number of enabled seats on the bus'),
+  originFacilities: z
+    .array(stationFacilityEnum)
+    .min(0)
+    .max(20)
+    .describe('Facilities at the origin station'),
+  destinationFacilities: z
+    .array(stationFacilityEnum)
+    .min(0)
+    .max(20)
+    .describe('Facilities at the destination station'),
 });
 
 /** Zod schema for a SeatAvailability response object matching OpenAPI SeatAvailability schema. */

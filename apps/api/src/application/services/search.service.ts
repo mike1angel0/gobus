@@ -142,7 +142,10 @@ export class SearchService {
     const schedules = await this.prisma.schedule.findMany({
       where: { id: { in: scheduleIds } },
       include: {
-        stopTimes: { orderBy: { orderIndex: 'asc' } },
+        stopTimes: {
+          orderBy: { orderIndex: 'asc' },
+          include: { station: { select: { id: true, facilities: true } } },
+        },
         route: { include: { provider: { select: { name: true } } } },
         bus: { include: { seats: { select: { id: true, isEnabled: true, type: true } } } },
         bookingSeats: {
@@ -187,6 +190,8 @@ export class SearchService {
         price,
         availableSeats,
         totalSeats,
+        originFacilities: originStop.station?.facilities ?? [],
+        destinationFacilities: destStop.station?.facilities ?? [],
       });
     }
 
@@ -209,7 +214,10 @@ export class SearchService {
     const schedule = await this.prisma.schedule.findUnique({
       where: { id: scheduleId },
       include: {
-        stopTimes: { orderBy: { orderIndex: 'asc' } },
+        stopTimes: {
+          orderBy: { orderIndex: 'asc' },
+          include: { station: { select: { id: true, facilities: true } } },
+        },
         route: { include: { provider: { select: { name: true } } } },
         bus: { include: { seats: { orderBy: [{ row: 'asc' }, { column: 'asc' }] } } },
         bookingSeats: {
@@ -245,6 +253,8 @@ export class SearchService {
       priceFromStart: st.priceFromStart,
       lat: st.lat,
       lng: st.lng,
+      stationId: st.station?.id ?? null,
+      facilities: st.station?.facilities ?? [],
     }));
 
     logger.debug('Trip details retrieved', { scheduleId, tripDate });

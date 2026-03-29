@@ -820,6 +820,102 @@ export interface paths {
         patch: operations["adminToggleSeat"];
         trace?: never;
     };
+    "/api/v1/admin/stations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all stations (admin)
+         * @description Returns a paginated list of all stations with optional filters by type, city, active status, and search query. Requires ADMIN role.
+         */
+        get: operations["adminListStations"];
+        put?: never;
+        /**
+         * Create a station (admin)
+         * @description Creates a new station (HUB, STATION, or STOP type). Requires ADMIN role.
+         */
+        post: operations["adminCreateStation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/stations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get station details (admin)
+         * @description Returns a single station by ID. Requires ADMIN role.
+         */
+        get: operations["adminGetStation"];
+        put?: never;
+        post?: never;
+        /**
+         * Deactivate a station (admin)
+         * @description Soft-deactivates a station by setting isActive to false. Fails if station is referenced by active schedules. Requires ADMIN role.
+         */
+        delete: operations["adminDeactivateStation"];
+        options?: never;
+        head?: never;
+        /**
+         * Update a station (admin)
+         * @description Updates station fields. Only admins can change type or deactivate. Requires ADMIN role.
+         */
+        patch: operations["adminUpdateStation"];
+        trace?: never;
+    };
+    "/api/v1/admin/stations/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge two stations (admin)
+         * @description Merges source station into target station. Updates all Stop and StopTime references from source to target, then deactivates the source station. Requires ADMIN role.
+         */
+        post: operations["adminMergeStations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search active stations
+         * @description Search active stations by name or city. Authenticated endpoint for route creation station picker.
+         */
+        get: operations["searchStations"];
+        put?: never;
+        /**
+         * Create a stop (provider)
+         * @description Allows a provider to create a simple stop. Type is auto-set to STOP. Requires PROVIDER role.
+         */
+        post: operations["providerCreateStop"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1036,6 +1132,8 @@ export interface components {
             id: string;
             /** @description Provider company name */
             name: string;
+            /** @description Unique 3-letter provider code used in order IDs (e.g. TRA, CAR) */
+            code?: string;
             /**
              * Format: uri
              * @description URL to provider logo image
@@ -1132,6 +1230,8 @@ export interface components {
             lng: number;
             /** @description Position in the route (0-based) */
             orderIndex: number;
+            /** @description Optional reference to a Station record */
+            stationId?: string;
         };
         /** @description Request body for creating a route with stops */
         CreateRouteRequest: {
@@ -1158,6 +1258,8 @@ export interface components {
             lng: number;
             /** @description Position in the route (0-based) */
             orderIndex: number;
+            /** @description Optional reference to a Station record */
+            stationId?: string | null;
         };
         /** @description A route with its ordered list of stops */
         RouteWithStops: {
@@ -1195,6 +1297,8 @@ export interface components {
             columns: number;
             /** @description Provider who owns this bus */
             providerId: string;
+            /** @description Provider company name */
+            providerName?: string;
             /**
              * Format: date-time
              * @description Bus creation timestamp
@@ -1490,6 +1594,11 @@ export interface components {
             /** @description Ordered stop times (minimum 2 for a valid schedule) */
             stopTimes: components["schemas"]["CreateStopTimeInput"][];
         };
+        /**
+         * @description Facility available at a station
+         * @enum {string}
+         */
+        StationFacility: "WIFI" | "PARKING" | "WAITING_ROOM" | "RESTROOM" | "TICKET_OFFICE" | "LUGGAGE_STORAGE";
         /** @description Arrival and departure times for a stop in a schedule */
         StopTime: {
             /** @description Unique stop time identifier (cuid) */
@@ -1523,6 +1632,10 @@ export interface components {
              * @description Longitude of the stop
              */
             lng?: number | null;
+            /** @description Linked station ID (null if no station) */
+            stationId?: string | null;
+            /** @description Facilities at this stop's station (empty if no station linked) */
+            facilities?: components["schemas"]["StationFacility"][];
         };
         /** @description A schedule with its route, bus, driver, and stop times */
         ScheduleWithDetails: {
@@ -1630,6 +1743,10 @@ export interface components {
             availableSeats: number;
             /** @description Total number of enabled seats on the bus */
             totalSeats: number;
+            /** @description Facilities at the origin station */
+            originFacilities?: components["schemas"]["StationFacility"][];
+            /** @description Facilities at the destination station */
+            destinationFacilities?: components["schemas"]["StationFacility"][];
         };
         /** @description Paginated list of search results */
         SearchResultListResponse: {
@@ -1704,7 +1821,7 @@ export interface components {
         Booking: {
             /** @description Unique booking identifier (cuid) */
             id: string;
-            /** @description Human-friendly unique order identifier (cuid) */
+            /** @description Human-friendly order identifier (e.g. GBTRA-20260329-001) */
             orderId: string;
             /** @description User who made the booking */
             userId: string;
@@ -1758,7 +1875,7 @@ export interface components {
         BookingWithDetails: {
             /** @description Unique booking identifier (cuid) */
             id: string;
-            /** @description Human-friendly unique order identifier (cuid) */
+            /** @description Human-friendly order identifier (e.g. GBTRA-20260329-001) */
             orderId: string;
             /** @description User who made the booking */
             userId: string;
@@ -2092,6 +2209,8 @@ export interface components {
             avatarUrl?: string | null;
             /** @description Associated provider ID (for PROVIDER and DRIVER roles) */
             providerId?: string | null;
+            /** @description Associated provider company name (for PROVIDER and DRIVER roles) */
+            providerName?: string | null;
             /**
              * @description Account status
              * @enum {string}
@@ -2176,6 +2295,152 @@ export interface components {
         /** @description API response envelope wrapping a single seat */
         SeatDataResponse: {
             data: components["schemas"]["Seat"];
+        };
+        /**
+         * @description Classification of a station by size and facilities
+         * @enum {string}
+         */
+        StationType: "HUB" | "STATION" | "STOP";
+        /** @description A bus station, hub, or stop with location and facility information */
+        Station: {
+            /** @description Unique station identifier (cuid) */
+            id: string;
+            /** @description Station display name (e.g., Autogara Nord) */
+            name: string;
+            /** @description City where the station is located */
+            cityName: string;
+            type: components["schemas"]["StationType"];
+            /** @description Full street address */
+            address: string;
+            /**
+             * Format: double
+             * @description Latitude coordinate
+             */
+            lat: number;
+            /**
+             * Format: double
+             * @description Longitude coordinate
+             */
+            lng: number;
+            /** @description List of facilities available at this station */
+            facilities: components["schemas"]["StationFacility"][];
+            /** @description Station contact phone number */
+            phone?: string | null;
+            /** @description Station contact email address */
+            email?: string | null;
+            /** @description Number of bus platforms/bays */
+            platformCount?: number | null;
+            /** @description Whether the station is currently active */
+            isActive: boolean;
+            /** @description ID of the user who created this station */
+            createdBy: string;
+            /**
+             * Format: date-time
+             * @description Station creation timestamp
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description Station last update timestamp
+             */
+            updatedAt: string;
+        };
+        /** @description Paginated list of stations */
+        StationListResponse: {
+            /** @description Stations for the current page */
+            data: components["schemas"]["Station"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** @description Request body for creating a station (admin creates HUB/STATION) */
+        CreateStationRequest: {
+            /** @description Station display name */
+            name: string;
+            /** @description City where the station is located */
+            cityName: string;
+            type: components["schemas"]["StationType"];
+            /** @description Full street address */
+            address: string;
+            /**
+             * Format: double
+             * @description Latitude coordinate
+             */
+            lat: number;
+            /**
+             * Format: double
+             * @description Longitude coordinate
+             */
+            lng: number;
+            /** @description List of facilities available at this station */
+            facilities?: components["schemas"]["StationFacility"][];
+            /** @description Station contact phone number */
+            phone?: string;
+            /**
+             * Format: email
+             * @description Station contact email address
+             */
+            email?: string;
+            /** @description Number of bus platforms/bays */
+            platformCount?: number;
+        };
+        /** @description API response envelope wrapping a single station */
+        StationDataResponse: {
+            data: components["schemas"]["Station"];
+        };
+        /** @description Request body for updating a station (all fields optional) */
+        UpdateStationRequest: {
+            /** @description Station display name */
+            name?: string;
+            /** @description City where the station is located */
+            cityName?: string;
+            type?: components["schemas"]["StationType"];
+            /** @description Full street address */
+            address?: string;
+            /**
+             * Format: double
+             * @description Latitude coordinate
+             */
+            lat?: number;
+            /**
+             * Format: double
+             * @description Longitude coordinate
+             */
+            lng?: number;
+            /** @description List of facilities available at this station */
+            facilities?: components["schemas"]["StationFacility"][];
+            /** @description Station contact phone number */
+            phone?: string | null;
+            /** @description Station contact email address */
+            email?: string | null;
+            /** @description Number of bus platforms/bays */
+            platformCount?: number | null;
+            /** @description Whether the station is currently active */
+            isActive?: boolean;
+        };
+        /** @description Request body for merging two stations (source merged into target) */
+        MergeStationsRequest: {
+            /** @description ID of the station to merge from (will be deactivated) */
+            sourceId: string;
+            /** @description ID of the station to merge into (will receive all references) */
+            targetId: string;
+        };
+        /** @description Request body for a provider to create a simple stop (type auto-set to STOP) */
+        ProviderCreateStopRequest: {
+            /** @description Stop display name */
+            name: string;
+            /** @description City where the stop is located */
+            cityName: string;
+            /** @description Full street address */
+            address: string;
+            /**
+             * Format: double
+             * @description Latitude coordinate
+             */
+            lat: number;
+            /**
+             * Format: double
+             * @description Longitude coordinate
+             */
+            lng: number;
         };
     };
     responses: {
@@ -4745,6 +5010,450 @@ export interface operations {
             };
             /** @description Seat not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    adminListStations: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: components["parameters"]["PageParam"];
+                /** @description Number of items per page */
+                pageSize?: components["parameters"]["PageSizeParam"];
+                /** @description Filter stations by type */
+                type?: "HUB" | "STATION" | "STOP";
+                /** @description Filter stations by city name (case-insensitive partial match) */
+                city?: string;
+                /** @description Filter stations by active status */
+                isActive?: boolean;
+                /** @description Search stations by name or address (case-insensitive partial match) */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list of stations */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationListResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    adminCreateStation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStationRequest"];
+            };
+        };
+        responses: {
+            /** @description Station created successfully */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationDataResponse"];
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    adminGetStation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Resource identifier (cuid) */
+                id: components["parameters"]["IdParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Station details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationDataResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Station not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    adminDeactivateStation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Resource identifier (cuid) */
+                id: components["parameters"]["IdParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Station deactivated successfully */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Station not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Station in use by active schedules */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    adminUpdateStation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Resource identifier (cuid) */
+                id: components["parameters"]["IdParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStationRequest"];
+            };
+        };
+        responses: {
+            /** @description Station updated successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationDataResponse"];
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Station not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Station in use (cannot deactivate) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    adminMergeStations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MergeStationsRequest"];
+            };
+        };
+        responses: {
+            /** @description Stations merged successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationDataResponse"];
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not an admin */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Station not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    searchStations: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: components["parameters"]["PageParam"];
+                /** @description Number of items per page */
+                pageSize?: components["parameters"]["PageSizeParam"];
+                /** @description Search stations by name, city, or address (case-insensitive partial match) */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list of active stations */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationListResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            429: components["responses"]["TooManyRequests"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    providerCreateStop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderCreateStopRequest"];
+            };
+        };
+        responses: {
+            /** @description Stop created successfully */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StationDataResponse"];
+                };
+            };
+            /** @description Validation error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not a provider */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -101,6 +101,7 @@ function makeStopTime(overrides: Record<string, unknown> = {}) {
     lat: null,
     lng: null,
     scheduleId: SCHEDULE_ID,
+    station: null,
     ...overrides,
   };
 }
@@ -329,6 +330,8 @@ describe('ScheduleService', () => {
         priceFromStart: 0,
         lat: null,
         lng: null,
+        stationId: null,
+        facilities: [],
       });
       expect(result.route).toEqual({
         id: ROUTE_ID,
@@ -475,7 +478,10 @@ describe('ScheduleService', () => {
           },
         },
         include: {
-          stopTimes: { orderBy: { orderIndex: 'asc' } },
+          stopTimes: {
+            orderBy: { orderIndex: 'asc' },
+            include: { station: { select: { id: true, facilities: true } } },
+          },
           route: true,
           bus: true,
           driver: { select: { id: true, name: true } },
@@ -615,7 +621,10 @@ describe('ScheduleService', () => {
         where: { id: SCHEDULE_ID },
         data: { driverId: 'driver-2' },
         include: {
-          stopTimes: { orderBy: { orderIndex: 'asc' } },
+          stopTimes: {
+            orderBy: { orderIndex: 'asc' },
+            include: { station: { select: { id: true, facilities: true } } },
+          },
           route: true,
           bus: true,
           driver: { select: { id: true, name: true } },
