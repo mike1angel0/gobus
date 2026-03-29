@@ -1,0 +1,375 @@
+adminStations:
+  get:
+    operationId: adminListStations
+    summary: List all stations (admin)
+    description: Returns a paginated list of all stations with optional filters by type, city, active status, and search query. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: type
+        in: query
+        required: false
+        description: Filter stations by type
+        schema:
+          type: string
+          enum: [HUB, STATION, STOP]
+      - name: city
+        in: query
+        required: false
+        description: Filter stations by city name (case-insensitive partial match)
+        schema:
+          type: string
+          maxLength: 200
+      - name: isActive
+        in: query
+        required: false
+        description: Filter stations by active status
+        schema:
+          type: boolean
+      - name: search
+        in: query
+        required: false
+        description: Search stations by name or address (case-insensitive partial match)
+        schema:
+          type: string
+          maxLength: 200
+    responses:
+      '200':
+        description: Paginated list of stations
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/station.yaml#/StationListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+  post:
+    operationId: adminCreateStation
+    summary: Create a station (admin)
+    description: Creates a new station (HUB, STATION, or STOP type). Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/station.yaml#/CreateStationRequest'
+    responses:
+      '201':
+        description: Station created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/station.yaml#/StationDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
+adminStationById:
+  get:
+    operationId: adminGetStation
+    summary: Get station details (admin)
+    description: Returns a single station by ID. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '200':
+        description: Station details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/station.yaml#/StationDataResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Station not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+  patch:
+    operationId: adminUpdateStation
+    summary: Update a station (admin)
+    description: Updates station fields. Only admins can change type or deactivate. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/station.yaml#/UpdateStationRequest'
+    responses:
+      '200':
+        description: Station updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/station.yaml#/StationDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Station not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '409':
+        description: Station in use (cannot deactivate)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+  delete:
+    operationId: adminDeactivateStation
+    summary: Deactivate a station (admin)
+    description: Soft-deactivates a station by setting isActive to false. Fails if station is referenced by active schedules. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/IdParam'
+    responses:
+      '204':
+        description: Station deactivated successfully
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Station not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '409':
+        description: Station in use by active schedules
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
+adminMergeStations:
+  post:
+    operationId: adminMergeStations
+    summary: Merge two stations (admin)
+    description: Merges source station into target station. Updates all Stop and StopTime references from source to target, then deactivates the source station. Requires ADMIN role.
+    tags:
+      - Admin
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/station.yaml#/MergeStationsRequest'
+    responses:
+      '200':
+        description: Stations merged successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/station.yaml#/StationDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not an admin
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '404':
+        description: Station not found
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+
+publicStations:
+  get:
+    operationId: searchStations
+    summary: Search active stations
+    description: Search active stations by name or city. Authenticated endpoint for route creation station picker.
+    tags:
+      - Stations
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/common.yaml#/PageParam'
+      - $ref: '../components/parameters/common.yaml#/PageSizeParam'
+      - name: search
+        in: query
+        required: false
+        description: Search stations by name, city, or address (case-insensitive partial match)
+        schema:
+          type: string
+          maxLength: 200
+    responses:
+      '200':
+        description: Paginated list of active stations
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/station.yaml#/StationListResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'
+  post:
+    operationId: providerCreateStop
+    summary: Create a stop (provider)
+    description: Allows a provider to create a simple stop. Type is auto-set to STOP. Requires PROVIDER role.
+    tags:
+      - Stations
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/station.yaml#/ProviderCreateStopRequest'
+    responses:
+      '201':
+        description: Stop created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/station.yaml#/StationDataResponse'
+      '400':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '401':
+        description: Not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '403':
+        description: Not a provider
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/ErrorResponse'
+      '429':
+        $ref: '../components/responses/errors.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses/errors.yaml#/InternalServerError'

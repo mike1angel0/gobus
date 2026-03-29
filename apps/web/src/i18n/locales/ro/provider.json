@@ -74,7 +74,19 @@
       "lngLabel": "Longitudinea stației {{index}}",
       "lngPlaceholder": "Lng",
       "removeLabel": "Elimină stația {{name}}",
-      "addStop": "Adaugă stație"
+      "addStop": "Adaugă stație",
+      "selectStation": "Selectează o stație",
+      "customStop": "Stație personalizată",
+      "useStation": "Folosește stație",
+      "orCustom": "sau introdu manual",
+      "createStopTitle": "Creează stație nouă",
+      "createStopName": "Nume stație",
+      "createStopCity": "Oraș",
+      "createStopAddress": "Adresă",
+      "createStopLat": "Latitudine",
+      "createStopLng": "Longitudine",
+      "createStopSubmit": "Creează stație",
+      "createStopCreating": "Se creează…"
     },
     "validation": {
       "nameRequired": "Numele rutei este obligatoriu.",

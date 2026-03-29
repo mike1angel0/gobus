@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Route as RouteIcon, Plus, Trash2, MapPin, ArrowUp, ArrowDown, X } from 'lucide-react';
+import { Route as RouteIcon, Plus, Trash2, MapPin, ArrowUp, ArrowDown, X, ToggleLeft } from 'lucide-react';
 import type { TFunction } from 'i18next';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { StationPicker } from '@/components/provider/station-picker';
 import { CardGridSkeleton } from '@/components/shared/loading-skeleton';
 import { PageError } from '@/components/shared/error-state';
 import { EmptyState } from '@/components/shared/empty-state';
@@ -34,6 +35,8 @@ const MAX_STOP_NAME_LENGTH = 200;
 /** Maximum number of stops per route per OpenAPI spec. */
 const MAX_STOPS = 100;
 
+type Station = components['schemas']['Station'];
+
 /** A stop entry in the create route form. */
 interface StopFormEntry {
   /** Unique key for React rendering. */
@@ -44,11 +47,15 @@ interface StopFormEntry {
   lat: string;
   /** Longitude coordinate. */
   lng: string;
+  /** Linked station ID (null if custom). */
+  stationId: string | null;
+  /** True = manual entry, false = station picker. */
+  isCustom: boolean;
 }
 
 /** Creates an empty stop entry with a unique key. */
 function createEmptyStop(key: number): StopFormEntry {
-  return { key, name: '', lat: '', lng: '' };
+  return { key, name: '', lat: '', lng: '', stationId: null, isCustom: false };
 }
 
 /* ---------- Route Card ---------- */
@@ -135,6 +142,7 @@ interface StopsBuilderProps {
 function StopsBuilder({ stops, onChange, error }: StopsBuilderProps) {
   const { t } = useTranslation('provider');
   const nextKey = stops.length > 0 ? Math.max(...stops.map((s) => s.key)) + 1 : 0;
+  const selectedStationsRef = useRef<Map<number, Station>>(new Map());
 
   function addStop() {
     if (stops.length >= MAX_STOPS) return;
@@ -142,11 +150,44 @@ function StopsBuilder({ stops, onChange, error }: StopsBuilderProps) {
   }
 
   function removeStop(key: number) {
+    selectedStationsRef.current.delete(key);
     onChange(stops.filter((s) => s.key !== key));
   }
 
-  function updateStop(key: number, field: keyof Omit<StopFormEntry, 'key'>, value: string) {
+  function updateStop(key: number, field: keyof Omit<StopFormEntry, 'key'>, value: string | boolean | null) {
     onChange(stops.map((s) => (s.key === key ? { ...s, [field]: value } : s)));
+  }
+
+  function handleStationSelect(key: number, station: Station | null) {
+    if (station) {
+      selectedStationsRef.current.set(key, station);
+    } else {
+      selectedStationsRef.current.delete(key);
+    }
+    onChange(
+      stops.map((s) =>
+        s.key === key
+          ? {
+              ...s,
+              name: station?.name ?? '',
+              lat: station?.lat != null ? String(station.lat) : '',
+              lng: station?.lng != null ? String(station.lng) : '',
+              stationId: station?.id ?? null,
+            }
+          : s,
+      ),
+    );
+  }
+
+  function toggleMode(key: number) {
+    selectedStationsRef.current.delete(key);
+    onChange(
+      stops.map((s) =>
+        s.key === key
+          ? { ...s, isCustom: !s.isCustom, stationId: null, name: '', lat: '', lng: '' }
+          : s,
+      ),
+    );
   }
 
   function moveStop(index: number, direction: -1 | 1) {
@@ -199,51 +240,74 @@ function StopsBuilder({ stops, onChange, error }: StopsBuilderProps) {
                 <ArrowDown className="h-3 w-3" aria-hidden="true" />
               </Button>
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start">
-              <div className="flex-1">
-                <Label htmlFor={`stop-name-${stop.key}`} className="sr-only">
-                  {t('routes.stops.nameLabel', { index: index + 1 })}
-                </Label>
-                <Input
-                  id={`stop-name-${stop.key}`}
-                  placeholder={t('routes.stops.namePlaceholder')}
-                  maxLength={MAX_STOP_NAME_LENGTH}
-                  value={stop.name}
-                  onChange={(e) => updateStop(stop.key, 'name', e.target.value)}
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => toggleMode(stop.key)}
+                  aria-label={stop.isCustom ? t('routes.stops.useStation') : t('routes.stops.customStop')}
+                >
+                  <ToggleLeft className="mr-1 h-3 w-3" aria-hidden="true" />
+                  {stop.isCustom ? t('routes.stops.useStation') : t('routes.stops.customStop')}
+                </Button>
+              </div>
+              {stop.isCustom ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+                  <div className="flex-1">
+                    <Label htmlFor={`stop-name-${stop.key}`} className="sr-only">
+                      {t('routes.stops.nameLabel', { index: index + 1 })}
+                    </Label>
+                    <Input
+                      id={`stop-name-${stop.key}`}
+                      placeholder={t('routes.stops.namePlaceholder')}
+                      maxLength={MAX_STOP_NAME_LENGTH}
+                      value={stop.name}
+                      onChange={(e) => updateStop(stop.key, 'name', e.target.value)}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-24">
+                      <Label htmlFor={`stop-lat-${stop.key}`} className="sr-only">
+                        {t('routes.stops.latLabel', { index: index + 1 })}
+                      </Label>
+                      <Input
+                        id={`stop-lat-${stop.key}`}
+                        placeholder={t('routes.stops.latPlaceholder')}
+                        type="number"
+                        step="any"
+                        min={-90}
+                        max={90}
+                        value={stop.lat}
+                        onChange={(e) => updateStop(stop.key, 'lat', e.target.value)}
+                      />
+                    </div>
+                    <div className="w-24">
+                      <Label htmlFor={`stop-lng-${stop.key}`} className="sr-only">
+                        {t('routes.stops.lngLabel', { index: index + 1 })}
+                      </Label>
+                      <Input
+                        id={`stop-lng-${stop.key}`}
+                        placeholder={t('routes.stops.lngPlaceholder')}
+                        type="number"
+                        step="any"
+                        min={-180}
+                        max={180}
+                        value={stop.lng}
+                        onChange={(e) => updateStop(stop.key, 'lng', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <StationPicker
+                  value={selectedStationsRef.current.get(stop.key) ?? null}
+                  onChange={(station) => handleStationSelect(stop.key, station)}
+                  allowCreate
                 />
-              </div>
-              <div className="flex gap-2">
-                <div className="w-24">
-                  <Label htmlFor={`stop-lat-${stop.key}`} className="sr-only">
-                    {t('routes.stops.latLabel', { index: index + 1 })}
-                  </Label>
-                  <Input
-                    id={`stop-lat-${stop.key}`}
-                    placeholder={t('routes.stops.latPlaceholder')}
-                    type="number"
-                    step="any"
-                    min={-90}
-                    max={90}
-                    value={stop.lat}
-                    onChange={(e) => updateStop(stop.key, 'lat', e.target.value)}
-                  />
-                </div>
-                <div className="w-24">
-                  <Label htmlFor={`stop-lng-${stop.key}`} className="sr-only">
-                    {t('routes.stops.lngLabel', { index: index + 1 })}
-                  </Label>
-                  <Input
-                    id={`stop-lng-${stop.key}`}
-                    placeholder={t('routes.stops.lngPlaceholder')}
-                    type="number"
-                    step="any"
-                    min={-180}
-                    max={180}
-                    value={stop.lng}
-                    onChange={(e) => updateStop(stop.key, 'lng', e.target.value)}
-                  />
-                </div>
-              </div>
+              )}
             </div>
             <Button
               type="button"
@@ -350,6 +414,7 @@ function CreateRouteDialog({ children }: CreateRouteDialogProps) {
           lat: parseFloat(stop.lat),
           lng: parseFloat(stop.lng),
           orderIndex: index,
+          ...(stop.stationId ? { stationId: stop.stationId } : {}),
         })),
       },
       {

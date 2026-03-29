@@ -34,6 +34,7 @@ export const createStopInputSchema = z
     lat: z.number().min(-90).max(90).describe('Latitude coordinate'),
     lng: z.number().min(-180).max(180).describe('Longitude coordinate'),
     orderIndex: z.number().int().min(0).max(100).describe('Position in the route (0-based)'),
+    stationId: z.string().max(30).optional().describe('Optional reference to a Station record'),
   })
   .strict();
 

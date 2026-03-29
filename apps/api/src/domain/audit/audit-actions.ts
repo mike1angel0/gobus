@@ -23,6 +23,12 @@ export const AuditActions = {
   // Booking events
   BOOKING_CREATED: 'BOOKING_CREATED',
   BOOKING_CANCELLED: 'BOOKING_CANCELLED',
+
+  // Station events
+  STATION_CREATED: 'STATION_CREATED',
+  STATION_UPDATED: 'STATION_UPDATED',
+  STATION_DEACTIVATED: 'STATION_DEACTIVATED',
+  STATION_MERGED: 'STATION_MERGED',
 } as const;
 
 /** Union type of all valid audit action strings. */

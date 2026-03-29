@@ -52,6 +52,8 @@ export interface CreateStopData {
   lng: number;
   /** Position in the route (0-based). */
   orderIndex: number;
+  /** Optional reference to a Station record. */
+  stationId?: string;
 }
 
 /**

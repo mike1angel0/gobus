@@ -31,6 +31,8 @@ export const ErrorCodes = {
   RATE_LIMITED: 'RATE_LIMITED',
   /** Resource exhaustion limit reached (e.g., max active bookings). */
   RESOURCE_EXHAUSTED: 'RESOURCE_EXHAUSTED',
+  /** Station is in use by active schedules and cannot be deactivated. */
+  STATION_IN_USE: 'STATION_IN_USE',
 } as const;
 
 /** Union type of all valid error code strings. */

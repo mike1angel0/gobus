@@ -74,7 +74,19 @@
       "lngLabel": "Stop {{index}} longitude",
       "lngPlaceholder": "Lng",
       "removeLabel": "Remove stop {{name}}",
-      "addStop": "Add stop"
+      "addStop": "Add stop",
+      "selectStation": "Select a station",
+      "customStop": "Custom stop",
+      "useStation": "Use station",
+      "orCustom": "or enter manually",
+      "createStopTitle": "Create new stop",
+      "createStopName": "Stop name",
+      "createStopCity": "City",
+      "createStopAddress": "Address",
+      "createStopLat": "Latitude",
+      "createStopLng": "Longitude",
+      "createStopSubmit": "Create stop",
+      "createStopCreating": "Creating…"
     },
     "validation": {
       "nameRequired": "Route name is required.",

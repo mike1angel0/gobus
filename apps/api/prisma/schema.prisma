@@ -53,6 +53,12 @@ enum DelayReason {
   OTHER
 }
 
+enum StationType {
+  HUB
+  STATION
+  STOP
+}
+
 // ─── User ───────────────────────────────────────────────────────────────────
 
 model User {
@@ -90,6 +96,7 @@ model User {
 model Provider {
   id           String         @id @default(cuid())
   name         String         @db.VarChar(200)
+  code         String         @unique @db.VarChar(10)
   logo         String?        @db.VarChar(2048)
   contactEmail String?        @db.VarChar(255)
   contactPhone String?        @db.VarChar(20)
@@ -151,6 +158,33 @@ model AuditLog {
   @@index([action, createdAt])
 }
 
+// ─── Station ─────────────────────────────────────────────────────────────────
+
+model Station {
+  id            String        @id @default(cuid())
+  name          String        @db.VarChar(200)
+  cityName      String        @db.VarChar(200)
+  type          StationType   @default(STOP)
+  address       String        @db.VarChar(500)
+  lat           Float
+  lng           Float
+  facilities    String[]
+  phone         String?       @db.VarChar(20)
+  email         String?       @db.VarChar(255)
+  platformCount Int?
+  isActive      Boolean       @default(true)
+  createdBy     String        @db.VarChar(30)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  stops         Stop[]
+  stopTimes     StopTime[]
+
+  @@index([cityName])
+  @@index([type])
+  @@index([isActive])
+}
+
 // ─── Route ─────────────────────────────────────────────────────────────────
 
 model Route {
@@ -169,16 +203,19 @@ model Route {
 // ─── Stop ──────────────────────────────────────────────────────────────────
 
 model Stop {
-  id         String @id @default(cuid())
-  name       String @db.VarChar(200)
+  id         String   @id @default(cuid())
+  name       String   @db.VarChar(200)
   lat        Float
   lng        Float
   orderIndex Int
   routeId    String
+  stationId  String?
 
-  route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  route      Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  station    Station? @relation(fields: [stationId], references: [id])
 
   @@index([routeId])
+  @@index([stationId])
 }
 
 // ─── Bus ───────────────────────────────────────────────────────────────────
@@ -261,17 +298,20 @@ model StopTime {
   priceFromStart Float
   lat            Float?
   lng            Float?
+  stationId      String?
 
   schedule       Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  station        Station? @relation(fields: [stationId], references: [id])
 
   @@index([scheduleId])
+  @@index([stationId])
 }
 
 // ─── Booking ──────────────────────────────────────────────────────────────────
 
 model Booking {
   id            String        @id @default(cuid())
-  orderId       String        @unique @default(cuid())
+  orderId       String        @unique @db.VarChar(25)
   userId        String
   scheduleId    String
   totalPrice    Float

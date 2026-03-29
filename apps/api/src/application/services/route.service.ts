@@ -97,6 +97,7 @@ export class RouteService {
               lat: stop.lat,
               lng: stop.lng,
               orderIndex: stop.orderIndex,
+              stationId: stop.stationId ?? null,
             })),
           },
         },

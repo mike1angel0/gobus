@@ -30,6 +30,8 @@ import trackingRoutes from '@/api/tracking/routes.js';
 import delayRoutes from '@/api/delays/routes.js';
 import driverTripRoutes from '@/api/driver-trips/routes.js';
 import adminRoutes from '@/api/admin/routes.js';
+import adminStationRoutes from '@/api/admin/station-routes.js';
+import stationRoutes from '@/api/stations/routes.js';
 
 /** Default localhost origins allowed in development mode. */
 const DEV_ORIGINS = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'];
@@ -168,6 +170,8 @@ async function registerRoutes(app: FastifyInstance): Promise<void> {
   await app.register(delayRoutes);
   await app.register(driverTripRoutes);
   await app.register(adminRoutes);
+  await app.register(adminStationRoutes);
+  await app.register(stationRoutes);
 }
 
 /**

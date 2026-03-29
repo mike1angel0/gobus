@@ -17,6 +17,11 @@ vi.mock('@/hooks/use-routes', () => ({
   useDeleteRoute: () => mockDeleteRoute(),
 }));
 
+vi.mock('@/hooks/use-stations', () => ({
+  useSearchStations: () => ({ data: undefined }),
+  useProviderCreateStop: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
 /* ---------- Helpers ---------- */
 
 /** Returns a loaded state for the useRoutes hook. */
@@ -57,6 +62,14 @@ function createMockRoute(id: string, name: string) {
 /** Returns a default mutation result (idle). */
 function idleMutation() {
   return { mutate: vi.fn(), isPending: false };
+}
+
+/** Switch all stops to custom (manual entry) mode. */
+async function switchAllStopsToCustom(user: ReturnType<typeof userEvent.setup>) {
+  const customButtons = screen.getAllByRole('button', { name: 'Custom stop' });
+  for (const btn of customButtons) {
+    await user.click(btn);
+  }
 }
 
 /* ---------- Tests ---------- */
@@ -160,6 +173,8 @@ describe('ProviderRoutesPage', () => {
       await user.click(screen.getByRole('button', { name: /Create route/ }));
 
       expect(screen.getByLabelText('Route name')).toBeInTheDocument();
+      // Switch to custom mode to see text inputs
+      await switchAllStopsToCustom(user);
       const stopsList = screen.getByRole('list', { name: 'Route stops' });
       expect(within(stopsList).getAllByPlaceholderText('Stop name')).toHaveLength(2);
     });
@@ -202,6 +217,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
 
       await user.type(screen.getByLabelText('Route name'), 'Test Route');
 
@@ -224,6 +240,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
 
       await user.type(screen.getByLabelText('Route name'), 'Bucharest — Cluj');
 
@@ -261,13 +278,16 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
 
       // Start with 2 stops
       const stopsList = screen.getByRole('list', { name: 'Route stops' });
       expect(within(stopsList).getAllByPlaceholderText('Stop name')).toHaveLength(2);
 
-      // Add a stop
+      // Add a stop and switch it to custom
       await user.click(screen.getByRole('button', { name: 'Add stop' }));
+      const customBtns = screen.getAllByRole('button', { name: 'Custom stop' });
+      await user.click(customBtns[customBtns.length - 1]);
       expect(within(stopsList).getAllByPlaceholderText('Stop name')).toHaveLength(3);
 
       // Remove a stop
@@ -283,6 +303,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
 
       const stopNames = screen.getAllByPlaceholderText('Stop name');
       await user.type(stopNames[0], 'First');
@@ -306,6 +327,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
       await user.type(screen.getByLabelText('Route name'), 'Test Route');
 
       // Only fill second stop but not first
@@ -336,6 +358,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
       await user.type(screen.getByLabelText('Route name'), 'Test');
 
       const stopNames = screen.getAllByPlaceholderText('Stop name');
@@ -375,6 +398,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
       await user.type(screen.getByLabelText('Route name'), 'Test');
 
       const stopNames = screen.getAllByPlaceholderText('Stop name');
@@ -414,6 +438,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
       await user.type(screen.getByLabelText('Route name'), 'Test');
 
       const stopNames = screen.getAllByPlaceholderText('Stop name');
@@ -443,6 +468,7 @@ describe('ProviderRoutesPage', () => {
       renderWithProviders(<ProviderRoutesPage />);
 
       await user.click(screen.getByRole('button', { name: /Create route/ }));
+      await switchAllStopsToCustom(user);
       await user.type(screen.getByLabelText('Route name'), 'Test');
 
       const stopNames = screen.getAllByPlaceholderText('Stop name');

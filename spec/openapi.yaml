@@ -91,6 +91,14 @@ paths:
     $ref: paths/admin.yaml#/auditLogs
   /api/v1/admin/seats/{id}:
     $ref: paths/admin.yaml#/seatById
+  /api/v1/admin/stations:
+    $ref: paths/stations.yaml#/adminStations
+  /api/v1/admin/stations/{id}:
+    $ref: paths/stations.yaml#/adminStationById
+  /api/v1/admin/stations/merge:
+    $ref: paths/stations.yaml#/adminMergeStations
+  /api/v1/stations:
+    $ref: paths/stations.yaml#/publicStations
 
 components:
   securitySchemes:

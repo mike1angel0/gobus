@@ -15,19 +15,20 @@ async function main() {
   // ─── Providers ──────────────────────────────────────────────────────────────
   async function upsertProvider(
     name: string,
+    code: string,
     contactEmail: string,
     contactPhone: string,
     status: 'APPROVED' | 'PENDING',
   ) {
     const existing = await prisma.provider.findFirst({ where: { name } });
     if (existing) return existing;
-    return prisma.provider.create({ data: { name, contactEmail, contactPhone, status } });
+    return prisma.provider.create({ data: { name, code, contactEmail, contactPhone, status } });
   }
 
   const [providerA, providerB, providerC] = await Promise.all([
-    upsertProvider('TransBalkan Express', 'office@transbalkan.ro', '+40700100200', 'APPROVED'),
-    upsertProvider('CarpathianBus', 'info@carpathianbus.ro', '+40700300400', 'APPROVED'),
-    upsertProvider('DanubeLine', 'contact@danubeline.ro', '+40700500600', 'PENDING'),
+    upsertProvider('TransBalkan Express', 'TRA', 'office@transbalkan.ro', '+40700100200', 'APPROVED'),
+    upsertProvider('CarpathianBus', 'CAR', 'info@carpathianbus.ro', '+40700300400', 'APPROVED'),
+    upsertProvider('DanubeLine', 'DAN', 'contact@danubeline.ro', '+40700500600', 'PENDING'),
   ]);
 
   // ─── Users ──────────────────────────────────────────────────────────────────
@@ -429,6 +430,123 @@ async function main() {
     });
   }
 
+  // ─── Stations ────────────────────────────────────────────────────────────
+  // City coordinates matching the cities array above
+  const cityCoords: Record<string, [number, number]> = {
+    'București': [44.4268, 26.1025],
+    'Cluj-Napoca': [46.7712, 23.6236],
+    'Timișoara': [45.7489, 21.2087],
+    'Iași': [47.1585, 27.6014],
+    'Constanța': [44.1598, 28.6348],
+    'Brașov': [45.6427, 25.5887],
+    'Sibiu': [45.7983, 24.1256],
+    'Craiova': [44.3302, 23.7949],
+    'Oradea': [47.0722, 21.9212],
+    'Pitești': [44.8565, 24.8691],
+    'Ploiești': [44.9467, 26.024],
+    'Târgu Mureș': [46.5386, 24.5554],
+    'Alba Iulia': [46.0677, 23.5695],
+    'Râmnicu Vâlcea': [45.0997, 24.3694],
+    'Arad': [46.1866, 21.3123],
+  };
+
+  const stationDefs: Array<{
+    name: string;
+    cityName: string;
+    type: 'HUB' | 'STATION' | 'STOP';
+    address: string;
+    facilities: string[];
+    platformCount: number | null;
+  }> = [
+    // HUBs — major cities with full facilities
+    { name: 'Autogara Nord', cityName: 'București', type: 'HUB', address: 'Bulevardul Dinicu Golescu 1', facilities: ['WIFI', 'PARKING', 'WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE', 'LUGGAGE_STORAGE'], platformCount: 20 },
+    { name: 'Autogara Militari', cityName: 'București', type: 'HUB', address: 'Calea Giulești 8', facilities: ['WIFI', 'PARKING', 'WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE', 'LUGGAGE_STORAGE'], platformCount: 15 },
+    { name: 'Autogara Cluj', cityName: 'Cluj-Napoca', type: 'HUB', address: 'Strada Giordano Bruno 1-3', facilities: ['WIFI', 'PARKING', 'WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE'], platformCount: 12 },
+    { name: 'Autogara Timișoara', cityName: 'Timișoara', type: 'HUB', address: 'Strada Gării 54', facilities: ['WIFI', 'PARKING', 'WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE'], platformCount: 10 },
+    { name: 'Autogara Iași', cityName: 'Iași', type: 'HUB', address: 'Strada Gării 2', facilities: ['WIFI', 'PARKING', 'WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE'], platformCount: 8 },
+    { name: 'Autogara Constanța', cityName: 'Constanța', type: 'HUB', address: 'Bulevardul Ferdinand 80', facilities: ['WIFI', 'PARKING', 'WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE'], platformCount: 8 },
+    // STATIONs — medium cities
+    { name: 'Autogara Brașov', cityName: 'Brașov', type: 'STATION', address: 'Bulevardul Gării 6', facilities: ['WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE'], platformCount: 6 },
+    { name: 'Autogara Sibiu', cityName: 'Sibiu', type: 'STATION', address: 'Piața 1 Decembrie 1918 12', facilities: ['WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE'], platformCount: 5 },
+    { name: 'Autogara Craiova', cityName: 'Craiova', type: 'STATION', address: 'Calea București 74', facilities: ['WAITING_ROOM', 'RESTROOM', 'TICKET_OFFICE'], platformCount: 5 },
+    { name: 'Autogara Oradea', cityName: 'Oradea', type: 'STATION', address: 'Strada Gării 3', facilities: ['WAITING_ROOM', 'RESTROOM'], platformCount: 4 },
+    // STOPs — smaller cities with minimal facilities
+    { name: 'Stație Pitești', cityName: 'Pitești', type: 'STOP', address: 'Bulevardul Republicii 203', facilities: ['RESTROOM'], platformCount: 2 },
+    { name: 'Stație Ploiești', cityName: 'Ploiești', type: 'STOP', address: 'Strada Depoului 12', facilities: ['RESTROOM'], platformCount: 2 },
+    { name: 'Stație Târgu Mureș', cityName: 'Târgu Mureș', type: 'STOP', address: 'Strada Gheorghe Doja 140', facilities: [], platformCount: 2 },
+    { name: 'Stație Alba Iulia', cityName: 'Alba Iulia', type: 'STOP', address: 'Bulevardul Revoluției 1989 4', facilities: [], platformCount: 1 },
+    { name: 'Stație Râmnicu Vâlcea', cityName: 'Râmnicu Vâlcea', type: 'STOP', address: 'Calea lui Traian 123', facilities: [], platformCount: 1 },
+    { name: 'Stație Arad', cityName: 'Arad', type: 'STOP', address: 'Strada Petru Rareș 2', facilities: ['RESTROOM'], platformCount: 2 },
+  ];
+
+  const adminUser = users[0];
+  const stationMap = new Map<string, string>(); // cityName → stationId
+
+  for (const def of stationDefs) {
+    const coords = cityCoords[def.cityName]!;
+    const existing = await prisma.station.findFirst({
+      where: { name: def.name, cityName: def.cityName },
+    });
+
+    if (existing) {
+      // Only store first station per city for linking stops
+      if (!stationMap.has(def.cityName)) {
+        stationMap.set(def.cityName, existing.id);
+      }
+      continue;
+    }
+
+    const station = await prisma.station.create({
+      data: {
+        name: def.name,
+        cityName: def.cityName,
+        type: def.type,
+        address: def.address,
+        lat: coords[0],
+        lng: coords[1],
+        facilities: def.facilities,
+        platformCount: def.platformCount,
+        createdBy: adminUser.id,
+      },
+    });
+
+    if (!stationMap.has(def.cityName)) {
+      stationMap.set(def.cityName, station.id);
+    }
+  }
+
+  // Link existing route stops to their corresponding station via stationId
+  const allStops = await prisma.stop.findMany({
+    where: { stationId: null },
+    select: { id: true, name: true },
+  });
+
+  for (const stop of allStops) {
+    const stationId = stationMap.get(stop.name);
+    if (stationId) {
+      await prisma.stop.update({
+        where: { id: stop.id },
+        data: { stationId },
+      });
+    }
+  }
+
+  // Link existing stop times to their corresponding station via stationId
+  const allStopTimes = await prisma.stopTime.findMany({
+    where: { stationId: null },
+    select: { id: true, stopName: true },
+  });
+
+  for (const st of allStopTimes) {
+    const stationId = stationMap.get(st.stopName);
+    if (stationId) {
+      await prisma.stopTime.update({
+        where: { id: st.id },
+        data: { stationId },
+      });
+    }
+  }
+
   console.log('Seed complete.');
   console.log(`  Providers: 3`);
   console.log(`  Users: ${users.length} (1 admin, 3 provider admins, 3 drivers, 2 passengers)`);
@@ -436,6 +554,7 @@ async function main() {
   console.log(`  Buses: ${buses.length}`);
   console.log(`  Schedules: ${scheduleInputs.length}`);
   console.log(`  Bus tracking: ${trackingData.length}`);
+  console.log(`  Stations: ${stationDefs.length}`);
   console.log(`  Default password for all accounts: ${DEFAULT_PASSWORD}`);
 
   await prisma.$disconnect();

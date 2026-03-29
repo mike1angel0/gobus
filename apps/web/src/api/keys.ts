@@ -104,6 +104,11 @@ export const delayKeys = createKeys<{
   pageSize?: number;
 }>('delays');
 
+/** Query keys for station resources (`/stations`). */
+export const stationKeys = createKeys<{ search?: string; page?: number; pageSize?: number }>(
+  'stations',
+);
+
 /** Query keys for admin resources (`/admin/*`). */
 export const adminKeys = {
   all: ['admin'] as const,
@@ -117,6 +122,18 @@ export const adminKeys = {
   userDetail: (id: string) => ['admin', 'users', 'detail', id] as const,
   /** Matches a specific user's sessions. */
   userSessions: (id: string) => ['admin', 'users', 'sessions', id] as const,
+  /** Matches admin station list queries. */
+  stations: (filters?: {
+    type?: string;
+    city?: string;
+    isActive?: boolean;
+    search?: string;
+    page?: number;
+    pageSize?: number;
+  }) =>
+    filters ? (['admin', 'stations', filters] as const) : (['admin', 'stations'] as const),
+  /** Matches a specific station's detail by ID. */
+  stationDetail: (id: string) => ['admin', 'stations', 'detail', id] as const,
   /** Matches admin audit log queries. */
   auditLogs: (filters?: {
     page?: number;
