@@ -17,9 +17,14 @@ export default function HomePage() {
       <section className="relative flex min-h-[70vh] items-center justify-center px-4 py-20">
         <div className="mx-auto w-full max-w-4xl text-center">
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            <Trans i18nKey="hero.heading" ns="home">
-              Călătorește mai inteligent cu <span className="text-primary">GoBus</span>
-            </Trans>
+            <Trans
+              i18nKey="hero.heading"
+              ns="home"
+              components={{
+                1: <span style={{ fontFamily: 'Outfit, sans-serif' }} />,
+                2: <span className="text-accent" />,
+              }}
+            />
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
             {t('hero.description')}

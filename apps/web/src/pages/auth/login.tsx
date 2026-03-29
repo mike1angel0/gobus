@@ -81,7 +81,7 @@ export default function LoginPage() {
         }
 
         // Handle specific error codes
-        if (error.code === 'INVALID_CREDENTIALS') {
+        if (error.code === 'INVALID_CREDENTIALS' || error.code === 'AUTH_INVALID_CREDENTIALS') {
           setRootError(t('login.errors.invalidCredentials'));
           return;
         }

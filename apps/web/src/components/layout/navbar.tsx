@@ -42,8 +42,17 @@ export function Navbar() {
     <header className="sticky top-0 z-30 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         {/* Logo */}
-        <Link to="/" className="text-lg font-bold text-foreground" aria-label="GoBus home">
-          GoBus
+        <Link to="/" className="flex items-center gap-2 text-lg font-bold text-foreground" aria-label="GoBus home">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="48" height="48" rx="12" fill="#10B981"/>
+            <rect x="11" y="7" width="26" height="25" rx="5" ry="5" fill="#fff"/>
+            <rect x="14" y="11" width="20" height="10" rx="3" ry="3" fill="#059669"/>
+            <circle cx="17" cy="36" r="3" fill="#fff"/>
+            <circle cx="31" cy="36" r="3" fill="#fff"/>
+          </svg>
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+            Go<span className="text-accent">Bus</span>
+          </span>
         </Link>
 
         {/* Desktop nav */}

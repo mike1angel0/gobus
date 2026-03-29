@@ -59,9 +59,9 @@ describe('TripCard', () => {
     expect(screen.getByText('2h 30m')).toBeInTheDocument();
   });
 
-  it('renders price with EUR currency', () => {
+  it('renders price with lei currency', () => {
     renderWithProviders(<TripCard trip={baseTripData} />);
-    expect(screen.getByText('25.50 €')).toBeInTheDocument();
+    expect(screen.getByText('25,50 lei')).toBeInTheDocument();
   });
 
   it('renders available seats count', () => {
@@ -88,7 +88,7 @@ describe('TripCard', () => {
     expect(label).toContain('Vienna Express');
     expect(label).toContain('Vienna');
     expect(label).toContain('Budapest');
-    expect(label).toContain('25.50');
+    expect(label).toMatch(/25[.,]50/);
     expect(label).toContain('30 seats');
   });
 
