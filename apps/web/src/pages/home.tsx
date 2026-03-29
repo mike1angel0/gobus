@@ -16,6 +16,16 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative flex min-h-[70vh] items-center justify-center px-4 py-20">
         <div className="mx-auto w-full max-w-4xl text-center">
+          <p className="mb-4 inline-block rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 text-sm font-medium">
+            <span className="text-white">Go </span>
+            <span className="text-accent">further. </span>
+            <span className="text-white">Go </span>
+            <span className="text-accent">easier. </span>
+            <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+              <span className="text-white">Go</span>
+              <span className="text-accent">Bus</span>
+            </span>
+          </p>
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
             <Trans
               i18nKey="hero.heading"

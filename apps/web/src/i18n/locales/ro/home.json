@@ -1,8 +1,9 @@
 {
   "pageTitle": "Acasă",
   "hero": {
+    "tagline": "Mergi mai departe. Mergi mai ușor.",
     "heading": "Călătorește mai inteligent cu <1>Go<2>Bus</2></1>",
-    "description": "Găsește și rezervă curse de autobuz în toată țara. Urmărire în timp real, rezervare ușoară și servicii de încredere."
+    "description": "Caută, compară și rezervă curse de autobuz interurbane în toată România. Alege-ți locul și călătorește cu încredere."
   },
   "features": {
     "heading": "Funcționalități",
