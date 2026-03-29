@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { components } from '@/api/generated/types';
 
@@ -73,14 +73,6 @@ function getEffectivePrice(seat: SeatAvailability, basePrice: number): number {
   return seat.price > 0 ? seat.price : basePrice;
 }
 
-/**
- * Formats a price as a currency string.
- * @param price - Numeric price value
- * @returns Formatted price string (e.g., "$12.50")
- */
-function formatPrice(price: number): string {
-  return `$${price.toFixed(2)}`;
-}
 
 /**
  * Interactive bus seat map grid for selecting seats during booking.

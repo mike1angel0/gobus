@@ -211,7 +211,7 @@ describe('ProviderSchedulesPage', () => {
 
       renderWithProviders(<ProviderSchedulesPage />);
 
-      expect(screen.getByText('$25.00')).toBeInTheDocument();
+      expect(screen.getByText('25,00 lei')).toBeInTheDocument();
       expect(screen.getByText('ACTIVE')).toBeInTheDocument();
     });
 

@@ -46,7 +46,7 @@
     "hideStops": "Hide stops",
     "stopsCount": "{{count}} stops",
     "tripStops": "Trip stops",
-    "ariaLabel": "{{route}}: {{origin}} to {{destination}}, departing {{time}}, {{price}} EUR, {{seats}} seats available"
+    "ariaLabel": "{{route}}: {{origin}} to {{destination}}, departing {{time}}, {{price}} lei, {{seats}} seats available"
   },
   "tripDetail": {
     "pageTitle": "Trip Details",

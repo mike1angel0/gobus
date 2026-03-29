@@ -13,6 +13,7 @@ import { useBuses } from '@/hooks/use-buses';
 import { useDrivers } from '@/hooks/use-drivers';
 import { useSchedules } from '@/hooks/use-schedules';
 import { useProviderAnalytics } from '@/hooks/use-provider-analytics';
+import { formatPrice } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { usePageTitle } from '@/hooks/use-page-title';
 import type { components } from '@/api/generated/types';
@@ -89,7 +90,7 @@ function ScheduleItem({ schedule, recurringLabel }: ScheduleItemProps) {
         </p>
       </div>
       <div className="text-right">
-        <p className="font-semibold">${schedule.basePrice.toFixed(2)}</p>
+        <p className="font-semibold">{formatPrice(schedule.basePrice)}</p>
         <p className="text-xs text-muted-foreground">
           {schedule.tripDate ? format(new Date(schedule.tripDate), 'MMM d') : recurringLabel}
         </p>

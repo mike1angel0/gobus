@@ -17,6 +17,7 @@ import {
 import { LiveMap, type MapStop } from '@/components/maps/live-map';
 import { useBookingDetail, useCancelBooking } from '@/hooks/use-bookings';
 import { useBusTracking } from '@/hooks/use-tracking';
+import { formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
 
 type Booking = components['schemas']['Booking'];
@@ -44,10 +45,6 @@ function formatDate(iso: string): string {
   });
 }
 
-/** Formats price as currency string. */
-function formatPrice(price: number): string {
-  return `$${price.toFixed(2)}`;
-}
 
 /** Returns a CSS class for the booking status badge. */
 function getStatusClasses(status: Booking['status']): string {

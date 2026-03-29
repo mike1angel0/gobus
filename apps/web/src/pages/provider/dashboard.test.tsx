@@ -179,8 +179,8 @@ describe('ProviderDashboardPage', () => {
       const list = screen.getByRole('list', { name: 'Upcoming schedules' });
       expect(list).toBeInTheDocument();
       expect(list.querySelectorAll('li')).toHaveLength(2);
-      expect(screen.getByText('$25.50')).toBeInTheDocument();
-      expect(screen.getByText('$30.00')).toBeInTheDocument();
+      expect(screen.getByText('25,50 lei')).toBeInTheDocument();
+      expect(screen.getByText('30,00 lei')).toBeInTheDocument();
     });
 
     it('renders empty state when no upcoming schedules', () => {

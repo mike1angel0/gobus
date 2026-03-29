@@ -191,7 +191,7 @@ describe('TripDetailPage', () => {
       });
 
       // Base price appears next to "From" label
-      const priceElements = screen.getAllByText('$25.00');
+      const priceElements = screen.getAllByText('25,00 lei');
       expect(priceElements.length).toBeGreaterThanOrEqual(1);
     });
 
@@ -358,7 +358,7 @@ describe('TripDetailPage', () => {
       await user.click(seat1A);
 
       await waitFor(() => {
-        expect(screen.getByText('1 seat × $25.00')).toBeInTheDocument();
+        expect(screen.getByText('1 seat × 25,00 lei')).toBeInTheDocument();
       });
 
       expect(screen.getByLabelText('Price summary')).toBeInTheDocument();

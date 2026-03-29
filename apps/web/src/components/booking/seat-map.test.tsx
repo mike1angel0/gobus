@@ -226,14 +226,14 @@ describe('SeatMap', () => {
     it('uses seat price in aria-label when seat has override price', () => {
       const seats = [makeSeat({ id: 's1', price: 25 })];
       renderSeatMap({ seats, basePrice: 10 });
-      const seat = screen.getByRole('gridcell', { name: /\$25\.00/ });
+      const seat = screen.getByRole('gridcell', { name: /25,00 lei/ });
       expect(seat).toBeInTheDocument();
     });
 
     it('uses base price in aria-label when seat price is 0', () => {
       const seats = [makeSeat({ id: 's1', price: 0 })];
       renderSeatMap({ seats, basePrice: 10 });
-      const seat = screen.getByRole('gridcell', { name: /\$10\.00/ });
+      const seat = screen.getByRole('gridcell', { name: /10,00 lei/ });
       expect(seat).toBeInTheDocument();
     });
   });
@@ -247,7 +247,7 @@ describe('SeatMap', () => {
     it('each seat has aria-label with label, type, state, and price', () => {
       renderSeatMap();
       const seat = screen.getByRole('gridcell', { name: /Seat 1A/ });
-      expect(seat).toHaveAttribute('aria-label', 'Seat 1A, Standard, $10.00, Available');
+      expect(seat).toHaveAttribute('aria-label', 'Seat 1A, Standard, 10,00 lei, Available');
     });
 
     it('seats have role=gridcell', () => {

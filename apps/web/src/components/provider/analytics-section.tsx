@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageError } from '@/components/shared/error-state';
+import { formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
 
 type ProviderAnalytics = components['schemas']['ProviderAnalytics'];
@@ -21,15 +22,8 @@ interface AnalyticsSectionProps {
   onRetry: () => void;
 }
 
-/** Formats a number as USD currency string. */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
+/** Formats a number as RON currency string. */
+const formatCurrency = formatPrice;
 
 /** Formats occupancy ratio (0-1) as a percentage string. */
 function formatPercent(value: number): string {

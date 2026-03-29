@@ -272,7 +272,7 @@ describe('MyTripsPage', () => {
         expect(screen.getByText('Berlin → Prague')).toBeInTheDocument();
       });
 
-      expect(screen.getByText('$45.00')).toBeInTheDocument();
+      expect(screen.getByText('45,00 lei')).toBeInTheDocument();
       expect(screen.getByText('Seats: 1A, 1B')).toBeInTheDocument();
       expect(screen.getByText('Order: ORD-001')).toBeInTheDocument();
       expect(screen.getByText('Confirmed')).toBeInTheDocument();

@@ -46,7 +46,7 @@
     "hideStops": "Ascunde stațiile",
     "stopsCount": "{{count}} stații",
     "tripStops": "Stațiile cursei",
-    "ariaLabel": "{{route}}: {{origin}} spre {{destination}}, plecare {{time}}, {{price}} EUR, {{seats}} locuri disponibile"
+    "ariaLabel": "{{route}}: {{origin}} spre {{destination}}, plecare {{time}}, {{price}} lei, {{seats}} locuri disponibile"
   },
   "tripDetail": {
     "pageTitle": "Detalii cursă",

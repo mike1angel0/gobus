@@ -45,7 +45,7 @@ describe('AnalyticsSection', () => {
         />,
       );
 
-      expect(screen.getByText('$15,230.50')).toBeInTheDocument();
+      expect(screen.getByText('15.230,50 lei')).toBeInTheDocument();
       expect(screen.getByText('Total revenue')).toBeInTheDocument();
     });
 
@@ -74,9 +74,9 @@ describe('AnalyticsSection', () => {
       );
 
       expect(screen.getByText('NYC - Boston')).toBeInTheDocument();
-      expect(screen.getByText('$8,500.00')).toBeInTheDocument();
+      expect(screen.getByText('8.500,00 lei')).toBeInTheDocument();
       expect(screen.getByText('NYC - DC')).toBeInTheDocument();
-      expect(screen.getByText('$6,730.50')).toBeInTheDocument();
+      expect(screen.getByText('6.730,50 lei')).toBeInTheDocument();
     });
 
     it('renders revenue bars with correct aria attributes', () => {
@@ -202,7 +202,7 @@ describe('AnalyticsSection', () => {
       );
 
       expect(screen.getByText('0')).toBeInTheDocument();
-      expect(screen.getByText('$0.00')).toBeInTheDocument();
+      expect(screen.getByText('0,00 lei')).toBeInTheDocument();
       expect(screen.getByText('0.0%')).toBeInTheDocument();
     });
   });

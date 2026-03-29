@@ -25,6 +25,7 @@ import { useBuses } from '@/hooks/use-buses';
 import { useDrivers } from '@/hooks/use-drivers';
 import { CreateScheduleDialog } from '@/components/schedules/create-schedule-dialog';
 import { ScheduleFilterBar } from '@/components/schedules/schedule-filter-bar';
+import { formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
 
 type Schedule = components['schemas']['Schedule'];
@@ -118,7 +119,7 @@ function ScheduleCard({
           </div>
           <div className="flex justify-between">
             <dt>{t('schedules.card.price')}</dt>
-            <dd>${schedule.basePrice.toFixed(2)}</dd>
+            <dd>{formatPrice(schedule.basePrice)}</dd>
           </div>
           {daysStr && (
             <div className="flex justify-between">
