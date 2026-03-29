@@ -196,13 +196,15 @@ function AuditEntry({ action, userEmail, timestamp }: AuditEntryProps) {
     minute: '2-digit',
   });
 
+  const actionLabel = t(`dashboard.auditActions.${action}`, { defaultValue: action });
+
   return (
     <li className="flex items-center gap-4 rounded-lg border border-border/50 p-4">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
         <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium">{action}</p>
+        <p className="truncate font-medium">{actionLabel}</p>
         <p className="text-sm text-muted-foreground">
           {userEmail ?? t('dashboard.recentActivity.unknownUser')}
         </p>

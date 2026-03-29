@@ -140,6 +140,23 @@
       "manageFleet": "Manage Fleet",
       "viewAuditLogs": "View Audit Logs"
     },
+    "auditActions": {
+      "LOGIN_SUCCESS": "Login successful",
+      "LOGIN_FAILURE": "Login failed",
+      "LOGIN_LOCKED": "Account locked (login)",
+      "REGISTER": "Account registered",
+      "LOGOUT": "Logged out",
+      "PASSWORD_RESET_REQUEST": "Password reset requested",
+      "PASSWORD_RESET_COMPLETE": "Password reset completed",
+      "PASSWORD_CHANGE": "Password changed",
+      "ACCOUNT_SUSPENDED": "Account suspended",
+      "ACCOUNT_UNSUSPENDED": "Account unsuspended",
+      "ACCOUNT_LOCKED": "Account locked",
+      "ACCOUNT_UNLOCKED": "Account unlocked",
+      "ACCOUNT_DELETED": "Account deleted",
+      "BOOKING_CREATED": "Booking created",
+      "BOOKING_CANCELLED": "Booking cancelled"
+    },
     "recentActivity": {
       "title": "Recent activity",
       "listLabel": "Recent audit log entries",
@@ -150,6 +167,88 @@
     "error": {
       "title": "Failed to load dashboard",
       "message": "We couldn't load the dashboard data. Please try again."
+    }
+  },
+  "stations": {
+    "title": "Station Management",
+    "subtitle": "Manage bus stations, hubs, and stops across all cities.",
+    "heading": "Station list",
+    "loadingLabel": "Loading stations",
+    "filtersLabel": "Station filters",
+    "typeLabel": "Type",
+    "cityLabel": "City",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search by name or address",
+    "cityPlaceholder": "Filter by city",
+    "allTypes": "All types",
+    "activeOnly": "Active only",
+    "addStation": "Add Station",
+    "types": {
+      "HUB": "Hub",
+      "STATION": "Station",
+      "STOP": "Stop"
+    },
+    "facilities": {
+      "WIFI": "WiFi",
+      "PARKING": "Parking",
+      "WAITING_ROOM": "Waiting Room",
+      "RESTROOM": "Restroom",
+      "TICKET_OFFICE": "Ticket Office",
+      "LUGGAGE_STORAGE": "Luggage Storage"
+    },
+    "form": {
+      "createTitle": "Create Station",
+      "editTitle": "Edit Station",
+      "name": "Name",
+      "namePlaceholder": "Station name",
+      "cityName": "City",
+      "cityNamePlaceholder": "City name",
+      "type": "Type",
+      "address": "Address",
+      "addressPlaceholder": "Full street address",
+      "lat": "Latitude",
+      "lng": "Longitude",
+      "facilities": "Facilities",
+      "phone": "Phone",
+      "phonePlaceholder": "Contact phone",
+      "email": "Email",
+      "emailPlaceholder": "Contact email",
+      "platformCount": "Platforms",
+      "platformCountPlaceholder": "Number of platforms",
+      "save": "Save",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "updating": "Updating..."
+    },
+    "actions": {
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "merge": "Merge"
+    },
+    "confirm": {
+      "deactivateTitle": "Deactivate station?",
+      "deactivateDescription": "This station will no longer appear in search results or route creation.",
+      "cancel": "Cancel",
+      "processing": "Processing..."
+    },
+    "merge": {
+      "title": "Merge Stations",
+      "description": "All references from the source station will be moved to the target station. The source station will be deactivated.",
+      "sourceLabel": "Source (will be deactivated)",
+      "targetLabel": "Target (will receive references)",
+      "sourcePlaceholder": "Select source station",
+      "targetPlaceholder": "Select target station",
+      "submit": "Merge",
+      "merging": "Merging..."
+    },
+    "error": {
+      "title": "Failed to load stations",
+      "message": "We couldn't load the station list. Please try again."
+    },
+    "empty": {
+      "title": "No stations found",
+      "message": "No stations match the selected filters."
     }
   },
   "pagination": {

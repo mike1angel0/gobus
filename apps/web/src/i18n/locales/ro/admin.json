@@ -140,6 +140,23 @@
       "manageFleet": "Gestionare flotă",
       "viewAuditLogs": "Vizualizare jurnal audit"
     },
+    "auditActions": {
+      "LOGIN_SUCCESS": "Autentificare reușită",
+      "LOGIN_FAILURE": "Autentificare eșuată",
+      "LOGIN_LOCKED": "Cont blocat (autentificare)",
+      "REGISTER": "Înregistrare cont",
+      "LOGOUT": "Deconectare",
+      "PASSWORD_RESET_REQUEST": "Cerere resetare parolă",
+      "PASSWORD_RESET_COMPLETE": "Resetare parolă finalizată",
+      "PASSWORD_CHANGE": "Schimbare parolă",
+      "ACCOUNT_SUSPENDED": "Cont suspendat",
+      "ACCOUNT_UNSUSPENDED": "Cont reactivat",
+      "ACCOUNT_LOCKED": "Cont blocat",
+      "ACCOUNT_UNLOCKED": "Cont deblocat",
+      "ACCOUNT_DELETED": "Cont șters",
+      "BOOKING_CREATED": "Rezervare creată",
+      "BOOKING_CANCELLED": "Rezervare anulată"
+    },
     "recentActivity": {
       "title": "Activitate recentă",
       "listLabel": "Evenimente recente din jurnalul de audit",
@@ -150,6 +167,88 @@
     "error": {
       "title": "Nu s-a putut încărca panoul de control",
       "message": "Nu am putut încărca datele panoului de control. Te rugăm să încerci din nou."
+    }
+  },
+  "stations": {
+    "title": "Gestionare stații",
+    "subtitle": "Gestionează stațiile de autobuz, huburile și opririle din toate orașele.",
+    "heading": "Lista stațiilor",
+    "loadingLabel": "Se încarcă stațiile",
+    "filtersLabel": "Filtre stații",
+    "typeLabel": "Tip",
+    "cityLabel": "Oraș",
+    "searchLabel": "Caută",
+    "searchPlaceholder": "Caută după nume sau adresă",
+    "cityPlaceholder": "Filtrează după oraș",
+    "allTypes": "Toate tipurile",
+    "activeOnly": "Doar active",
+    "addStation": "Adaugă stație",
+    "types": {
+      "HUB": "Hub",
+      "STATION": "Stație",
+      "STOP": "Oprire"
+    },
+    "facilities": {
+      "WIFI": "WiFi",
+      "PARKING": "Parcare",
+      "WAITING_ROOM": "Sală de așteptare",
+      "RESTROOM": "Toaletă",
+      "TICKET_OFFICE": "Casă de bilete",
+      "LUGGAGE_STORAGE": "Depozitare bagaje"
+    },
+    "form": {
+      "createTitle": "Creează stație",
+      "editTitle": "Editează stație",
+      "name": "Nume",
+      "namePlaceholder": "Numele stației",
+      "cityName": "Oraș",
+      "cityNamePlaceholder": "Numele orașului",
+      "type": "Tip",
+      "address": "Adresă",
+      "addressPlaceholder": "Adresa completă",
+      "lat": "Latitudine",
+      "lng": "Longitudine",
+      "facilities": "Facilități",
+      "phone": "Telefon",
+      "phonePlaceholder": "Telefon de contact",
+      "email": "Email",
+      "emailPlaceholder": "Email de contact",
+      "platformCount": "Platforme",
+      "platformCountPlaceholder": "Număr de platforme",
+      "save": "Salvează",
+      "cancel": "Anulează",
+      "creating": "Se creează...",
+      "updating": "Se actualizează..."
+    },
+    "actions": {
+      "edit": "Editează",
+      "deactivate": "Dezactivează",
+      "activate": "Activează",
+      "merge": "Unește"
+    },
+    "confirm": {
+      "deactivateTitle": "Dezactivezi stația?",
+      "deactivateDescription": "Această stație nu va mai apărea în rezultatele căutării sau în crearea rutelor.",
+      "cancel": "Anulează",
+      "processing": "Se procesează..."
+    },
+    "merge": {
+      "title": "Unește stații",
+      "description": "Toate referințele de la stația sursă vor fi mutate la stația destinație. Stația sursă va fi dezactivată.",
+      "sourceLabel": "Sursă (va fi dezactivată)",
+      "targetLabel": "Destinație (va primi referințele)",
+      "sourcePlaceholder": "Selectează stația sursă",
+      "targetPlaceholder": "Selectează stația destinație",
+      "submit": "Unește",
+      "merging": "Se unește..."
+    },
+    "error": {
+      "title": "Nu s-au putut încărca stațiile",
+      "message": "Nu am putut încărca lista de stații. Te rugăm să încerci din nou."
+    },
+    "empty": {
+      "title": "Nicio stație găsită",
+      "message": "Nicio stație nu corespunde filtrelor selectate."
     }
   },
   "pagination": {

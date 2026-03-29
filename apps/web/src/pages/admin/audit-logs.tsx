@@ -112,7 +112,7 @@ function AuditLogFilterBar({
           <option value="">{t('auditLogs.allActions')}</option>
           {ACTION_OPTIONS.map((opt) => (
             <option key={opt} value={opt}>
-              {opt}
+              {t(`dashboard.auditActions.${opt}`, { defaultValue: opt })}
             </option>
           ))}
         </select>
@@ -210,7 +210,7 @@ function AuditLogRow({ log, isExpanded, onToggle }: AuditLogRowProps) {
           className="flex w-full flex-wrap items-center gap-3 p-4 text-left hover:bg-muted/50"
           onClick={onToggle}
           aria-expanded={isExpanded}
-          aria-label={`${log.action} on ${log.resource}${log.resourceId ? ` ${log.resourceId}` : ''}`}
+          aria-label={`${t(`dashboard.auditActions.${log.action}`, { defaultValue: log.action })} on ${log.resource}${log.resourceId ? ` ${log.resourceId}` : ''}`}
           disabled={!hasDetail}
         >
           {hasDetail ? (
@@ -221,7 +221,7 @@ function AuditLogRow({ log, isExpanded, onToggle }: AuditLogRowProps) {
           <time className="shrink-0 text-sm text-muted-foreground" dateTime={log.createdAt}>
             {formatTimestamp(log.createdAt)}
           </time>
-          <Badge variant="outline">{log.action}</Badge>
+          <Badge variant="outline">{t(`dashboard.auditActions.${log.action}`, { defaultValue: log.action })}</Badge>
           <span className="min-w-0 flex-1 truncate text-sm">
             {log.resource}
             {log.resourceId && (
