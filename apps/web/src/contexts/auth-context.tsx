@@ -209,12 +209,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return data.data;
   }, []);
 
-  // Register 401 handler: attempt refresh, if that fails, clear auth
+  // Register 401 handler: attempt refresh and return success status for retry
   useEffect(() => {
-    setOnUnauthorized(() => {
-      if (!isRefreshingRef.current) {
-        void refreshTokens();
-      }
+    setOnUnauthorized(async () => {
+      if (isRefreshingRef.current) return false;
+      return refreshTokens();
     });
     return () => setOnUnauthorized(null);
   }, [refreshTokens]);

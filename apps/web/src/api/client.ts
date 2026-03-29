@@ -11,8 +11,8 @@ function getBaseUrl(): string {
   return import.meta.env.VITE_API_URL ?? '';
 }
 
-/** Callback invoked when the API returns a 401 (unauthorized). */
-export type OnUnauthorizedCallback = () => void;
+/** Callback invoked when the API returns a 401 (unauthorized). Returns true if refresh succeeded. */
+export type OnUnauthorizedCallback = () => Promise<boolean>;
 
 /** Callback invoked when the API returns a 403 (suspended) or 423 (locked). */
 export type OnForbiddenOrLockedCallback = (status: 403 | 423) => void;
@@ -40,9 +40,9 @@ export function getAccessToken(): string | null {
 
 /**
  * Registers a callback that fires when any API request receives a 401 response.
- * The auth layer uses this to trigger a token refresh or redirect to login.
+ * The callback should attempt token refresh and return true if successful.
  *
- * @param callback - Function to invoke on 401, or `null` to unregister.
+ * @param callback - Async function to invoke on 401, or `null` to unregister.
  */
 export function setOnUnauthorized(callback: OnUnauthorizedCallback | null): void {
   onUnauthorized = callback;
@@ -73,16 +73,30 @@ export async function handleRequest({ request }: { request: Request }): Promise<
 
 /**
  * Handles incoming responses by converting errors to {@link ApiError} instances.
- * Triggers the registered `onUnauthorized` callback for 401 responses.
+ * On 401, attempts token refresh and retries the request once with the new token.
  *
- * @param params - Object containing the incoming Response.
+ * @param params - Object containing the incoming Response and the original Request.
  * @returns The response if OK, otherwise throws an `ApiError`.
  */
-export async function handleResponse({ response }: { response: Response }): Promise<Response> {
+export async function handleResponse({
+  response,
+  request,
+}: {
+  response: Response;
+  request: Request;
+}): Promise<Response> {
   if (response.ok) return response;
 
   if (response.status === 401 && onUnauthorized) {
-    onUnauthorized();
+    const refreshed = await onUnauthorized();
+    if (refreshed && accessToken) {
+      // Retry the original request with the new token
+      const retryRequest = request.clone();
+      retryRequest.headers.set('Authorization', `Bearer ${accessToken}`);
+      const retryResponse = await fetch(retryRequest);
+      if (retryResponse.ok) return retryResponse;
+      // If retry also fails, fall through to throw the error
+    }
   }
 
   if ((response.status === 403 || response.status === 423) && onForbiddenOrLocked) {
@@ -114,7 +128,7 @@ const authAndErrorMiddleware: Middleware = {
  * - Base URL is read from `VITE_API_URL` env var.
  * - Bearer token is automatically attached from in-memory storage.
  * - Non-OK responses are converted to `ApiError` instances.
- * - 401 responses trigger the registered `onUnauthorized` callback.
+ * - 401 responses trigger token refresh and automatic request retry.
  *
  * @example
  * ```ts

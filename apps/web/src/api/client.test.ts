@@ -9,6 +9,11 @@ import {
 } from '@/api/client';
 import { ApiError } from '@/api/errors';
 
+/** Creates a dummy Request for handleResponse tests. */
+function dummyRequest(): Request {
+  return new Request('https://api.test/foo');
+}
+
 describe('setAccessToken / getAccessToken', () => {
   beforeEach(() => {
     setAccessToken(null);
@@ -42,11 +47,11 @@ describe('setOnUnauthorized', () => {
   });
 
   it('accepts a callback without throwing', () => {
-    expect(() => setOnUnauthorized(() => {})).not.toThrow();
+    expect(() => setOnUnauthorized(async () => false)).not.toThrow();
   });
 
   it('accepts null to clear the callback', () => {
-    setOnUnauthorized(() => {});
+    setOnUnauthorized(async () => false);
     expect(() => setOnUnauthorized(null)).not.toThrow();
   });
 });
@@ -78,7 +83,7 @@ describe('handleResponse', () => {
 
   it('returns response when OK', async () => {
     const response = new Response('ok', { status: 200 });
-    const result = await handleResponse({ response });
+    const result = await handleResponse({ response, request: dummyRequest() });
     expect(result).toBe(response);
   });
 
@@ -89,12 +94,13 @@ describe('handleResponse', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
   });
 
   it('throws ApiError for non-OK text response', async () => {
     const response = new Response('Internal Server Error', { status: 500 });
-    // Override .json() to throw
     const cloned = response.clone();
     vi.spyOn(response, 'clone')
       .mockReturnValueOnce({
@@ -107,11 +113,13 @@ describe('handleResponse', () => {
         text: () => Promise.resolve('Internal Server Error'),
       } as unknown as Response);
 
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
   });
 
   it('calls onUnauthorized callback for 401', async () => {
-    const callback = vi.fn();
+    const callback = vi.fn().mockResolvedValue(false);
     setOnUnauthorized(callback);
 
     const body = { type: 'about:blank', title: 'Unauthorized', status: 401 };
@@ -120,8 +128,34 @@ describe('handleResponse', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
     expect(callback).toHaveBeenCalledOnce();
+  });
+
+  it('retries request after successful token refresh on 401', async () => {
+    const callback = vi.fn().mockImplementation(async () => {
+      setAccessToken('refreshed-token');
+      return true;
+    });
+    setOnUnauthorized(callback);
+
+    const body = { type: 'about:blank', title: 'Unauthorized', status: 401 };
+    const response = new Response(JSON.stringify(body), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    // Mock fetch for the retry
+    const retryResponse = new Response(JSON.stringify({ data: 'ok' }), { status: 200 });
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(retryResponse);
+
+    const result = await handleResponse({ response, request: dummyRequest() });
+    expect(result.status).toBe(200);
+    expect(fetchSpy).toHaveBeenCalledOnce();
+
+    fetchSpy.mockRestore();
   });
 
   it('does not call onUnauthorized when no callback registered', async () => {
@@ -131,12 +165,13 @@ describe('handleResponse', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // Should not throw due to missing callback — still throws ApiError
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
   });
 
   it('does not call onUnauthorized for non-401 errors', async () => {
-    const callback = vi.fn();
+    const callback = vi.fn().mockResolvedValue(false);
     setOnUnauthorized(callback);
 
     const body = { type: 'about:blank', title: 'Forbidden', status: 403 };
@@ -145,7 +180,9 @@ describe('handleResponse', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
     expect(callback).not.toHaveBeenCalled();
   });
 
@@ -159,7 +196,9 @@ describe('handleResponse', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
     expect(callback).toHaveBeenCalledWith(403);
 
     setOnForbiddenOrLocked(null);
@@ -175,7 +214,9 @@ describe('handleResponse', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
     expect(callback).toHaveBeenCalledWith(423);
 
     setOnForbiddenOrLocked(null);
@@ -190,14 +231,18 @@ describe('handleResponse', () => {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     });
-    await expect(handleResponse({ response: response401 })).rejects.toBeInstanceOf(ApiError);
+    await expect(
+      handleResponse({ response: response401, request: dummyRequest() }),
+    ).rejects.toBeInstanceOf(ApiError);
 
     const body500 = { type: 'about:blank', title: 'Internal Server Error', status: 500 };
     const response500 = new Response(JSON.stringify(body500), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
-    await expect(handleResponse({ response: response500 })).rejects.toBeInstanceOf(ApiError);
+    await expect(
+      handleResponse({ response: response500, request: dummyRequest() }),
+    ).rejects.toBeInstanceOf(ApiError);
 
     expect(callback).not.toHaveBeenCalled();
 
@@ -213,7 +258,8 @@ describe('handleResponse', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    // Should still throw ApiError, just not crash
-    await expect(handleResponse({ response })).rejects.toBeInstanceOf(ApiError);
+    await expect(handleResponse({ response, request: dummyRequest() })).rejects.toBeInstanceOf(
+      ApiError,
+    );
   });
 });
