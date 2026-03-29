@@ -30,7 +30,9 @@ const AdminDashboardPage = lazy(() => import('@/pages/admin/dashboard'));
 const AdminFleetPage = lazy(() => import('@/pages/admin/fleet'));
 const AdminUsersPage = lazy(() => import('@/pages/admin/users'));
 const AdminAuditLogsPage = lazy(() => import('@/pages/admin/audit-logs'));
+const AdminStationsPage = lazy(() => import('@/pages/admin/stations'));
 const ProfilePage = lazy(() => import('@/pages/profile'));
+const HelpPage = lazy(() => import('@/pages/help'));
 const NotFoundPage = lazy(() => import('@/components/error/not-found'));
 
 /* ---------- Router ---------- */
@@ -56,6 +58,7 @@ export const router = createBrowserRouter([
           { path: '/', element: <HomePage /> },
           { path: '/search', element: <SearchPage /> },
           { path: '/trip/:id', element: <TripDetailPage /> },
+          { path: '/help', element: <HelpPage /> },
 
           /* ---- Auth routes (public) ---- */
           { path: '/auth/login', element: <LoginPage /> },
@@ -105,6 +108,7 @@ export const router = createBrowserRouter([
                   { index: true, element: <AdminDashboardPage /> },
                   { path: 'users', element: <AdminUsersPage /> },
                   { path: 'fleet', element: <AdminFleetPage /> },
+                  { path: 'stations', element: <AdminStationsPage /> },
                   { path: 'audit-logs', element: <AdminAuditLogsPage /> },
                 ],
               },

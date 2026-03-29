@@ -1,0 +1,63 @@
+{
+  "pageTitle": "Help & FAQ",
+  "heading": "Frequently Asked Questions",
+  "description": "Find answers to common questions about GoBus.",
+  "categories": {
+    "booking": {
+      "title": "Booking & Tickets",
+      "items": [
+        {
+          "q": "How do I book a trip?",
+          "a": "Search for your route on the Search page, pick a schedule that suits you, choose your seats, and confirm the booking. You'll receive a confirmation with your ticket details."
+        },
+        {
+          "q": "Can I cancel a booking?",
+          "a": "Yes. Go to My Trips, open the booking you want to cancel, and tap Cancel. Cancellations made more than 24 hours before departure are fully refunded."
+        },
+        {
+          "q": "How do I pay?",
+          "a": "We accept major credit and debit cards. Payment is processed securely at the time of booking."
+        }
+      ]
+    },
+    "travel": {
+      "title": "Traveling",
+      "items": [
+        {
+          "q": "How early should I arrive at the station?",
+          "a": "We recommend arriving at least 15 minutes before the scheduled departure to allow time for boarding."
+        },
+        {
+          "q": "Can I track my bus in real time?",
+          "a": "Yes. Once your trip is active, open it from My Trips to see the live position of your bus on the map."
+        },
+        {
+          "q": "What luggage can I bring?",
+          "a": "Each passenger may bring one carry-on bag and one piece of checked luggage (max 20 kg). Oversized items should be arranged with the operator in advance."
+        }
+      ]
+    },
+    "account": {
+      "title": "Account & Support",
+      "items": [
+        {
+          "q": "How do I create an account?",
+          "a": "Tap Register in the top navigation, fill in your details, and verify your email address. You can then log in and start booking trips."
+        },
+        {
+          "q": "I forgot my password",
+          "a": "Use the Forgot Password link on the login page. We'll send a reset link to your registered email address."
+        },
+        {
+          "q": "How do I contact support?",
+          "a": "Send us an email at support@gobus.ro and we'll get back to you within 24 hours."
+        }
+      ]
+    }
+  },
+  "contact": {
+    "title": "Still need help?",
+    "description": "Our support team is here for you.",
+    "email": "support@gobus.ro"
+  }
+}

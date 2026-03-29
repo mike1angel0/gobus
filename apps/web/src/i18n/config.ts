@@ -22,6 +22,7 @@ import roDriver from './locales/ro/driver.json';
 import roAdmin from './locales/ro/admin.json';
 import roTracking from './locales/ro/tracking.json';
 import roHome from './locales/ro/home.json';
+import roHelp from './locales/ro/help.json';
 
 import enCommon from './locales/en/common.json';
 import enNav from './locales/en/nav.json';
@@ -33,6 +34,7 @@ import enDriver from './locales/en/driver.json';
 import enAdmin from './locales/en/admin.json';
 import enTracking from './locales/en/tracking.json';
 import enHome from './locales/en/home.json';
+import enHelp from './locales/en/help.json';
 
 /** All supported namespaces. */
 export const i18nNamespaces = [
@@ -46,6 +48,7 @@ export const i18nNamespaces = [
   'admin',
   'tracking',
   'home',
+  'help',
 ] as const;
 
 /** Supported language codes. */
@@ -73,6 +76,7 @@ void i18n
         admin: roAdmin,
         tracking: roTracking,
         home: roHome,
+        help: roHelp,
       },
       en: {
         common: enCommon,
@@ -85,6 +89,7 @@ void i18n
         admin: enAdmin,
         tracking: enTracking,
         home: enHome,
+        help: enHelp,
       },
     },
     fallbackLng: 'ro',

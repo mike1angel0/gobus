@@ -16,6 +16,7 @@ export interface NavLink {
 export const AUTH_NAV_LINKS: NavLink[] = [
   { labelKey: 'links.home', href: '/', roles: ['PASSENGER'] },
   { labelKey: 'links.search', href: '/search', roles: ['PASSENGER'] },
+  { labelKey: 'links.help', href: '/help', roles: ['PASSENGER'] },
   { labelKey: 'links.myTrips', href: '/my-trips', roles: ['PASSENGER'] },
   { labelKey: 'links.dashboard', href: '/provider', roles: ['PROVIDER'] },
   { labelKey: 'links.routes', href: '/provider/routes', roles: ['PROVIDER'] },
@@ -29,6 +30,7 @@ export const AUTH_NAV_LINKS: NavLink[] = [
   { labelKey: 'links.dashboard', href: '/admin', roles: ['ADMIN'] },
   { labelKey: 'links.users', href: '/admin/users', roles: ['ADMIN'] },
   { labelKey: 'links.fleet', href: '/admin/fleet', roles: ['ADMIN'] },
+  { labelKey: 'links.stations', href: '/admin/stations', roles: ['ADMIN'] },
   { labelKey: 'links.auditLogs', href: '/admin/audit-logs', roles: ['ADMIN'] },
   { labelKey: 'links.profile', href: '/profile', roles: [] },
 ];
@@ -37,6 +39,7 @@ export const AUTH_NAV_LINKS: NavLink[] = [
 export const PUBLIC_NAV_LINKS: NavLink[] = [
   { labelKey: 'links.home', href: '/', roles: [] },
   { labelKey: 'links.search', href: '/search', roles: [] },
+  { labelKey: 'links.help', href: '/help', roles: [] },
 ];
 
 /**

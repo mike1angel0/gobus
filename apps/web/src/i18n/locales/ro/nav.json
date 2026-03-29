@@ -12,8 +12,10 @@
     "trips": "Curse",
     "history": "Istoric",
     "users": "Utilizatori",
+    "stations": "Stații",
     "auditLogs": "Jurnal de audit",
-    "profile": "Profil"
+    "profile": "Profil",
+    "help": "Ajutor"
   },
   "menu": {
     "logout": "Deconectare",

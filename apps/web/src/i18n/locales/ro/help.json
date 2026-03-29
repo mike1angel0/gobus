@@ -1,0 +1,63 @@
+{
+  "pageTitle": "Ajutor & Întrebări frecvente",
+  "heading": "Întrebări frecvente",
+  "description": "Găsește răspunsuri la întrebările comune despre GoBus.",
+  "categories": {
+    "booking": {
+      "title": "Rezervări & Bilete",
+      "items": [
+        {
+          "q": "Cum rezerv o călătorie?",
+          "a": "Caută ruta dorită pe pagina de Căutare, alege un program potrivit, selectează locurile și confirmă rezervarea. Vei primi o confirmare cu detaliile biletului."
+        },
+        {
+          "q": "Pot anula o rezervare?",
+          "a": "Da. Mergi la Călătoriile mele, deschide rezervarea pe care vrei să o anulezi și apasă Anulează. Anulările făcute cu mai mult de 24 de ore înainte de plecare sunt rambursate integral."
+        },
+        {
+          "q": "Cum plătesc?",
+          "a": "Acceptăm carduri de credit și debit. Plata se procesează securizat în momentul rezervării."
+        }
+      ]
+    },
+    "travel": {
+      "title": "Călătoria",
+      "items": [
+        {
+          "q": "Cu cât timp înainte ar trebui să ajung la stație?",
+          "a": "Recomandăm să ajungi cu cel puțin 15 minute înainte de ora programată de plecare pentru a permite îmbarcarea."
+        },
+        {
+          "q": "Pot urmări autobuzul în timp real?",
+          "a": "Da. Odată ce călătoria ta este activă, deschide-o din Călătoriile mele pentru a vedea poziția live a autobuzului pe hartă."
+        },
+        {
+          "q": "Ce bagaje pot lua cu mine?",
+          "a": "Fiecare pasager poate aduce un bagaj de mână și o piesă de bagaj de cală (max 20 kg). Bagajele supradimensionate trebuie aranjate în prealabil cu operatorul."
+        }
+      ]
+    },
+    "account": {
+      "title": "Cont & Suport",
+      "items": [
+        {
+          "q": "Cum îmi creez un cont?",
+          "a": "Apasă Înregistrare în navigarea de sus, completează datele și verifică adresa de email. Apoi te poți autentifica și începe să rezervi călătorii."
+        },
+        {
+          "q": "Mi-am uitat parola",
+          "a": "Folosește linkul Am uitat parola de pe pagina de autentificare. Vom trimite un link de resetare la adresa de email înregistrată."
+        },
+        {
+          "q": "Cum contactez suportul?",
+          "a": "Trimite-ne un email la support@gobus.ro și îți vom răspunde în maximum 24 de ore."
+        }
+      ]
+    }
+  },
+  "contact": {
+    "title": "Încă ai nevoie de ajutor?",
+    "description": "Echipa noastră de suport este aici pentru tine.",
+    "email": "support@gobus.ro"
+  }
+}

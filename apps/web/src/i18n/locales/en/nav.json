@@ -12,8 +12,10 @@
     "trips": "Trips",
     "history": "History",
     "users": "Users",
+    "stations": "Stations",
     "auditLogs": "Audit Logs",
-    "profile": "Profile"
+    "profile": "Profile",
+    "help": "Help"
   },
   "menu": {
     "logout": "Log out",
