@@ -147,7 +147,7 @@ async function main() {
     driverA,
     driverB,
     driverC,
-    _passenger1,
+    passenger1,
     _passenger2,
   ] = users;
 
@@ -388,6 +388,111 @@ async function main() {
     });
 
     await prisma.stopTime.createMany({ data: stopTimesData });
+  }
+
+  // Create a deterministic demo schedule spanning almost the full day so the
+  // passenger UI can reliably show an in-progress booking after seeding.
+  const demoRoute = routes[6]!; // Timișoara → Arad
+  const demoBus = buses[4]!;
+  const demoDeparture = new Date(refDate);
+  demoDeparture.setUTCHours(0, 0, 0, 0);
+  const demoArrival = new Date(refDate);
+  demoArrival.setUTCHours(23, 59, 0, 0);
+
+  let demoSchedule = await prisma.schedule.findFirst({
+    where: {
+      routeId: demoRoute.id,
+      busId: demoBus.id,
+      departureTime: demoDeparture,
+      tripDate: refDate,
+    },
+  });
+
+  if (!demoSchedule) {
+    const demoStops = await prisma.stop.findMany({
+      where: { routeId: demoRoute.id },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    demoSchedule = await prisma.schedule.create({
+      data: {
+        routeId: demoRoute.id,
+        busId: demoBus.id,
+        driverId: driverC.id,
+        departureTime: demoDeparture,
+        arrivalTime: demoArrival,
+        daysOfWeek: [1, 2, 3, 4, 5, 6, 7],
+        basePrice: 20,
+        status: 'ACTIVE',
+        tripDate: refDate,
+      },
+    });
+
+    const totalStops = demoStops.length;
+    const totalMs = demoArrival.getTime() - demoDeparture.getTime();
+    const stopWaitMs = 10 * 60_000;
+
+    await prisma.stopTime.createMany({
+      data: demoStops.map((stop, i) => {
+        const fraction = totalStops > 1 ? i / (totalStops - 1) : 0;
+        const arrivalMs = demoDeparture.getTime() + fraction * totalMs;
+        const departureMs = i < totalStops - 1 ? arrivalMs + stopWaitMs : arrivalMs;
+        const priceFromStart = Math.round(fraction * 20 * 100) / 100;
+
+        return {
+          scheduleId: demoSchedule!.id,
+          stopName: stop.name,
+          arrivalTime: new Date(arrivalMs),
+          departureTime: new Date(departureMs),
+          orderIndex: i,
+          priceFromStart,
+        };
+      }),
+    });
+  }
+
+  const demoOrderId = `GBDEM-${refDate.toISOString().slice(0, 10).replace(/-/g, '')}-001`;
+  const existingDemoBooking = await prisma.booking.findUnique({
+    where: { orderId: demoOrderId },
+  });
+
+  if (!existingDemoBooking) {
+    await prisma.booking.create({
+      data: {
+        orderId: demoOrderId,
+        userId: passenger1.id,
+        scheduleId: demoSchedule.id,
+        totalPrice: 20,
+        status: 'CONFIRMED',
+        boardingStop: 'Timișoara',
+        alightingStop: 'Arad',
+        tripDate: refDate,
+        bookingSeats: {
+          create: [{ seatLabel: 'A1', scheduleId: demoSchedule.id, tripDate: refDate }],
+        },
+      },
+    });
+  }
+
+  const existingDemoDelay = await prisma.delay.findFirst({
+    where: {
+      scheduleId: demoSchedule.id,
+      tripDate: refDate,
+      active: true,
+    },
+  });
+
+  if (!existingDemoDelay) {
+    await prisma.delay.create({
+      data: {
+        scheduleId: demoSchedule.id,
+        offsetMinutes: 18,
+        reason: 'TRAFFIC',
+        note: 'Heavy traffic near the city entry corridor.',
+        tripDate: refDate,
+        active: true,
+      },
+    });
   }
 
   // ─── Bus Tracking (GPS positions) ──────────────────────────────────────────

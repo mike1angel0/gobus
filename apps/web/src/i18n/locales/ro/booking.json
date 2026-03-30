@@ -36,7 +36,16 @@
     "details": "Detalii",
     "expandDetails": "Extinde detaliile",
     "collapseDetails": "Restrânge detaliile",
-    "loadingAriaLabel": "Se încarcă detaliile rezervării"
+    "loadingAriaLabel": "Se încarcă detaliile rezervării",
+    "tripProgressLabel": "Status cursă",
+    "delayLabel": "Alertă serviciu",
+    "delayMessage": "Această cursă are în prezent întârziere din cauza {{reason}}.",
+    "tripProgress": {
+      "scheduled": "Programată",
+      "in-progress": "În desfășurare",
+      "completed": "Finalizată",
+      "cancelled": "Anulată"
+    }
   },
   "cancel": {
     "title": "Anulează rezervarea",
@@ -50,14 +59,17 @@
   "myTrips": {
     "pageTitle": "Călătoriile mele",
     "heading": "Călătoriile mele",
+    "active": "Active",
     "upcoming": "Viitoare",
     "past": "Trecute",
     "tabsAriaLabel": "Categorii de călătorii",
+    "activeAriaLabel": "Rezervări active",
     "upcomingAriaLabel": "Rezervări viitoare",
     "pastAriaLabel": "Rezervări trecute",
     "noTrips": "Nicio călătorie încă",
     "noTripsMessage": "Nu ai rezervat nicio călătorie. Caută o cursă pentru a începe!",
     "searchTrips": "Caută curse",
+    "noActive": "Nicio călătorie activă",
     "noUpcoming": "Nicio călătorie viitoare",
     "noPast": "Nicio călătorie trecută",
     "loadMore": "Încarcă mai multe",

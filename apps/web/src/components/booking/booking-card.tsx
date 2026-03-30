@@ -15,19 +15,22 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { LiveMap, type MapStop } from '@/components/maps/live-map';
+import { DelayBadge } from '@/components/shared/delay-badge';
 import { useBookingDetail, useCancelBooking } from '@/hooks/use-bookings';
+import { useDelays } from '@/hooks/use-delays';
 import { useBusTracking } from '@/hooks/use-tracking';
 import { formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
 
 type Booking = components['schemas']['Booking'];
+type BookingDetail = components['schemas']['BookingWithDetails'];
 
 /** Props for the {@link BookingCard} component. */
 export interface BookingCardProps {
   /** The booking to display. */
   booking: Booking;
-  /** Whether the booking is in the upcoming or past tab. */
-  variant: 'upcoming' | 'past';
+  /** Which booking bucket contains this booking. */
+  variant: 'active' | 'upcoming' | 'past';
 }
 
 /** Formats an ISO date-time string to a short time (HH:MM). */
@@ -45,6 +48,22 @@ function formatDate(iso: string): string {
   });
 }
 
+/** Derives the passenger-facing trip progress state from booking and schedule timing. */
+function getTripProgressStatus(
+  bookingStatus: Booking['status'],
+  schedule: BookingDetail['schedule'],
+): 'scheduled' | 'in-progress' | 'completed' | 'cancelled' {
+  if (bookingStatus === 'CANCELLED') return 'cancelled';
+  if (bookingStatus === 'COMPLETED') return 'completed';
+
+  const now = new Date();
+  const departure = new Date(schedule.departureTime);
+  const arrival = new Date(schedule.arrivalTime);
+
+  if (now < departure) return 'scheduled';
+  if (now <= arrival) return 'in-progress';
+  return 'completed';
+}
 
 /** Returns a CSS class for the booking status badge. */
 function getStatusClasses(status: Booking['status']): string {
@@ -58,6 +77,20 @@ function getStatusClasses(status: Booking['status']): string {
   }
 }
 
+/** Returns a CSS class for the passenger trip progress badge. */
+function getTripProgressClasses(status: ReturnType<typeof getTripProgressStatus>): string {
+  switch (status) {
+    case 'scheduled':
+      return 'bg-blue-500/10 text-blue-600';
+    case 'in-progress':
+      return 'bg-amber-500/10 text-amber-700';
+    case 'completed':
+      return 'bg-emerald-500/10 text-emerald-700';
+    case 'cancelled':
+      return 'bg-red-500/10 text-red-600';
+  }
+}
+
 /**
  * Expandable section showing booking details fetched from the detail endpoint.
  * Includes schedule info, bus info, and live tracking map for active trips.
@@ -66,6 +99,11 @@ function BookingDetail({ bookingId, busId }: { bookingId: string; busId?: string
   const { t } = useTranslation('booking');
   const { data: detailData, isLoading } = useBookingDetail(bookingId);
   const { data: trackingData } = useBusTracking(busId ?? '', !!busId);
+  const detail = detailData?.data;
+  const { data: delaysData } = useDelays({
+    scheduleId: detail?.scheduleId ?? '',
+    tripDate: detail?.tripDate ?? '',
+  });
 
   if (isLoading) {
     return (
@@ -77,10 +115,13 @@ function BookingDetail({ bookingId, busId }: { bookingId: string; busId?: string
     );
   }
 
-  const detail = detailData?.data;
   if (!detail) return null;
 
   const schedule = detail.schedule;
+  const tripProgress = getTripProgressStatus(detail.status, schedule);
+  const activeDelay = Array.isArray(delaysData?.data)
+    ? delaysData.data.find((delay) => delay.active)
+    : undefined;
   const busPosition = trackingData?.data?.isActive
     ? { lat: trackingData.data.lat, lng: trackingData.data.lng, heading: trackingData.data.heading }
     : undefined;
@@ -91,6 +132,32 @@ function BookingDetail({ bookingId, busId }: { bookingId: string; busId?: string
 
   return (
     <div className="space-y-3 border-t pt-4">
+      <div className="flex items-center justify-between gap-3 rounded-md bg-muted/40 px-3 py-2">
+        <span className="text-sm font-medium text-foreground">{t('card.tripProgressLabel')}</span>
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getTripProgressClasses(tripProgress)}`}
+        >
+          {t(`card.tripProgress.${tripProgress}`)}
+        </span>
+      </div>
+
+      {activeDelay && (
+        <div className="space-y-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-medium text-foreground">{t('card.delayLabel')}</span>
+            <DelayBadge
+              delayMinutes={activeDelay.offsetMinutes}
+              reason={activeDelay.reason}
+              size="md"
+            />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t('card.delayMessage', { reason: activeDelay.reason.toLowerCase() })}
+          </p>
+          {activeDelay.note && <p className="text-sm text-muted-foreground">{activeDelay.note}</p>}
+        </div>
+      )}
+
       <div className="grid gap-2 text-sm">
         <div className="flex items-center gap-2 text-muted-foreground">
           <Bus className="h-4 w-4" aria-hidden="true" />

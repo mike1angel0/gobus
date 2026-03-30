@@ -36,7 +36,16 @@
     "details": "Details",
     "expandDetails": "Expand details",
     "collapseDetails": "Collapse details",
-    "loadingAriaLabel": "Loading booking details"
+    "loadingAriaLabel": "Loading booking details",
+    "tripProgressLabel": "Trip status",
+    "delayLabel": "Service alert",
+    "delayMessage": "This trip is currently delayed due to {{reason}}.",
+    "tripProgress": {
+      "scheduled": "Scheduled",
+      "in-progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
   },
   "cancel": {
     "title": "Cancel booking",
@@ -50,14 +59,17 @@
   "myTrips": {
     "pageTitle": "My Trips",
     "heading": "My trips",
+    "active": "Active",
     "upcoming": "Upcoming",
     "past": "Past",
     "tabsAriaLabel": "Trip categories",
+    "activeAriaLabel": "Active bookings",
     "upcomingAriaLabel": "Upcoming bookings",
     "pastAriaLabel": "Past bookings",
     "noTrips": "No trips yet",
     "noTripsMessage": "You haven't booked any trips. Search for a trip to get started!",
     "searchTrips": "Search trips",
+    "noActive": "No active trips",
     "noUpcoming": "No upcoming trips",
     "noPast": "No past trips",
     "loadMore": "Load more",
