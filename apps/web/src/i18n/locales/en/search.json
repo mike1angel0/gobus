@@ -64,6 +64,8 @@
     "selectSeats": "Select seats",
     "tripStops": "Trip stops",
     "loadingAriaLabel": "Loading trip details",
+    "shareButton": "Share",
+    "shareAriaLabel": "Share trip details",
     "error": {
       "title": "Something went wrong",
       "message": "We couldn't load the trip details. Please try again.",

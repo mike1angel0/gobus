@@ -64,6 +64,8 @@
     "selectSeats": "Selectează locuri",
     "tripStops": "Stațiile cursei",
     "loadingAriaLabel": "Se încarcă detaliile cursei",
+    "shareButton": "Distribuie",
+    "shareAriaLabel": "Distribuie detaliile cursei",
     "error": {
       "title": "Ceva nu a mers bine",
       "message": "Nu am putut încărca detaliile cursei. Te rugăm să încerci din nou.",

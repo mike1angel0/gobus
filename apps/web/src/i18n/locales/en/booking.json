@@ -36,6 +36,8 @@
     "details": "Details",
     "expandDetails": "Expand details",
     "collapseDetails": "Collapse details",
+    "shareButton": "Share",
+    "shareAriaLabel": "Share trip",
     "loadingAriaLabel": "Loading booking details",
     "tripProgressLabel": "Trip status",
     "delayLabel": "Service alert",

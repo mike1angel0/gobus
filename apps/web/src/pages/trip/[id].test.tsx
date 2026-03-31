@@ -457,6 +457,39 @@ describe('TripDetailPage', () => {
     });
   });
 
+  describe('share button', () => {
+    it('renders share button when trip is loaded', async () => {
+      mockGet.mockResolvedValue({ data: { data: mockTripDetail } });
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Share trip details')).toBeInTheDocument();
+      });
+    });
+
+    it('share button is clickable', async () => {
+      const user = userEvent.setup();
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: vi.fn().mockResolvedValue(undefined) },
+        configurable: true,
+      });
+      Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+
+      mockGet.mockResolvedValue({ data: { data: mockTripDetail } });
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Share trip details')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByLabelText('Share trip details'));
+
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        expect.stringContaining('Berlin - Prague'),
+      );
+    });
+  });
+
   describe('accessibility', () => {
     it('has a page heading', () => {
       mockGet.mockResolvedValue({ data: { data: mockTripDetail } });

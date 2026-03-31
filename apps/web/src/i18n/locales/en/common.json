@@ -49,5 +49,9 @@
     "saved": "Saved successfully",
     "deleted": "Deleted successfully",
     "created": "Created successfully"
+  },
+  "share": {
+    "copied": "Link copied",
+    "copiedDescription": "Trip details copied to clipboard"
   }
 }

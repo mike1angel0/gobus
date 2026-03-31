@@ -36,6 +36,8 @@
     "details": "Detalii",
     "expandDetails": "Extinde detaliile",
     "collapseDetails": "Restrânge detaliile",
+    "shareButton": "Distribuie",
+    "shareAriaLabel": "Distribuie călătoria",
     "loadingAriaLabel": "Se încarcă detaliile rezervării",
     "tripProgressLabel": "Status cursă",
     "delayLabel": "Alertă serviciu",

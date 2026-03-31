@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, ArrowLeft, Clock, MapPin, Bus } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Clock, MapPin, Bus, Share2 } from 'lucide-react';
 import { FacilityIconList } from '@/components/shared/facility-icons';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { SeatMap } from '@/components/booking/seat-map';
 import { useTripDetails } from '@/hooks/use-search';
 import { useCreateBooking } from '@/hooks/use-bookings';
+import { useShareTrip } from '@/hooks/use-share';
 import { usePageTitle } from '@/hooks/use-page-title';
 import { formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
@@ -371,6 +372,7 @@ interface TripDetailContentProps {
 function TripDetailContent({ trip }: TripDetailContentProps) {
   const { t } = useTranslation('search');
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
+  const { share } = useShareTrip();
 
   const sortedStops = useMemo(
     () => [...trip.stopTimes].sort((a, b) => a.orderIndex - b.orderIndex),
@@ -384,11 +386,31 @@ function TripDetailContent({ trip }: TripDetailContentProps) {
         <CardHeader>
           <div className="flex items-center justify-between gap-2">
             <CardTitle>{trip.routeName}</CardTitle>
-            {trip.status === 'CANCELLED' && (
-              <span className="rounded bg-destructive/10 px-2 py-0.5 text-sm font-medium text-destructive">
-                {t('tripDetail.cancelled')}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {trip.status === 'CANCELLED' && (
+                <span className="rounded bg-destructive/10 px-2 py-0.5 text-sm font-medium text-destructive">
+                  {t('tripDetail.cancelled')}
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  share({
+                    routeName: trip.routeName,
+                    scheduleId: trip.scheduleId,
+                    tripDate: trip.tripDate,
+                    departureTime: formatTime(trip.departureTime),
+                    arrivalTime: formatTime(trip.arrivalTime),
+                    providerName: trip.providerName,
+                  })
+                }
+                aria-label={t('tripDetail.shareAriaLabel')}
+              >
+                <Share2 className="mr-1 h-4 w-4" aria-hidden="true" />
+                {t('tripDetail.shareButton')}
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">
             <Bus className="mr-1 inline-block h-4 w-4" aria-hidden="true" />

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronUp, MapPin, Clock, Bus, X } from 'lucide-react';
+import { ChevronDown, ChevronUp, MapPin, Clock, Bus, X, Share2 } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { LiveMap, type MapStop } from '@/components/maps/live-map';
 import { DelayBadge } from '@/components/shared/delay-badge';
 import { useBookingDetail, useCancelBooking } from '@/hooks/use-bookings';
 import { useDelays } from '@/hooks/use-delays';
+import { useShareTrip } from '@/hooks/use-share';
 import { useBusTracking } from '@/hooks/use-tracking';
 import { formatPrice } from '@/lib/utils';
 import type { components } from '@/api/generated/types';
@@ -252,6 +253,7 @@ function CancelDialog({ bookingId, orderId }: CancelDialogProps) {
 export function BookingCard({ booking, variant }: BookingCardProps) {
   const { t } = useTranslation('booking');
   const [expanded, setExpanded] = useState(false);
+  const { share } = useShareTrip();
   const { data: detailData } = useBookingDetail(expanded ? booking.id : '');
 
   const busId = expanded ? detailData?.data?.schedule.bus.id : undefined;
@@ -300,6 +302,21 @@ export function BookingCard({ booking, variant }: BookingCardProps) {
                 <ChevronDown className="mr-1 h-4 w-4" aria-hidden="true" />
               )}
               {t('card.details')}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                share({
+                  routeName: `${booking.boardingStop} → ${booking.alightingStop}`,
+                  scheduleId: booking.scheduleId,
+                  tripDate: booking.tripDate,
+                })
+              }
+              aria-label={t('card.shareAriaLabel')}
+            >
+              <Share2 className="mr-1 h-4 w-4" aria-hidden="true" />
+              {t('card.shareButton')}
             </Button>
           </div>
 

@@ -49,5 +49,9 @@
     "saved": "Salvat cu succes",
     "deleted": "Șters cu succes",
     "created": "Creat cu succes"
+  },
+  "share": {
+    "copied": "Link copiat",
+    "copiedDescription": "Detaliile cursei au fost copiate în clipboard"
   }
 }
