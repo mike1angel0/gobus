@@ -286,6 +286,7 @@ async function main() {
     upsertBus('B-200-TBE', 'MAN Lion Coach', 12, 4, providerA.id),
     upsertBus('CJ-100-CB', 'Irizar i6', 10, 4, providerB.id),
     upsertBus('CJ-200-CB', 'Setra S 516 HD', 8, 4, providerB.id),
+    upsertBus('CJ-300-CB', 'Temsa HD', 10, 4, providerB.id),
     upsertBus('TM-100-DL', 'Neoplan Cityliner', 10, 4, providerC.id),
   ]);
 
@@ -316,10 +317,10 @@ async function main() {
     { routeIndex: 5, busIndex: 2, driverId: driverB.id, departureHour: 6, departureMinute: 30, durationMinutes: 420, basePrice: 70, daysOfWeek: [1, 3, 5, 7] },
     { routeIndex: 5, busIndex: 3, driverId: driverB.id, departureHour: 13, departureMinute: 0, durationMinutes: 420, basePrice: 75, daysOfWeek: [2, 4, 6] },
     // Provider C routes
-    { routeIndex: 6, busIndex: 4, driverId: driverC.id, departureHour: 7, departureMinute: 0, durationMinutes: 60, basePrice: 15, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
-    { routeIndex: 6, busIndex: 4, driverId: driverC.id, departureHour: 12, departureMinute: 0, durationMinutes: 60, basePrice: 15, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
-    { routeIndex: 7, busIndex: 4, driverId: driverC.id, departureHour: 8, departureMinute: 0, durationMinutes: 180, basePrice: 35, daysOfWeek: [1, 2, 3, 4, 5] },
-    { routeIndex: 7, busIndex: 4, driverId: driverC.id, departureHour: 16, departureMinute: 0, durationMinutes: 180, basePrice: 40, daysOfWeek: [1, 2, 3, 4, 5, 6] },
+    { routeIndex: 6, busIndex: 5, driverId: driverC.id, departureHour: 7, departureMinute: 0, durationMinutes: 60, basePrice: 15, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
+    { routeIndex: 6, busIndex: 5, driverId: driverC.id, departureHour: 12, departureMinute: 0, durationMinutes: 60, basePrice: 15, daysOfWeek: [1, 2, 3, 4, 5, 6, 7] },
+    { routeIndex: 7, busIndex: 5, driverId: driverC.id, departureHour: 8, departureMinute: 0, durationMinutes: 180, basePrice: 35, daysOfWeek: [1, 2, 3, 4, 5] },
+    { routeIndex: 7, busIndex: 5, driverId: driverC.id, departureHour: 16, departureMinute: 0, durationMinutes: 180, basePrice: 40, daysOfWeek: [1, 2, 3, 4, 5, 6] },
   ];
 
   // Use today's date as reference so seeded schedules are always searchable
@@ -393,7 +394,7 @@ async function main() {
   // Create a deterministic demo schedule spanning almost the full day so the
   // passenger UI can reliably show an in-progress booking after seeding.
   const demoRoute = routes[6]!; // Timișoara → Arad
-  const demoBus = buses[4]!;
+  const demoBus = buses[5]!;
   const demoDeparture = new Date(refDate);
   demoDeparture.setUTCHours(0, 0, 0, 0);
   const demoArrival = new Date(refDate);
@@ -495,6 +496,74 @@ async function main() {
     });
   }
 
+  // Create a deterministic future CarpathianBus schedule so provider users can
+  // test bus reassignment with another compatible fleet bus.
+  const providerBDemoRoute = routes[3]!; // Cluj-Napoca → Sibiu
+  const providerBDemoBus = buses[2]!; // CJ-100-CB
+  const providerBReplacementBus = buses[4]!; // CJ-300-CB
+  const providerBFutureTripDate = new Date(refDate);
+  providerBFutureTripDate.setUTCDate(providerBFutureTripDate.getUTCDate() + 1);
+  const providerBDemoDeparture = new Date(providerBFutureTripDate);
+  providerBDemoDeparture.setUTCHours(9, 0, 0, 0);
+  const providerBDemoArrival = new Date(providerBFutureTripDate);
+  providerBDemoArrival.setUTCHours(13, 0, 0, 0);
+
+  const existingProviderBDemoSchedule = await prisma.schedule.findFirst({
+    where: {
+      routeId: providerBDemoRoute.id,
+      busId: providerBDemoBus.id,
+      departureTime: providerBDemoDeparture,
+      tripDate: providerBFutureTripDate,
+    },
+  });
+
+  if (!existingProviderBDemoSchedule) {
+    const providerBStops = await prisma.stop.findMany({
+      where: { routeId: providerBDemoRoute.id },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    const providerBSchedule = await prisma.schedule.create({
+      data: {
+        routeId: providerBDemoRoute.id,
+        busId: providerBDemoBus.id,
+        driverId: driverB.id,
+        departureTime: providerBDemoDeparture,
+        arrivalTime: providerBDemoArrival,
+        daysOfWeek: [1, 2, 3, 4, 5, 6, 7],
+        basePrice: 48,
+        status: 'ACTIVE',
+        tripDate: providerBFutureTripDate,
+      },
+    });
+
+    const totalStops = providerBStops.length;
+    const totalMs = providerBDemoArrival.getTime() - providerBDemoDeparture.getTime();
+    const stopWaitMs = 10 * 60_000;
+
+    await prisma.stopTime.createMany({
+      data: providerBStops.map((stop, i) => {
+        const fraction = totalStops > 1 ? i / (totalStops - 1) : 0;
+        const arrivalMs = providerBDemoDeparture.getTime() + fraction * totalMs;
+        const departureMs = i < totalStops - 1 ? arrivalMs + stopWaitMs : arrivalMs;
+        const priceFromStart = Math.round(fraction * 48 * 100) / 100;
+
+        return {
+          scheduleId: providerBSchedule.id,
+          stopName: stop.name,
+          arrivalTime: new Date(arrivalMs),
+          departureTime: new Date(departureMs),
+          orderIndex: i,
+          priceFromStart,
+        };
+      }),
+    });
+  }
+
+  console.log(
+    `CarpathianBus reassignment demo: ${providerBDemoRoute.name} on ${providerBFutureTripDate.toISOString().slice(0, 10)} using ${providerBDemoBus.licensePlate}; switch to ${providerBReplacementBus.licensePlate}`,
+  );
+
   // ─── Bus Tracking (GPS positions) ──────────────────────────────────────────
   // Place each bus at a mid-route position to simulate active trips
   const trackingData = [
@@ -507,7 +576,7 @@ async function main() {
     // Bus CJ-200-CB: on Cluj → Oradea route, en route
     { busId: buses[3].id, lat: 46.9200, lng: 22.7700, speed: 88, heading: 250, currentStopIndex: 0, isActive: true },
     // Bus TM-100-DL: on Timișoara → Arad route, midway
-    { busId: buses[4].id, lat: 45.9600, lng: 21.2600, speed: 75, heading: 0, currentStopIndex: 0, isActive: true },
+    { busId: buses[5].id, lat: 45.9600, lng: 21.2600, speed: 75, heading: 0, currentStopIndex: 0, isActive: true },
   ];
 
   for (const tracking of trackingData) {

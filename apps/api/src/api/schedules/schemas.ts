@@ -145,6 +145,7 @@ export const createScheduleRequestSchema = z
 /** Zod schema for UpdateScheduleRequest matching OpenAPI UpdateScheduleRequest schema. */
 export const updateScheduleRequestSchema = z
   .object({
+    busId: z.string().max(30).optional().describe('Bus to assign to this schedule'),
     driverId: z
       .string()
       .max(30)

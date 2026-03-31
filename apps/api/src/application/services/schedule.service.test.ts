@@ -16,6 +16,7 @@ function createMockPrisma() {
   return {
     schedule: {
       findMany: vi.fn(),
+      findFirst: vi.fn(),
       findUnique: vi.fn(),
       count: vi.fn(),
       create: vi.fn(),
@@ -27,6 +28,12 @@ function createMockPrisma() {
     },
     bus: {
       findUnique: vi.fn(),
+    },
+    seat: {
+      count: vi.fn(),
+    },
+    booking: {
+      findMany: vi.fn(),
     },
     user: {
       findUnique: vi.fn(),
@@ -604,6 +611,7 @@ describe('ScheduleService', () => {
       const existing = {
         ...makeSchedule(),
         route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
       };
       (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
       (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -636,6 +644,7 @@ describe('ScheduleService', () => {
       const existing = {
         ...makeSchedule(),
         route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
       };
       (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
 
@@ -658,6 +667,7 @@ describe('ScheduleService', () => {
       const existing = {
         ...makeSchedule(),
         route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
       };
       (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
 
@@ -687,6 +697,7 @@ describe('ScheduleService', () => {
       const existing = {
         ...makeSchedule(),
         route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
       };
       (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
 
@@ -710,6 +721,7 @@ describe('ScheduleService', () => {
       const existing = {
         ...makeSchedule(),
         route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
       };
       (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
 
@@ -744,6 +756,7 @@ describe('ScheduleService', () => {
       const existing = {
         ...makeSchedule(),
         route: { providerId: OTHER_PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
       };
       (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
 
@@ -763,6 +776,7 @@ describe('ScheduleService', () => {
       const existing = {
         ...makeSchedule(),
         route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
       };
       (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(existing);
       (prisma.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -779,6 +793,105 @@ describe('ScheduleService', () => {
         statusCode: 404,
         code: ErrorCodes.RESOURCE_NOT_FOUND,
         detail: 'Driver not found',
+      });
+    });
+
+    it('should update bus assignment when replacement bus is compatible', async () => {
+      (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ...makeSchedule({
+          departureTime: new Date(Date.now() + 60 * 60 * 1000),
+          arrivalTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
+        }),
+        route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
+      });
+      (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ...makeBus({ id: 'bus-2', licensePlate: 'B-456-XYZ' }),
+        seats: [
+          { label: 'A1', isEnabled: true, type: 'STANDARD' },
+          { label: 'A2', isEnabled: true, type: 'STANDARD' },
+        ],
+      });
+      (prisma.schedule.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+      (prisma.seat.count as ReturnType<typeof vi.fn>).mockResolvedValue(20);
+      (prisma.booking.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([
+        { bookingSeats: [{ seatLabel: 'A1' }] },
+      ]);
+      (prisma.schedule.update as ReturnType<typeof vi.fn>).mockResolvedValue(
+        makeScheduleWithRelations({
+          busId: 'bus-2',
+          bus: makeBus({ id: 'bus-2', licensePlate: 'B-456-XYZ' }),
+        }),
+      );
+
+      const result = await service.update(SCHEDULE_ID, PROVIDER_ID, { busId: 'bus-2' });
+
+      expect(result.busId).toBe('bus-2');
+      expect(prisma.schedule.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { busId: 'bus-2' },
+        }),
+      );
+    });
+
+    it('should reject bus reassignment after departure time', async () => {
+      (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ...makeSchedule({ departureTime: new Date('2000-01-01T08:00:00Z') }),
+        route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
+      });
+
+      await expect(
+        service.update(SCHEDULE_ID, PROVIDER_ID, { busId: 'bus-2' }),
+      ).rejects.toMatchObject({
+        statusCode: 400,
+        code: ErrorCodes.VALIDATION_ERROR,
+      });
+    });
+
+    it('should reject bus reassignment when replacement bus overlaps another active schedule', async () => {
+      (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ...makeSchedule(),
+        route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
+      });
+      (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ...makeBus({ id: 'bus-2' }),
+        seats: [{ label: 'A1', isEnabled: true, type: 'STANDARD' }],
+      });
+      (prisma.schedule.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'sched-2' });
+      (prisma.seat.count as ReturnType<typeof vi.fn>).mockResolvedValue(20);
+      (prisma.booking.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+
+      await expect(
+        service.update(SCHEDULE_ID, PROVIDER_ID, { busId: 'bus-2' }),
+      ).rejects.toMatchObject({
+        statusCode: 400,
+        code: ErrorCodes.VALIDATION_ERROR,
+      });
+    });
+
+    it('should reject bus reassignment when booked seats are missing on replacement bus', async () => {
+      (prisma.schedule.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ...makeSchedule(),
+        route: { providerId: PROVIDER_ID },
+        bus: { id: BUS_ID, rows: 13, columns: 4 },
+      });
+      (prisma.bus.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ...makeBus({ id: 'bus-2' }),
+        seats: [{ label: 'A2', isEnabled: true, type: 'STANDARD' }],
+      });
+      (prisma.schedule.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+      (prisma.seat.count as ReturnType<typeof vi.fn>).mockResolvedValue(20);
+      (prisma.booking.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([
+        { bookingSeats: [{ seatLabel: 'A1' }] },
+      ]);
+
+      await expect(
+        service.update(SCHEDULE_ID, PROVIDER_ID, { busId: 'bus-2' }),
+      ).rejects.toMatchObject({
+        statusCode: 400,
+        code: ErrorCodes.VALIDATION_ERROR,
       });
     });
   });

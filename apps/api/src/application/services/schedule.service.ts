@@ -201,16 +201,31 @@ export class ScheduleService {
   ): Promise<ScheduleWithDetails> {
     const existing = await this.prisma.schedule.findUnique({
       where: { id },
-      include: { route: { select: { providerId: true } } },
+      include: {
+        route: { select: { providerId: true } },
+        bus: { select: { id: true, rows: true, columns: true } },
+      },
     });
 
     verifyOwnership(existing, existing?.route?.providerId, providerId, 'Schedule');
+
+    if (data.busId !== undefined && data.busId !== existing.busId) {
+      await this.validateBusReassignment(id, providerId, data.busId, {
+        busId: existing.busId,
+        tripDate: existing.tripDate,
+        departureTime: existing.departureTime,
+        arrivalTime: existing.arrivalTime,
+        rows: existing.bus.rows,
+        columns: existing.bus.columns,
+      });
+    }
 
     if (data.driverId !== undefined && data.driverId !== null) {
       await this.validateDriverOwnership(data.driverId, providerId);
     }
 
     const updateData: Record<string, unknown> = {};
+    if (data.busId !== undefined) updateData.busId = data.busId;
     if (data.driverId !== undefined) updateData.driverId = data.driverId;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.departureTime !== undefined) updateData.departureTime = data.departureTime;
@@ -280,6 +295,122 @@ export class ScheduleService {
     });
 
     verifyOwnership(bus, bus?.providerId, providerId, 'Bus');
+  }
+
+  /**
+   * Validate that reassigning a schedule to another bus is safe.
+   * This keeps the operational model simple by requiring:
+   * - reassignment before departure
+   * - same provider ownership
+   * - no overlapping active schedule on the replacement bus
+   * - same seat grid shape
+   * - enough usable seats and preservation of existing booked seat labels
+   */
+  private async validateBusReassignment(
+    scheduleId: string,
+    providerId: string,
+    busId: string,
+    currentSchedule: {
+      busId: string;
+      tripDate: Date;
+      departureTime: Date;
+      arrivalTime: Date;
+      rows: number;
+      columns: number;
+    },
+  ): Promise<void> {
+    if (new Date() >= currentSchedule.departureTime) {
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        'Bus can only be reassigned before the scheduled departure time',
+      );
+    }
+
+    const [bus, overlappingSchedule, enabledSeats, confirmedBookings] = await Promise.all([
+      this.prisma.bus.findUnique({
+        where: { id: busId },
+        include: {
+          seats: {
+            select: { label: true, isEnabled: true, type: true },
+          },
+        },
+      }),
+      this.prisma.schedule.findFirst({
+        where: {
+          id: { not: scheduleId },
+          busId,
+          status: 'ACTIVE',
+          tripDate: currentSchedule.tripDate,
+          departureTime: { lt: currentSchedule.arrivalTime },
+          arrivalTime: { gt: currentSchedule.departureTime },
+        },
+        select: { id: true },
+      }),
+      this.prisma.seat.count({
+        where: {
+          busId,
+          isEnabled: true,
+          type: { not: 'BLOCKED' },
+        },
+      }),
+      this.prisma.booking.findMany({
+        where: {
+          scheduleId,
+          status: 'CONFIRMED',
+        },
+        select: {
+          bookingSeats: {
+            select: { seatLabel: true },
+          },
+        },
+      }),
+    ]);
+
+    verifyOwnership(bus, bus?.providerId, providerId, 'Bus');
+
+    if (bus.rows !== currentSchedule.rows || bus.columns !== currentSchedule.columns) {
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        'Replacement bus must use the same seat layout as the currently assigned bus',
+      );
+    }
+
+    if (overlappingSchedule) {
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        'Replacement bus is already assigned to another overlapping active schedule',
+      );
+    }
+
+    const bookedSeatLabels = confirmedBookings.flatMap((booking) =>
+      booking.bookingSeats.map((seat) => seat.seatLabel),
+    );
+
+    if (enabledSeats < bookedSeatLabels.length) {
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        'Replacement bus does not have enough usable seats for existing bookings',
+      );
+    }
+
+    const availableSeatLabels = new Set(
+      bus.seats
+        .filter((seat) => seat.isEnabled && seat.type !== 'BLOCKED')
+        .map((seat) => seat.label),
+    );
+    const missingSeat = bookedSeatLabels.find((label) => !availableSeatLabels.has(label));
+
+    if (missingSeat) {
+      throw new AppError(
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        `Replacement bus is not compatible with existing booked seat ${missingSeat}`,
+      );
+    }
   }
 
   /**

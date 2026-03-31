@@ -212,9 +212,11 @@
       "driver": "Driver",
       "assigned": "Assigned",
       "unassigned": "Unassigned",
+      "changeBus": "Change bus",
       "unassign": "Unassign",
       "assign": "Assign",
       "cancel": "Cancel",
+      "changeBusLabel": "Change bus for schedule {{route}}",
       "unassignLabel": "Unassign driver from schedule {{route}}",
       "assignLabel": "Assign driver to schedule {{route}}",
       "cancelLabel": "Cancel schedule {{route}}"
@@ -233,6 +235,16 @@
       "assignDescription": "Select a driver to assign to this schedule.",
       "driverLabel": "Driver",
       "noDriver": "No driver (unassign)",
+      "saving": "Saving\u2026",
+      "save": "Save"
+    },
+    "busDialog": {
+      "title": "Change bus",
+      "description": "Select another bus from your fleet for this schedule.",
+      "busLabel": "Bus",
+      "currentBus": "Keep current bus",
+      "busOption": "{{plate}} \u2014 {{model}} ({{capacity}} seats)",
+      "helper": "Only buses without overlapping trips and with compatible seating can be assigned.",
       "saving": "Saving\u2026",
       "save": "Save"
     },

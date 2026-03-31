@@ -212,9 +212,11 @@
       "driver": "Șofer",
       "assigned": "Atribuit",
       "unassigned": "Neatribuit",
+      "changeBus": "Schimbă autobuzul",
       "unassign": "Dezatribuie",
       "assign": "Atribuie",
       "cancel": "Anulează",
+      "changeBusLabel": "Schimbă autobuzul pentru programarea {{route}}",
       "unassignLabel": "Dezatribuie șoferul de la programarea {{route}}",
       "assignLabel": "Atribuie șofer la programarea {{route}}",
       "cancelLabel": "Anulează programarea {{route}}"
@@ -233,6 +235,16 @@
       "assignDescription": "Selectează un șofer pentru a-l atribui acestei programări.",
       "driverLabel": "Șofer",
       "noDriver": "Fără șofer (dezatribuie)",
+      "saving": "Se salvează\u2026",
+      "save": "Salvează"
+    },
+    "busDialog": {
+      "title": "Schimbă autobuzul",
+      "description": "Selectează un alt autobuz din flotă pentru această programare.",
+      "busLabel": "Autobuz",
+      "currentBus": "Păstrează autobuzul curent",
+      "busOption": "{{plate}} \u2014 {{model}} ({{capacity}} locuri)",
+      "helper": "Pot fi atribuite doar autobuze fără suprapuneri și cu locuri compatibile.",
       "saving": "Se salvează\u2026",
       "save": "Salvează"
     },

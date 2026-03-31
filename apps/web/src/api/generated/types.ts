@@ -1693,6 +1693,8 @@ export interface components {
         };
         /** @description Request body for updating a schedule */
         UpdateScheduleRequest: {
+            /** @description Bus to assign to this schedule */
+            busId?: string;
             /** @description Driver to assign (null to unassign) */
             driverId?: string | null;
             status?: components["schemas"]["ScheduleStatus"];

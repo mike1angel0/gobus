@@ -172,6 +172,8 @@ export interface CreateScheduleData {
  * Matches the OpenAPI UpdateScheduleRequest schema.
  */
 export interface UpdateScheduleData {
+  /** Bus identifier to assign to the schedule. */
+  busId?: string;
   /** Driver identifier to assign, or null to unassign. */
   driverId?: string | null;
   /** New schedule status. */

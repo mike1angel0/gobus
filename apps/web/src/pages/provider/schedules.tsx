@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { Calendar, Plus, UserPlus, UserMinus, XCircle } from 'lucide-react';
+import { Calendar, Plus, BusFront, UserPlus, UserMinus, XCircle } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,8 +45,12 @@ interface ScheduleCardProps {
   routeName: string;
   /** Bus plate lookup. */
   busPlate: string;
+  /** Available buses for reassignment. */
+  buses: Array<{ id: string; licensePlate: string; model: string; capacity: number }>;
   /** Callback to assign/unassign driver. */
   onDriverAction: (scheduleId: string) => void;
+  /** Callback to change assigned bus. */
+  onBusAction: (scheduleId: string) => void;
   /** Callback when cancel is requested. */
   onCancel: (id: string) => void;
   /** Whether a cancel operation is in progress. */
@@ -58,7 +62,9 @@ function ScheduleCard({
   schedule,
   routeName,
   busPlate,
+  buses,
   onDriverAction,
+  onBusAction,
   onCancel,
   isCancelling,
 }: ScheduleCardProps) {
@@ -140,9 +146,11 @@ function ScheduleCard({
             schedule={schedule}
             routeName={routeName}
             tripDateStr={tripDateStr}
+            buses={buses}
             confirmOpen={confirmOpen}
             setConfirmOpen={setConfirmOpen}
             onDriverAction={onDriverAction}
+            onBusAction={onBusAction}
             onCancel={onCancel}
             isCancelling={isCancelling}
           />
@@ -159,9 +167,11 @@ interface ScheduleCardActionsProps {
   schedule: Schedule;
   routeName: string;
   tripDateStr: string;
+  buses: Array<{ id: string; licensePlate: string; model: string; capacity: number }>;
   confirmOpen: boolean;
   setConfirmOpen: (open: boolean) => void;
   onDriverAction: (id: string) => void;
+  onBusAction: (id: string) => void;
   onCancel: (id: string) => void;
   isCancelling: boolean;
 }
@@ -171,16 +181,29 @@ function ScheduleCardActions({
   schedule,
   routeName,
   tripDateStr,
+  buses,
   confirmOpen,
   setConfirmOpen,
   onDriverAction,
+  onBusAction,
   onCancel,
   isCancelling,
 }: ScheduleCardActionsProps) {
   const { t } = useTranslation('provider');
+  const canChangeBus = buses.length > 1 && new Date(schedule.departureTime) > new Date();
 
   return (
-    <div className="mt-4 flex gap-2">
+    <div className="mt-4 flex flex-wrap gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onBusAction(schedule.id)}
+        aria-label={t('schedules.card.changeBusLabel', { route: routeName })}
+        disabled={!canChangeBus}
+      >
+        <BusFront className="mr-1 h-3 w-3" aria-hidden="true" />
+        {t('schedules.card.changeBus')}
+      </Button>
       <Button
         variant="outline"
         size="sm"
@@ -327,6 +350,83 @@ function DriverAssignDialog({
   );
 }
 
+/** Props for {@link BusAssignDialog}. */
+interface BusAssignDialogProps {
+  /** Schedule ID to reassign bus for. */
+  scheduleId: string;
+  /** Currently assigned bus ID. */
+  currentBusId: string;
+  /** Available buses in the provider fleet. */
+  buses: Array<{ id: string; licensePlate: string; model: string; capacity: number }>;
+  /** Callback to close the dialog. */
+  onClose: () => void;
+}
+
+/** Dialog to reassign a schedule to another fleet bus. */
+function BusAssignDialog({ scheduleId, currentBusId, buses, onClose }: BusAssignDialogProps) {
+  const { t } = useTranslation('provider');
+  const [selectedBusId, setSelectedBusId] = useState(currentBusId);
+  const updateSchedule = useUpdateSchedule();
+  const alternativeBuses = buses.filter((bus) => bus.id !== currentBusId);
+
+  function handleSave() {
+    updateSchedule.mutate(
+      { id: scheduleId, body: { busId: selectedBusId } },
+      { onSuccess: onClose },
+    );
+  }
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('schedules.busDialog.title')}</DialogTitle>
+          <DialogDescription>{t('schedules.busDialog.description')}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor="assign-bus">{t('schedules.busDialog.busLabel')}</Label>
+          <select
+            id="assign-bus"
+            className={SELECT_CLASS}
+            value={selectedBusId}
+            onChange={(e) => setSelectedBusId(e.target.value)}
+          >
+            <option value={currentBusId}>{t('schedules.busDialog.currentBus')}</option>
+            {alternativeBuses.map((bus) => (
+              <option key={bus.id} value={bus.id}>
+                {t('schedules.busDialog.busOption', {
+                  plate: bus.licensePlate,
+                  model: bus.model,
+                  capacity: bus.capacity,
+                })}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-muted-foreground">{t('schedules.busDialog.helper')}</p>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={updateSchedule.isPending || selectedBusId === currentBusId}
+          >
+            {updateSchedule.isPending
+              ? t('schedules.busDialog.saving')
+              : t('schedules.busDialog.save')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ---------- Filter state ---------- */
 
 /** Filter state for schedule list. */
@@ -361,10 +461,14 @@ interface ScheduleListContentProps {
   routeNames: Map<string, string>;
   /** Bus plate lookup map. */
   busPlates: Map<string, string>;
+  /** Available buses for reassignment. */
+  buses: Array<{ id: string; licensePlate: string; model: string; capacity: number }>;
   /** Retry callback. */
   onRetry: () => void;
   /** Driver action callback. */
   onDriverAction: (id: string) => void;
+  /** Bus action callback. */
+  onBusAction: (id: string) => void;
   /** Cancel callback. */
   onCancel: (id: string) => void;
   /** Whether cancel is pending. */
@@ -378,8 +482,10 @@ function ScheduleListContent({
   schedules,
   routeNames,
   busPlates,
+  buses,
   onRetry,
   onDriverAction,
+  onBusAction,
   onCancel,
   isCancelling,
 }: ScheduleListContentProps) {
@@ -413,7 +519,9 @@ function ScheduleListContent({
           schedule={schedule}
           routeName={routeNames.get(schedule.routeId) ?? ''}
           busPlate={busPlates.get(schedule.busId) ?? ''}
+          buses={buses}
           onDriverAction={onDriverAction}
+          onBusAction={onBusAction}
           onCancel={onCancel}
           isCancelling={isCancelling}
         />
@@ -473,6 +581,7 @@ export default function ProviderSchedulesPage() {
   usePageTitle(t('schedules.title'));
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
   const [driverDialogScheduleId, setDriverDialogScheduleId] = useState<string | null>(null);
+  const [busDialogScheduleId, setBusDialogScheduleId] = useState<string | null>(null);
 
   const { schedules, routes, buses, drivers, isLoading, isError, refetch, cancelSchedule } =
     useSchedulesPageData(filters);
@@ -482,6 +591,9 @@ export default function ProviderSchedulesPage() {
 
   const driverDialogSchedule = driverDialogScheduleId
     ? schedules.find((s) => s.id === driverDialogScheduleId)
+    : null;
+  const busDialogSchedule = busDialogScheduleId
+    ? schedules.find((s) => s.id === busDialogScheduleId)
     : null;
 
   function updateFilter(field: keyof FilterState, value: string) {
@@ -528,8 +640,10 @@ export default function ProviderSchedulesPage() {
           schedules={schedules}
           routeNames={routeNames}
           busPlates={busPlates}
+          buses={buses}
           onRetry={refetch}
           onDriverAction={setDriverDialogScheduleId}
+          onBusAction={setBusDialogScheduleId}
           onCancel={(id) => cancelSchedule.mutate(id)}
           isCancelling={cancelSchedule.isPending}
         />
@@ -541,6 +655,20 @@ export default function ProviderSchedulesPage() {
           currentDriverId={driverDialogSchedule.driverId ?? null}
           drivers={drivers}
           onClose={() => setDriverDialogScheduleId(null)}
+        />
+      )}
+
+      {busDialogSchedule && (
+        <BusAssignDialog
+          scheduleId={busDialogSchedule.id}
+          currentBusId={busDialogSchedule.busId}
+          buses={buses.map((bus) => ({
+            id: bus.id,
+            licensePlate: bus.licensePlate,
+            model: bus.model,
+            capacity: bus.capacity,
+          }))}
+          onClose={() => setBusDialogScheduleId(null)}
         />
       )}
     </div>

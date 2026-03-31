@@ -361,6 +361,10 @@ UpdateScheduleRequest:
   type: object
   description: Request body for updating a schedule
   properties:
+    busId:
+      type: string
+      maxLength: 30
+      description: Bus to assign to this schedule
     driverId:
       type:
         - string

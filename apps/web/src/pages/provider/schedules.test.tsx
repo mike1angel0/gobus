@@ -244,6 +244,36 @@ describe('ProviderSchedulesPage', () => {
 
       expect(screen.getByText('Assigned')).toBeInTheDocument();
     });
+
+    it('shows change bus action for active schedules', () => {
+      mockSchedules.mockReturnValue(loadedState([createMockSchedule('sched_1')]));
+      mockBuses.mockReturnValue(
+        loadedState([createMockBus('bus_1', 'AB-12-XYZ'), createMockBus('bus_2', 'CJ-99-BUS')]),
+      );
+
+      renderWithProviders(<ProviderSchedulesPage />);
+
+      expect(screen.getByRole('button', { name: /change bus/i })).toBeInTheDocument();
+    });
+
+    it('disables change bus action after departure time', () => {
+      mockSchedules.mockReturnValue(
+        loadedState([
+          createMockSchedule('sched_1', {
+            departureTime: '2026-03-29T08:00:00Z',
+            arrivalTime: '2026-03-29T12:00:00Z',
+            tripDate: '2026-03-29T00:00:00Z',
+          }),
+        ]),
+      );
+      mockBuses.mockReturnValue(
+        loadedState([createMockBus('bus_1', 'AB-12-XYZ'), createMockBus('bus_2', 'CJ-99-BUS')]),
+      );
+
+      renderWithProviders(<ProviderSchedulesPage />);
+
+      expect(screen.getByRole('button', { name: /change bus/i })).toBeDisabled();
+    });
   });
 
   describe('filter bar', () => {
@@ -444,6 +474,33 @@ describe('ProviderSchedulesPage', () => {
 
       expect(mutate).toHaveBeenCalledWith(
         { id: 'sched_1', body: { driverId: 'driver_1' } },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      );
+    });
+  });
+
+  describe('bus assignment', () => {
+    it('opens change bus dialog and updates the schedule bus', async () => {
+      const user = userEvent.setup();
+      const mutate = vi.fn();
+      mockUpdateSchedule.mockReturnValue({ mutate, isPending: false });
+      mockSchedules.mockReturnValue(loadedState([createMockSchedule('sched_1')]));
+      mockBuses.mockReturnValue(
+        loadedState([createMockBus('bus_1', 'AB-12-XYZ'), createMockBus('bus_2', 'CJ-99-BUS')]),
+      );
+
+      renderWithProviders(<ProviderSchedulesPage />);
+
+      await user.click(screen.getByRole('button', { name: /change bus/i }));
+
+      const dialog = screen.getByRole('dialog');
+      expect(within(dialog).getByRole('heading', { name: 'Change bus' })).toBeInTheDocument();
+
+      await user.selectOptions(within(dialog).getByLabelText('Bus'), 'bus_2');
+      await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+      expect(mutate).toHaveBeenCalledWith(
+        { id: 'sched_1', body: { busId: 'bus_2' } },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       );
     });

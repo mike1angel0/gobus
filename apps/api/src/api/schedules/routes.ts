@@ -182,6 +182,7 @@ function handleUpdateSchedule(scheduleService: ScheduleService) {
     const providerId = request.user.providerId!;
 
     const updateData = {
+      busId: body.busId,
       driverId: body.driverId,
       status: body.status,
       departureTime: body.departureTime ? new Date(body.departureTime) : undefined,
